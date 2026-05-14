@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Advertisements Manager | Admin Core</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#dae2fd",
+                        "primary": "#8ed5ff",
+                        "surface-container": "#171f33",
+                        "tertiary": "#ffbcbf",
+                        "inverse-surface": "#dae2fd",
+                        "surface-container-highest": "#2d3449",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-primary": "#00354a",
+                        "surface-tint": "#7bd0ff",
+                        "primary-fixed-dim": "#7bd0ff",
+                        "on-secondary-container": "#00311f",
+                        "on-tertiary-fixed": "#40000d",
+                        "tertiary-fixed-dim": "#ffb2b7",
+                        "on-surface": "#dae2fd",
+                        "on-secondary-fixed": "#002113",
+                        "on-error-container": "#ffdad6",
+                        "on-error": "#690005",
+                        "error-container": "#93000a",
+                        "surface": "#0b1326",
+                        "primary-fixed": "#c4e7ff",
+                        "surface-container-high": "#222a3d",
+                        "on-secondary": "#003824",
+                        "on-tertiary-container": "#8c0028",
+                        "secondary": "#4edea3",
+                        "secondary-container": "#00a572",
+                        "on-tertiary-fixed-variant": "#92002a",
+                        "outline": "#87929a",
+                        "on-tertiary": "#67001b",
+                        "on-primary-fixed-variant": "#004c69",
+                        "secondary-fixed": "#6ffbbe",
+                        "secondary-fixed-dim": "#4edea3",
+                        "error": "#ffb4ab",
+                        "surface-container-low": "#131b2e",
+                        "surface-container-lowest": "#060e20",
+                        "inverse-primary": "#00668a",
+                        "surface-bright": "#31394d",
+                        "on-primary-fixed": "#001e2c",
+                        "primary-container": "#38bdf8",
+                        "inverse-on-surface": "#283044",
+                        "background": "#0b1326",
+                        "surface-variant": "#2d3449",
+                        "on-surface-variant": "#bdc8d1",
+                        "on-primary-container": "#004965",
+                        "outline-variant": "#3e484f",
+                        "surface-dim": "#0b1326",
+                        "tertiary-container": "#ff929a",
+                        "tertiary-fixed": "#ffdadb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "header-height": "64px",
+                        "sidebar-collapsed": "64px",
+                        "section-padding": "32px",
+                        "unit": "4px",
+                        "sidebar-width": "260px",
+                        "container-gap": "24px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "code-sm": ["jetbrainsMono"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-sm": ["12px", {"lineHeight": "18px", "fontWeight": "400"}],
+                        "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "code-sm": ["12px", {"lineHeight": "18px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #0b1326;
+            color: #dae2fd;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(23, 31, 51, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid #1e293b;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md overflow-x-hidden">
+<!-- Sidebar Navigation -->
+<aside class="fixed left-0 top-0 h-screen w-sidebar bg-surface-container-low border-r border-outline-variant backdrop-blur-xl flex flex-col h-full py-unit gap-container-gap z-50">
+<div class="px-gutter py-4">
+<h1 class="font-headline-sm text-headline-sm font-bold text-on-surface">Admin Core</h1>
+<p class="font-label-md text-label-md text-on-surface-variant opacity-70">Enterprise Suite</p>
+</div>
+<nav class="flex-1 flex flex-col px-2 gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors rounded" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors rounded" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span>User Management</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-primary font-bold border-l-2 border-primary bg-primary-container/10 rounded" href="#">
+<span class="material-symbols-outlined" data-icon="business_center">business_center</span>
+<span>Business</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors rounded" href="#">
+<span class="material-symbols-outlined" data-icon="web">web</span>
+<span>Content &amp; Website</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors rounded" href="#">
+<span class="material-symbols-outlined" data-icon="settings_input_component">settings_input_component</span>
+<span>Platform</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors rounded" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>System</span>
+</a>
+</nav>
+<div class="mt-auto px-2 flex flex-col gap-1 border-t border-outline-variant/30 pt-4 pb-4">
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant font-medium hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant font-medium hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span>Logs</span>
+</a>
+<div class="px-4 py-4 mt-2">
+<button class="w-full bg-surface-container-highest text-on-surface py-2 rounded-xl text-label-md font-bold border border-outline-variant hover:border-primary transition-all">System Status</button>
+</div>
+</div>
+</aside>
+<!-- Header -->
+<header class="fixed top-0 left-0 w-full z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant flex justify-between items-center h-header-height px-gutter ml-sidebar" style="width: calc(100% - var(--sidebar-width));">
+<div class="flex items-center gap-4">
+<div class="flex items-center bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-1.5 w-80">
+<span class="material-symbols-outlined text-outline mr-2" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm text-on-surface w-full placeholder:text-outline" placeholder="Search campaigns..." type="text"/>
+<span class="text-outline text-[10px] font-bold border border-outline-variant rounded px-1 ml-2">⌘K</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex gap-4 items-center">
+<a class="text-on-surface-variant font-label-md hover:text-primary transition-all" href="#">Status</a>
+<a class="text-on-surface-variant font-label-md hover:text-primary transition-all" href="#">Docs</a>
+</div>
+<div class="h-6 w-[1px] bg-outline-variant"></div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" data-icon="notifications">notifications</button>
+<div class="flex items-center gap-2 pl-2">
+<div class="text-right">
+<p class="text-label-md font-bold leading-none text-on-surface">SUPER ADMIN</p>
+<p class="text-[10px] text-primary opacity-80 uppercase tracking-widest mt-1">L4 Authority</p>
+</div>
+<img alt="Admin profile" class="w-10 h-10 rounded-full border border-primary/30" data-alt="A professional headshot of a senior system administrator in a dark, high-tech office environment. The subject is a male with subtle features, wearing a modern charcoal suit. The lighting is low-key with sharp cyan and magenta highlights reflecting off a glass surface in the background, maintaining a sophisticated dark-mode aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJcHhHZqH5inUK-18RqPMQV5dQKEbgTniRaQ9PMlQJmwVIEoQOL3nC_XfqkW5qJsSW10DEcJaFdYtMJimK6GE6TtMV3hfDTthkJ7ZbGQALmOj7HZj05pkn6G1jA3canv07e12l2ByXoU6oeqOP5r6KPP8kDenIW-VYkztP9zygJaLnYSlgkFN5GlTNF6S-KD67per1WO6ga5dBOwdqM4P-4BO5j-Pd080GvuAQUzb9mRsqKz3BtCacKLfGm_Zjqwo-eGxvODKTPeg"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-sidebar mt-header-height p-gutter min-h-screen">
+<!-- Dashboard Heading & CTA -->
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-background">Advertisements Manager</h2>
+<p class="text-on-surface-variant mt-1">Manage global ad placements, monitoring revenue and campaign performance metrics.</p>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-lg font-bold flex items-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                Create New Ad Campaign
+            </button>
+</div>
+<!-- Top Stats Bento -->
+<div class="grid grid-cols-1 md:grid-cols-5 gap-container-gap mb-8">
+<div class="glass-panel p-5 rounded-xl border-l-4 border-l-primary">
+<p class="text-label-md text-on-surface-variant uppercase tracking-wider mb-2">Active Ads</p>
+<div class="flex items-end gap-2">
+<span class="font-headline-md text-headline-md text-on-surface">3</span>
+<span class="text-secondary text-body-sm font-bold pb-1 flex items-center"><span class="material-symbols-outlined text-[16px]" data-icon="trending_up">trending_up</span>+1</span>
+</div>
+</div>
+<div class="glass-panel p-5 rounded-xl">
+<p class="text-label-md text-on-surface-variant uppercase tracking-wider mb-2">Total Impressions</p>
+<span class="font-headline-md text-headline-md text-on-surface">48,293</span>
+</div>
+<div class="glass-panel p-5 rounded-xl">
+<p class="text-label-md text-on-surface-variant uppercase tracking-wider mb-2">Total Clicks</p>
+<span class="font-headline-md text-headline-md text-on-surface">1,247</span>
+</div>
+<div class="glass-panel p-5 rounded-xl">
+<p class="text-label-md text-on-surface-variant uppercase tracking-wider mb-2">CTR</p>
+<div class="flex items-end gap-2">
+<span class="font-headline-md text-headline-md text-on-surface">2.58%</span>
+<span class="text-secondary text-body-sm font-bold pb-1 flex items-center"><span class="material-symbols-outlined text-[16px]" data-icon="keyboard_arrow_up">keyboard_arrow_up</span>0.4%</span>
+</div>
+</div>
+<div class="glass-panel p-5 rounded-xl bg-primary/5 border-primary/20">
+<p class="text-label-md text-primary uppercase tracking-wider mb-2">Ad Revenue</p>
+<span class="font-headline-md text-headline-md text-primary">$320/mo</span>
+</div>
+</div>
+<!-- Ad Placements Grid -->
+<section class="mb-12">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary" data-icon="grid_view">grid_view</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Live Ad Placements</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-container-gap">
+<!-- Placement Card 1 -->
+<div class="glass-panel rounded-xl overflow-hidden group">
+<div class="h-32 bg-surface-container-highest relative">
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container to-transparent opacity-60"></div>
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="A sleek minimalist web dashboard interface displayed on a high-resolution screen. The focus is on a prominent top banner advertisement slot. The aesthetic is extremely clean with a deep navy and slate color palette, illuminated by sharp blue interface highlights, representing a professional enterprise software environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqKSzysLNNR3fgPch02xBgEjG4ycO2zPHdS1OqxSH9ikPf-bd1L2JeYDhpiSbFFIsMRYIfLhDvZM6XSic49x_ECWn1I0xNYk-Byd1cwonIMq0RjEq9py3tj9mqsi5AqSUfq72lxNrLd7-rukz00RcY7uLwyg8tX_RTMJeOKmq-xd1KYTFGfUyCXbbE94HEh_Vx3jf_mvZwk_8XpzAuwmsToo7V9rg-08R0C7DV5wPQj5ZvPDevymTrOw-ON6AewUhK5tZeWQKt3J4"/>
+<div class="absolute top-3 left-3 flex gap-2">
+<span class="bg-secondary/20 text-secondary text-[10px] font-bold px-2 py-0.5 rounded border border-secondary/40 uppercase">Active</span>
+</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h4 class="font-bold text-on-surface">Dashboard Banner</h4>
+<p class="text-body-sm text-on-surface-variant">728 × 90 • Top Header</p>
+</div>
+<button class="material-symbols-outlined text-outline hover:text-primary" data-icon="settings">settings</button>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between text-body-sm">
+<span class="text-on-surface-variant">Current Ad</span>
+<span class="text-primary font-medium">DevTools Pro</span>
+</div>
+<div class="flex justify-between text-body-sm">
+<span class="text-on-surface-variant">Impressions</span>
+<span class="text-on-surface">12,402</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Placement Card 2 -->
+<div class="glass-panel rounded-xl overflow-hidden group">
+<div class="h-32 bg-surface-container-highest relative">
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container to-transparent opacity-60"></div>
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="A detailed view of a sidebar navigation panel within a modern software application. A dedicated square widget area is highlighted for advertisement placement. The visual style is dark-mode corporate, utilizing subtle glassmorphism and crisp white typography on a deep indigo background with emerald green accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlbqJyauDd0n7E7OAUiAStcf6-wBAO0e_qXnjxgDznZhmjJh8-UIE1u9VOUXRw8M95aBck0w9ATahSt9q3JOWDknW8XazLzOcol5KtKkUWQUiDKRofn-OmnARalIag6S9JXmCHY-F79UtRsskyVkTVGgSxN6SnZ7Q_2ilqS3s8l0Bt2x_4LnofPX9-qN_tvb0ZzPappbh5XlXrLYbE6oWD8sViADzgt2jGxAZTQTGN5LRrgvxzK6JxIB8Qti9m1enfv6DdyZlW7Vc"/>
+<div class="absolute top-3 left-3 flex gap-2">
+<span class="bg-secondary/20 text-secondary text-[10px] font-bold px-2 py-0.5 rounded border border-secondary/40 uppercase">Active</span>
+</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h4 class="font-bold text-on-surface">Sidebar Widget</h4>
+<p class="text-body-sm text-on-surface-variant">300 × 250 • Right Rail</p>
+</div>
+<button class="material-symbols-outlined text-outline hover:text-primary" data-icon="settings">settings</button>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between text-body-sm">
+<span class="text-on-surface-variant">Current Ad</span>
+<span class="text-primary font-medium">CodeHelper AI</span>
+</div>
+<div class="flex justify-between text-body-sm">
+<span class="text-on-surface-variant">Impressions</span>
+<span class="text-on-surface">8,115</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Placement Card 3 -->
+<div class="glass-panel rounded-xl overflow-hidden group">
+<div class="h-32 bg-surface-container-highest relative">
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container to-transparent opacity-60"></div>
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="A clean, minimalist software license activation page. The layout features a subtle space for a footer advertisement. The design emphasizes security and trust through a palette of deep slates and cool grays, with precise 1px borders and high-density information density, typical of advanced admin interfaces." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3-7-lsM-5je5_ZIr8ZkgtUwu-JmCrW5-Mw2bNIHaO0xHXu-Kg17Avz0fitmxOVND5J0p1Hjmu5wqqXlqwwsRaALOBYkJL3LS0q3Lil5gI05hGzzslyoEZvVM8FlSqFxh-BHrwkK6FUOS8jRk7w-YYUYwKfyiZmbCFJIbLPR3wSU6WlRKQxC2FWNehHfgroETolmkCAPp-aSFROPQYa4fnBHWb278kTEgR0CdvMyko6hcrSUe3HDYU9uuxNLJO7bND5_OLoXcmvCE"/>
+<div class="absolute top-3 left-3 flex gap-2">
+<span class="bg-secondary/20 text-secondary text-[10px] font-bold px-2 py-0.5 rounded border border-secondary/40 uppercase">Active</span>
+</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h4 class="font-bold text-on-surface">License Page</h4>
+<p class="text-body-sm text-on-surface-variant">468 × 60 • Footer</p>
+</div>
+<button class="material-symbols-outlined text-outline hover:text-primary" data-icon="settings">settings</button>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between text-body-sm">
+<span class="text-on-surface-variant">Current Ad</span>
+<span class="text-primary font-medium">GameEngine SDK</span>
+</div>
+<div class="flex justify-between text-body-sm">
+<span class="text-on-surface-variant">Impressions</span>
+<span class="text-on-surface">2,410</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-container-gap">
+<!-- Ad Campaigns Table -->
+<div class="lg:col-span-2 glass-panel rounded-xl flex flex-col overflow-hidden">
+<div class="px-6 py-5 border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-bold text-on-surface">Active Ad Campaigns</h3>
+<div class="flex gap-2">
+<button class="material-symbols-outlined p-1.5 text-on-surface-variant hover:bg-surface-container-high rounded transition-colors" data-icon="filter_list">filter_list</button>
+<button class="material-symbols-outlined p-1.5 text-on-surface-variant hover:bg-surface-container-high rounded transition-colors" data-icon="more_vert">more_vert</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-md border-b border-outline-variant">
+<th class="px-6 py-3 font-semibold uppercase tracking-wider">Campaign Name</th>
+<th class="px-6 py-3 font-semibold uppercase tracking-wider">Budget</th>
+<th class="px-6 py-3 font-semibold uppercase tracking-wider">Spent</th>
+<th class="px-6 py-3 font-semibold uppercase tracking-wider">Impressions</th>
+<th class="px-6 py-3 font-semibold uppercase tracking-wider">CTR</th>
+<th class="px-6 py-3 font-semibold uppercase tracking-wider">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/30">
+<tr class="hover:bg-surface-container-high/50 transition-colors">
+<td class="px-6 py-4">
+<p class="font-bold text-on-surface">DevTools Pro Launch</p>
+<p class="text-[10px] text-outline font-code-sm">ID: ADV-92810</p>
+</td>
+<td class="px-6 py-4 font-code-sm text-on-surface">$5,000</td>
+<td class="px-6 py-4 font-code-sm text-on-surface">$2,410</td>
+<td class="px-6 py-4 text-on-surface">28.4K</td>
+<td class="px-6 py-4 text-secondary font-bold">3.1%</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 bg-secondary/10 text-secondary text-[11px] font-bold px-2.5 py-1 rounded-full border border-secondary/20">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> RUNNING
+                                    </span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-high/50 transition-colors">
+<td class="px-6 py-4">
+<p class="font-bold text-on-surface">CodeHelper AI</p>
+<p class="text-[10px] text-outline font-code-sm">ID: ADV-81223</p>
+</td>
+<td class="px-6 py-4 font-code-sm text-on-surface">$2,500</td>
+<td class="px-6 py-4 font-code-sm text-on-surface">$1,980</td>
+<td class="px-6 py-4 text-on-surface">15.2K</td>
+<td class="px-6 py-4 text-secondary font-bold">2.4%</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 bg-secondary/10 text-secondary text-[11px] font-bold px-2.5 py-1 rounded-full border border-secondary/20">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> RUNNING
+                                    </span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-high/50 transition-colors">
+<td class="px-6 py-4">
+<p class="font-bold text-on-surface">GameEngine SDK</p>
+<p class="text-[10px] text-outline font-code-sm">ID: ADV-11492</p>
+</td>
+<td class="px-6 py-4 font-code-sm text-on-surface">$1,200</td>
+<td class="px-6 py-4 font-code-sm text-on-surface">$450</td>
+<td class="px-6 py-4 text-on-surface">4.6K</td>
+<td class="px-6 py-4 text-on-surface-variant font-bold">1.8%</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 bg-secondary/10 text-secondary text-[11px] font-bold px-2.5 py-1 rounded-full border border-secondary/20">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> RUNNING
+                                    </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Ad Settings Section -->
+<div class="glass-panel rounded-xl p-6 flex flex-col h-fit">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary" data-icon="tune">tune</span>
+<h3 class="font-bold text-on-surface">Global Ad Settings</h3>
+</div>
+<div class="space-y-6">
+<!-- Toggle 1 -->
+<div class="flex justify-between items-start">
+<div>
+<p class="text-body-md font-bold text-on-surface">Master Enable</p>
+<p class="text-body-sm text-on-surface-variant">Switch off all ad placements globally.</p>
+</div>
+<div class="w-10 h-5 bg-secondary rounded-full relative cursor-pointer border border-secondary">
+<div class="absolute right-0.5 top-0.5 w-3.5 h-3.5 bg-on-secondary rounded-full shadow-sm"></div>
+</div>
+</div>
+<div class="h-[1px] bg-outline-variant/30 w-full"></div>
+<!-- Visibility Settings -->
+<div class="space-y-4">
+<p class="text-label-md font-bold text-on-surface-variant uppercase tracking-widest">Plan-Specific Visibility</p>
+<div class="flex justify-between items-center group cursor-pointer">
+<span class="text-body-md text-on-surface group-hover:text-primary transition-colors">Free Tier Users</span>
+<span class="material-symbols-outlined text-secondary" data-icon="toggle_on" style="font-variation-settings: 'FILL' 1;">toggle_on</span>
+</div>
+<div class="flex justify-between items-center group cursor-pointer">
+<span class="text-body-md text-on-surface group-hover:text-primary transition-colors">Developer Tier</span>
+<span class="material-symbols-outlined text-secondary" data-icon="toggle_on" style="font-variation-settings: 'FILL' 1;">toggle_on</span>
+</div>
+<div class="flex justify-between items-center group cursor-pointer">
+<span class="text-body-md text-on-surface-variant/50 group-hover:text-primary transition-colors">Enterprise Tier</span>
+<span class="material-symbols-outlined text-outline-variant" data-icon="toggle_off">toggle_off</span>
+</div>
+</div>
+<div class="h-[1px] bg-outline-variant/30 w-full"></div>
+<!-- Revenue Target -->
+<div>
+<p class="text-label-md font-bold text-on-surface-variant uppercase tracking-widest mb-3">Revenue Projection</p>
+<div class="flex justify-between items-end mb-1">
+<span class="text-body-sm text-on-surface">Target: $500/mo</span>
+<span class="text-[10px] text-primary">64% Achieved</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 64%"></div>
+</div>
+</div>
+<button class="w-full mt-4 bg-surface-container-high border border-outline-variant text-on-surface py-2 rounded-lg font-bold hover:bg-surface-container-highest transition-colors">
+                        Save Global Config
+                    </button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

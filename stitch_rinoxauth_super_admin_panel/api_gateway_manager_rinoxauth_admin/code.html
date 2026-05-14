@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-panel {
+            background: rgba(19, 27, 46, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid #1e293b;
+        }
+        .sidebar-item-active {
+            border-left: 2px solid #8ed5ff;
+            background: rgba(56, 189, 248, 0.1);
+        }
+        /* Custom scrollbar for high-density tables */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0b1326; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#6ffbbe",
+                        "outline-variant": "#3e484f",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-lowest": "#060e20",
+                        "surface": "#0b1326",
+                        "on-tertiary": "#67001b",
+                        "tertiary-fixed-dim": "#ffb2b7",
+                        "surface-container-low": "#131b2e",
+                        "tertiary-fixed": "#ffdadb",
+                        "tertiary": "#ffbcbf",
+                        "primary": "#8ed5ff",
+                        "on-secondary-fixed-variant": "#005236",
+                        "outline": "#87929a",
+                        "inverse-surface": "#dae2fd",
+                        "surface-variant": "#2d3449",
+                        "error": "#ffb4ab",
+                        "on-primary-fixed-variant": "#004c69",
+                        "primary-fixed": "#c4e7ff",
+                        "on-secondary": "#003824",
+                        "surface-container-highest": "#2d3449",
+                        "on-secondary-fixed": "#002113",
+                        "on-primary": "#00354a",
+                        "on-error": "#690005",
+                        "primary-fixed-dim": "#7bd0ff",
+                        "on-tertiary-fixed": "#40000d",
+                        "secondary": "#4edea3",
+                        "inverse-on-surface": "#283044",
+                        "secondary-container": "#00a572",
+                        "on-secondary-container": "#00311f",
+                        "on-background": "#dae2fd",
+                        "on-primary-fixed": "#001e2c",
+                        "on-primary-container": "#004965",
+                        "on-tertiary-container": "#8c0028",
+                        "on-surface": "#dae2fd",
+                        "surface-bright": "#31394d",
+                        "tertiary-container": "#ff929a",
+                        "on-surface-variant": "#bdc8d1",
+                        "on-tertiary-fixed-variant": "#92002a",
+                        "surface-container": "#171f33",
+                        "inverse-primary": "#00668a",
+                        "background": "#0b1326",
+                        "surface-tint": "#7bd0ff",
+                        "error-container": "#93000a",
+                        "surface-dim": "#0b1326",
+                        "surface-container-high": "#222a3d",
+                        "secondary-fixed-dim": "#4edea3",
+                        "primary-container": "#38bdf8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "sidebar-width": "260px",
+                        "header-height": "64px",
+                        "container-gap": "24px",
+                        "gutter": "16px",
+                        "section-padding": "32px",
+                        "unit": "4px",
+                        "sidebar-collapsed": "64px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "code-sm": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["12px", {"lineHeight": "18px", "fontWeight": "400"}],
+                        "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "code-sm": ["12px", {"lineHeight": "18px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md selection:bg-primary/30">
+<!-- SideNavBar (Shared Component) -->
+<aside class="docked fixed left-0 top-0 h-screen w-sidebar bg-surface-container-low border-r border-outline-variant backdrop-blur-xl flex flex-col h-full py-unit gap-container-gap z-50">
+<div class="px-gutter py-4">
+<h1 class="font-headline-sm text-headline-sm font-bold text-on-surface">Admin Core</h1>
+<p class="text-on-surface-variant font-body-sm">Enterprise Suite</p>
+</div>
+<nav class="flex-grow flex flex-col px-2 gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors rounded" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors rounded" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-body-md">User Management</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors rounded" href="#">
+<span class="material-symbols-outlined">business_center</span>
+<span class="font-body-md">Business</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors rounded" href="#">
+<span class="material-symbols-outlined">web</span>
+<span class="font-body-md">Content &amp; Website</span>
+</a>
+<!-- Active State: Platform (Gateway Manager fits under Platform) -->
+<a class="flex items-center gap-3 px-4 py-3 text-primary font-bold border-l-2 border-primary bg-primary-container/10 transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings_input_component</span>
+<span class="font-body-md">Platform</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors rounded" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md">System</span>
+</a>
+</nav>
+<div class="mt-auto px-2 flex flex-col gap-1 border-t border-outline-variant pt-4">
+<button class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-on-surface transition-all">
+<span class="material-symbols-outlined">help</span>
+<span class="font-body-md">Support</span>
+</button>
+<button class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-on-surface transition-all">
+<span class="material-symbols-outlined">history</span>
+<span class="font-body-md">Logs</span>
+</button>
+<div class="px-4 py-4 mt-2">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-xs">SA</div>
+<div class="flex flex-col">
+<span class="font-label-md text-on-surface">Super Admin</span>
+<span class="text-[10px] text-secondary uppercase tracking-widest font-bold">System Status</span>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-sidebar min-h-screen flex flex-col">
+<!-- TopNavBar (Shared Component) -->
+<header class="sticky top-0 w-full z-40 bg-surface/80 border-b border-outline-variant backdrop-blur-md flex justify-between items-center h-header-height px-gutter">
+<div class="flex items-center gap-6">
+<span class="font-headline-sm text-headline-sm font-black text-primary">Admin Core</span>
+<div class="relative group">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-outline">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</span>
+<input class="bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-1.5 w-80 text-body-sm focus:border-primary focus:ring-0 transition-all outline-none" placeholder="Search routes, nodes or traffic logs..." type="text"/>
+</div>
+</div>
+<nav class="flex items-center gap-8">
+<div class="flex gap-6">
+<a class="font-label-md text-label-md text-primary border-b-2 border-primary pb-1" href="#">Status</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all" href="#">Docs</a>
+</div>
+<div class="flex items-center gap-4 border-l border-outline-variant pl-6">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary relative transition-opacity">
+                        notifications
+                        <span class="absolute top-0 right-0 w-1.5 h-1.5 bg-error rounded-full"></span>
+</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-opacity">settings</button>
+<div class="h-6 w-[1px] bg-outline-variant mx-2"></div>
+<div class="flex items-center gap-2 group cursor-pointer">
+<div class="text-right">
+<p class="font-label-md text-on-surface leading-tight">SUPER ADMIN</p>
+<p class="text-[10px] text-on-surface-variant tracking-tighter">GATEWAY NODE 01</p>
+</div>
+<img alt="Admin profile" class="w-8 h-8 rounded-full border border-primary/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDv8Z_wYDpWMZdCVAlW1ZNL_0CydMk0stGAo5kymd6Pi_bBRh3e96mSzNpU-lcVZcTPmZtHFrnm9Uije_lTuipUnPghyQ4QtZrDEUtQ-k-Ksnwl-8MkLoberoPVQPeoNHSzvEklZP2cDELP9H8To9KX20rL0R8KJcv8fw3Hq0a7sugi3IWeZWGz2QDBVoniQfrmXIBYavOHW2Bbp1h-hAjTKzuOO8Vyetv0BXaj8NbYCW_YPeK8bN8yuSvmWcuR3vcPjX2qYZYbzNU"/>
+</div>
+</div>
+</nav>
+</header>
+<!-- Gateway Dashboard Content -->
+<div class="p-section-padding space-y-container-gap">
+<!-- Page Header -->
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+                        API Gateway Manager
+                        <span class="bg-secondary/10 text-secondary text-[10px] px-2 py-0.5 rounded border border-secondary/20 font-bold tracking-widest uppercase">Live</span>
+</h2>
+<p class="text-on-surface-variant font-body-md mt-1">Global ingress management and traffic shaping cluster.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 bg-surface-container-high border border-outline-variant text-on-surface font-label-md rounded flex items-center gap-2 hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                        Export Config
+                    </button>
+<button class="px-4 py-2 bg-primary text-on-primary font-label-md rounded flex items-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                        Create Route
+                    </button>
+</div>
+</div>
+<!-- Traffic Overview Stats -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
+<!-- Stat Card: Total Requests -->
+<div class="glass-panel p-4 rounded-xl flex flex-col justify-between h-32 relative overflow-hidden">
+<div class="flex justify-between items-start">
+<div class="p-2 bg-primary/10 rounded-lg">
+<span class="material-symbols-outlined text-primary text-[20px]">swap_vert</span>
+</div>
+<span class="text-secondary text-[10px] font-bold">+12.4%</span>
+</div>
+<div>
+<p class="text-on-surface-variant text-[11px] font-bold uppercase tracking-wider">Total Requests (24h)</p>
+<h3 class="text-headline-sm font-bold text-on-surface">1.28M</h3>
+</div>
+<div class="absolute bottom-0 right-0 w-24 h-12 opacity-30">
+<svg class="w-full h-full" viewbox="0 0 100 40">
+<polyline fill="none" points="0,35 10,32 20,38 30,20 40,25 50,10 60,18 70,5 80,12 90,2 100,8" stroke="#38bdf8" stroke-width="2"></polyline>
+</svg>
+</div>
+</div>
+<!-- Stat Card: Error Rate -->
+<div class="glass-panel p-4 rounded-xl flex flex-col justify-between h-32 relative overflow-hidden">
+<div class="flex justify-between items-start">
+<div class="p-2 bg-error/10 rounded-lg">
+<span class="material-symbols-outlined text-error text-[20px]">error</span>
+</div>
+<span class="text-error text-[10px] font-bold">-0.02%</span>
+</div>
+<div>
+<p class="text-on-surface-variant text-[11px] font-bold uppercase tracking-wider">Error Rate (%)</p>
+<h3 class="text-headline-sm font-bold text-on-surface">0.04%</h3>
+</div>
+<div class="absolute bottom-0 right-0 w-24 h-12 opacity-30">
+<svg class="w-full h-full" viewbox="0 0 100 40">
+<polyline fill="none" points="0,10 20,12 40,11 60,10 80,12 100,10" stroke="#ffb4ab" stroke-width="2"></polyline>
+</svg>
+</div>
+</div>
+<!-- Stat Card: Avg Latency -->
+<div class="glass-panel p-4 rounded-xl flex flex-col justify-between h-32 relative overflow-hidden">
+<div class="flex justify-between items-start">
+<div class="p-2 bg-secondary/10 rounded-lg">
+<span class="material-symbols-outlined text-secondary text-[20px]">timer</span>
+</div>
+<span class="text-secondary text-[10px] font-bold">-5ms</span>
+</div>
+<div>
+<p class="text-on-surface-variant text-[11px] font-bold uppercase tracking-wider">Avg Latency (ms)</p>
+<h3 class="text-headline-sm font-bold text-on-surface">42ms</h3>
+</div>
+<div class="absolute bottom-0 right-0 w-24 h-12 opacity-30">
+<svg class="w-full h-full" viewbox="0 0 100 40">
+<polyline fill="none" points="0,20 10,22 20,18 30,25 40,20 50,22 60,19 70,21 80,18 90,17 100,18" stroke="#4edea3" stroke-width="2"></polyline>
+</svg>
+</div>
+</div>
+<!-- Stat Card: Active Routes -->
+<div class="glass-panel p-4 rounded-xl flex flex-col justify-between h-32">
+<div class="flex justify-between items-start">
+<div class="p-2 bg-tertiary/10 rounded-lg">
+<span class="material-symbols-outlined text-tertiary text-[20px]">alt_route</span>
+</div>
+<span class="text-on-surface-variant text-[10px] font-bold">Nodes: 12</span>
+</div>
+<div>
+<p class="text-on-surface-variant text-[11px] font-bold uppercase tracking-wider">Active Routes</p>
+<h3 class="text-headline-sm font-bold text-on-surface">142</h3>
+</div>
+</div>
+</div>
+<!-- Analytics & Controls Grid -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Main Analytics Chart -->
+<div class="col-span-12 lg:col-span-9 glass-panel rounded-xl p-gutter overflow-hidden relative">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h4 class="font-label-md text-on-surface uppercase tracking-widest text-[12px]">Real-time Traffic Performance</h4>
+<p class="text-[11px] text-on-surface-variant">Request Volume vs. Latency Distribution</p>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 bg-primary rounded-full"></span>
+<span class="text-[10px] text-on-surface-variant">Req/s</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 bg-secondary rounded-full"></span>
+<span class="text-[10px] text-on-surface-variant">Latency (ms)</span>
+</div>
+<select class="bg-surface-container-lowest border border-outline-variant text-[11px] text-on-surface rounded px-2 py-1 outline-none">
+<option>Last 60 Minutes</option>
+<option>Last 6 Hours</option>
+<option>Last 24 Hours</option>
+</select>
+</div>
+</div>
+<div class="h-64 w-full relative">
+<!-- Simulated Chart Grid -->
+<div class="absolute inset-0 flex flex-col justify-between">
+<div class="border-t border-outline-variant/30 w-full h-px"></div>
+<div class="border-t border-outline-variant/30 w-full h-px"></div>
+<div class="border-t border-outline-variant/30 w-full h-px"></div>
+<div class="border-t border-outline-variant/30 w-full h-px"></div>
+<div class="border-t border-outline-variant/30 w-full h-px"></div>
+</div>
+<!-- Area Chart SVG -->
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none">
+<defs>
+<lineargradient id="primaryGrad" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#38bdf8" stop-opacity="0.2"></stop>
+<stop offset="100%" stop-color="#38bdf8" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Request Volume Path -->
+<path d="M0 200 Q 50 180 100 190 T 200 150 T 300 120 T 400 140 T 500 100 T 600 110 T 700 80 T 800 95 T 900 60 T 1000 70 L 1000 256 L 0 256 Z" fill="url(#primaryGrad)"></path>
+<path d="M0 200 Q 50 180 100 190 T 200 150 T 300 120 T 400 140 T 500 100 T 600 110 T 700 80 T 800 95 T 900 60 T 1000 70" fill="none" stroke="#38bdf8" stroke-width="2"></path>
+<!-- Latency Path -->
+<path d="M0 150 L 100 155 L 200 148 L 300 152 L 400 145 L 500 158 L 600 150 L 700 155 L 800 147 L 900 152 L 1000 148" fill="none" stroke="#4edea3" stroke-dasharray="4 2" stroke-width="1.5"></path>
+</svg>
+<!-- Tooltip Placeholder -->
+<div class="absolute left-3/4 top-1/4 flex flex-col items-center">
+<div class="w-[1px] h-48 bg-outline absolute top-0"></div>
+<div class="glass-panel p-2 rounded-lg text-[10px] whitespace-nowrap shadow-xl z-10 translate-y-4">
+<p class="text-on-surface-variant mb-1 font-bold">14:42:00</p>
+<p class="text-primary">Reqs: 8.4k/s</p>
+<p class="text-secondary">Latency: 38ms</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Global Controls Sidebar Panel -->
+<div class="col-span-12 lg:col-span-3 flex flex-col gap-gutter">
+<div class="glass-panel rounded-xl p-gutter h-full">
+<h4 class="font-label-md text-on-surface uppercase tracking-widest text-[12px] mb-4">Global Policies</h4>
+<div class="space-y-4">
+<!-- Toggle Item -->
+<div class="flex items-center justify-between">
+<div>
+<p class="text-body-sm font-bold text-on-surface">Global WAF</p>
+<p class="text-[10px] text-on-surface-variant leading-tight">Web App Firewall</p>
+</div>
+<button class="w-10 h-5 bg-secondary-container rounded-full relative flex items-center px-1 transition-colors">
+<div class="w-3.5 h-3.5 bg-white rounded-full absolute right-1"></div>
+</button>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<p class="text-body-sm font-bold text-on-surface">DDoS Protection</p>
+<p class="text-[10px] text-on-surface-variant leading-tight">Advanced mitigation</p>
+</div>
+<button class="w-10 h-5 bg-surface-container-highest rounded-full relative flex items-center px-1 transition-colors">
+<div class="w-3.5 h-3.5 bg-outline rounded-full absolute left-1"></div>
+</button>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<p class="text-body-sm font-bold text-on-surface">Verbose Logging</p>
+<p class="text-[10px] text-on-surface-variant leading-tight">Debug level headers</p>
+</div>
+<button class="w-10 h-5 bg-secondary-container rounded-full relative flex items-center px-1 transition-colors">
+<div class="w-3.5 h-3.5 bg-white rounded-full absolute right-1"></div>
+</button>
+</div>
+<div class="h-px bg-outline-variant/30 my-2"></div>
+<!-- Policy Selection -->
+<div>
+<label class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest block mb-2">CORS Policy</label>
+<select class="w-full bg-surface-container-lowest border border-outline-variant text-body-sm text-on-surface rounded p-2 outline-none focus:border-primary">
+<option>Strict Internal Only</option>
+<option>Permissive (Dev)</option>
+<option>Public API Access</option>
+</select>
+</div>
+<div>
+<label class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest block mb-2">Global Rate Limit</label>
+<div class="flex items-center gap-2">
+<input class="flex-grow bg-surface-container-lowest border border-outline-variant text-body-sm text-on-surface rounded px-2 py-1.5 outline-none" type="number" value="10000"/>
+<span class="text-body-sm text-on-surface-variant">/s</span>
+</div>
+</div>
+<button class="w-full mt-4 py-2 border border-primary text-primary font-label-md rounded hover:bg-primary/10 transition-colors">
+                                Apply Cluster Sync
+                            </button>
+</div>
+</div>
+</div>
+<!-- Route Management & Detailed Config -->
+<div class="col-span-12 xl:col-span-8 glass-panel rounded-xl overflow-hidden">
+<div class="p-gutter border-b border-outline-variant flex justify-between items-center bg-surface-container-low/50">
+<h4 class="font-label-md text-on-surface uppercase tracking-widest text-[12px]">Route Registry</h4>
+<div class="flex gap-2">
+<span class="bg-surface-container-highest px-2 py-1 rounded text-[10px] text-on-surface">Total: 142</span>
+<span class="bg-secondary/20 px-2 py-1 rounded text-[10px] text-secondary font-bold">Up: 141</span>
+<span class="bg-error/20 px-2 py-1 rounded text-[10px] text-error font-bold">Alert: 1</span>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container border-b border-outline-variant">
+<th class="px-gutter py-3 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Route Path</th>
+<th class="px-gutter py-3 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Method</th>
+<th class="px-gutter py-3 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Auth</th>
+<th class="px-gutter py-3 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Rate Limit</th>
+<th class="px-gutter py-3 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Latency</th>
+<th class="px-gutter py-3 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Status</th>
+<th class="px-gutter py-3 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/30">
+<tr class="hover:bg-primary/5 transition-colors group cursor-pointer sidebar-item-active">
+<td class="px-gutter py-3">
+<div class="flex flex-col">
+<span class="font-code-sm text-primary text-[13px]">/api/v1/auth/token</span>
+<span class="text-[10px] text-on-surface-variant">ID: route_8829</span>
+</div>
+</td>
+<td class="px-gutter py-3"><span class="bg-surface-container-highest px-2 py-0.5 rounded text-[11px] font-bold text-secondary">POST</span></td>
+<td class="px-gutter py-3 font-body-sm">JWT (HS256)</td>
+<td class="px-gutter py-3 font-body-sm">100 req/s</td>
+<td class="px-gutter py-3 font-body-sm">12ms</td>
+<td class="px-gutter py-3">
+<span class="flex items-center gap-1.5 text-secondary text-[11px] font-bold">
+<span class="w-1.5 h-1.5 bg-secondary rounded-full"></span>
+                                            Active
+                                        </span>
+</td>
+<td class="px-gutter py-3 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary p-1">edit_square</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-error p-1">delete</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group cursor-pointer">
+<td class="px-gutter py-3">
+<div class="flex flex-col">
+<span class="font-code-sm text-on-surface text-[13px]">/api/v1/users/profile</span>
+<span class="text-[10px] text-on-surface-variant">ID: route_8830</span>
+</div>
+</td>
+<td class="px-gutter py-3"><span class="bg-surface-container-highest px-2 py-0.5 rounded text-[11px] font-bold text-primary">GET</span></td>
+<td class="px-gutter py-3 font-body-sm">OAuth2</td>
+<td class="px-gutter py-3 font-body-sm">500 req/s</td>
+<td class="px-gutter py-3 font-body-sm">28ms</td>
+<td class="px-gutter py-3">
+<span class="flex items-center gap-1.5 text-secondary text-[11px] font-bold">
+<span class="w-1.5 h-1.5 bg-secondary rounded-full"></span>
+                                            Active
+                                        </span>
+</td>
+<td class="px-gutter py-3 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary p-1">edit_square</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-error p-1">delete</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group cursor-pointer">
+<td class="px-gutter py-3">
+<div class="flex flex-col">
+<span class="font-code-sm text-on-surface text-[13px]">/api/v1/billing/checkout</span>
+<span class="text-[10px] text-on-surface-variant">ID: route_8842</span>
+</div>
+</td>
+<td class="px-gutter py-3"><span class="bg-surface-container-highest px-2 py-0.5 rounded text-[11px] font-bold text-secondary">POST</span></td>
+<td class="px-gutter py-3 font-body-sm">API Key</td>
+<td class="px-gutter py-3 font-body-sm">20 req/s</td>
+<td class="px-gutter py-3 font-body-sm">115ms</td>
+<td class="px-gutter py-3">
+<span class="flex items-center gap-1.5 text-error text-[11px] font-bold">
+<span class="w-1.5 h-1.5 bg-error rounded-full"></span>
+                                            Down
+                                        </span>
+</td>
+<td class="px-gutter py-3 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary p-1">edit_square</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-error p-1">delete</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 transition-colors group cursor-pointer">
+<td class="px-gutter py-3">
+<div class="flex flex-col">
+<span class="font-code-sm text-on-surface text-[13px]">/v2/search/global</span>
+<span class="text-[10px] text-on-surface-variant">ID: route_8850</span>
+</div>
+</td>
+<td class="px-gutter py-3"><span class="bg-surface-container-highest px-2 py-0.5 rounded text-[11px] font-bold text-primary">GET</span></td>
+<td class="px-gutter py-3 font-body-sm">None (Public)</td>
+<td class="px-gutter py-3 font-body-sm">2000 req/s</td>
+<td class="px-gutter py-3 font-body-sm">4ms</td>
+<td class="px-gutter py-3">
+<span class="flex items-center gap-1.5 text-on-surface-variant text-[11px] font-bold">
+<span class="w-1.5 h-1.5 bg-outline rounded-full"></span>
+                                            Inactive
+                                        </span>
+</td>
+<td class="px-gutter py-3 text-right">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary p-1">edit_square</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-error p-1">delete</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Configuration Sidebar (Selected Route) -->
+<div class="col-span-12 xl:col-span-4 space-y-gutter">
+<div class="glass-panel rounded-xl p-gutter h-full">
+<div class="flex items-center justify-between mb-6">
+<h4 class="font-label-md text-on-surface uppercase tracking-widest text-[12px]">Route Configuration</h4>
+<span class="material-symbols-outlined text-primary">bolt</span>
+</div>
+<div class="space-y-6">
+<!-- Basic Config -->
+<div class="space-y-4">
+<div>
+<label class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest block mb-2">Upstream Target URL</label>
+<div class="flex items-center gap-2">
+<input class="flex-grow bg-surface-container-lowest border border-outline-variant text-code-sm text-primary rounded px-3 py-2 outline-none font-mono" type="text" value="https://auth-service.cluster.local:8080"/>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest block mb-2">Retries</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant text-body-sm text-on-surface rounded p-2 outline-none" type="number" value="3"/>
+</div>
+<div>
+<label class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest block mb-2">Timeout (ms)</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant text-body-sm text-on-surface rounded p-2 outline-none" type="number" value="5000"/>
+</div>
+</div>
+</div>
+<div class="h-px bg-outline-variant/30"></div>
+<!-- Transformations -->
+<div>
+<h5 class="text-body-sm font-bold text-on-surface mb-3 flex items-center justify-between">
+                                    Header Transformations
+                                    <button class="material-symbols-outlined text-[16px] text-primary">add_circle</button>
+</h5>
+<div class="space-y-2">
+<div class="bg-surface-container-lowest p-2 rounded border border-outline-variant flex justify-between items-center">
+<div class="flex flex-col">
+<span class="text-[10px] font-bold text-secondary uppercase">Add</span>
+<span class="text-code-sm">X-Sentinel-ID: node_01</span>
+</div>
+<button class="material-symbols-outlined text-[16px] text-error opacity-50 hover:opacity-100">close</button>
+</div>
+<div class="bg-surface-container-lowest p-2 rounded border border-outline-variant flex justify-between items-center">
+<div class="flex flex-col">
+<span class="text-[10px] font-bold text-primary uppercase">Strip</span>
+<span class="text-code-sm">Authorization</span>
+</div>
+<button class="material-symbols-outlined text-[16px] text-error opacity-50 hover:opacity-100">close</button>
+</div>
+</div>
+</div>
+<!-- Security Toggles -->
+<div class="space-y-3 bg-primary/5 p-4 rounded-lg border border-primary/20">
+<h5 class="text-[11px] font-black text-primary uppercase tracking-widest">Route Security</h5>
+<div class="flex items-center justify-between">
+<span class="text-body-sm text-on-surface">IP Whitelisting</span>
+<button class="w-8 h-4 bg-secondary-container rounded-full relative flex items-center px-1">
+<div class="w-2.5 h-2.5 bg-white rounded-full absolute right-1"></div>
+</button>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-body-sm text-on-surface">Strip Path</span>
+<button class="w-8 h-4 bg-secondary-container rounded-full relative flex items-center px-1">
+<div class="w-2.5 h-2.5 bg-white rounded-full absolute right-1"></div>
+</button>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-grow py-3 bg-primary text-on-primary font-bold text-[12px] rounded shadow-lg shadow-primary/20">Save Changes</button>
+<button class="px-4 py-3 bg-surface-container-highest text-on-surface rounded border border-outline-variant">
+<span class="material-symbols-outlined">restart_alt</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Info -->
+<footer class="mt-auto px-section-padding py-6 border-t border-outline-variant bg-surface-container-low flex justify-between items-center">
+<div class="flex gap-8">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 bg-secondary rounded-full animate-pulse"></span>
+<span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest">Gateway Cluster: Healthy</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest">Sync Lag: 12ms</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest">Version: 4.2.0-LTS</span>
+</div>
+</div>
+<p class="text-[10px] text-outline font-mono">NODE_HASH: 0x82f..9e21 | COMMIT: a7f212c</p>
+</footer>
+</main>
+</body></html>

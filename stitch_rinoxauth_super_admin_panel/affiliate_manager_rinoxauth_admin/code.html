@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Affiliate Program Manager - Admin Core</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#131b2e",
+                        "on-tertiary-container": "#8c0028",
+                        "primary-fixed": "#c4e7ff",
+                        "primary-container": "#38bdf8",
+                        "inverse-primary": "#00668a",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-error-container": "#ffdad6",
+                        "on-primary-fixed": "#001e2c",
+                        "on-background": "#dae2fd",
+                        "tertiary-fixed-dim": "#ffb2b7",
+                        "secondary-fixed": "#6ffbbe",
+                        "surface-bright": "#31394d",
+                        "surface-container-highest": "#2d3449",
+                        "surface-tint": "#7bd0ff",
+                        "surface": "#0b1326",
+                        "tertiary-container": "#ff929a",
+                        "secondary-container": "#00a572",
+                        "outline-variant": "#3e484f",
+                        "surface-container-lowest": "#060e20",
+                        "on-surface-variant": "#bdc8d1",
+                        "on-secondary": "#003824",
+                        "on-tertiary": "#67001b",
+                        "inverse-surface": "#dae2fd",
+                        "inverse-on-surface": "#283044",
+                        "surface-variant": "#2d3449",
+                        "on-surface": "#dae2fd",
+                        "primary": "#8ed5ff",
+                        "on-error": "#690005",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-primary-container": "#004965",
+                        "surface-container": "#171f33",
+                        "error-container": "#93000a",
+                        "outline": "#87929a",
+                        "on-primary-fixed-variant": "#004c69",
+                        "secondary": "#4edea3",
+                        "on-secondary-fixed": "#002113",
+                        "on-secondary-container": "#00311f",
+                        "background": "#0b1326",
+                        "surface-dim": "#0b1326",
+                        "on-tertiary-fixed-variant": "#92002a",
+                        "error": "#ffb4ab",
+                        "tertiary": "#ffbcbf",
+                        "primary-fixed-dim": "#7bd0ff",
+                        "surface-container-high": "#222a3d",
+                        "on-primary": "#00354a",
+                        "tertiary-fixed": "#ffdadb",
+                        "on-tertiary-fixed": "#40000d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "container-gap": "24px",
+                        "section-padding": "32px",
+                        "unit": "4px",
+                        "gutter": "16px",
+                        "sidebar-width": "260px",
+                        "header-height": "64px",
+                        "sidebar-collapsed": "64px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "code-sm": ["jetbrainsMono"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "code-sm": ["12px", {"lineHeight": "18px", "fontWeight": "400"}],
+                        "body-sm": ["12px", {"lineHeight": "18px", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0b1326; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        .glass-panel {
+            backdrop-filter: blur(12px);
+            background: rgba(19, 27, 46, 0.8);
+            border: 1px solid #1e293b;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden">
+<!-- SideNavBar -->
+<aside class="docked fixed left-0 top-0 h-screen w-sidebar border-r border-outline-variant backdrop-blur-xl bg-surface-container-low flex flex-col py-unit gap-container-gap z-50">
+<div class="px-gutter mb-4">
+<h1 class="font-headline-sm text-headline-sm font-bold text-on-surface">Admin Core</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant opacity-70">Enterprise Suite</p>
+</div>
+<nav class="flex-1 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-gutter py-3 text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-gutter py-3 text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-body-md text-body-md">User Management</span>
+</a>
+<!-- Active Navigation: Business -->
+<a class="flex items-center gap-3 px-gutter py-3 text-primary font-bold border-l-2 border-primary bg-primary-container/10 transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">business_center</span>
+<span class="font-body-md text-body-md">Business</span>
+</a>
+<a class="flex items-center gap-3 px-gutter py-3 text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined">web</span>
+<span class="font-body-md text-body-md">Content &amp; Website</span>
+</a>
+<a class="flex items-center gap-3 px-gutter py-3 text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined">settings_input_component</span>
+<span class="font-body-md text-body-md">Platform</span>
+</a>
+<a class="flex items-center gap-3 px-gutter py-3 text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md text-body-md">System</span>
+</a>
+</nav>
+<div class="mt-auto px-gutter py-4 border-t border-outline-variant/30">
+<div class="flex items-center gap-3 mb-6">
+<img alt="Super Admin Avatar" class="w-10 h-10 rounded-full border border-primary/20" data-alt="A professional headshot of a mature executive with a confident expression, set against a blurred high-tech office background. The lighting is crisp and cinematic, emphasizing a sharp, corporate aesthetic with cool blue and slate tones that match the enterprise software theme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTC0ArJNUw52fR6IcVfmxWTQg9Dw4NgpBJDLiMLJ3fnNDLqL5Op865JufxeNplKXasXBL7ppgbjyVRXXz8J87eXCfrGIqOUThnVALhxrsxqyV8ixWtvgucP5gB9PIn6mFLdFH4-_0jgJ8P6beOcNvF-4yALy-JKf0meyuEkM3ycbI6UmlFTJKG7P-zwvbPsD0PX-sr-WX7gFctimbGwm9a8s-_E2rJVk7-qv4jNb2yP9UhDctnvxt5hMv7O_PWKDDegxioL5wMBOg"/>
+<div>
+<p class="font-label-md text-label-md text-on-surface">SUPER ADMIN</p>
+<p class="text-[10px] uppercase tracking-widest text-primary font-bold">System Status: Online</p>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<a class="flex items-center gap-2 text-on-surface-variant hover:text-on-surface text-body-sm py-1" href="#">
+<span class="material-symbols-outlined text-[18px]">help</span> Support
+                </a>
+<a class="flex items-center gap-2 text-on-surface-variant hover:text-on-surface text-body-sm py-1" href="#">
+<span class="material-symbols-outlined text-[18px]">history</span> Logs
+                </a>
+</div>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="docked sticky top-0 w-full z-40 flex justify-between items-center h-header-height px-gutter ml-sidebar border-b border-outline-variant backdrop-blur-md bg-surface/80">
+<div class="flex items-center gap-gutter">
+<h2 class="font-headline-sm text-headline-sm font-black text-primary">Affiliate Program</h2>
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-1.5 text-body-sm w-64 focus:outline-none focus:border-primary" placeholder="Search affiliates..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-3 border-r border-outline-variant pr-4">
+<button class="text-on-surface-variant hover:text-primary transition-all p-2">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-all p-2">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-lg font-label-md text-label-md flex items-center gap-2 active:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-[18px]">person_add</span>
+                CREATE NEW AFFILIATE
+            </button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-sidebar p-gutter flex flex-col gap-container-gap">
+<!-- Stats Section -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-gutter">
+<div class="glass-panel p-5 rounded-xl flex flex-col justify-between">
+<div>
+<p class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider mb-1">Total Affiliates</p>
+<h3 class="font-headline-lg text-headline-lg text-on-surface">89</h3>
+</div>
+<div class="mt-4 flex items-center text-secondary text-body-sm font-medium">
+<span class="material-symbols-outlined text-[16px] mr-1">trending_up</span> +12% this month
+                </div>
+</div>
+<div class="glass-panel p-5 rounded-xl flex flex-col justify-between">
+<div>
+<p class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider mb-1">Total Referrals</p>
+<h3 class="font-headline-lg text-headline-lg text-on-surface">1,247</h3>
+</div>
+<div class="mt-4 flex items-center text-secondary text-body-sm font-medium">
+<span class="material-symbols-outlined text-[16px] mr-1">trending_up</span> +5.2% vs last month
+                </div>
+</div>
+<div class="glass-panel p-5 rounded-xl flex flex-col justify-between">
+<div>
+<p class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider mb-1">Total Paid Out</p>
+<h3 class="font-headline-lg text-headline-lg text-on-surface">$4,820</h3>
+</div>
+<div class="mt-4 flex items-center text-on-surface-variant text-body-sm">
+<span class="material-symbols-outlined text-[16px] mr-1">check_circle</span> Lifetime earnings
+                </div>
+</div>
+<div class="glass-panel p-5 rounded-xl flex flex-col justify-between border-primary/30">
+<div>
+<p class="text-primary font-label-md text-label-md uppercase tracking-wider mb-1">Pending Payout</p>
+<h3 class="font-headline-lg text-headline-lg text-primary">$892</h3>
+</div>
+<div class="mt-4 flex items-center text-primary-fixed text-body-sm">
+<span class="material-symbols-outlined text-[16px] mr-1">schedule</span> Next cycle: Oct 30
+                </div>
+</div>
+<div class="glass-panel p-5 rounded-xl flex flex-col justify-between">
+<div>
+<p class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider mb-1">Avg Commission</p>
+<h3 class="font-headline-lg text-headline-lg text-on-surface">30%</h3>
+</div>
+<div class="mt-4 flex items-center text-on-tertiary-container text-body-sm font-medium bg-tertiary-container/10 px-2 py-0.5 rounded">
+                    Global Tier 1
+                </div>
+</div>
+</section>
+<!-- Configuration and Settings -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-container-gap">
+<!-- Affiliate Settings Card -->
+<div class="lg:col-span-2 glass-panel p-6 rounded-xl">
+<div class="flex items-center justify-between mb-8">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary bg-primary/10 p-2 rounded-lg">tune</span>
+<h4 class="font-headline-sm text-headline-sm">Affiliate Program Settings</h4>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-body-sm font-medium text-secondary">Active</span>
+<div class="w-10 h-5 bg-secondary-container rounded-full relative">
+<div class="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-4">
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-2">Commission rate (%)</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2.5 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-body-md" type="number" value="30"/>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-2">Cookie duration (days)</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2.5 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-body-md" type="number" value="30"/>
+</div>
+</div>
+<div class="space-y-4">
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-2">Minimum payout threshold ($)</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2.5 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-body-md" type="number" value="50"/>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-2">Payout method</label>
+<select class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2.5 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-body-md appearance-none">
+<option>PayPal</option>
+<option>Crypto (USDT/BTC)</option>
+<option selected="">Bank Transfer</option>
+</select>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant">
+<label class="block font-label-md text-label-md text-on-surface-variant mb-3">Custom Referral Link Format</label>
+<div class="flex items-center gap-2 bg-surface-container-lowest p-4 rounded-lg border border-dashed border-outline">
+<span class="text-on-surface-variant font-code-sm text-code-sm">rinoxauth.com/ref/</span>
+<span class="bg-primary-container/20 text-primary px-2 py-0.5 rounded font-code-sm text-code-sm font-bold">[USERNAME]</span>
+<button class="ml-auto text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">content_copy</span>
+</button>
+</div>
+</div>
+<div class="mt-6 flex justify-end">
+<button class="bg-surface-container-highest text-on-surface border border-outline-variant px-6 py-2 rounded-lg font-label-md text-label-md hover:bg-outline-variant transition-colors">
+                        SAVE CONFIGURATION
+                    </button>
+</div>
+</div>
+<!-- Program Notice / Tip Card -->
+<div class="glass-panel p-6 rounded-xl bg-gradient-to-br from-surface-container-low to-primary/5 border-primary/20">
+<div class="flex flex-col h-full">
+<span class="material-symbols-outlined text-primary text-[40px] mb-4">auto_awesome</span>
+<h4 class="font-headline-sm text-headline-sm mb-3">Optimize Performance</h4>
+<p class="text-on-surface-variant text-body-md leading-relaxed mb-6">
+                        Affiliates using the <strong>rinoxauth.com/ref/</strong> format see a 24% higher click-through rate compared to standard numeric IDs. Encourage your top performers to customize their handles.
+                    </p>
+<div class="mt-auto p-4 bg-surface-container-lowest/50 rounded-lg border border-outline-variant/30">
+<p class="text-body-sm font-medium mb-2">Payout Queue</p>
+<div class="flex items-center justify-between text-body-sm">
+<span class="text-on-surface-variant">Next batch: 12 users</span>
+<span class="text-primary font-bold">$1,240.50 Total</span>
+</div>
+<div class="w-full bg-surface-variant h-1 rounded-full mt-3 overflow-hidden">
+<div class="bg-primary w-3/4 h-full"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Affiliates Table -->
+<section class="glass-panel rounded-xl overflow-hidden mb-8">
+<div class="p-6 border-b border-outline-variant flex items-center justify-between bg-surface-container-low/50">
+<h4 class="font-headline-sm text-headline-sm">Performance Leaderboard</h4>
+<div class="flex gap-2">
+<button class="px-3 py-1.5 rounded-lg border border-outline-variant text-body-sm hover:bg-surface-container-high transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">filter_list</span> Filter
+                    </button>
+<button class="px-3 py-1.5 rounded-lg border border-outline-variant text-body-sm hover:bg-surface-container-high transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">download</span> Export
+                    </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-highest/30 text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">
+<th class="px-6 py-4 border-b border-outline-variant">Affiliate</th>
+<th class="px-6 py-4 border-b border-outline-variant">Referrals</th>
+<th class="px-6 py-4 border-b border-outline-variant">Revenue</th>
+<th class="px-6 py-4 border-b border-outline-variant">Commission</th>
+<th class="px-6 py-4 border-b border-outline-variant">Status</th>
+<th class="px-6 py-4 border-b border-outline-variant">Last Payout</th>
+<th class="px-6 py-4 border-b border-outline-variant text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="text-body-md">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-high/40 transition-colors border-b border-outline-variant/30">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img alt="Sarah Johnson" class="w-8 h-8 rounded-full" data-alt="A candid, high-resolution portrait of a young professional woman smiling warmly. She has long dark hair and is wearing a modern business-casual outfit. The image has a soft bokeh background representing a bright, contemporary workspace, maintaining the clean and high-end aesthetic of a modern tech platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAixP0m6PIw2HPsI1BwhX3KPZaP8C8l5qNKrNkgTkQgSP1hTvidPxSGTUBF7pW7ymrGzPxuzWUOXSRX8G27Mu5fqOGyFAL_D4CipmE0ojgqiFD3rb732E9eQ2AEvoBBvaDf2L2uX6o3c8z6Q5mYbo9fSLxfEDN5P8KoTXmdFejRCzu-64xQ8gnjizNIAhHG13MhquDfX01FiflNP68f9U3uEWN-lzL7f4ZgVCBtSMWr2G9uXJ6YA9xDduB1N7SMn8mjNA8ihOiMIak"/>
+<div>
+<p class="font-bold text-on-surface">Sarah Johnson</p>
+<p class="text-body-sm text-on-surface-variant opacity-70">s.johnson@partner.io</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-code-sm">412</td>
+<td class="px-6 py-4 font-bold">$12,450.00</td>
+<td class="px-6 py-4">
+<span class="bg-secondary/10 text-secondary px-2 py-1 rounded text-body-sm font-bold">35%</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 bg-secondary rounded-full"></span>
+<span class="text-body-sm">Active</span>
+</div>
+</td>
+<td class="px-6 py-4 text-on-surface-variant text-body-sm">Oct 12, 2023</td>
+<td class="px-6 py-4 text-right space-x-1">
+<button class="p-1.5 hover:bg-surface-container-highest rounded text-on-surface-variant transition-colors" title="View"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
+<button class="p-1.5 hover:bg-surface-container-highest rounded text-on-surface-variant transition-colors" title="Edit"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="p-1.5 hover:bg-primary/10 rounded text-primary transition-colors" title="Pay"><span class="material-symbols-outlined text-[18px]">payments</span></button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-high/40 transition-colors border-b border-outline-variant/30">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img alt="Alex Rivers" class="w-8 h-8 rounded-full" data-alt="A high-quality close-up portrait of a male tech influencer with a modern aesthetic, wearing stylish glasses and a minimalist sweater. The lighting is soft and directional, creating depth. The background is a clean, neutral-toned design studio, emphasizing professional credibility and a sophisticated dark-mode compatible color palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOJuTsIORQ7hkrPOo8x5pGAl3vv3pVAvgTTg5Oyf60gjbaKkOqDmh1vOTbsOySP5ADh1V01eAcISZL5RFinOh2OImxiemOgXF_ximWj3w4h2GekTLdWAm9BZPsOHkt0AOePV4eLXv3E5t5dcQurrQm2WOqT946HAg57k9wieIDgRhoF5AWrvhQLiR_13jr25AngPmWGBV8YksZJS37ngtsfe9mx-3-OoPOqVuRFmVpxRJoXpHG9ki9_iKTGQ9Hf1ikJyVDEvHOMmY"/>
+<div>
+<p class="font-bold text-on-surface">Alex Rivers</p>
+<p class="text-body-sm text-on-surface-variant opacity-70">alex.rivers@riverside.dev</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-code-sm">289</td>
+<td class="px-6 py-4 font-bold">$8,120.50</td>
+<td class="px-6 py-4">
+<span class="bg-primary/10 text-primary px-2 py-1 rounded text-body-sm font-bold">30%</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 bg-secondary rounded-full"></span>
+<span class="text-body-sm">Active</span>
+</div>
+</td>
+<td class="px-6 py-4 text-on-surface-variant text-body-sm">Oct 05, 2023</td>
+<td class="px-6 py-4 text-right space-x-1">
+<button class="p-1.5 hover:bg-surface-container-highest rounded text-on-surface-variant transition-colors" title="View"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
+<button class="p-1.5 hover:bg-surface-container-highest rounded text-on-surface-variant transition-colors" title="Edit"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="p-1.5 hover:bg-primary/10 rounded text-primary transition-colors" title="Pay"><span class="material-symbols-outlined text-[18px]">payments</span></button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-high/40 transition-colors border-b border-outline-variant/30">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img alt="Marcus Thorne" class="w-8 h-8 rounded-full" data-alt="A portrait of an elegant business professional with a calm and focused demeanor. He is wearing a sharp, charcoal grey suit jacket. The scene is lit with professional studio lighting that creates high contrast and sharp details, perfectly suited for an enterprise management dashboard with dark-slate and primary-blue accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfoERZki3MqSiktMxV-jtNsLfW4wC8dw8E5nPI5pYV5z1S5eYMoE3uDg4FaVgREHjwWn3BiMKuM4Lkj1cx7PRPv9dq6EofnjqzR2QCvV83ePAddyqMNtA7O463WKKyGrT1ec_0U53OINGAszh0nLhj-I377VmBrCzmf1AeP_vMHZ-K_eqZTYtsv_5ywfc4fQQkdPOjF9aR0ainBsASVmscwGK4pCHvnlBUTsMEitQisvGhSu9388Rh_rwABm2GSyqUF7GxDEb7cPU"/>
+<div>
+<p class="font-bold text-on-surface">Marcus Thorne</p>
+<p class="text-body-sm text-on-surface-variant opacity-70">m.thorne@globalreach.com</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-code-sm">115</td>
+<td class="px-6 py-4 font-bold">$3,440.00</td>
+<td class="px-6 py-4">
+<span class="bg-primary/10 text-primary px-2 py-1 rounded text-body-sm font-bold">25%</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 bg-on-tertiary-container rounded-full"></span>
+<span class="text-body-sm">Paused</span>
+</div>
+</td>
+<td class="px-6 py-4 text-on-surface-variant text-body-sm">Sep 28, 2023</td>
+<td class="px-6 py-4 text-right space-x-1">
+<button class="p-1.5 hover:bg-surface-container-highest rounded text-on-surface-variant transition-colors" title="View"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
+<button class="p-1.5 hover:bg-surface-container-highest rounded text-on-surface-variant transition-colors" title="Edit"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="p-1.5 hover:bg-primary/10 rounded text-primary transition-colors opacity-30 cursor-not-allowed" title="Pay"><span class="material-symbols-outlined text-[18px]">payments</span></button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-high/40 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary font-bold text-xs">EJ</div>
+<div>
+<p class="font-bold text-on-surface">Emma Jenkins</p>
+<p class="text-body-sm text-on-surface-variant opacity-70">e.jenkins@freelance.net</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-code-sm">82</td>
+<td class="px-6 py-4 font-bold">$2,110.20</td>
+<td class="px-6 py-4">
+<span class="bg-primary/10 text-primary px-2 py-1 rounded text-body-sm font-bold">20%</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 bg-secondary rounded-full"></span>
+<span class="text-body-sm">Active</span>
+</div>
+</td>
+<td class="px-6 py-4 text-on-surface-variant text-body-sm">Oct 15, 2023</td>
+<td class="px-6 py-4 text-right space-x-1">
+<button class="p-1.5 hover:bg-surface-container-highest rounded text-on-surface-variant transition-colors" title="View"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
+<button class="p-1.5 hover:bg-surface-container-highest rounded text-on-surface-variant transition-colors" title="Edit"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="p-1.5 hover:bg-primary/10 rounded text-primary transition-colors" title="Pay"><span class="material-symbols-outlined text-[18px]">payments</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 border-t border-outline-variant flex items-center justify-between text-body-sm text-on-surface-variant">
+<span>Showing 1-4 of 89 affiliates</span>
+<div class="flex gap-1">
+<button class="px-3 py-1 bg-surface-container-highest rounded-lg border border-outline-variant hover:text-on-surface transition-colors">1</button>
+<button class="px-3 py-1 hover:bg-surface-container-highest rounded-lg transition-colors">2</button>
+<button class="px-3 py-1 hover:bg-surface-container-highest rounded-lg transition-colors">3</button>
+<span class="px-2 py-1">...</span>
+<button class="px-3 py-1 hover:bg-surface-container-highest rounded-lg transition-colors">23</button>
+</div>
+</div>
+</section>
+</main>
+</body></html>

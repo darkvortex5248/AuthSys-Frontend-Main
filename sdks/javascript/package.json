@@ -1,0 +1,8 @@
+{
+  "name": "rinoxauth",
+  "version": "1.0.0",
+  "main": "rinoxauth.js",
+  "dependencies": {
+    "axios": "^1.4.0"
+  }
+}

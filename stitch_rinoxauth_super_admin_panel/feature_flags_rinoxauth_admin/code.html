@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Feature Flags | Admin Core</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3e484f; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #87929a; }
+        .glass-card {
+            background: rgba(23, 31, 51, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid #1e293b;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#dae2fd",
+                        "primary": "#8ed5ff",
+                        "surface-container": "#171f33",
+                        "tertiary": "#ffbcbf",
+                        "inverse-surface": "#dae2fd",
+                        "surface-container-highest": "#2d3449",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-primary": "#00354a",
+                        "surface-tint": "#7bd0ff",
+                        "primary-fixed-dim": "#7bd0ff",
+                        "on-secondary-container": "#00311f",
+                        "on-tertiary-fixed": "#40000d",
+                        "tertiary-fixed-dim": "#ffb2b7",
+                        "on-surface": "#dae2fd",
+                        "on-secondary-fixed": "#002113",
+                        "on-error-container": "#ffdad6",
+                        "on-error": "#690005",
+                        "error-container": "#93000a",
+                        "surface": "#0b1326",
+                        "primary-fixed": "#c4e7ff",
+                        "surface-container-high": "#222a3d",
+                        "on-secondary": "#003824",
+                        "on-tertiary-container": "#8c0028",
+                        "secondary": "#4edea3",
+                        "secondary-container": "#00a572",
+                        "on-tertiary-fixed-variant": "#92002a",
+                        "outline": "#87929a",
+                        "on-tertiary": "#67001b",
+                        "on-primary-fixed-variant": "#004c69",
+                        "secondary-fixed": "#6ffbbe",
+                        "secondary-fixed-dim": "#4edea3",
+                        "error": "#ffb4ab",
+                        "surface-container-low": "#131b2e",
+                        "surface-container-lowest": "#060e20",
+                        "inverse-primary": "#00668a",
+                        "surface-bright": "#31394d",
+                        "on-primary-fixed": "#001e2c",
+                        "primary-container": "#38bdf8",
+                        "inverse-on-surface": "#283044",
+                        "background": "#0b1326",
+                        "surface-variant": "#2d3449",
+                        "on-surface-variant": "#bdc8d1",
+                        "on-primary-container": "#004965",
+                        "outline-variant": "#3e484f",
+                        "surface-dim": "#0b1326",
+                        "tertiary-container": "#ff929a",
+                        "tertiary-fixed": "#ffdadb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "header-height": "64px",
+                        "sidebar-collapsed": "64px",
+                        "section-padding": "32px",
+                        "unit": "4px",
+                        "sidebar-width": "260px",
+                        "container-gap": "24px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "code-sm": ["jetbrainsMono"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-sm": ["12px", {"lineHeight": "18px", "fontWeight": "400"}],
+                        "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "code-sm": ["12px", {"lineHeight": "18px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden">
+<!-- Sidebar Navigation -->
+<aside class="docked fixed left-0 top-0 h-screen w-sidebar bg-surface-container-low border-r border-outline-variant backdrop-blur-xl flex flex-col py-unit gap-container-gap z-50">
+<div class="px-6 py-4">
+<h1 class="font-headline-sm text-headline-sm font-bold text-on-surface">Admin Core</h1>
+<p class="text-on-surface-variant font-body-sm opacity-60">Enterprise Suite</p>
+</div>
+<nav class="flex-1 space-y-1 px-3">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-body-md text-body-md">User Management</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined">business_center</span>
+<span class="font-body-md text-body-md">Business</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined">web</span>
+<span class="font-body-md text-body-md">Content &amp; Website</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-primary font-bold border-l-2 border-primary bg-primary-container/10" href="#">
+<span class="material-symbols-outlined">settings_input_component</span>
+<span class="font-body-md text-body-md">Platform</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-surface-container-high hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md text-body-md">System</span>
+</a>
+</nav>
+<div class="mt-auto px-3 border-t border-outline-variant pt-4 mb-4">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-body-md text-body-md">Support</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-body-md text-body-md">Logs</span>
+</a>
+<div class="mt-4 flex items-center gap-3 px-3 py-2 bg-surface-container-highest rounded-lg cursor-pointer">
+<div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-xs">SA</div>
+<div class="flex-1 overflow-hidden">
+<p class="text-on-surface font-label-md truncate">Super Admin</p>
+<p class="text-on-surface-variant text-xs truncate">root_v1</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Top Navbar -->
+<header class="flex justify-between items-center h-header-height px-gutter ml-sidebar bg-surface/80 border-b border-outline-variant backdrop-blur-md sticky top-0 w-[calc(100%-260px)] z-40">
+<div class="flex items-center gap-4">
+<span class="font-headline-sm text-headline-sm font-black text-primary">Admin Core</span>
+<div class="h-4 w-px bg-outline-variant mx-2"></div>
+<nav class="flex gap-4">
+<a class="text-on-surface-variant font-label-md hover:text-primary transition-all" href="#">Status</a>
+<a class="text-on-surface-variant font-label-md hover:text-primary transition-all" href="#">Docs</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+<input class="bg-surface-container-highest border border-outline-variant rounded-full pl-10 pr-4 py-1.5 text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all w-64" placeholder="Search system flags..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">notifications</button>
+<div class="px-3 py-1 bg-primary text-on-primary rounded font-label-md tracking-wider">SUPER ADMIN</div>
+<img class="w-8 h-8 rounded-full border border-outline-variant object-cover" data-alt="A professional studio portrait of a technology executive in a dark slate grey background. The lighting is dramatic and low-key, highlighting sharp facial features. The aesthetic is clean and corporate, matching a high-security dark theme UI with subtle blue and teal undertones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrlKC7UQPb2ZRqnePxvxXYIJDgX2HcUyDNnygCOAkxIuxegOpF99SRB5n2Hk6WqM971OIOQX3q0X8bA2cUGp8KrKz4vY31BbdKY_XaI0FQ2tFZ5irmCnrYNwHQx9IFJ_msK0GQotJLj-6fNXh71qy5WO4xDKGNhELW-82VawD3jVy2j8yjehvO_W8U6YxvOtWMc1i5zvpNcwqf1ZeAHLfqfZ6BIrMrmImBY_SaRCWCnettzY29FwRH4YISP1eYIptTk8CDl5sAZ_A"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-sidebar p-gutter min-h-[calc(100vh-64px)] space-y-container-gap">
+<!-- Header Actions -->
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Feature Flags</h2>
+<p class="text-on-surface-variant text-body-md">Configure platform capabilities and manage progressive rollouts for beta modules.</p>
+</div>
+<button class="flex items-center gap-2 bg-primary text-on-primary px-6 py-2.5 rounded-lg font-label-md hover:brightness-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+                ADD NEW FEATURE FLAG
+            </button>
+</div>
+<!-- Bento Grid for Feature Flags -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Platform Features Column -->
+<div class="col-span-1 glass-card rounded-xl overflow-hidden flex flex-col">
+<div class="p-5 border-b border-outline-variant flex justify-between items-center bg-surface-container-highest/30">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">terminal</span>
+<span class="font-headline-sm text-headline-sm">Core Modules</span>
+</div>
+<span class="text-xs bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded">6 Systems</span>
+</div>
+<div class="flex-1 p-4 space-y-3">
+<!-- AI Agent -->
+<div class="flex items-center justify-between p-3 rounded bg-surface-container-low border border-outline-variant hover:border-primary/40 transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]" data-weight="fill">smart_toy</span>
+</div>
+<span class="font-body-md font-semibold">AI Agent</span>
+</div>
+<div class="w-10 h-5 bg-secondary rounded-full relative cursor-pointer shadow-[0_0_8px_rgba(78,222,163,0.3)]">
+<div class="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full"></div>
+</div>
+</div>
+<!-- License Key System -->
+<div class="flex items-center justify-between p-3 rounded bg-surface-container-low border border-outline-variant hover:border-primary/40 transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]" data-weight="fill">key</span>
+</div>
+<span class="font-body-md font-semibold">License Key System</span>
+</div>
+<div class="w-10 h-5 bg-secondary rounded-full relative cursor-pointer shadow-[0_0_8px_rgba(78,222,163,0.3)]">
+<div class="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full"></div>
+</div>
+</div>
+<!-- HWID Lock -->
+<div class="flex items-center justify-between p-3 rounded bg-surface-container-low border border-outline-variant hover:border-primary/40 transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]" data-weight="fill">lock</span>
+</div>
+<span class="font-body-md font-semibold">HWID Lock</span>
+</div>
+<div class="w-10 h-5 bg-secondary rounded-full relative cursor-pointer shadow-[0_0_8px_rgba(78,222,163,0.3)]">
+<div class="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full"></div>
+</div>
+</div>
+<!-- Webhooks -->
+<div class="flex items-center justify-between p-3 rounded bg-surface-container-low border border-outline-variant hover:border-primary/40 transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]" data-weight="fill">webhook</span>
+</div>
+<span class="font-body-md font-semibold">Webhooks</span>
+</div>
+<div class="w-10 h-5 bg-secondary rounded-full relative cursor-pointer shadow-[0_0_8px_rgba(78,222,163,0.3)]">
+<div class="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full"></div>
+</div>
+</div>
+<!-- Affiliate Program -->
+<div class="flex items-center justify-between p-3 rounded bg-surface-container-low border border-outline-variant opacity-60">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-on-surface-variant/10 flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">group_add</span>
+</div>
+<span class="font-body-md font-semibold">Affiliate Program</span>
+</div>
+<div class="w-10 h-5 bg-surface-container-highest rounded-full relative cursor-pointer">
+<div class="absolute left-0.5 top-0.5 w-4 h-4 bg-outline-variant rounded-full"></div>
+</div>
+</div>
+<!-- Advertisement System -->
+<div class="flex items-center justify-between p-3 rounded bg-surface-container-low border border-outline-variant opacity-60">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-on-surface-variant/10 flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">campaign</span>
+</div>
+<span class="font-body-md font-semibold">Advertisement System</span>
+</div>
+<div class="w-10 h-5 bg-surface-container-highest rounded-full relative cursor-pointer">
+<div class="absolute left-0.5 top-0.5 w-4 h-4 bg-outline-variant rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Beta Features List -->
+<div class="col-span-2 space-y-6">
+<!-- Rollout Control -->
+<div class="glass-card rounded-xl p-6">
+<div class="flex justify-between items-start mb-8">
+<div>
+<h3 class="font-headline-sm text-headline-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary">science</span>
+                                Progressive Rollouts
+                            </h3>
+<p class="text-on-surface-variant text-body-sm">Active beta testing modules and user targeting metrics.</p>
+</div>
+<div class="flex gap-2">
+<button class="p-2 border border-outline-variant rounded hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-[18px]">filter_list</span></button>
+<button class="p-2 border border-outline-variant rounded hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-[18px]">refresh</span></button>
+</div>
+</div>
+<div class="space-y-8">
+<!-- Flag Item 1 -->
+<div class="flex flex-col gap-4 pb-6 border-b border-outline-variant last:border-0 last:pb-0">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-primary/10 rounded">
+<code class="text-primary font-code-sm uppercase tracking-wider">v2_quantum_engine</code>
+</div>
+<span class="font-body-md font-bold">Quantum Search v2</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-xs text-on-surface-variant font-medium">Last change: 2h ago by <strong class="text-on-surface">j.doe</strong></span>
+<span class="px-3 py-1 bg-secondary-container/20 text-secondary text-[11px] font-black rounded uppercase border border-secondary/20">TARGET: PRO</span>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-6 items-center">
+<div class="col-span-8">
+<div class="flex justify-between mb-2">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-tighter">Rollout Exposure</label>
+<span class="text-xs font-bold text-primary">75%</span>
+</div>
+<div class="relative h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="absolute top-0 left-0 h-full bg-primary" style="width: 75%"></div>
+<div class="absolute top-0 right-0 h-full w-2 bg-primary-fixed blur-sm" style="left: 75%"></div>
+</div>
+</div>
+<div class="col-span-4 flex gap-2">
+<select class="flex-1 bg-surface-container border border-outline-variant text-body-sm rounded px-2 py-1.5 focus:border-primary focus:ring-0">
+<option>Pro Tier Only</option>
+<option>All Users</option>
+<option>Free Tier</option>
+</select>
+<button class="material-symbols-outlined p-1.5 bg-surface-container-highest rounded border border-outline-variant hover:text-primary">edit_note</button>
+</div>
+</div>
+</div>
+<!-- Flag Item 2 -->
+<div class="flex flex-col gap-4 pb-6 border-b border-outline-variant last:border-0 last:pb-0">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-tertiary/10 rounded">
+<code class="text-tertiary font-code-sm uppercase tracking-wider">beta_billing_v4</code>
+</div>
+<span class="font-body-md font-bold">New Checkout UI</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-xs text-on-surface-variant font-medium">Last change: 14h ago by <strong class="text-on-surface">admin_sys</strong></span>
+<span class="px-3 py-1 bg-surface-container-highest text-on-surface-variant text-[11px] font-black rounded uppercase border border-outline-variant">TARGET: ALL</span>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-6 items-center">
+<div class="col-span-8">
+<div class="flex justify-between mb-2">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-tighter">Rollout Exposure</label>
+<span class="text-xs font-bold text-primary">12%</span>
+</div>
+<div class="relative h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="absolute top-0 left-0 h-full bg-primary" style="width: 12%"></div>
+</div>
+</div>
+<div class="col-span-4 flex gap-2">
+<select class="flex-1 bg-surface-container border border-outline-variant text-body-sm rounded px-2 py-1.5 focus:border-primary focus:ring-0">
+<option>All Users</option>
+<option>Pro Tier Only</option>
+<option>Free Tier</option>
+</select>
+<button class="material-symbols-outlined p-1.5 bg-surface-container-highest rounded border border-outline-variant hover:text-primary">edit_note</button>
+</div>
+</div>
+</div>
+<!-- Flag Item 3 -->
+<div class="flex flex-col gap-4 pb-6 border-b border-outline-variant last:border-0 last:pb-0">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-primary/10 rounded">
+<code class="text-primary font-code-sm uppercase tracking-wider">canary_worker_nodes</code>
+</div>
+<span class="font-body-md font-bold">Distributed Processing</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-xs text-on-surface-variant font-medium">Last change: 3d ago by <strong class="text-on-surface">ops_lead</strong></span>
+<span class="px-3 py-1 bg-secondary-container/20 text-secondary text-[11px] font-black rounded uppercase border border-secondary/20">TARGET: PRO</span>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-6 items-center">
+<div class="col-span-8">
+<div class="flex justify-between mb-2">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-tighter">Rollout Exposure</label>
+<span class="text-xs font-bold text-primary">0%</span>
+</div>
+<div class="relative h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="absolute top-0 left-0 h-full bg-primary" style="width: 0%"></div>
+</div>
+</div>
+<div class="col-span-4 flex gap-2">
+<select class="flex-1 bg-surface-container border border-outline-variant text-body-sm rounded px-2 py-1.5 focus:border-primary focus:ring-0">
+<option>Pro Tier Only</option>
+<option>All Users</option>
+<option>Free Tier</option>
+</select>
+<button class="material-symbols-outlined p-1.5 bg-surface-container-highest rounded border border-outline-variant hover:text-primary">edit_note</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Add New Feature Flag Modal Overlay (Simulated View) -->
+<div class="fixed inset-0 bg-background/60 backdrop-blur-sm z-[60] flex items-center justify-center pointer-events-none opacity-0 transition-opacity">
+<div class="glass-card w-full max-w-lg rounded-xl shadow-2xl p-8 translate-y-4 transition-transform">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-headline-md text-primary">New Feature Flag</h3>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-on-surface">close</button>
+</div>
+<form class="space-y-6">
+<div class="space-y-1">
+<label class="text-xs font-bold text-outline uppercase">Identifier Key</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-3 text-body-md focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none" placeholder="e.g. beta_feature_v1" type="text"/>
+</div>
+<div class="space-y-1">
+<label class="text-xs font-bold text-outline uppercase">Description</label>
+<textarea class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-3 text-body-md focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none resize-none" placeholder="Briefly describe the purpose of this flag..." rows="3"></textarea>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1">
+<label class="text-xs font-bold text-outline uppercase">Target Group</label>
+<select class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-3 text-body-md focus:border-primary outline-none">
+<option>Internal Only</option>
+<option>Pro Users</option>
+<option>All Users</option>
+</select>
+</div>
+<div class="space-y-1">
+<label class="text-xs font-bold text-outline uppercase">Initial State</label>
+<div class="flex items-center h-[52px] gap-4">
+<div class="w-10 h-5 bg-surface-container-highest rounded-full relative cursor-pointer">
+<div class="absolute left-0.5 top-0.5 w-4 h-4 bg-outline rounded-full"></div>
+</div>
+<span class="text-body-sm font-medium">Disabled by default</span>
+</div>
+</div>
+</div>
+<div class="flex gap-4 pt-4">
+<button class="flex-1 px-6 py-3 border border-outline-variant rounded-lg font-label-md hover:bg-surface-container-high transition-colors" type="button">CANCEL</button>
+<button class="flex-1 px-6 py-3 bg-primary text-on-primary rounded-lg font-label-md hover:brightness-110 shadow-lg shadow-primary/20" type="submit">CREATE FLAG</button>
+</div>
+</form>
+</div>
+</div>
+</main>
+<!-- Floating System Status Indicator -->
+<div class="fixed bottom-gutter right-gutter z-30">
+<div class="glass-card px-4 py-2 rounded-full border border-primary/20 flex items-center gap-3 shadow-lg">
+<div class="flex gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+</div>
+<span class="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">System Latency: 24ms</span>
+</div>
+</div>
+</body></html>
