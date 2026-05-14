@@ -1,0 +1,4 @@
+id,name,price_monthly,price_yearly,max_apps,max_users_per_app,max_keys_per_month,features_json,ai_agent_access
+1,Starter,0,0,1,50,100,"[""Basic Analytics"", ""Community Support""]",false
+2,Developer,1900,19000,5,500,5000,"[""Advanced Analytics"", ""Discord Bot"", ""Telegram Bot"", ""Chatrooms""]",false
+3,Enterprise,4900,45000,20,5000,50000,"[""White Label"", ""Custom Branding"", ""Priority Support"", ""AI Agent Access"", ""Seller API""]",true

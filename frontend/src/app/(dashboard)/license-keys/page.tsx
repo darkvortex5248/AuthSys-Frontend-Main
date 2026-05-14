@@ -1,0 +1,465 @@
+'use client';
+import { useState, useEffect } from 'react';
+import api from '@/lib/api';
+import { useAuthStore } from '@/store/auth';
+
+export default function LicenseKeysPage() {
+  const { selectedAppId } = useAuthStore();
+  const [loading, setLoading] = useState(true);
+  const [keys, setKeys] = useState<any[]>([]);
+  const [apps, setApps] = useState<any[]>([]);
+  const [genData, setGenData] = useState({ quantity: 10, type: 'time', duration: 30, expires_at: '' });
+  const [showEditModal, setShowEditModal] = useState<any>(null);
+  const [showSingleModal, setShowSingleModal] = useState(false);
+  const [singleData, setSingleData] = useState({ type: 'time', duration: 30, max_uses: 1, expires_at: '', note: '', custom_key: '' });
+  const [editData, setEditData] = useState({ type: 'time', duration: 30, max_uses: 0, expires_at: '', note: '', seller_tag: '' });
+  const [generating, setGenerating] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  const fetchKeys = async () => {
+    if (!selectedAppId) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await api.get(`/developer/keys/${selectedAppId}`);
+      setKeys(res.data);
+    } catch (err) {
+      console.error("Failed to fetch keys", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    setMounted(true);
+    if (selectedAppId) {
+      fetchKeys();
+    } else {
+      setLoading(false);
+    }
+  }, [selectedAppId]);
+
+  const handleGenerate = async () => {
+    if (!selectedAppId) return;
+    setGenerating(true);
+    try {
+      await api.post('/developer/keys/bulk-generate', {
+        app_id: selectedAppId,
+        count: genData.quantity,
+        key_type: genData.type,
+        duration_days: genData.duration === 0 ? null : genData.duration,
+        max_uses: null,
+        expires_at: genData.expires_at || null
+      });
+      fetchKeys();
+      alert("Successfully generated " + genData.quantity + " keys!");
+    } catch (err) {
+      alert("Failed to generate keys");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleSingleGenerate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedAppId) return;
+    setGenerating(true);
+    try {
+      await api.post('/developer/keys/generate', {
+        app_id: selectedAppId,
+        key_type: singleData.type,
+        duration_days: singleData.duration === 0 ? null : singleData.duration,
+        max_uses: singleData.max_uses,
+        expires_at: singleData.expires_at || null,
+        note: singleData.note,
+        custom_key: singleData.custom_key || null
+      });
+      setShowSingleModal(false);
+      setSingleData({ type: 'time', duration: 30, max_uses: 1, expires_at: '', note: '', custom_key: '' });
+      fetchKeys();
+      alert("License key created successfully!");
+    } catch (err: any) {
+      alert(err.response?.data?.detail || "Failed to create key");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleTogglePause = async (id: number) => {
+    try {
+      await api.post(`/developer/keys/${id}/pause`);
+      fetchKeys();
+    } catch (err) {
+      alert("Failed to toggle status");
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Are you sure?")) return;
+    try {
+      await api.delete(`/developer/keys/${id}`);
+      fetchKeys();
+    } catch (err) {
+      alert("Failed to delete key");
+    }
+  };
+
+  const handleHWIDReset = async (id: number) => {
+    if (!confirm("Reset HWID for all users using this license?")) return;
+    try {
+      await api.post(`/developer/keys/${id}/hwid-reset`);
+      alert("HWID Reset Successful");
+      fetchKeys();
+    } catch (err) {
+      alert("Failed to reset HWID");
+    }
+  };
+
+  const handleEditKey = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!showEditModal) return;
+    try {
+      await api.put(`/developer/keys/${showEditModal.id}`, {
+        key_type: editData.type,
+        duration_days: editData.duration || null,
+        max_uses: editData.max_uses || null,
+        expires_at: editData.expires_at || null,
+        note: editData.note,
+        seller_tag: editData.seller_tag
+      });
+      setShowEditModal(null);
+      fetchKeys();
+    } catch (err) {
+      alert("Failed to update key");
+    }
+  };
+
+  if (!mounted) return null;
+
+  if (!selectedAppId) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] text-[var(--vault-on-surface-variant)]">
+        <span className="material-symbols-outlined text-6xl mb-4 opacity-20">apps</span>
+        <p className="text-xl font-bold">Please select an application first</p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6">
+        <div>
+          <h2 className="text-4xl font-bold text-[var(--vault-on-surface)] tracking-tight">License Management</h2>
+          <p className="text-[var(--vault-on-surface-variant)] mt-1 font-medium">Manage authentication keys for App ID: {selectedAppId}</p>
+        </div>
+        <button 
+          onClick={() => setShowSingleModal(true)}
+          className="flex items-center gap-2 bg-[var(--vault-primary)] text-[var(--vault-on-primary)] px-6 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-[var(--vault-primary)]/20 hover:scale-[1.02] transition-all"
+        >
+          <span className="material-symbols-outlined text-sm">add</span>
+          Create Single Key
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {[
+          { label: 'Total Keys', val: keys.length, icon: 'database', color: 'var(--vault-primary)' },
+          { label: 'Active', val: keys.filter(k => !k.is_paused).length, icon: 'check_circle', color: '#34d399' },
+          { label: 'Paused', val: keys.filter(k => k.is_paused).length, icon: 'pause_circle', color: '#ffb786' },
+          { label: 'Redeemed', val: keys.filter(k => k.current_uses > 0).length, icon: 'bolt', color: 'var(--vault-tertiary)' },
+        ].map((stat, i) => (
+          <div key={i} className="glass-card p-6 rounded-2xl flex flex-col justify-between group">
+            <div className="flex items-center justify-between mb-4">
+              <span className="material-symbols-outlined p-2 rounded-lg bg-white/5 border border-white/5 group-hover:border-[var(--vault-primary)]/30 transition-all" style={{ color: stat.color }}>{stat.icon}</span>
+            </div>
+            <div>
+              <p className="text-[10px] text-[var(--vault-on-surface-variant)] uppercase tracking-widest font-bold mb-1">{stat.label}</p>
+              <p className="text-3xl font-bold text-[var(--vault-on-surface)]">{stat.val}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="glass-card rounded-2xl p-8 mb-8 border-[var(--vault-primary)]/20 bg-gradient-to-br from-[var(--vault-primary)]/5 to-transparent relative overflow-hidden">
+        <div className="absolute -right-16 -top-16 w-64 h-64 bg-[var(--vault-primary)]/5 blur-3xl rounded-full" />
+        <div className="flex items-start justify-between mb-6 relative z-10">
+          <div>
+            <h3 className="text-xl font-bold text-[var(--vault-primary)]">Bulk Generation</h3>
+            <p className="text-[var(--vault-on-surface-variant)] text-sm font-medium">Batch create license keys for deployment.</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end relative z-10">
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Quantity</label>
+            <input 
+              className="glass-input w-full px-4 py-3 rounded-xl text-sm" type="number" 
+              value={genData.quantity} onChange={(e) => setGenData({...genData, quantity: parseInt(e.target.value)})}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Key Type</label>
+            <select 
+              className="glass-input w-full px-4 py-3 rounded-xl text-sm appearance-none"
+              value={genData.type} onChange={(e) => setGenData({...genData, type: e.target.value})}
+            >
+              <option value="time">Time Based</option>
+              <option value="lifetime">Lifetime</option>
+            </select>
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Duration</label>
+            <div className="flex gap-2">
+              {[7, 30, 0].map(d => (
+                <button 
+                  key={d} 
+                  onClick={() => setGenData({...genData, duration: d})}
+                  className={`flex-1 py-3 px-2 text-[10px] font-bold rounded-xl border border-white/5 transition-all ${genData.duration === d ? 'bg-[var(--vault-primary)]/20 border-[var(--vault-primary)]/40 text-[var(--vault-primary)]' : 'bg-white/5 text-[var(--vault-on-surface-variant)] hover:border-[var(--vault-primary)]/30'}`}
+                >
+                  {d === 0 ? 'LIFETIME' : d + ' DAYS'}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Expiration (Manual)</label>
+            <input 
+              className="glass-input w-full px-4 py-3 rounded-xl text-sm" type="datetime-local" 
+              value={genData.expires_at} onChange={(e) => setGenData({...genData, expires_at: e.target.value, duration: 0})}
+            />
+          </div>
+          <button 
+            disabled={generating}
+            onClick={handleGenerate}
+            className="bg-[var(--vault-primary)] text-[var(--vault-on-primary)] font-bold py-3.5 rounded-xl hover:scale-[1.01] active:scale-[0.99] transition-all uppercase tracking-widest text-xs shadow-lg shadow-[var(--vault-primary)]/20 disabled:opacity-50"
+          >
+            {generating ? 'Generating...' : 'Execute Generation'}
+          </button>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-2xl overflow-hidden shadow-2xl">
+        <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+          <h3 className="text-lg font-bold text-[var(--vault-on-surface)]">Recent License Keys</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-white/[0.01]">
+                {['License Key', 'Type', 'Status', 'Uses', 'Created', 'Actions'].map((h, i) => (
+                  <th key={h} className={`px-6 py-4 text-[10px] text-[var(--vault-on-surface-variant)] uppercase tracking-widest font-bold border-b border-white/5 ${i === 5 ? 'text-right' : ''}`}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/[0.02]">
+              {keys.map((k, i) => (
+                <tr key={i} className="hover:bg-white/[0.02] transition-colors group">
+                  <td className="px-6 py-5">
+                    <div className="flex items-center gap-2">
+                      <code className="text-xs font-mono text-[var(--vault-primary)] bg-[var(--vault-primary)]/5 px-2 py-1 rounded border border-[var(--vault-primary)]/10">{k.key_value}</code>
+                      <button 
+                        onClick={() => { navigator.clipboard.writeText(k.key_value); alert('Copied!'); }}
+                        className="opacity-0 group-hover:opacity-100 text-[var(--vault-on-surface-variant)] hover:text-[var(--vault-primary)] transition-all"
+                      ><span className="material-symbols-outlined text-base">content_copy</span></button>
+                    </div>
+                  </td>
+                  <td className="px-6 py-5 font-bold text-xs text-[var(--vault-on-surface)] uppercase">{k.key_type}</td>
+                  <td className="px-6 py-5">
+                    <span className={`px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest rounded-full border ${!k.is_paused ? 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20' : 'bg-amber-400/10 text-amber-400 border-amber-400/20'}`}>
+                      {!k.is_paused ? 'Active' : 'Paused'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-5 text-xs text-[var(--vault-on-surface)]">{k.current_uses} / {k.max_uses || '∞'}</td>
+                  <td className="px-6 py-5">
+                    <p className="text-xs font-bold text-[var(--vault-on-surface)]">{new Date(k.created_at).toLocaleDateString()}</p>
+                    <p className="text-[9px] text-[var(--vault-on-surface-variant)] uppercase">Expires: {k.expires_at ? new Date(k.expires_at).toLocaleDateString() : 'Lifetime'}</p>
+                  </td>
+                  <td className="px-6 py-5 text-right">
+                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button 
+                        onClick={() => {
+                          setShowEditModal(k);
+                          setEditData({ 
+                            type: k.key_type, 
+                            duration: k.duration_days || 0, 
+                            max_uses: k.max_uses || 0, 
+                            expires_at: k.expires_at ? new Date(k.expires_at).toISOString().slice(0, 16) : '',
+                            note: k.note || '',
+                            seller_tag: k.seller_tag || ''
+                          });
+                        }}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-blue-400/10 transition-all text-[var(--vault-on-surface-variant)] hover:text-blue-400"
+                      ><span className="material-symbols-outlined text-lg">edit</span></button>
+                      <button 
+                        onClick={() => handleTogglePause(k.id)}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-amber-400/10 transition-all text-[var(--vault-on-surface-variant)] hover:text-amber-400"
+                      ><span className="material-symbols-outlined text-lg">{k.is_paused ? 'play_arrow' : 'pause'}</span></button>
+                      <button 
+                        onClick={() => handleHWIDReset(k.id)}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[var(--vault-primary)]/10 transition-all text-[var(--vault-on-surface-variant)] hover:text-[var(--vault-primary)]"
+                        title="Reset HWID"
+                      ><span className="material-symbols-outlined text-lg">restart_alt</span></button>
+                      <button 
+                        onClick={() => handleDelete(k.id)}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-400/10 transition-all text-[var(--vault-on-surface-variant)] hover:text-red-400"
+                        title="Delete Key"
+                      ><span className="material-symbols-outlined text-lg">delete</span></button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {keys.length === 0 && !loading && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-10 text-center text-[var(--vault-on-surface-variant)] text-sm">No keys found for this application.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Single Key Creation Modal */}
+      {showSingleModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-[var(--vault-surface)]/80 backdrop-blur-sm">
+          <div className="glass-card w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border border-white/10">
+            <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+              <h3 className="text-xl font-bold text-[var(--vault-on-surface)]">Create Single Key</h3>
+              <button onClick={() => setShowSingleModal(false)} className="text-[var(--vault-on-surface-variant)] hover:text-red-400 transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <form onSubmit={handleSingleGenerate} className="p-8 space-y-4">
+              <div className="space-y-1">
+                <label className="text-[9px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Custom Key (Optional)</label>
+                <input 
+                  className="glass-input w-full px-3 py-2 rounded-xl text-xs" 
+                  placeholder="e.g. SPECIAL-KEY-123"
+                  value={singleData.custom_key} onChange={(e) => setSingleData({...singleData, custom_key: e.target.value})}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Key Type</label>
+                  <select 
+                    className="glass-input w-full px-3 py-2 rounded-xl text-xs appearance-none"
+                    value={singleData.type} onChange={(e) => setSingleData({...singleData, type: e.target.value})}
+                  >
+                    <option value="time">Time Based</option>
+                    <option value="lifetime">Lifetime</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Duration (Days)</label>
+                  <input 
+                    className="glass-input w-full px-3 py-2 rounded-xl text-xs" type="number" 
+                    value={singleData.duration} onChange={(e) => setSingleData({...singleData, duration: parseInt(e.target.value)})}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Max Uses (0=∞)</label>
+                  <input 
+                    className="glass-input w-full px-3 py-2 rounded-xl text-xs" type="number" 
+                    value={singleData.max_uses} onChange={(e) => setSingleData({...singleData, max_uses: parseInt(e.target.value)})}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Expiration (Manual)</label>
+                  <input 
+                    className="glass-input w-full px-3 py-2 rounded-xl text-xs" type="datetime-local" 
+                    value={singleData.expires_at} onChange={(e) => setSingleData({...singleData, expires_at: e.target.value})}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[9px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Note</label>
+                <textarea 
+                  className="glass-input w-full px-3 py-2 rounded-xl text-xs resize-none h-20" 
+                  placeholder="Reason for this key..."
+                  value={singleData.note} onChange={(e) => setSingleData({...singleData, note: e.target.value})}
+                />
+              </div>
+              <div className="flex gap-4 pt-4">
+                <button type="button" onClick={() => setShowSingleModal(false)} className="flex-1 py-3 rounded-xl border border-white/5 font-bold text-xs uppercase">Cancel</button>
+                <button type="submit" disabled={generating} className="flex-1 py-3 rounded-xl bg-[var(--vault-primary)] text-[var(--vault-on-primary)] font-bold text-xs uppercase disabled:opacity-50">
+                  {generating ? 'Creating...' : 'Create Key'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-[var(--vault-surface)]/80 backdrop-blur-sm">
+          <div className="glass-card w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border border-white/10">
+            <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+              <h3 className="text-xl font-bold text-[var(--vault-on-surface)]">Edit License Key</h3>
+              <button onClick={() => setShowEditModal(null)} className="text-[var(--vault-on-surface-variant)] hover:text-red-400 transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <form onSubmit={handleEditKey} className="p-8 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Key Type</label>
+                  <select 
+                    className="glass-input w-full px-3 py-2 rounded-xl text-xs appearance-none"
+                    value={editData.type} onChange={(e) => setEditData({...editData, type: e.target.value})}
+                  >
+                    <option value="time">Time Based</option>
+                    <option value="lifetime">Lifetime</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Duration (Days)</label>
+                  <input 
+                    className="glass-input w-full px-3 py-2 rounded-xl text-xs" type="number" 
+                    value={editData.duration} onChange={(e) => setEditData({...editData, duration: parseInt(e.target.value)})}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Max Uses (0=∞)</label>
+                  <input 
+                    className="glass-input w-full px-3 py-2 rounded-xl text-xs" type="number" 
+                    value={editData.max_uses} onChange={(e) => setEditData({...editData, max_uses: parseInt(e.target.value)})}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Expiration (Manual)</label>
+                  <input 
+                    className="glass-input w-full px-3 py-2 rounded-xl text-xs" type="datetime-local" 
+                    value={editData.expires_at} onChange={(e) => setEditData({...editData, expires_at: e.target.value})}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[9px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Seller Tag</label>
+                <input 
+                  className="glass-input w-full px-3 py-2 rounded-xl text-xs" 
+                  value={editData.seller_tag} onChange={(e) => setEditData({...editData, seller_tag: e.target.value})}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[9px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Note</label>
+                <textarea 
+                  className="glass-input w-full px-3 py-2 rounded-xl text-xs resize-none h-20" 
+                  value={editData.note} onChange={(e) => setEditData({...editData, note: e.target.value})}
+                />
+              </div>
+              <div className="flex gap-4 pt-4">
+                <button type="button" onClick={() => setShowEditModal(null)} className="flex-1 py-3 rounded-xl border border-white/5 font-bold text-xs uppercase">Cancel</button>
+                <button type="submit" className="flex-1 py-3 rounded-xl bg-[var(--vault-primary)] text-[var(--vault-on-primary)] font-bold text-xs uppercase">Update Key</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
