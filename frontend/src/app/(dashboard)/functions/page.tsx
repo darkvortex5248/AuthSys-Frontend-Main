@@ -54,7 +54,7 @@ export default function FunctionsPage() {
     }
   };
 
-  const handleDelete = async (id: int) => {
+  const handleDelete = async (id: number) => {
     try {
       await api.delete(`/developer/variables/${id}`);
       toast.success("Variable deleted");
