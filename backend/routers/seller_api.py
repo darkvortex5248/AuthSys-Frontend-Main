@@ -44,6 +44,12 @@ async def seller_generate_key(app_id: int, duration: int, seller_key: str = Head
     if not seller:
         raise HTTPException(status_code=401, detail="Invalid Seller API Key")
         
+    # Verify App belongs to the same developer
+    app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
+    app = app_res.scalars().first()
+    if not app:
+        raise HTTPException(status_code=403, detail="Unauthorized: You cannot generate keys for this application.")
+        
     # Logic to generate license key for the app
     import string
     alphabet = string.ascii_uppercase + string.digits

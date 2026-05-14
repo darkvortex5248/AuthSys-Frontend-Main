@@ -126,12 +126,12 @@ async def update_app(app_id: int, req: AppUpdate, dev: DeveloperAccount = Depend
 async def get_portal_stats(app_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     await verify_app_access(app_id, dev.id, db)
     
-    # Real stats from ActivityLog
-    visits_res = await db.execute(select(ActivityLog).where(ActivityLog.app_id == app_id, ActivityLog.action_type == "login"))
-    visits = len(visits_res.scalars().all())
+    # Real stats from ActivityLog using counts
+    v_stmt = select(func.count(ActivityLog.id)).where(ActivityLog.app_id == app_id, ActivityLog.action_type == "login")
+    visits = (await db.execute(v_stmt)).scalar() or 0
     
-    resets_res = await db.execute(select(ActivityLog).where(ActivityLog.app_id == app_id, ActivityLog.action_type == "hwid_reset"))
-    resets = len(resets_res.scalars().all())
+    r_stmt = select(func.count(ActivityLog.id)).where(ActivityLog.app_id == app_id, ActivityLog.action_type == "hwid_reset")
+    resets = (await db.execute(r_stmt)).scalar() or 0
     
     return {
         "visits": visits,
