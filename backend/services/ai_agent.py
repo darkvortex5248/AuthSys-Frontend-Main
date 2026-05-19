@@ -1,7 +1,6 @@
 import os
 import json
 import asyncio
-import google.generativeai as genai
 from models.domain import AIAgentLog, LicenseKey, Application, EndUser
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -51,6 +50,8 @@ async def process_natural_language_command(command: str, dev_id: int, context: d
     
     try:
         if api_key:
+            import google.generativeai as genai  # lazy import avoids startup warning on Vercel
+
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel('gemini-1.5-flash')
             

@@ -15,6 +15,10 @@ from routers import (
 )
 from services.bot_manager import manager as bot_manager
 import asyncio
+import logging
+import os
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -27,8 +31,18 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @app.on_event("startup")
 async def startup_event():
-    # Start all active customer bots in the background
-    asyncio.create_task(bot_manager.start_all_bots())
+    # Long-running Discord/Telegram bots cannot run on Vercel serverless
+    if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+        logger.info("Skipping bot manager on serverless runtime")
+        return
+
+    async def _safe_start_bots():
+        try:
+            await bot_manager.start_all_bots()
+        except Exception as exc:
+            logger.warning("Bot manager failed to start: %s", exc)
+
+    asyncio.create_task(_safe_start_bots())
 
 # CORS Middleware - Allow Vercel and localhost origins
 class DynamicCORSMiddleware(BaseHTTPMiddleware):

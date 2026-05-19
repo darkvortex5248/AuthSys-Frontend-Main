@@ -52,17 +52,20 @@ class BotManager:
 
     async def start_all_bots(self):
         logger.info("Starting all active customer bots (Discord & Telegram)...")
-        async with AsyncSessionLocal() as db:
-            res = await db.execute(select(BotConfig).where(BotConfig.is_active == True))
-            configs = res.scalars().all()
-            
-            for config in configs:
-                if config.bot_type == "discord" and config.id not in self.active_discord_bots:
-                    task = asyncio.create_task(self.run_discord_bot(config))
-                    self.active_discord_bots[config.id] = task
-                elif config.bot_type == "telegram" and config.id not in self.active_telegram_bots:
-                    task = asyncio.create_task(self.run_telegram_bot(config))
-                    self.active_telegram_bots[config.id] = task
+        try:
+            async with AsyncSessionLocal() as db:
+                res = await db.execute(select(BotConfig).where(BotConfig.is_active == True))
+                configs = res.scalars().all()
+
+                for config in configs:
+                    if config.bot_type == "discord" and config.id not in self.active_discord_bots:
+                        task = asyncio.create_task(self.run_discord_bot(config))
+                        self.active_discord_bots[config.id] = task
+                    elif config.bot_type == "telegram" and config.id not in self.active_telegram_bots:
+                        task = asyncio.create_task(self.run_telegram_bot(config))
+                        self.active_telegram_bots[config.id] = task
+        except Exception as e:
+            logger.error("Failed to start bots: %s", e)
 
     async def run_discord_bot(self, config):
         try:
