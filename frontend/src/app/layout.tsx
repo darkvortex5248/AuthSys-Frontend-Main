@@ -4,6 +4,7 @@ import './globals.css'
 import SmoothScroll from '@/components/SmoothScroll'
 import PageTransition from '@/components/PageTransition'
 import { NextAuthProvider } from '@/components/NextAuthProvider'
+import { QueryProvider } from '@/components/providers/QueryProvider'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -30,12 +31,14 @@ export default function RootLayout({
       <body className={inter.className} 
             style={{ background: '#08080F', color: '#EEEEFF' }}>
         <NextAuthProvider>
-          <SmoothScroll>
-            <PageTransition>
-              {children}
-            </PageTransition>
-          </SmoothScroll>
-          <Toaster />
+          <QueryProvider>
+            <SmoothScroll>
+              <PageTransition>
+                {children}
+              </PageTransition>
+            </SmoothScroll>
+            <Toaster />
+          </QueryProvider>
         </NextAuthProvider>
       </body>
     </html>

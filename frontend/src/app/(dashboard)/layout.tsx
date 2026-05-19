@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth';
 import api from '@/lib/api';
 import dynamic from 'next/dynamic';
+import { useApps, useDeveloperMe } from '@/hooks/use-developer-queries';
 const AIChatWidget = dynamic(() => import('@/components/dashboard/AIChatWidget'), { ssr: false });
 import { useSession, signOut } from 'next-auth/react';
 
@@ -38,7 +39,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
   const { user, setUser, selectedAppId, setSelectedAppId, logout, token, setToken } = useAuthStore();
-  const [apps, setApps] = useState<any[]>([]);
+  const { data: apps = [] } = useApps();
+  const { data: profile } = useDeveloperMe(!!token);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any>(null);
   const [showSearch, setShowSearch] = useState(false);
@@ -59,27 +61,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       }
     }
 
-    if (token) {
-      api.get('/developer/auth/me').then(res => {
-        setUser(res.data);
-      }).catch(err => {
-        console.error("Failed to fetch user profile", err);
-        if (err.response?.status === 401 && sessionStatus !== 'authenticated') {
-           logout();
-           router.push('/login');
-        }
-      });
+    if (profile && user?.id !== profile.id) {
+      setUser(profile);
     }
+  }, [profile, setUser, user?.id]);
 
-    if (token) {
-      api.get('/developer/apps').then(res => {
-        setApps(res.data);
-        if (!selectedAppId && res.data.length > 0) {
-          setSelectedAppId(res.data[0].id);
-        }
-      }).catch(err => console.error("Failed to fetch apps for selector", err));
+  useEffect(() => {
+    if (apps.length > 0 && !selectedAppId) {
+      setSelectedAppId(apps[0].id);
     }
-  }, [token, user, session, sessionStatus]);
+  }, [apps, selectedAppId, setSelectedAppId]);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {

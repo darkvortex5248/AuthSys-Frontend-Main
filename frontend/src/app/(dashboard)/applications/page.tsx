@@ -1,13 +1,22 @@
 'use client';
-import { useState, useEffect, useMemo } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
+import {
+  useApps,
+  useCreateApp,
+  useDeleteApp,
+  useToggleApp,
+} from '@/hooks/use-developer-queries';
 
 export default function ApplicationsPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [apps, setApps] = useState<any[]>([]);
+  const { data: apps = [], isLoading: loading } = useApps();
+  const createApp = useCreateApp();
+  const toggleApp = useToggleApp();
+  const deleteApp = useDeleteApp();
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ name: '', version: '1.0.0', min_version: '0.9.0', hwid_enabled: true });
   const [creating, setCreating] = useState(false);
@@ -31,23 +40,8 @@ export default function ApplicationsPage() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    alert("Copied to clipboard!");
+    toast.success('Copied to clipboard');
   };
-
-  const fetchApps = async () => {
-    try {
-      const res = await api.get('/developer/apps');
-      setApps(res.data);
-    } catch (err) {
-      console.error("Failed to fetch apps", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchApps();
-  }, []);
 
   if (loading) {
     return (
@@ -64,17 +58,17 @@ export default function ApplicationsPage() {
 
   const handleCreate = async () => {
     if (!formData.name.trim()) {
-      alert("Application name is required");
+      toast.error('Application name is required');
       return;
     }
     setCreating(true);
     try {
-      await api.post('/developer/apps/create', formData);
+      await createApp.mutateAsync(formData);
       setShowModal(false);
-      fetchApps();
+      setFormData({ name: '', version: '1.0.0', min_version: '0.9.0', hwid_enabled: true });
+      toast.success('Application created');
     } catch (err: any) {
-      const errorMsg = err.response?.data?.detail || "Failed to create app";
-      alert(errorMsg);
+      toast.error(err.response?.data?.detail || 'Failed to create app');
     } finally {
       setCreating(false);
     }
@@ -82,30 +76,30 @@ export default function ApplicationsPage() {
 
   const handleToggle = async (id: number) => {
     try {
-      await api.put(`/developer/apps/${id}/toggle`);
-      fetchApps();
-    } catch (err) {
-      alert("Failed to toggle app");
+      await toggleApp.mutateAsync(id);
+      toast.success('Application status updated');
+    } catch {
+      toast.error('Failed to toggle app');
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this app?")) return;
+    if (!confirm('Are you sure you want to delete this app?')) return;
     try {
-      await api.delete(`/developer/apps/${id}`);
-      fetchApps();
-    } catch (err) {
-      alert("Failed to delete app");
+      await deleteApp.mutateAsync(id);
+      toast.success('Application deleted');
+    } catch {
+      toast.error('Failed to delete app');
     }
   };
 
   const handleRegenSecret = async (id: number) => {
     try {
       const res = await api.post(`/developer/apps/${id}/regenerate-secret`);
-      alert(`New App Secret: ${res.data.app_secret}\n\nPlease copy it now, it won't be shown again.`);
-      fetchApps();
-    } catch (err) {
-      alert("Failed to regenerate secret");
+      toast.success(`New secret generated. Copy it now — it will not be shown again.`);
+      navigator.clipboard.writeText(res.data.app_secret);
+    } catch {
+      toast.error('Failed to regenerate secret');
     }
   };
 

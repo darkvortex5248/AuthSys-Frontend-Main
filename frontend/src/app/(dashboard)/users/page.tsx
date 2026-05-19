@@ -3,11 +3,16 @@ import { useState, useEffect, useMemo } from 'react';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
+import {
+  useAppUsers,
+  useInvalidateDeveloperData,
+} from '@/hooks/use-developer-queries';
 
 export default function UsersPage() {
   const { selectedAppId } = useAuthStore();
-  const [loading, setLoading] = useState(true);
-  const [users, setUsers] = useState<any[]>([]);
+  const invalidate = useInvalidateDeveloperData();
+  const { data: users = [], isLoading: loading } = useAppUsers(selectedAppId);
   const [showBanModal, setShowBanModal] = useState<any>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState<any>(null);
@@ -38,30 +43,9 @@ export default function UsersPage() {
     });
   }, [users, searchTerm, statusFilter]);
 
-  const fetchUsers = async () => {
-    if (!selectedAppId) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    try {
-      const res = await api.get(`/developer/users/${selectedAppId}`);
-      setUsers(res.data);
-    } catch (err) {
-      console.error("Failed to fetch users", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     setMounted(true);
-    if (selectedAppId) {
-      fetchUsers();
-    } else {
-      setLoading(false);
-    }
-  }, [selectedAppId]);
+  }, []);
 
   if (loading) {
     return (
@@ -88,9 +72,11 @@ export default function UsersPage() {
     try {
       await api.post(`/developer/users/${showBanModal.id}/ban`, banData);
       setShowBanModal(null);
-      fetchUsers();
+      if (selectedAppId) invalidate.users(selectedAppId);
+      invalidate.overview();
+      toast.success('User banned');
     } catch (err) {
-      alert("Failed to ban user");
+      toast.error('Failed to ban user');
     }
   };
 
@@ -101,18 +87,21 @@ export default function UsersPage() {
       await api.post('/developer/users/create', { ...newUser, app_id: selectedAppId });
       setShowAddModal(false);
       setNewUser({ username: '', password: '', email: '' });
-      fetchUsers();
+      if (selectedAppId) invalidate.users(selectedAppId);
+      invalidate.overview();
+      toast.success('User created');
     } catch (err) {
-      alert("Failed to create user. Username might be taken.");
+      toast.error('Failed to create user. Username might be taken.');
     }
   };
 
   const handleUnban = async (id: number) => {
     try {
       await api.post(`/developer/users/${id}/unban`);
-      fetchUsers();
+      if (selectedAppId) invalidate.users(selectedAppId);
+      toast.success('User unbanned');
     } catch (err) {
-      alert("Failed to unban user");
+      toast.error('Failed to unban user');
     }
   };
 
@@ -120,10 +109,10 @@ export default function UsersPage() {
     if (!confirm("Reset HWID for this user?")) return;
     try {
       await api.post(`/developer/users/${id}/hwid-reset`);
-      alert("HWID Reset Successful");
-      fetchUsers();
+      toast.success('HWID reset successful');
+      if (selectedAppId) invalidate.users(selectedAppId);
     } catch (err) {
-      alert("Failed to reset HWID");
+      toast.error('Failed to reset HWID');
     }
   };
 
@@ -135,9 +124,10 @@ export default function UsersPage() {
       if (editData.password) payload.password = editData.password;
       await api.put(`/developer/users/${showEditModal.id}`, payload);
       setShowEditModal(null);
-      fetchUsers();
+      if (selectedAppId) invalidate.users(selectedAppId);
+      toast.success('User updated');
     } catch (err) {
-      alert("Failed to update user");
+      toast.error('Failed to update user');
     }
   };
 
@@ -145,9 +135,11 @@ export default function UsersPage() {
     if (!confirm("Are you sure you want to delete this user permanently?")) return;
     try {
       await api.delete(`/developer/users/${id}`);
-      fetchUsers();
+      if (selectedAppId) invalidate.users(selectedAppId);
+      invalidate.overview();
+      toast.success('User deleted');
     } catch (err) {
-      alert("Failed to delete user");
+      toast.error('Failed to delete user');
     }
   };
 

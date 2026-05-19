@@ -3,12 +3,16 @@ import { useState, useEffect, useMemo } from 'react';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
+import {
+  useInvalidateDeveloperData,
+  useLicenseKeys,
+} from '@/hooks/use-developer-queries';
 
 export default function LicenseKeysPage() {
   const { selectedAppId } = useAuthStore();
-  const [loading, setLoading] = useState(true);
-  const [keys, setKeys] = useState<any[]>([]);
-  const [apps, setApps] = useState<any[]>([]);
+  const invalidate = useInvalidateDeveloperData();
+  const { data: keys = [], isLoading: loading } = useLicenseKeys(selectedAppId);
   const [genData, setGenData] = useState({ quantity: 10, type: 'time', duration: 30, expires_at: '' });
   const [showEditModal, setShowEditModal] = useState<any>(null);
   const [showSingleModal, setShowSingleModal] = useState(false);
@@ -37,30 +41,9 @@ export default function LicenseKeysPage() {
     });
   }, [keys, searchTerm, statusFilter]);
 
-  const fetchKeys = async () => {
-    if (!selectedAppId) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    try {
-      const res = await api.get(`/developer/keys/${selectedAppId}`);
-      setKeys(res.data);
-    } catch (err) {
-      console.error("Failed to fetch keys", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     setMounted(true);
-    if (selectedAppId) {
-      fetchKeys();
-    } else {
-      setLoading(false);
-    }
-  }, [selectedAppId]);
+  }, []);
 
   const handleGenerate = async () => {
     if (!selectedAppId) return;
@@ -74,10 +57,11 @@ export default function LicenseKeysPage() {
         max_uses: null,
         expires_at: genData.expires_at || null
       });
-      fetchKeys();
-      alert("Successfully generated " + genData.quantity + " keys!");
+      if (selectedAppId) invalidate.keys(selectedAppId);
+      invalidate.overview();
+      toast.success(`Generated ${genData.quantity} keys`);
     } catch (err) {
-      alert("Failed to generate keys");
+      toast.error('Failed to generate keys');
     } finally {
       setGenerating(false);
     }
@@ -99,10 +83,11 @@ export default function LicenseKeysPage() {
       });
       setShowSingleModal(false);
       setSingleData({ type: 'time', duration: 30, max_uses: 1, expires_at: '', note: '', custom_key: '' });
-      fetchKeys();
-      alert("License key created successfully!");
+      if (selectedAppId) invalidate.keys(selectedAppId);
+      invalidate.overview();
+      toast.success('License key created');
     } catch (err: any) {
-      alert(err.response?.data?.detail || "Failed to create key");
+      toast.error(err.response?.data?.detail || 'Failed to create key');
     } finally {
       setGenerating(false);
     }
@@ -111,9 +96,9 @@ export default function LicenseKeysPage() {
   const handleTogglePause = async (id: number) => {
     try {
       await api.post(`/developer/keys/${id}/pause`);
-      fetchKeys();
+      if (selectedAppId) invalidate.keys(selectedAppId);
     } catch (err) {
-      alert("Failed to toggle status");
+      toast.error('Failed to toggle status');
     }
   };
 
@@ -121,9 +106,11 @@ export default function LicenseKeysPage() {
     if (!confirm("Are you sure?")) return;
     try {
       await api.delete(`/developer/keys/${id}`);
-      fetchKeys();
+      if (selectedAppId) invalidate.keys(selectedAppId);
+      invalidate.overview();
+      toast.success('Key deleted');
     } catch (err) {
-      alert("Failed to delete key");
+      toast.error('Failed to delete key');
     }
   };
 
@@ -131,10 +118,10 @@ export default function LicenseKeysPage() {
     if (!confirm("Reset HWID for all users using this license?")) return;
     try {
       await api.post(`/developer/keys/${id}/hwid-reset`);
-      alert("HWID Reset Successful");
-      fetchKeys();
+      toast.success('HWID reset successful');
+      if (selectedAppId) invalidate.keys(selectedAppId);
     } catch (err) {
-      alert("Failed to reset HWID");
+      toast.error('Failed to reset HWID');
     }
   };
 
@@ -151,9 +138,10 @@ export default function LicenseKeysPage() {
         seller_tag: editData.seller_tag
       });
       setShowEditModal(null);
-      fetchKeys();
+      if (selectedAppId) invalidate.keys(selectedAppId);
+      toast.success('Key updated');
     } catch (err) {
-      alert("Failed to update key");
+      toast.error('Failed to update key');
     }
   };
 
@@ -322,7 +310,7 @@ export default function LicenseKeysPage() {
                       <div className="flex items-center gap-2">
                         <code className="text-xs font-mono text-[var(--vault-primary)] bg-[var(--vault-primary)]/5 px-2 py-1 rounded border border-[var(--vault-primary)]/10">{k.key_value}</code>
                         <button 
-                          onClick={() => { navigator.clipboard.writeText(k.key_value); alert('Copied!'); }}
+                          onClick={() => { navigator.clipboard.writeText(k.key_value); toast.success('Copied'); }}
                           className="opacity-0 group-hover:opacity-100 text-[var(--vault-on-surface-variant)] hover:text-[var(--vault-primary)] transition-all"
                         ><span className="material-symbols-outlined text-base">content_copy</span></button>
                       </div>
