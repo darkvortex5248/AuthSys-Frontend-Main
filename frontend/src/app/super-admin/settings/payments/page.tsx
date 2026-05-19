@@ -2,8 +2,10 @@
 import { useEffect, useState } from 'react';
 import adminApi from '@/lib/admin-api';
 import { toast } from 'sonner';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 
 export default function PaymentMethodsPage() {
+  const confirm = useConfirm();
   const [methods, setMethods] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<any>(null);
@@ -46,7 +48,14 @@ export default function PaymentMethodsPage() {
   };
 
   const deleteMethod = async (id: number) => {
-    if (!confirm('Are you sure?')) return;
+    const ok = await confirm({
+      title: 'Delete payment method?',
+      message: 'Are you sure you want to delete this payment method?',
+      confirmLabel: 'Yes, delete',
+      cancelLabel: 'No, cancel',
+      variant: 'danger',
+    });
+    if (!ok) return;
     try {
       await adminApi.delete(`/admin/payment-methods/${id}`);
       fetchMethods();

@@ -2,10 +2,10 @@ from pydantic import BaseModel
 from typing import Optional, Dict, Any
 
 class ClientInitRequest(BaseModel):
-    app_name: str
     app_secret: str
     version: str
-    hwid: str
+    app_name: Optional[str] = None
+    hwid: Optional[str] = None
 
 class ClientInitResponse(BaseModel):
     status: str

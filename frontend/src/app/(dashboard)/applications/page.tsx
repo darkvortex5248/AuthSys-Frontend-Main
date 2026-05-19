@@ -10,9 +10,11 @@ import {
   useDeleteApp,
   useToggleApp,
 } from '@/hooks/use-developer-queries';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 
 export default function ApplicationsPage() {
   const router = useRouter();
+  const confirm = useConfirm();
   const { data: apps = [], isLoading: loading } = useApps();
   const createApp = useCreateApp();
   const toggleApp = useToggleApp();
@@ -84,7 +86,14 @@ export default function ApplicationsPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this app?')) return;
+    const ok = await confirm({
+      title: 'Delete application?',
+      message: 'This will permanently delete the application and all associated keys, users, and data.',
+      confirmLabel: 'Yes, delete',
+      cancelLabel: 'No, cancel',
+      variant: 'danger',
+    });
+    if (!ok) return;
     try {
       await deleteApp.mutateAsync(id);
       toast.success('Application deleted');

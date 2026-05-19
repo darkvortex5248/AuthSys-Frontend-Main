@@ -2,9 +2,12 @@
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
+import { useConfirm } from '@/components/ui/confirm-dialog';
+import { toast } from 'sonner';
 
 export default function VariablesPage() {
   const { selectedAppId } = useAuthStore();
+  const confirm = useConfirm();
   const [loading, setLoading] = useState(true);
   const [variables, setVariables] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
@@ -43,7 +46,14 @@ export default function VariablesPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Delete this variable?")) return;
+    const ok = await confirm({
+      title: 'Delete variable?',
+      message: 'This variable will be permanently removed from your application.',
+      confirmLabel: 'Yes, delete',
+      cancelLabel: 'No, cancel',
+      variant: 'danger',
+    });
+    if (!ok) return;
     try {
       await api.delete(`/developer/variables/${id}`);
       fetchVariables();

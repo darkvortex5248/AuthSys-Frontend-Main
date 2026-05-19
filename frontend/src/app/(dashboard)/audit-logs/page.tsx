@@ -2,9 +2,12 @@
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
+import { useConfirm } from '@/components/ui/confirm-dialog';
+import { toast } from 'sonner';
 
 export default function AuditLogsPage() {
   const { selectedAppId } = useAuthStore();
+  const confirm = useConfirm();
   const [loading, setLoading] = useState(true);
   const [logs, setLogs] = useState<any[]>([]);
   const [mounted, setMounted] = useState(false);
@@ -25,13 +28,20 @@ export default function AuditLogsPage() {
 
   const handleClearLogs = async () => {
     if (!selectedAppId) return;
-    if (!confirm("Are you sure you want to clear all audit logs? This cannot be undone.")) return;
+    const ok = await confirm({
+      title: 'Clear audit logs?',
+      message: 'Are you sure you want to clear all audit logs? This cannot be undone.',
+      confirmLabel: 'Yes, clear all',
+      cancelLabel: 'No, cancel',
+      variant: 'danger',
+    });
+    if (!ok) return;
     try {
       await api.delete(`/developer/analytics/${selectedAppId}/logs`);
       setLogs([]);
-      alert("Logs cleared successfully");
-    } catch (err) {
-      alert("Failed to clear logs");
+      toast.success('Logs cleared successfully');
+    } catch {
+      toast.error('Failed to clear logs');
     }
   };
 

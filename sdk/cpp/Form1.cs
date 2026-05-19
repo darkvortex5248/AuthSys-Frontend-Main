@@ -13,12 +13,12 @@ namespace test
         {
             InitializeComponent();
 
-            // IMPORTANT: First value = App Secret (short key in dashboard "Secret Key")
-            // NOT the Owner ID (long hash). Get it from Applications → your app → Secret Key.
+            // Same order as website Applications → Manage → C# SDK Setup:
             auth = new AuthSys(
-                appSecret: "YOUR_APP_SECRET_HERE",
-                version: "1.0.0",
-                baseUrl: "https://authsys-vtdu.onrender.com/api/v1"
+                "YOUR_APP_SECRET_HERE",   // Application Secret Key (64-char hex)
+                "YOUR_OWNER_ID_HERE",     // Owner ID (short)
+                "1.0.0",
+                "https://authsys-vtdu.onrender.com/api/v1"
             );
         }
 
@@ -27,15 +27,17 @@ namespace test
             guna2Button1.Enabled = false;
             try
             {
+                // Optional: verify credentials before login
                 var init = await auth.InitAsync();
                 if (init.TryGetProperty("success", out var initOk) && !initOk.GetBoolean())
                 {
-                    ShowApiMessage(init, "Init failed");
+                    ShowApiMessage(init, "Connection failed");
                     return;
                 }
 
                 JsonElement result;
 
+                // License login OR username/password — not both
                 if (!string.IsNullOrWhiteSpace(txtLicense.Text))
                 {
                     result = await auth.LicenseLoginAsync(txtLicense.Text.Trim());
@@ -46,20 +48,22 @@ namespace test
                 }
                 else
                 {
-                    MessageBox.Show("Enter username/password OR a license key.");
+                    MessageBox.Show("Enter username/password OR a license key.", "AuthSys",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
                 if (result.TryGetProperty("success", out var successEl) && successEl.GetBoolean())
                 {
-                    MessageBox.Show("Login successful!", "AuthSys", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Login Success", "AuthSys", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
                     var form2 = new Form2();
                     form2.Show();
                     Hide();
                 }
                 else
                 {
-                    ShowApiMessage(result, "Login failed");
+                    ShowApiMessage(result, "Login Failed");
                 }
             }
             catch (Exception ex)

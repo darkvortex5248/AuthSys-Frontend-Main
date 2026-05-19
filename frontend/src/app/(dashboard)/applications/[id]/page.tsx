@@ -1,46 +1,46 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import api from '@/lib/api';
+import { toast } from 'sonner';
+import { useApp } from '@/hooks/use-developer-queries';
 
 export default function ApplicationDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const [app, setApp] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const appId = parseInt(id as string, 10);
+  const { app, isLoading } = useApp(Number.isNaN(appId) ? null : appId);
   const [visibleSecret, setVisibleSecret] = useState(false);
-
-  useEffect(() => {
-    const fetchApp = async () => {
-      try {
-        const res = await api.get('/developer/apps');
-        const found = res.data.find((a: any) => a.id === parseInt(id as string));
-        if (found) {
-          setApp(found);
-        } else {
-          alert("Application not found");
-          router.push('/applications');
-        }
-      } catch (err) {
-        console.error("Failed to fetch app details", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchApp();
-  }, [id, router]);
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
-    alert(`${label} copied to clipboard!`);
+    toast.success(`${label} copied to clipboard`);
   };
 
-  if (loading) return <div className="p-10 text-center animate-pulse text-[var(--vault-primary)] font-bold uppercase tracking-widest">Loading Security Context...</div>;
-  if (!app) return null;
+  if (isLoading) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-8 animate-pulse">
+        <div className="h-8 w-48 bg-white/5 rounded-lg" />
+        <div className="glass-card rounded-3xl h-96 bg-white/[0.02]" />
+      </div>
+    );
+  }
+
+  if (!app) {
+    return (
+      <div className="p-10 text-center">
+        <p className="text-[var(--vault-on-surface-variant)] mb-4">Application not found</p>
+        <button
+          onClick={() => router.push('/applications')}
+          className="text-[var(--vault-primary)] font-bold uppercase tracking-widest text-xs"
+        >
+          Back to Applications
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <button onClick={() => router.push('/applications')} className="text-[var(--vault-on-surface-variant)] hover:text-[var(--vault-primary)] flex items-center gap-2 mb-4 transition-colors group">
@@ -56,12 +56,10 @@ export default function ApplicationDetailPage() {
         </div>
       </div>
 
-      {/* Main Details Card */}
       <div className="glass-card rounded-3xl p-10 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--vault-primary)]/5 blur-[100px] -z-10"></div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          {/* Left Column: Core Info */}
           <div className="space-y-8">
             <div className="space-y-2">
               <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1 opacity-50">Application Identifier</label>
@@ -80,149 +78,68 @@ export default function ApplicationDetailPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1 opacity-50">Hardware Lock (HWID)</label>
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex items-center justify-between">
-                <span className={`text-xs font-bold uppercase tracking-widest ${app.hwid_enabled ? 'text-emerald-400' : 'text-red-400'}`}>
-                  {app.hwid_enabled ? 'Enforced' : 'Disabled'}
-                </span>
-                <span className="material-symbols-outlined text-sm opacity-30">{app.hwid_enabled ? 'verified_user' : 'gpp_maybe'}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: Security Keys */}
-          <div className="space-y-8">
-            <div className="space-y-2">
               <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1 opacity-50">Owner ID</label>
               <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex items-center justify-between group">
-                <span className="font-mono text-xs text-[var(--vault-on-surface)] truncate pr-4">{app.owner_id}</span>
-                <button 
-                  onClick={() => copyToClipboard(app.owner_id, "Owner ID")}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[var(--vault-primary)]/20 transition-colors"
+                <span className="font-mono text-sm text-[var(--vault-on-surface)] truncate mr-4">{app.owner_id}</span>
+                <button
+                  onClick={() => copyToClipboard(app.owner_id, 'Owner ID')}
+                  className="material-symbols-outlined text-sm cursor-pointer hover:text-[var(--vault-primary)] opacity-50 group-hover:opacity-100 transition-all"
                 >
-                  <span className="material-symbols-outlined text-sm">content_copy</span>
+                  content_copy
                 </button>
               </div>
             </div>
+          </div>
 
+          <div className="space-y-8">
             <div className="space-y-2">
               <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1 opacity-50">Application Secret Key</label>
-              <div className="bg-black/20 border border-white/10 rounded-2xl p-5 space-y-4">
-                <div className="flex items-center justify-between gap-4 overflow-hidden">
-                  <code className="font-mono text-[11px] text-[var(--vault-primary)] truncate">
-                    {visibleSecret ? app.app_secret : `APP_${"•".repeat(24)}`}
-                  </code>
-                </div>
-                <div className="flex gap-3">
-                  <button 
+              <div className="bg-black/40 border border-[var(--vault-primary)]/20 rounded-2xl p-5 flex items-center justify-between group">
+                <code className="font-mono text-xs text-[var(--vault-primary)] tracking-widest truncate mr-4">
+                  {visibleSecret ? app.app_secret : `APP_${"•".repeat(24)}`}
+                </code>
+                <div className="flex gap-2 shrink-0">
+                  <button
                     onClick={() => setVisibleSecret(!visibleSecret)}
-                    className="flex-1 bg-white/5 hover:bg-white/10 text-[var(--vault-on-surface)] py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                    className="material-symbols-outlined text-sm cursor-pointer hover:text-[var(--vault-primary)] opacity-50 group-hover:opacity-100 transition-all"
                   >
-                    <span className="material-symbols-outlined text-sm">{visibleSecret ? 'visibility_off' : 'visibility'}</span>
-                    {visibleSecret ? 'Hide Key' : 'Reveal Key'}
+                    {visibleSecret ? 'visibility_off' : 'visibility'}
                   </button>
-                  <button 
-                    onClick={() => copyToClipboard(app.app_secret, "Secret Key")}
-                    className="flex-1 bg-[var(--vault-primary)] text-[var(--vault-on-primary)] py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-[var(--vault-primary)]/20"
+                  <button
+                    onClick={() => copyToClipboard(app.app_secret, 'Secret Key')}
+                    className="material-symbols-outlined text-sm cursor-pointer hover:text-[var(--vault-primary)] opacity-50 group-hover:opacity-100 transition-all"
                   >
-                    <span className="material-symbols-outlined text-sm">content_copy</span>
-                    Copy Key
+                    content_copy
                   </button>
                 </div>
               </div>
-              <p className="text-[9px] text-amber-400/60 italic px-2 mt-2">Warning: Never share your Secret Key. Anyone with this key can bypass security protocols.</p>
             </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Advanced Security Section */}
-      <div className="glass-card rounded-3xl p-10 border border-white/5 relative overflow-hidden">
-        <div className="mb-10">
-          <h3 className="text-2xl font-bold text-white mb-1">Infrastructure Security</h3>
-          <p className="text-sm text-zinc-500">Orchestrate high-level security protocols and application availability.</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[
-            { 
-              id: 'hwid_enabled', 
-              name: 'Hardware Lock (HWID)', 
-              desc: 'Restrict access to authorized devices only.', 
-              icon: 'devices',
-              active: app.hwid_enabled,
-              color: '#d97757'
-            },
-            { 
-              id: 'maintenance_mode', 
-              name: 'Maintenance Mode', 
-              desc: 'Temporarily disable access for system updates.', 
-              icon: 'construction',
-              active: app.maintenance_mode,
-              color: 'amber'
-            },
-            { 
-              id: 'developer_lock', 
-              name: 'Emergency Lockdown', 
-              desc: 'Instant freeze of all application endpoints.', 
-              icon: 'emergency_home',
-              active: app.developer_lock,
-              color: 'red'
-            },
-          ].map((control) => (
-            <div key={control.id} className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 flex flex-col justify-between group hover:border-white/10 transition-all">
-              <div className="flex justify-between items-start mb-6">
-                <div className={`w-12 h-12 rounded-xl bg-${control.color}-500/10 flex items-center justify-center text-${control.color}-400 shadow-inner`}>
-                  <span className="material-symbols-outlined">{control.icon}</span>
+            <div className="grid grid-cols-3 gap-4">
+              {[
+                { label: 'Users', val: app.total_users ?? 0 },
+                { label: 'Keys', val: app.total_keys ?? 0 },
+                { label: 'Logins Today', val: app.logins_today ?? 0 },
+              ].map((stat) => (
+                <div key={stat.label} className="bg-white/[0.02] p-4 rounded-xl border border-white/5 text-center">
+                  <p className="text-[10px] text-[var(--vault-on-surface-variant)] uppercase font-bold tracking-widest">{stat.label}</p>
+                  <p className="text-lg font-bold text-[var(--vault-on-surface)]">{stat.val}</p>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={control.active}
-                    onChange={async (e) => {
-                      try {
-                        const res = await api.put(`/developer/apps/${app.id}/update`, { [control.id]: e.target.checked });
-                        setApp({ ...app, [control.id]: e.target.checked });
-                      } catch (err) {
-                        alert("Failed to update security parameter");
-                      }
-                    }}
-                    className="sr-only peer" 
-                  />
-                  <div className="w-11 h-6 bg-white/10 rounded-full peer peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#d97757] shadow-inner"></div>
-                </label>
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-white mb-1">{control.name}</h4>
-                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-tight">{control.desc}</p>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Integration Guide Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass-card p-6 rounded-2xl border border-white/5 hover:border-[#d97757]/30 transition-all cursor-pointer group">
-          <div className="w-10 h-10 bg-[#d97757]/10 rounded-xl flex items-center justify-center mb-4 text-[#d97757]">
-             <span className="material-symbols-outlined">menu_book</span>
+            <div className="p-6 bg-[var(--vault-primary)]/5 border border-[var(--vault-primary)]/10 rounded-2xl">
+              <h3 className="text-xs font-bold text-[var(--vault-primary)] uppercase tracking-widest mb-3">C# SDK Setup</h3>
+              <pre className="text-[10px] text-[var(--vault-on-surface-variant)] font-mono leading-relaxed overflow-x-auto whitespace-pre-wrap">
+{`auth = new AuthSys(
+    "${app.app_secret}",
+    "${app.owner_id}",
+    "${app.version}",
+    "https://authsys-vtdu.onrender.com/api/v1"
+);`}
+              </pre>
+            </div>
           </div>
-          <h4 className="text-sm font-bold mb-2">SDK Integration</h4>
-          <p className="text-[10px] text-zinc-500 leading-relaxed font-medium">Download our C++, C#, or Python SDKs to get started with AuthSys in minutes.</p>
-        </div>
-        <div className="glass-card p-6 rounded-2xl border border-white/5 hover:border-blue-500/30 transition-all cursor-pointer">
-          <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center mb-4 text-blue-400">
-             <span className="material-symbols-outlined">webhook</span>
-          </div>
-          <h4 className="text-sm font-bold mb-2">Webhooks</h4>
-          <p className="text-[10px] text-zinc-500 leading-relaxed font-medium">Configure webhooks to receive real-time notifications for key events and user logins.</p>
-        </div>
-        <div className="glass-card p-6 rounded-2xl border border-white/5 hover:border-emerald-500/30 transition-all cursor-pointer">
-          <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-4 text-emerald-400">
-             <span className="material-symbols-outlined">analytics</span>
-          </div>
-          <h4 className="text-sm font-bold mb-2">Advanced Metrics</h4>
-          <p className="text-[10px] text-zinc-500 leading-relaxed font-medium">Detailed analytics for this specific application across all regions and versions.</p>
         </div>
       </div>
     </div>

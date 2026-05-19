@@ -6,23 +6,45 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Trash2, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
+import { useConfirm } from '@/components/ui/confirm-dialog';
+import { useDeleteApp } from '@/hooks/use-developer-queries';
 
 export default function SettingsPage() {
   const params = useParams();
   const router = useRouter();
-  const appId = params.id as string;
+  const confirm = useConfirm();
+  const deleteApp = useDeleteApp();
+  const appId = parseInt(params.id as string, 10);
 
   const regenSecret = async () => {
-    if (!confirm("This will break existing versions that use the old secret. Continue?")) return;
+    const ok = await confirm({
+      title: 'Regenerate secret?',
+      message: 'This will break existing versions that use the old secret. Continue?',
+      confirmLabel: 'Yes, regenerate',
+      cancelLabel: 'No, cancel',
+      variant: 'danger',
+    });
+    if (!ok) return;
     await api.post(`/developer/apps/${appId}/regenerate-secret`);
     toast.success("Secret regenerated successfully");
   };
 
-  const deleteApp = async () => {
-    if (!confirm("DANGER! This deletes ALL keys, users, and data permanently. Type exactly 'I agree' to proceed?")) return;
-    await api.delete(`/developer/apps/${appId}`);
-    toast.success("Application deleted");
-    router.push('/apps');
+  const handleDeleteApp = async () => {
+    const ok = await confirm({
+      title: 'Delete application?',
+      message: 'DANGER! This deletes ALL keys, users, and data permanently. This cannot be undone.',
+      confirmLabel: 'Yes, delete everything',
+      cancelLabel: 'No, cancel',
+      variant: 'danger',
+    });
+    if (!ok) return;
+    try {
+      await deleteApp.mutateAsync(appId);
+      toast.success("Application deleted");
+      router.push('/applications');
+    } catch {
+      toast.error("Failed to delete application");
+    }
   };
 
   return (
@@ -57,7 +79,7 @@ export default function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={deleteApp} className="bg-red-600 hover:bg-red-700 text-white font-medium">
+            <Button onClick={handleDeleteApp} className="bg-red-600 hover:bg-red-700 text-white font-medium">
               <Trash2 className="mr-2 h-4 w-4" /> Delete Application
             </Button>
           </CardContent>

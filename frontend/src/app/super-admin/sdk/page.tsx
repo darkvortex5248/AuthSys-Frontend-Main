@@ -2,8 +2,10 @@
 import { useEffect, useState } from 'react';
 import adminApi from '@/lib/admin-api';
 import { toast } from 'sonner';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 
 export default function SDKManagementPage() {
+  const confirm = useConfirm();
   const [sdks, setSdks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingSdk, setEditingSdk] = useState<any>(null);
@@ -43,7 +45,14 @@ export default function SDKManagementPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to remove this SDK from distribution?")) return;
+    const ok = await confirm({
+      title: 'Remove SDK?',
+      message: 'Are you sure you want to remove this SDK from distribution?',
+      confirmLabel: 'Yes, remove',
+      cancelLabel: 'No, cancel',
+      variant: 'danger',
+    });
+    if (!ok) return;
     try {
       await adminApi.delete(`/admin/sdks/${id}`);
       fetchSdks();

@@ -2,9 +2,12 @@
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
+import { useConfirm } from '@/components/ui/confirm-dialog';
+import { toast } from 'sonner';
 
 export default function BlacklistPage() {
   const { selectedAppId } = useAuthStore();
+  const confirm = useConfirm();
   const [loading, setLoading] = useState(true);
   const [blacklist, setBlacklist] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
@@ -50,7 +53,14 @@ export default function BlacklistPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Remove this entry from blacklist?")) return;
+    const ok = await confirm({
+      title: 'Remove from blacklist?',
+      message: 'This entry will be removed and will no longer be blocked.',
+      confirmLabel: 'Yes, remove',
+      cancelLabel: 'No, cancel',
+      variant: 'danger',
+    });
+    if (!ok) return;
     try {
       await api.delete(`/developer/blacklist/${id}`);
       fetchBlacklist();

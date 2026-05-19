@@ -2,8 +2,10 @@
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { toast } from 'sonner';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 
 export default function TeamManagementPage() {
+  const confirm = useConfirm();
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -37,7 +39,14 @@ export default function TeamManagementPage() {
   };
 
   const removeMember = async (id: number) => {
-    if (!confirm("Are you sure you want to remove this member?")) return;
+    const ok = await confirm({
+      title: 'Remove team member?',
+      message: 'Are you sure you want to remove this member from your team?',
+      confirmLabel: 'Yes, remove',
+      cancelLabel: 'No, cancel',
+      variant: 'danger',
+    });
+    if (!ok) return;
     try {
       await api.delete(`/developer/team/${id}`);
       toast.success("Member removed");

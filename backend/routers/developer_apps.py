@@ -72,6 +72,34 @@ async def get_apps(dev: DeveloperAccount = Depends(get_current_developer), db: A
         
     return apps
 
+@router.get("/{app_id}", response_model=AppResponse)
+async def get_app(app_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
+    await verify_app_access(app_id, dev.id, db)
+    res = await db.execute(select(Application).where(Application.id == app_id))
+    app = res.scalars().first()
+    if not app:
+        raise HTTPException(status_code=404, detail="Application not found")
+
+    users_count = (await db.execute(
+        select(func.count(EndUser.id)).where(EndUser.app_id == app_id, EndUser.is_shadow == False)
+    )).scalar() or 0
+    keys_count = (await db.execute(
+        select(func.count(LicenseKey.id)).where(LicenseKey.app_id == app_id)
+    )).scalar() or 0
+    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    logins_today = (await db.execute(
+        select(func.count(ActivityLog.id)).where(
+            ActivityLog.app_id == app_id,
+            ActivityLog.action_type == "login",
+            ActivityLog.timestamp >= today_start,
+        )
+    )).scalar() or 0
+
+    app.total_users = users_count
+    app.total_keys = keys_count
+    app.logins_today = logins_today
+    return app
+
 @router.post("/create", response_model=AppResponse)
 async def create_app(req: AppCreate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     # Check app limit

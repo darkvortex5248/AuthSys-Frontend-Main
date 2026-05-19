@@ -46,6 +46,31 @@ export function useApps(enabled?: boolean) {
   });
 }
 
+/** Instant from apps cache; fetches single app only when cache miss (direct URL). */
+export function useApp(appId: number | null) {
+  const authed = useIsAuthenticated();
+  const id = appId ?? 0;
+  const { data: apps = [], isLoading: appsLoading } = useApps();
+  const cached = id ? apps.find((a) => a.id === id) : null;
+
+  const single = useQuery({
+    queryKey: queryKeys.app(id),
+    queryFn: async () => {
+      const res = await api.get(`/developer/apps/${id}`);
+      return res.data as any;
+    },
+    enabled: authed && !!id && !cached,
+    staleTime: 30_000,
+    retry: (count, err: any) => err?.response?.status !== 401 && count < 1,
+  });
+
+  return {
+    app: cached ?? single.data ?? null,
+    isLoading: !!id && !cached && (appsLoading || single.isLoading),
+    isFetching: single.isFetching,
+  };
+}
+
 export function useOverview(days: number) {
   const authed = useIsAuthenticated();
   return useQuery({
@@ -137,6 +162,7 @@ export function useGenerateKeys() {
 }
 
 export function useCreateLicenseKey() {
+  const queryClient = useQueryClient();
   const invalidate = useInvalidateDeveloperData();
 
   return useMutation({
@@ -144,8 +170,12 @@ export function useCreateLicenseKey() {
       const res = await api.post('/developer/keys/generate', payload);
       return res.data;
     },
-    onSuccess: async (_data, vars: any) => {
-      if (vars?.app_id) await invalidate.keys(vars.app_id as number);
+    onSuccess: async (data, vars: any) => {
+      const appId = vars?.app_id as number;
+      if (appId && data) {
+        queryClient.setQueryData<any[]>(queryKeys.keys(appId), (old) => [...(old ?? []), data]);
+      }
+      if (appId) await invalidate.keys(appId);
       await invalidate.overview();
     },
   });
@@ -179,6 +209,7 @@ export function useDeleteLicenseKey() {
 }
 
 export function useCreateAppUser() {
+  const queryClient = useQueryClient();
   const invalidate = useInvalidateDeveloperData();
 
   return useMutation({
@@ -191,7 +222,8 @@ export function useCreateAppUser() {
       const res = await api.post('/developer/users/create', payload);
       return res.data;
     },
-    onSuccess: async (_data, vars) => {
+    onSuccess: async (data, vars) => {
+      queryClient.setQueryData<any[]>(queryKeys.users(vars.app_id), (old) => [...(old ?? []), data]);
       await invalidate.users(vars.app_id);
       await invalidate.overview();
     },

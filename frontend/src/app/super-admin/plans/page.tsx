@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import adminApi from '@/lib/admin-api';
 import { toast } from 'sonner';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 
 const emptyPlan = {
   name: '',
@@ -15,6 +16,7 @@ const emptyPlan = {
 };
 
 export default function PlansManagementPage() {
+  const confirm = useConfirm();
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingPlan, setEditingPlan] = useState<any>(null);
@@ -88,7 +90,14 @@ export default function PlansManagementPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Delete this plan? Developers on this plan must be reassigned first.')) return;
+    const ok = await confirm({
+      title: 'Delete plan?',
+      message: 'Delete this plan? Developers on this plan must be reassigned first.',
+      confirmLabel: 'Yes, delete',
+      cancelLabel: 'No, cancel',
+      variant: 'danger',
+    });
+    if (!ok) return;
     try {
       await adminApi.delete(`/admin/plans/${id}`);
       toast.success('Plan deleted');
