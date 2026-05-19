@@ -67,17 +67,17 @@ export default function DeveloperManagementPage() {
     <div className="space-y-8 pb-20">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-[#e1e2ec] tracking-tight">Developer Registry</h1>
-          <p className="text-[#8c909f] mt-1">Manage platform tiers and access levels</p>
+          <h1 className="text-3xl font-bold text-[#e5e2e1] tracking-tight">Developer Registry</h1>
+          <p className="text-[#8e8ea0] mt-1">Manage platform tiers and access levels</p>
         </div>
         <div className="relative w-72">
-           <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#8c909f] text-sm">search</span>
+           <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#8e8ea0] text-sm">search</span>
            <input 
             type="text" 
             placeholder="Search systems or devs..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full bg-white/5 border border-white/5 rounded-full py-2.5 pl-12 pr-4 text-[#e1e2ec] text-sm focus:ring-2 focus:ring-blue-500/50 transition-all outline-none placeholder:text-[#424754]"
+            className="w-full bg-white/5 border border-white/5 rounded-full py-2.5 pl-12 pr-4 text-[#e5e2e1] text-sm focus:ring-2 focus:ring-blue-500/50 transition-all outline-none placeholder:text-[#424754]"
            />
         </div>
       </div>
@@ -86,11 +86,11 @@ export default function DeveloperManagementPage() {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-white/5 bg-white/5">
-              <th className="px-8 py-5 text-[10px] font-bold text-[#8c909f] uppercase tracking-widest">Developer</th>
-              <th className="px-8 py-5 text-[10px] font-bold text-[#8c909f] uppercase tracking-widest">Subscription Tier</th>
-              <th className="px-8 py-5 text-[10px] font-bold text-[#8c909f] uppercase tracking-widest">Joined</th>
-              <th className="px-8 py-5 text-[10px] font-bold text-[#8c909f] uppercase tracking-widest">System Status</th>
-              <th className="px-8 py-5 text-[10px] font-bold text-[#8c909f] uppercase tracking-widest text-right">Operations</th>
+              <th className="px-8 py-5 text-[10px] font-bold text-[#8e8ea0] uppercase tracking-widest">Developer</th>
+              <th className="px-8 py-5 text-[10px] font-bold text-[#8e8ea0] uppercase tracking-widest">Subscription Tier</th>
+              <th className="px-8 py-5 text-[10px] font-bold text-[#8e8ea0] uppercase tracking-widest">Joined</th>
+              <th className="px-8 py-5 text-[10px] font-bold text-[#8e8ea0] uppercase tracking-widest">System Status</th>
+              <th className="px-8 py-5 text-[10px] font-bold text-[#8e8ea0] uppercase tracking-widest text-right">Operations</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
@@ -102,8 +102,8 @@ export default function DeveloperManagementPage() {
                       {dev.username.substring(0, 2)}
                     </div>
                     <div>
-                      <p className="text-sm font-black text-[#e1e2ec] group-hover:text-blue-500 transition-colors">{dev.username}</p>
-                      <p className="text-[11px] text-[#8c909f] font-medium">{dev.email}</p>
+                      <p className="text-sm font-black text-[#e5e2e1] group-hover:text-blue-500 transition-colors">{dev.username}</p>
+                      <p className="text-[11px] text-[#8e8ea0] font-medium">{dev.email}</p>
                     </div>
                   </div>
                 </td>
@@ -125,7 +125,7 @@ export default function DeveloperManagementPage() {
                    </div>
                 </td>
                 <td className="px-8 py-6">
-                   <p className="text-[11px] text-[#8c909f] font-mono">{new Date(dev.created_at).toLocaleDateString()}</p>
+                   <p className="text-[11px] text-[#8e8ea0] font-mono">{new Date(dev.created_at).toLocaleDateString()}</p>
                 </td>
                 <td className="px-8 py-6">
                    <div className="flex items-center gap-2">

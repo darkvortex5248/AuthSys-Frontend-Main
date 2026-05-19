@@ -41,17 +41,17 @@ export function HoverFooter({ email, phone, address, paragraph }: any) {
   // Contact info data
   const contactInfo = [
     {
-      icon: <Mail size={18} className="text-[#6C5CE7]" />,
+      icon: <Mail size={18} className="text-[#d97757]" />,
       text: email || "support@authsys.com",
       href: email ? `mailto:${email}` : "mailto:support@authsys.com",
     },
     {
-      icon: <Phone size={18} className="text-[#6C5CE7]" />,
+      icon: <Phone size={18} className="text-[#d97757]" />,
       text: phone || "+1 (800) 123-4567",
       href: phone ? `tel:${phone.replace(/\D/g, '')}` : "tel:+18001234567",
     },
     {
-      icon: <MapPin size={18} className="text-[#6C5CE7]" />,
+      icon: <MapPin size={18} className="text-[#d97757]" />,
       text: address || "San Francisco, CA",
     },
   ];

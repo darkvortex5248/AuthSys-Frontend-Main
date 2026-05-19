@@ -24,17 +24,17 @@ export default function PublicSDKPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0A0A0F] text-[#F8F8FF] font-sans selection:bg-[#6C5CE7]/30 pb-20">
+    <div className="min-h-screen bg-[#0A0A0F] text-[#F8F8FF] font-sans selection:bg-[#d97757]/30 pb-20">
       {/* Header */}
       <nav className="h-16 border-b border-[#1E1E2E] bg-[#111118]/50 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
-            <ArrowLeft className="w-4 h-4 text-[#9B9BB4] group-hover:text-[#6C5CE7] transition-colors" />
+            <ArrowLeft className="w-4 h-4 text-[#9B9BB4] group-hover:text-[#d97757] transition-colors" />
             <span className="text-sm font-medium text-[#9B9BB4] group-hover:text-white transition-colors">Back to Home</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-[#6C5CE7]" />
-            <span className="font-bold tracking-tight">AuthSys <span className="text-[#6C5CE7]">SDKs</span></span>
+            <Shield className="w-5 h-5 text-[#d97757]" />
+            <span className="font-bold tracking-tight">AuthSys <span className="text-[#d97757]">SDKs</span></span>
           </div>
           <div className="w-20" /> {/* Spacer */}
         </div>
@@ -45,7 +45,7 @@ export default function PublicSDKPage() {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#6C5CE7]/10 border border-[#6C5CE7]/20 text-[#6C5CE7] text-xs font-bold uppercase tracking-widest mb-6"
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#d97757]/10 border border-[#d97757]/20 text-[#d97757] text-xs font-bold uppercase tracking-widest mb-6"
           >
             <Box className="w-3 h-3" />
             Binary Distribution
@@ -58,7 +58,7 @@ export default function PublicSDKPage() {
 
         {loading ? (
           <div className="flex justify-center py-20">
-            <div className="w-10 h-10 border-4 border-[#6C5CE7]/20 border-t-[#6C5CE7] rounded-full animate-spin"></div>
+            <div className="w-10 h-10 border-4 border-[#d97757]/20 border-t-[#d97757] rounded-full animate-spin"></div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -68,14 +68,14 @@ export default function PublicSDKPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="group p-8 rounded-3xl bg-[#111118] border border-[#1E1E2E] hover:border-[#6C5CE7] transition-all hover:shadow-[0_0_30px_rgba(108,92,231,0.1)]"
+                className="group p-8 rounded-3xl bg-[#111118] border border-[#1E1E2E] hover:border-[#d97757] transition-all hover:shadow-[0_0_30px_rgba(108,92,231,0.1)]"
               >
                 <div className="flex items-start justify-between mb-8">
-                  <div className="w-14 h-14 rounded-2xl bg-[#0A0A0F] border border-[#1E1E2E] flex items-center justify-center text-[#6C5CE7] group-hover:scale-110 transition-transform">
+                  <div className="w-14 h-14 rounded-2xl bg-[#0A0A0F] border border-[#1E1E2E] flex items-center justify-center text-[#d97757] group-hover:scale-110 transition-transform">
                      <span className="material-symbols-outlined text-3xl">{sdk.icon_name}</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-[10px] font-bold text-[#6C5CE7] uppercase tracking-widest block mb-1">Version</span>
+                    <span className="text-[10px] font-bold text-[#d97757] uppercase tracking-widest block mb-1">Version</span>
                     <span className="text-sm font-mono text-white">v{sdk.version}</span>
                   </div>
                 </div>
@@ -102,7 +102,7 @@ export default function PublicSDKPage() {
                 <a 
                   href={sdk.download_url} 
                   target="_blank"
-                  className="flex items-center justify-center gap-2 w-full py-4 rounded-xl bg-[#6C5CE7] hover:bg-[#7D6FF0] text-white font-bold transition-all shadow-lg shadow-[#d97757]/20 active:scale-[0.98]"
+                  className="flex items-center justify-center gap-2 w-full py-4 rounded-xl bg-[#d97757] hover:bg-[#7D6FF0] text-white font-bold transition-all shadow-lg shadow-[#d97757]/20 active:scale-[0.98]"
                 >
                   <Download className="w-4 h-4" />
                   Download Binary
@@ -119,8 +119,8 @@ export default function PublicSDKPage() {
         )}
 
         {/* Info Box */}
-        <div className="mt-16 p-8 rounded-3xl bg-[#6C5CE7]/5 border border-[#6C5CE7]/20 flex flex-col md:flex-row items-center gap-8">
-           <div className="w-12 h-12 rounded-full bg-[#6C5CE7] flex items-center justify-center text-white shrink-0">
+        <div className="mt-16 p-8 rounded-3xl bg-[#d97757]/5 border border-[#d97757]/20 flex flex-col md:flex-row items-center gap-8">
+           <div className="w-12 h-12 rounded-full bg-[#d97757] flex items-center justify-center text-white shrink-0">
              <FileCode className="w-6 h-6" />
            </div>
            <div className="flex-1 text-center md:text-left">

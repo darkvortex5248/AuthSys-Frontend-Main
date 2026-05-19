@@ -99,7 +99,7 @@ export const TextHoverEffect = ({
         textAnchor="middle"
         dominantBaseline="middle"
         strokeWidth="0.3"
-        className="fill-transparent stroke-[#6C5CE7] font-[helvetica] text-7xl font-bold dark:stroke-[#6C5CE799]"
+        className="fill-transparent stroke-[#d97757] font-[helvetica] text-7xl font-bold dark:stroke-[#d9775799]"
         initial={{ strokeDashoffset: 1000, strokeDasharray: 1000 }}
         animate={{
           strokeDashoffset: 0,
@@ -135,7 +135,7 @@ export const FooterBackgroundGradient = () => {
       className="absolute inset-0 z-0 pointer-events-none"
       style={{
         background:
-          "radial-gradient(125% 125% at 50% 10%, #0F0F1166 50%, #6C5CE71A 100%)",
+          "radial-gradient(125% 125% at 50% 10%, #0F0F1166 50%, #d977571A 100%)",
       }}
     />
   );

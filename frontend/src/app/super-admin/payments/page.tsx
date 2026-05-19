@@ -44,15 +44,15 @@ export default function TransactionLogsPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-[#e1e2ec] tracking-tight">Financial Ledger</h1>
-          <p className="text-[#8c909f] mt-1">Transaction history and revenue tracking</p>
+          <h1 className="text-3xl font-bold text-[#e5e2e1] tracking-tight">Financial Ledger</h1>
+          <p className="text-[#8e8ea0] mt-1">Transaction history and revenue tracking</p>
         </div>
         <div className="flex gap-4">
            <div className="glass-card rounded-xl px-6 py-2 border border-white/5">
-              <p className="text-[10px] font-bold text-[#8c909f] uppercase tracking-widest mb-0.5">Total Revenue</p>
+              <p className="text-[10px] font-bold text-[#8e8ea0] uppercase tracking-widest mb-0.5">Total Revenue</p>
               <p className="text-xl font-black text-green-500">${(totalRevenue / 100).toFixed(2)}</p>
            </div>
-           <button className="px-6 py-2 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 text-[#e1e2ec] font-bold transition-all flex items-center gap-2 text-xs uppercase tracking-widest">
+           <button className="px-6 py-2 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 text-[#e5e2e1] font-bold transition-all flex items-center gap-2 text-xs uppercase tracking-widest">
              <span className="material-symbols-outlined text-sm">download</span>
              Export CSV
            </button>
@@ -64,22 +64,22 @@ export default function TransactionLogsPage() {
           <table className="w-full text-left border-collapse min-w-[1000px]">
             <thead>
               <tr className="border-b border-white/5 bg-white/5">
-                <th className="px-8 py-4 text-[10px] font-bold text-[#8c909f] uppercase tracking-widest">Transaction</th>
-                <th className="px-8 py-4 text-[10px] font-bold text-[#8c909f] uppercase tracking-widest">Developer</th>
-                <th className="px-8 py-4 text-[10px] font-bold text-[#8c909f] uppercase tracking-widest">Payment Info</th>
-                <th className="px-8 py-4 text-[10px] font-bold text-[#8c909f] uppercase tracking-widest">Plan & Amount</th>
-                <th className="px-8 py-4 text-[10px] font-bold text-[#8c909f] uppercase tracking-widest">Status</th>
-                <th className="px-8 py-4 text-[10px] font-bold text-[#8c909f] uppercase tracking-widest text-right">Timestamp</th>
+                <th className="px-8 py-4 text-[10px] font-bold text-[#8e8ea0] uppercase tracking-widest">Transaction</th>
+                <th className="px-8 py-4 text-[10px] font-bold text-[#8e8ea0] uppercase tracking-widest">Developer</th>
+                <th className="px-8 py-4 text-[10px] font-bold text-[#8e8ea0] uppercase tracking-widest">Payment Info</th>
+                <th className="px-8 py-4 text-[10px] font-bold text-[#8e8ea0] uppercase tracking-widest">Plan & Amount</th>
+                <th className="px-8 py-4 text-[10px] font-bold text-[#8e8ea0] uppercase tracking-widest">Status</th>
+                <th className="px-8 py-4 text-[10px] font-bold text-[#8e8ea0] uppercase tracking-widest text-right">Timestamp</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {payments.map((p) => (
                 <tr key={p.id} className="hover:bg-white/5 transition-colors group">
                   <td className="px-8 py-5">
-                     <p className="text-xs font-mono text-[#8c909f]">#TRX-{p.id.toString().padStart(6, '0')}</p>
+                     <p className="text-xs font-mono text-[#8e8ea0]">#TRX-{p.id.toString().padStart(6, '0')}</p>
                   </td>
                   <td className="px-8 py-5">
-                     <p className="text-sm font-bold text-[#e1e2ec] group-hover:text-[#adc6ff] transition-colors">{p.developer}</p>
+                     <p className="text-sm font-bold text-[#e5e2e1] group-hover:text-[#d97757] transition-colors">{p.developer}</p>
                   </td>
                   <td className="px-8 py-5">
                      <div className="space-y-1">
@@ -89,13 +89,13 @@ export default function TransactionLogsPage() {
                            </span>
                            <span className="text-[10px] text-white font-mono">{p.trx_id || 'N/A'}</span>
                         </div>
-                        <p className="text-[9px] text-[#8c909f]">Wallet: {p.wallet || 'None'}</p>
+                        <p className="text-[9px] text-[#8e8ea0]">Wallet: {p.wallet || 'None'}</p>
                      </div>
                   </td>
                   <td className="px-8 py-5">
                      <div className="flex flex-col">
-                        <span className="text-sm font-black text-[#e1e2ec]">${(p.amount / 100).toFixed(2)}</span>
-                        <span className="text-[9px] font-bold text-[#8c909f] uppercase tracking-widest">{p.plan}</span>
+                        <span className="text-sm font-black text-[#e5e2e1]">${(p.amount / 100).toFixed(2)}</span>
+                        <span className="text-[9px] font-bold text-[#8e8ea0] uppercase tracking-widest">{p.plan}</span>
                      </div>
                   </td>
                   <td className="px-8 py-5">
@@ -109,7 +109,7 @@ export default function TransactionLogsPage() {
                        <option value="failed" className="bg-[#0b0e15] text-[#ffb4ab]">Failed</option>
                      </select>
                   </td>
-                  <td className="px-8 py-5 text-right text-[10px] text-[#8c909f] font-mono">
+                  <td className="px-8 py-5 text-right text-[10px] text-[#8e8ea0] font-mono">
                      {new Date(p.date).toLocaleString()}
                   </td>
                 </tr>

@@ -28,14 +28,43 @@ async def startup_event():
     # Start all active customer bots in the background
     asyncio.create_task(bot_manager.start_all_bots())
 
-# CORS Middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.BACKEND_CORS_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# CORS Middleware - Allow Vercel and localhost origins
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response as StarletteResponse
+
+class DynamicCORSMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        origin = request.headers.get("origin", "")
+        
+        allowed_origins = settings.BACKEND_CORS_ORIGINS
+        
+        # Dynamically allow any vercel.app subdomain
+        is_allowed = (
+            origin in allowed_origins or
+            origin.endswith(".vercel.app") or
+            origin.endswith(".onrender.com") or
+            "localhost" in origin or
+            "127.0.0.1" in origin
+        )
+        
+        if request.method == "OPTIONS":
+            response = StarletteResponse(status_code=200)
+            if is_allowed:
+                response.headers["Access-Control-Allow-Origin"] = origin
+                response.headers["Access-Control-Allow-Credentials"] = "true"
+                response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+                response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, Accept"
+            return response
+        
+        response = await call_next(request)
+        
+        if is_allowed:
+            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers["Access-Control-Allow-Credentials"] = "true"
+        
+        return response
+
+app.add_middleware(DynamicCORSMiddleware)
 
 # Maintenance Middleware
 @app.middleware("http")
