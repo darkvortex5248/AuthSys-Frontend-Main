@@ -36,7 +36,7 @@ def build_async_database_url(raw_url: str) -> tuple[str, dict]:
         url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
     parsed = urlparse(url)
-    ssl_required = False
+    ssl_required = "neon.tech" in parsed.netloc
     clean_pairs: list[tuple[str, str]] = []
 
     for key, value in parse_qsl(parsed.query, keep_blank_values=True):

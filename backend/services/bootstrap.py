@@ -1,11 +1,15 @@
-"""Ensure default plans and settings exist (safe to call on every startup)."""
+"""Ensure default plans, settings, and tables/columns exist (safe to call on every startup)."""
 
 from __future__ import annotations
 
-from sqlalchemy import select
+import logging
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models.domain import SubscriptionPlan, SystemSetting
+from core.database import Base
+from models.domain import * # Import all models to register with Base.metadata
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_PLANS = [
     {
@@ -95,6 +99,67 @@ DEFAULT_SETTINGS: dict[str, tuple[str, str]] = {
 }
 
 
+async def ensure_database_schema(db: AsyncSession) -> None:
+    """Ensure all tables exist and all required columns are present in the database."""
+    try:
+        logger.info("Schema migration: Initializing/checking tables...")
+        async with db.bind.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("Schema migration: Tables check complete.")
+    except Exception as e:
+        logger.warning(f"Schema migration: Error ensuring database tables: {e}")
+
+    # Columns to check and add dynamically if missing
+    columns_to_ensure = [
+        (
+            "end_users",
+            "is_shadow",
+            "ALTER TABLE end_users ADD COLUMN IF NOT EXISTS is_shadow BOOLEAN DEFAULT FALSE",
+            "UPDATE end_users SET is_shadow = FALSE WHERE is_shadow IS NULL"
+        ),
+        (
+            "applications",
+            "maintenance_mode",
+            "ALTER TABLE applications ADD COLUMN IF NOT EXISTS maintenance_mode BOOLEAN DEFAULT FALSE",
+            "UPDATE applications SET maintenance_mode = FALSE WHERE maintenance_mode IS NULL"
+        ),
+        (
+            "applications",
+            "developer_lock",
+            "ALTER TABLE applications ADD COLUMN IF NOT EXISTS developer_lock BOOLEAN DEFAULT FALSE",
+            "UPDATE applications SET developer_lock = FALSE WHERE developer_lock IS NULL"
+        ),
+        (
+            "webhooks_log",
+            "endpoint_id",
+            "ALTER TABLE webhooks_log ADD COLUMN IF NOT EXISTS endpoint_id INTEGER",
+            None
+        )
+    ]
+    
+    for table, col, alter_sql, update_sql in columns_to_ensure:
+        try:
+            res = await db.execute(text(
+                f"SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = '{table}' AND column_name = '{col}')"
+            ))
+            exists = res.scalar()
+            
+            if not exists:
+                logger.info(f"Schema migration: Adding missing column '{col}' to table '{table}'")
+                await db.execute(text(alter_sql))
+                if update_sql:
+                    await db.execute(text(update_sql))
+                await db.commit()
+                logger.info(f"Schema migration: Column '{col}' added and populated successfully.")
+            else:
+                if update_sql:
+                    await db.execute(text(update_sql))
+                    await db.commit()
+        except Exception as e:
+            await db.rollback()
+            logger.warning(f"Schema migration failed for {table}.{col}: {e}")
+
+
 async def ensure_default_plans(db: AsyncSession) -> int:
     res = await db.execute(select(SubscriptionPlan))
     existing = {p.name.lower(): p for p in res.scalars().all()}
@@ -132,6 +197,10 @@ async def ensure_default_settings(db: AsyncSession) -> int:
 
 
 async def run_bootstrap(db: AsyncSession) -> dict:
+    # 1. First ensure database schema and tables are 100% correct
+    await ensure_database_schema(db)
+    
+    # 2. Seed plans and settings
     plans = await ensure_default_plans(db)
     settings = await ensure_default_settings(db)
     return {"plans_created": plans, "settings_created": settings}
