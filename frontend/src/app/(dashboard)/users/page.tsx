@@ -11,14 +11,16 @@ import {
   useDeleteAppUser,
 } from '@/hooks/use-developer-queries';
 import { useConfirm } from '@/components/ui/confirm-dialog';
+import { useCopy } from '@/components/ui/copy-dialog';
 
 export default function UsersPage() {
   const { selectedAppId } = useAuthStore();
   const invalidate = useInvalidateDeveloperData();
   const confirm = useConfirm();
+  const copy = useCopy();
   const createUser = useCreateAppUser();
   const deleteUser = useDeleteAppUser();
-  const { data: users = [], isLoading: loading } = useAppUsers(selectedAppId);
+  const { data: users = [], isLoading: loading, isError, error, refetch } = useAppUsers(selectedAppId);
   const [showBanModal, setShowBanModal] = useState<any>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState<any>(null);
@@ -53,6 +55,17 @@ export default function UsersPage() {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (selectedAppId) refetch();
+  }, [selectedAppId, refetch]);
+
+  useEffect(() => {
+    if (isError) {
+      const msg = (error as any)?.response?.data?.detail || 'Failed to load users';
+      toast.error(typeof msg === 'string' ? msg : 'Failed to load users');
+    }
+  }, [isError, error]);
+
   if (loading) {
     return (
       <div className="flex flex-col gap-6">
@@ -78,8 +91,8 @@ export default function UsersPage() {
     try {
       await api.post(`/developer/users/${showBanModal.id}/ban`, banData);
       setShowBanModal(null);
-      if (selectedAppId) invalidate.users(selectedAppId);
-      invalidate.overview();
+      if (selectedAppId) await invalidate.users(selectedAppId);
+      await invalidate.overview();
       toast.success('User banned');
     } catch (err) {
       toast.error('Failed to ban user');
@@ -94,8 +107,9 @@ export default function UsersPage() {
       setShowAddModal(false);
       setNewUser({ username: '', password: '', email: '' });
       toast.success('User created');
-    } catch (err) {
-      toast.error('Failed to create user. Username might be taken.');
+    } catch (err: any) {
+      const detail = err?.response?.data?.detail;
+      toast.error(typeof detail === 'string' ? detail : 'Failed to create user. Username might be taken.');
     }
   };
 
@@ -238,8 +252,8 @@ export default function UsersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.02]">
-              {filteredUsers.map((user, i) => (
-                <tr key={i} className={`hover:bg-white/[0.02] transition-colors group ${user.is_banned ? 'opacity-60' : ''}`}>
+              {filteredUsers.map((user) => (
+                <tr key={user.id} className={`hover:bg-white/[0.02] transition-colors group ${user.is_banned ? 'opacity-60' : ''}`}>
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-full border border-white/10 bg-white/5 flex items-center justify-center font-bold text-xs uppercase">
@@ -249,6 +263,14 @@ export default function UsersPage() {
                         <div className="flex items-center gap-2">
                           <p className="text-sm font-bold text-[var(--vault-on-surface)] group-hover:text-[var(--vault-primary)] transition-colors">{user.username}</p>
                           {user.hwid && <span className="material-symbols-outlined text-[12px] text-[var(--vault-tertiary)]" title="HWID Locked">devices</span>}
+                          <button
+                            type="button"
+                            onClick={() => copy(user.username, { label: 'Username copied' })}
+                            className="opacity-0 group-hover:opacity-100 text-[var(--vault-on-surface-variant)] hover:text-[var(--vault-primary)] transition-all"
+                            title="Copy username"
+                          >
+                            <span className="material-symbols-outlined text-sm">content_copy</span>
+                          </button>
                         </div>
                         <p className="text-xs text-[var(--vault-on-surface-variant)]">{user.email || 'No email'}</p>
                       </div>

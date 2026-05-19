@@ -12,15 +12,17 @@ import {
   useDeleteLicenseKey,
 } from '@/hooks/use-developer-queries';
 import { useConfirm } from '@/components/ui/confirm-dialog';
+import { useCopy } from '@/components/ui/copy-dialog';
 
 export default function LicenseKeysPage() {
   const { selectedAppId } = useAuthStore();
   const invalidate = useInvalidateDeveloperData();
   const confirm = useConfirm();
+  const copy = useCopy();
   const generateKeys = useGenerateKeys();
   const createKey = useCreateLicenseKey();
   const deleteKeyMutation = useDeleteLicenseKey();
-  const { data: keys = [], isLoading: loading } = useLicenseKeys(selectedAppId);
+  const { data: keys = [], isLoading: loading, isError, error, refetch } = useLicenseKeys(selectedAppId);
   const [genData, setGenData] = useState({ quantity: 10, type: 'time', duration: 30, expires_at: '' });
   const [showEditModal, setShowEditModal] = useState<any>(null);
   const [showSingleModal, setShowSingleModal] = useState(false);
@@ -52,6 +54,17 @@ export default function LicenseKeysPage() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (selectedAppId) refetch();
+  }, [selectedAppId, refetch]);
+
+  useEffect(() => {
+    if (isError) {
+      const msg = (error as any)?.response?.data?.detail || 'Failed to load license keys';
+      toast.error(typeof msg === 'string' ? msg : 'Failed to load license keys');
+    }
+  }, [isError, error]);
 
   const handleGenerate = async () => {
     if (!selectedAppId) return;
@@ -100,6 +113,7 @@ export default function LicenseKeysPage() {
     try {
       await api.post(`/developer/keys/${id}/pause`);
       if (selectedAppId) await invalidate.keys(selectedAppId);
+      await invalidate.overview();
     } catch (err) {
       toast.error('Failed to toggle status');
     }
@@ -318,14 +332,14 @@ export default function LicenseKeysPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.02]">
-              {filteredKeys.map((k, i) => (
-                <tr key={i} className="hover:bg-white/[0.02] transition-colors group">
+              {filteredKeys.map((k) => (
+                <tr key={k.id} className="hover:bg-white/[0.02] transition-colors group">
                   <td className="px-6 py-5">
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2">
                         <code className="text-xs font-mono text-[var(--vault-primary)] bg-[var(--vault-primary)]/5 px-2 py-1 rounded border border-[var(--vault-primary)]/10">{k.key_value}</code>
                         <button 
-                          onClick={() => { navigator.clipboard.writeText(k.key_value); toast.success('Copied'); }}
+                          onClick={() => copy(k.key_value, { label: 'License key copied', description: 'Paste into your app or share with customer.' })}
                           className="opacity-0 group-hover:opacity-100 text-[var(--vault-on-surface-variant)] hover:text-[var(--vault-primary)] transition-all"
                         ><span className="material-symbols-outlined text-base">content_copy</span></button>
                       </div>

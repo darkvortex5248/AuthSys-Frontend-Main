@@ -11,10 +11,12 @@ import {
   useToggleApp,
 } from '@/hooks/use-developer-queries';
 import { useConfirm } from '@/components/ui/confirm-dialog';
+import { useCopy } from '@/components/ui/copy-dialog';
 
 export default function ApplicationsPage() {
   const router = useRouter();
   const confirm = useConfirm();
+  const copy = useCopy();
   const { data: apps = [], isLoading: loading } = useApps();
   const createApp = useCreateApp();
   const toggleApp = useToggleApp();
@@ -40,9 +42,8 @@ export default function ApplicationsPage() {
     setVisibleSecrets(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success('Copied to clipboard');
+  const copyToClipboard = (text: string, label = 'Copied to clipboard') => {
+    copy(text, { label });
   };
 
   if (loading) {
@@ -105,8 +106,10 @@ export default function ApplicationsPage() {
   const handleRegenSecret = async (id: number) => {
     try {
       const res = await api.post(`/developer/apps/${id}/regenerate-secret`);
-      toast.success(`New secret generated. Copy it now — it will not be shown again.`);
-      navigator.clipboard.writeText(res.data.app_secret);
+      copy(res.data.app_secret, {
+        label: 'New secret generated',
+        description: 'Copy it now — it will not be shown again.',
+      });
     } catch {
       toast.error('Failed to regenerate secret');
     }

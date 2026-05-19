@@ -1,19 +1,19 @@
 'use client';
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { toast } from 'sonner';
 import { useApp } from '@/hooks/use-developer-queries';
+import { useCopy } from '@/components/ui/copy-dialog';
 
 export default function ApplicationDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const appId = parseInt(id as string, 10);
   const { app, isLoading } = useApp(Number.isNaN(appId) ? null : appId);
+  const copy = useCopy();
   const [visibleSecret, setVisibleSecret] = useState(false);
 
   const copyToClipboard = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success(`${label} copied to clipboard`);
+    copy(text, { label: `${label} copied` });
   };
 
   if (isLoading) {

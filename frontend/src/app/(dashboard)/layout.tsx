@@ -83,7 +83,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }, [mounted, token, sessionStatus, session, router, isLoggingOut]);
 
   useEffect(() => {
-    if (apps.length > 0 && !selectedAppId) {
+    if (apps.length === 0) return;
+    const valid = selectedAppId && apps.some((a) => a.id === selectedAppId);
+    if (!valid) {
       setSelectedAppId(apps[0].id);
     }
   }, [apps, selectedAppId, setSelectedAppId]);

@@ -96,6 +96,8 @@ export function useLicenseKeys(appId: number | null) {
     },
     enabled: authed && !!appId,
     staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -109,6 +111,8 @@ export function useAppUsers(appId: number | null) {
     },
     enabled: authed && !!appId,
     staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -120,10 +124,14 @@ export function useInvalidateDeveloperData() {
     apps: () => queryClient.refetchQueries({ queryKey: queryKeys.apps }),
     overview: () =>
       queryClient.refetchQueries({ queryKey: ['developer', 'overview'] }),
-    keys: (appId: number) =>
-      queryClient.refetchQueries({ queryKey: queryKeys.keys(appId) }),
-    users: (appId: number) =>
-      queryClient.refetchQueries({ queryKey: queryKeys.users(appId) }),
+    keys: async (appId: number) => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.keys(appId) });
+      await queryClient.refetchQueries({ queryKey: queryKeys.keys(appId), type: 'active' });
+    },
+    users: async (appId: number) => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.users(appId) });
+      await queryClient.refetchQueries({ queryKey: queryKeys.users(appId), type: 'active' });
+    },
     all: async (appId?: number) => {
       await Promise.all([
         queryClient.refetchQueries({ queryKey: queryKeys.apps }),
@@ -154,8 +162,17 @@ export function useGenerateKeys() {
       const res = await api.post('/developer/keys/bulk-generate', payload);
       return res.data;
     },
-    onSuccess: async (_data, vars) => {
-      await invalidate.keys(vars.app_id);
+    onSuccess: async (data, vars) => {
+      const appId = vars.app_id;
+      const items = data?.items as any[] | undefined;
+      if (items?.length) {
+        queryClient.setQueryData<any[]>(queryKeys.keys(appId), (old) => {
+          const ids = new Set((old ?? []).map((k) => k.id));
+          const fresh = items.filter((k) => k.id && !ids.has(k.id));
+          return [...fresh, ...(old ?? [])];
+        });
+      }
+      await invalidate.keys(appId);
       await invalidate.overview();
     },
   });
@@ -172,8 +189,12 @@ export function useCreateLicenseKey() {
     },
     onSuccess: async (data, vars: any) => {
       const appId = vars?.app_id as number;
-      if (appId && data) {
-        queryClient.setQueryData<any[]>(queryKeys.keys(appId), (old) => [...(old ?? []), data]);
+      if (appId && data?.id) {
+        queryClient.setQueryData<any[]>(queryKeys.keys(appId), (old) => {
+          const list = old ?? [];
+          if (list.some((k) => k.id === data.id)) return list;
+          return [data, ...list];
+        });
       }
       if (appId) await invalidate.keys(appId);
       await invalidate.overview();
@@ -223,7 +244,13 @@ export function useCreateAppUser() {
       return res.data;
     },
     onSuccess: async (data, vars) => {
-      queryClient.setQueryData<any[]>(queryKeys.users(vars.app_id), (old) => [...(old ?? []), data]);
+      if (data?.id) {
+        queryClient.setQueryData<any[]>(queryKeys.users(vars.app_id), (old) => {
+          const list = old ?? [];
+          if (list.some((u) => u.id === data.id)) return list;
+          return [data, ...list];
+        });
+      }
       await invalidate.users(vars.app_id);
       await invalidate.overview();
     },

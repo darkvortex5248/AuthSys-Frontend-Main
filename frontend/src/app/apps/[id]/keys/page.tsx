@@ -10,12 +10,14 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Copy, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useConfirm } from '@/components/ui/confirm-dialog';
+import { useCopy } from '@/components/ui/copy-dialog';
 import { useDeleteLicenseKey, useLicenseKeys } from '@/hooks/use-developer-queries';
 
 export default function KeysPage() {
   const params = useParams();
   const appId = parseInt(params.id as string, 10);
   const confirm = useConfirm();
+  const copy = useCopy();
   const deleteKey = useDeleteLicenseKey();
   const { data: keys = [], isLoading: loading, refetch } = useLicenseKeys(appId);
 
@@ -24,8 +26,7 @@ export default function KeysPage() {
   }, [appId, refetch]);
 
   const copyKey = (key: string) => {
-    navigator.clipboard.writeText(key);
-    toast.success("Key copied");
+    copy(key, { label: 'License key copied', description: 'Paste into your app or share with customer.' });
   };
 
   const handleDelete = async (id: number) => {

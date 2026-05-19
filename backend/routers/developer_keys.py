@@ -87,6 +87,8 @@ async def bulk_generate(req: BulkKeyGenerate, dev: DeveloperAccount = Depends(ge
         keys.append(k)
         db.add(k)
     await db.commit()
+    for k in keys:
+        await db.refresh(k)
 
     await trigger_webhook(req.app_id, "key_generated", {
         "count": req.count,
@@ -95,7 +97,7 @@ async def bulk_generate(req: BulkKeyGenerate, dev: DeveloperAccount = Depends(ge
         "timestamp": datetime.utcnow().isoformat()
     }, db)
 
-    return {"keys": [k.key_value for k in keys]}
+    return {"count": len(keys), "keys": [k.key_value for k in keys], "items": keys}
 
 @router.post("/{key_id}/pause")
 async def pause_key(key_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
