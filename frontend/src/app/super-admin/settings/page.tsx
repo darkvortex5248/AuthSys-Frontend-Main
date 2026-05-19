@@ -6,7 +6,9 @@ import { toast } from 'sonner';
 
 export default function SystemSettingsPage() {
   const [settings, setSettings] = useState<any[]>([]);
+  const [form, setForm] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     fetchSettings();
@@ -16,6 +18,11 @@ export default function SystemSettingsPage() {
     try {
       const res = await adminApi.get<any[]>('/admin/settings');
       setSettings(res.data);
+      const map: Record<string, string> = {};
+      res.data.forEach((s: any) => {
+        map[s.key] = s.value ?? '';
+      });
+      setForm(map);
     } catch (err) {
       toast.error('Failed to load settings');
       console.error("Failed to fetch settings", err);
@@ -46,7 +53,38 @@ export default function SystemSettingsPage() {
     </div>
   );
 
-  const getVal = (key: string) => settings.find(s => s.key === key)?.value || '';
+  const getVal = (key: string) => form[key] ?? settings.find((s) => s.key === key)?.value ?? '';
+
+  const setField = (key: string, value: string) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const saveFields = async (keys: string[]) => {
+    try {
+      const payload: Record<string, string> = {};
+      keys.forEach((k) => {
+        payload[k] = getVal(k);
+      });
+      await adminApi.put('/admin/settings/bulk', { settings: payload });
+      await fetchSettings();
+      toast.success('Settings saved');
+    } catch {
+      toast.error('Failed to save settings');
+    }
+  };
+
+  const runBootstrap = async () => {
+    setSyncing(true);
+    try {
+      await adminApi.post('/admin/bootstrap');
+      await fetchSettings();
+      toast.success('Platform defaults synced');
+    } catch {
+      toast.error('Bootstrap failed');
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   return (
     <div className="space-y-10 max-w-6xl">
@@ -64,11 +102,12 @@ export default function SystemSettingsPage() {
              Payment Methods
            </Link>
            <button 
-             onClick={fetchSettings}
-             className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-[#e5e2e1] hover:bg-white/10 transition-all flex items-center gap-2"
+             onClick={runBootstrap}
+             disabled={syncing}
+             className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-[#e5e2e1] hover:bg-white/10 transition-all flex items-center gap-2 disabled:opacity-50"
            >
              <span className="material-symbols-outlined text-sm">refresh</span>
-             Sync State
+             {syncing ? 'Syncing…' : 'Sync defaults'}
            </button>
            <div className="px-4 py-2 rounded-xl bg-green-500/10 border border-green-500/20 text-xs font-bold text-green-500 uppercase tracking-widest flex items-center gap-2">
              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
@@ -119,15 +158,13 @@ export default function SystemSettingsPage() {
                   <input 
                    id="input-watch_demo_url"
                    type="url" 
-                   defaultValue={getVal('watch_demo_url')}
+                   value={getVal('watch_demo_url')}
+                   onChange={(e) => setField('watch_demo_url', e.target.value)}
                    className="w-full bg-[#131313]/50 border border-white/10 rounded-xl py-2.5 px-4 text-[#d97757] text-xs font-mono outline-none focus:ring-1 focus:ring-[#d97757]/50"
                    placeholder="https://youtube.com/..."
                   />
                   <button 
-                    onClick={() => {
-                      const el = document.getElementById('input-watch_demo_url') as HTMLInputElement;
-                      if (el) updateSettingValue('watch_demo_url', el.value);
-                    }}
+                    onClick={() => saveFields(['watch_demo_url'])}
                     className="w-full py-2 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-[#d97757] uppercase tracking-widest hover:bg-[#d97757]/10 transition-all"
                   >
                     Update Demo URL
@@ -153,7 +190,8 @@ export default function SystemSettingsPage() {
                      <input 
                       id={`input-${field.key}`}
                       type="text" 
-                      defaultValue={getVal(field.key)}
+                      value={getVal(field.key)}
+                      onChange={(e) => setField(field.key, e.target.value)}
                       className="w-full bg-[#131313]/50 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-[#e5e2e1] text-xs outline-none focus:ring-1 focus:ring-[#d97757]/50"
                       placeholder={field.placeholder}
                      />
@@ -161,13 +199,7 @@ export default function SystemSettingsPage() {
                  </div>
                ))}
                <button 
-                onClick={() => {
-                  ['platform_name', 'platform_logo', 'platform_favicon'].forEach(k => {
-                    const el = document.getElementById(`input-${k}`) as HTMLInputElement;
-                    if (el) updateSettingValue(k, el.value);
-                  });
-                  alert("Platform identity updated!");
-                }}
+                onClick={() => saveFields(['platform_name', 'platform_logo', 'platform_favicon'])}
                 className="w-full mt-2 py-3 rounded-xl bg-[#d97757] text-[#131313] font-bold text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-[#d97757]/20"
                >
                  Save Identity Changes
@@ -181,13 +213,21 @@ export default function SystemSettingsPage() {
               Quick Actions
             </h3>
             <div className="space-y-3">
-              <button className="w-full py-2.5 rounded-lg border border-white/5 hover:bg-white/5 text-xs text-[#8e8ea0] font-bold uppercase transition-all flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={runBootstrap}
+                className="w-full py-2.5 rounded-lg border border-white/5 hover:bg-white/5 text-xs text-[#8e8ea0] font-bold uppercase transition-all flex items-center justify-center gap-2"
+              >
                 <span className="material-symbols-outlined text-sm">cleaning_services</span>
-                Clear System Logs
+                Reset missing defaults
               </button>
-              <button className="w-full py-2.5 rounded-lg border border-white/5 hover:bg-white/5 text-xs text-[#8e8ea0] font-bold uppercase transition-all flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={fetchSettings}
+                className="w-full py-2.5 rounded-lg border border-white/5 hover:bg-white/5 text-xs text-[#8e8ea0] font-bold uppercase transition-all flex items-center justify-center gap-2"
+              >
                 <span className="material-symbols-outlined text-sm">cached</span>
-                Flush Global Cache
+                Reload all settings
               </button>
             </div>
           </div>
@@ -205,18 +245,15 @@ export default function SystemSettingsPage() {
                     <label className="block text-[10px] font-bold text-[#8e8ea0] uppercase tracking-widest mb-2 px-1">Hero / Docs Paragraph</label>
                     <textarea 
                       id="input-landing_paragraph"
-                      defaultValue={getVal('landing_paragraph')}
+                      value={getVal('landing_paragraph')}
+                      onChange={(e) => setField('landing_paragraph', e.target.value)}
                       className="w-full bg-[#131313]/50 border border-white/10 rounded-xl p-4 text-sm text-[#e5e2e1] focus:ring-2 focus:ring-[#d97757]/50 h-32 resize-none outline-none leading-relaxed"
                       placeholder="The modern standard for software authentication..."
                     ></textarea>
                  </div>
                  
                  <button 
-                   onClick={() => {
-                     const el = document.getElementById('input-landing_paragraph') as HTMLTextAreaElement;
-                     if (el) updateSettingValue('landing_paragraph', el.value);
-                     alert("Landing content updated!");
-                   }}
+                   onClick={() => saveFields(['landing_paragraph'])}
                    className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-[#d97757] font-bold text-xs uppercase tracking-widest hover:bg-[#d97757] hover:text-[#131313] transition-all shadow-lg"
                  >
                    Save Content Changes
@@ -247,7 +284,8 @@ export default function SystemSettingsPage() {
                        <input 
                         id={`input-${field.key}`}
                         type="text" 
-                        defaultValue={getVal(field.key)}
+                        value={getVal(field.key)}
+                      onChange={(e) => setField(field.key, e.target.value)}
                         className="w-full bg-[#131313]/50 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-[#e5e2e1] text-xs outline-none focus:ring-1 focus:ring-[#d97757]/50"
                         placeholder={field.placeholder}
                        />
@@ -255,13 +293,7 @@ export default function SystemSettingsPage() {
                    </div>
                  ))}
                  <button 
-                  onClick={() => {
-                    ['contact_email', 'contact_phone', 'contact_address'].forEach(k => {
-                      const el = document.getElementById(`input-${k}`) as HTMLInputElement;
-                      if (el) updateSettingValue(k, el.value);
-                    });
-                    alert("Contact information updated!");
-                  }}
+                  onClick={() => saveFields(['contact_email', 'contact_phone', 'contact_address'])}
                   className="w-full mt-2 py-3 rounded-xl bg-white/5 border border-white/10 text-[#d97757] font-bold text-xs uppercase tracking-widest hover:bg-[#d97757] hover:text-[#131313] transition-all shadow-lg"
                  >
                    Save Contact Details

@@ -52,14 +52,18 @@ async def process_natural_language_command(command: str, dev_id: int, context: d
 
     try:
         if api_key and cfg["enabled"]:
-            import google.generativeai as genai
+            from services.ai_providers import generate_chat_response
 
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel(model_name)
-
-            full_prompt = f"{system_prompt}\n\nUser Command: {command}"
-            response = await asyncio.to_thread(model.generate_content, full_prompt)
-            raw_json = response.text.strip()
+            full_prompt = f"{system_prompt}\n\nUser Command: {command}\n\nReturn JSON only."
+            raw_json = await generate_chat_response(
+                provider=cfg["provider"],
+                api_key=api_key,
+                model_name=model_name,
+                messages=[{"role": "user", "content": full_prompt}],
+                system_instruction="Return strict JSON only. No markdown.",
+                base_url=cfg.get("base_url", ""),
+            )
+            raw_json = raw_json.strip()
             
             # Clean up potential markdown code blocks
             if raw_json.startswith("```json"):

@@ -19,8 +19,15 @@ class PlanBase(BaseModel):
 class PlanCreate(PlanBase):
     pass
 
-class PlanUpdate(PlanBase):
-    pass
+class PlanUpdate(BaseModel):
+    name: Optional[str] = None
+    price_monthly: Optional[int] = None
+    price_yearly: Optional[int] = None
+    max_apps: Optional[int] = None
+    max_users_per_app: Optional[int] = None
+    max_keys_per_month: Optional[int] = None
+    features_json: Optional[Any] = None
+    ai_agent_access: Optional[bool] = None
 
 class PlanResponse(PlanBase):
     id: int
@@ -49,7 +56,16 @@ class AIConfigUpdate(BaseModel):
     provider: Optional[str] = None
     model: Optional[str] = None
     api_key: Optional[str] = None
+    base_url: Optional[str] = None
     enabled: Optional[bool] = None
+
+class AIProviderInfo(BaseModel):
+    id: str
+    label: str
+    default_model: str
+    models: List[str]
+    key_hint: str
+    docs: str = ""
 
 class AIConfigResponse(BaseModel):
     provider: str
@@ -57,7 +73,9 @@ class AIConfigResponse(BaseModel):
     enabled: bool
     api_key_set: bool
     api_key_preview: str
+    base_url: str = ""
     supported_models: List[str]
+    providers: List[AIProviderInfo] = []
 
 class AIConfigTestResponse(BaseModel):
     success: bool

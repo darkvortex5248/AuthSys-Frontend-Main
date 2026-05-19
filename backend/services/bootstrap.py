@@ -1,0 +1,116 @@
+"""Ensure default plans and settings exist (safe to call on every startup)."""
+
+from __future__ import annotations
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from models.domain import SubscriptionPlan, SystemSetting
+
+DEFAULT_PLANS = [
+    {
+        "name": "Free",
+        "price_monthly": 0,
+        "price_yearly": 0,
+        "max_apps": 2,
+        "max_users_per_app": 50,
+        "max_keys_per_month": 100,
+        "features_json": ["Basic Auth", "HWID Lock", "License Keys"],
+        "ai_agent_access": False,
+    },
+    {
+        "name": "Tester",
+        "price_monthly": 0,
+        "price_yearly": 0,
+        "max_apps": 5,
+        "max_users_per_app": 500,
+        "max_keys_per_month": 1000,
+        "features_json": ["All Auth Methods", "Token System", "Hash Checks", "2FA"],
+        "ai_agent_access": False,
+    },
+    {
+        "name": "Developer",
+        "price_monthly": 2999,
+        "price_yearly": 29990,
+        "max_apps": 20,
+        "max_users_per_app": 10000,
+        "max_keys_per_month": 50000,
+        "features_json": ["Team Management", "Customer Panel", "Functions", "Webhooks"],
+        "ai_agent_access": True,
+    },
+    {
+        "name": "Seller",
+        "price_monthly": 4999,
+        "price_yearly": 49990,
+        "max_apps": 999999,
+        "max_users_per_app": 999999,
+        "max_keys_per_month": 999999,
+        "features_json": ["Chatrooms", "Discord Bot", "Telegram Bot", "Seller API"],
+        "ai_agent_access": True,
+    },
+    {
+        "name": "Enterprise",
+        "price_monthly": 9999,
+        "price_yearly": 99990,
+        "max_apps": 999999,
+        "max_users_per_app": 999999,
+        "max_keys_per_month": 999999,
+        "features_json": ["Dedicated Support", "Custom SLA", "Priority AI", "White Label"],
+        "ai_agent_access": True,
+    },
+]
+
+DEFAULT_SETTINGS: dict[str, tuple[str, str]] = {
+    "system_mode": ("live", "Platform operational mode"),
+    "maintenance_mode": ("false", "Legacy maintenance flag"),
+    "platform_name": ("AuthSys", "Public platform name"),
+    "platform_logo": ("/logo.png", "Logo URL"),
+    "platform_favicon": ("/favicon.ico", "Favicon URL"),
+    "watch_demo_url": ("https://youtube.com/watch?v=demo", "Hero demo video URL"),
+    "landing_paragraph": (
+        "The modern standard for software authentication, license management, and AI-powered threat protection.",
+        "Landing hero text",
+    ),
+    "contact_email": ("support@authsys.com", "Support email"),
+    "contact_phone": ("+1 (800) 123-4567", "Support phone"),
+    "contact_address": ("San Francisco, CA", "Office address"),
+    "strict_hwid": ("false", "Strict HWID enforcement"),
+    "ip_risk_scoring": ("false", "IP risk scoring"),
+    "developer_2fa": ("false", "Mandatory developer 2FA"),
+    "rate_limiting": ("true", "API rate limiting"),
+    "ai_provider": ("google", "AI provider id"),
+    "ai_model": ("gemini-2.0-flash", "AI model id"),
+    "ai_enabled": ("true", "AI assistant enabled"),
+}
+
+
+async def ensure_default_plans(db: AsyncSession) -> int:
+    res = await db.execute(select(SubscriptionPlan))
+    existing = {p.name.lower(): p for p in res.scalars().all()}
+    created = 0
+    for data in DEFAULT_PLANS:
+        if data["name"].lower() not in existing:
+            db.add(SubscriptionPlan(**data))
+            created += 1
+    if created:
+        await db.commit()
+    return created
+
+
+async def ensure_default_settings(db: AsyncSession) -> int:
+    res = await db.execute(select(SystemSetting))
+    existing = {s.key for s in res.scalars().all()}
+    created = 0
+    for key, (value, desc) in DEFAULT_SETTINGS.items():
+        if key not in existing:
+            db.add(SystemSetting(key=key, value=value, description=desc))
+            created += 1
+    if created:
+        await db.commit()
+    return created
+
+
+async def run_bootstrap(db: AsyncSession) -> dict:
+    plans = await ensure_default_plans(db)
+    settings = await ensure_default_settings(db)
+    return {"plans_created": plans, "settings_created": settings}

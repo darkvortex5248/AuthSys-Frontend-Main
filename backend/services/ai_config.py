@@ -7,22 +7,17 @@ from sqlalchemy.future import select
 
 from core.config import settings
 from models.domain import SystemSetting
+from services.ai_providers import PROVIDER_CATALOG, catalog_for_admin, default_models_for
 
 AI_KEYS = (
     "ai_provider",
     "ai_model",
     "ai_api_key",
+    "ai_base_url",
     "ai_enabled",
 )
 
 DEFAULT_MODEL = "gemini-2.0-flash"
-SUPPORTED_MODELS = [
-    "gemini-2.0-flash",
-    "gemini-2.0-flash-lite",
-    "gemini-1.5-pro",
-    "gemini-1.5-flash-8b",
-    "gemini-2.5-flash-preview-05-20",
-]
 
 
 async def _load_settings_map(db: AsyncSession) -> dict[str, str]:
@@ -38,13 +33,28 @@ def mask_api_key(key: str) -> str:
     return f"{'•' * (len(key) - 4)}{key[-4:]}"
 
 
+def _env_fallback_key(provider: str) -> str:
+    p = (provider or "google").lower()
+    if p == "openai":
+        return getattr(settings, "OPENAI_API_KEY", "") or ""
+    if p == "anthropic":
+        return getattr(settings, "ANTHROPIC_API_KEY", "") or ""
+    if p == "groq":
+        return getattr(settings, "GROQ_API_KEY", "") or ""
+    if p == "openrouter":
+        return getattr(settings, "OPENROUTER_API_KEY", "") or ""
+    return settings.GEMINI_API_KEY or ""
+
+
 async def get_ai_runtime_config(db: AsyncSession) -> dict:
-    """Config used when generating AI responses."""
     stored = await _load_settings_map(db)
     enabled = (stored.get("ai_enabled") or "true").lower() == "true"
     provider = (stored.get("ai_provider") or "google").strip().lower()
-    model = (stored.get("ai_model") or DEFAULT_MODEL).strip()
-    api_key = (stored.get("ai_api_key") or settings.GEMINI_API_KEY or "").strip()
+    if provider not in PROVIDER_CATALOG:
+        provider = "google"
+    model = (stored.get("ai_model") or PROVIDER_CATALOG[provider]["default_model"]).strip()
+    api_key = (stored.get("ai_api_key") or _env_fallback_key(provider)).strip()
+    base_url = (stored.get("ai_base_url") or "").strip()
 
     if model.startswith("models/"):
         model = model.replace("models/", "", 1)
@@ -54,18 +64,21 @@ async def get_ai_runtime_config(db: AsyncSession) -> dict:
         "provider": provider,
         "model": model,
         "api_key": api_key,
+        "base_url": base_url,
     }
 
 
 async def get_ai_admin_view(db: AsyncSession) -> dict:
-    """Safe view for admin UI (masked key)."""
     runtime = await get_ai_runtime_config(db)
     key = runtime["api_key"]
+    provider = runtime["provider"]
     return {
-        "provider": runtime["provider"],
+        "provider": provider,
         "model": runtime["model"],
         "enabled": runtime["enabled"],
         "api_key_set": bool(key),
         "api_key_preview": mask_api_key(key),
-        "supported_models": SUPPORTED_MODELS,
+        "base_url": runtime["base_url"],
+        "supported_models": default_models_for(provider),
+        "providers": catalog_for_admin(),
     }

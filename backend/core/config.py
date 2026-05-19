@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     
     MOCK_EMAIL: bool = True
     GEMINI_API_KEY: str = ""
+    OPENAI_API_KEY: str = ""
+    ANTHROPIC_API_KEY: str = ""
+    GROQ_API_KEY: str = ""
+    OPENROUTER_API_KEY: str = ""
     TURNSTILE_SECRET_KEY: str = ""
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")

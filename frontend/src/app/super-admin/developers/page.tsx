@@ -21,8 +21,12 @@ export default function DeveloperManagementPage() {
       ]);
       setDevelopers(devsRes.data);
       setPlans(plansRes.data);
-    } catch (err) {
-      console.error("Failed to fetch data", err);
+      if (plansRes.data.length === 0) {
+        const seed = await adminApi.post<{ plans: any[] }>('/admin/plans/seed');
+        setPlans(seed.data.plans || []);
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || 'Failed to load developers');
     } finally {
       setLoading(false);
     }
@@ -39,13 +43,17 @@ export default function DeveloperManagementPage() {
     }
   };
 
-  const changePlan = async (devId: number, planId: number) => {
+  const changePlan = async (devId: number, planId: number | null) => {
     try {
-      await adminApi.post(`/admin/developers/${devId}/plan?plan_id=${planId}`, {});
-      fetchData();
-      toast.success('Plan updated');
-    } catch (err) {
-      toast.error('Failed to update plan');
+      if (planId === null) {
+        await adminApi.delete(`/admin/developers/${devId}/plan`);
+      } else {
+        await adminApi.post(`/admin/developers/${devId}/plan?plan_id=${planId}`, {});
+      }
+      await fetchData();
+      toast.success(planId === null ? 'Plan removed' : 'Subscription assigned');
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || 'Failed to update plan');
     }
   };
 
@@ -79,6 +87,23 @@ export default function DeveloperManagementPage() {
         </div>
       </div>
 
+      {plans.length === 0 && (
+        <div className="glass-card rounded-2xl p-4 border border-amber-500/30 bg-amber-500/10 flex items-center justify-between gap-4">
+          <p className="text-sm text-amber-200">No plans in database — assign subscription after creating plans.</p>
+          <button
+            type="button"
+            onClick={async () => {
+              const seed = await adminApi.post<{ plans: any[] }>('/admin/plans/seed');
+              setPlans(seed.data.plans || []);
+              toast.success('Default plans created');
+            }}
+            className="px-4 py-2 rounded-lg bg-amber-500 text-black text-xs font-bold uppercase"
+          >
+            Create plans
+          </button>
+        </div>
+      )}
+
       <div className="glass-card rounded-3xl overflow-hidden shadow-2xl border border-white/5">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -107,13 +132,16 @@ export default function DeveloperManagementPage() {
                 <td className="px-8 py-6">
                    <div className="flex items-center gap-3">
                       <select 
-                        value={dev.plan_id || ''} 
-                        onChange={(e) => changePlan(dev.id, parseInt(e.target.value))}
-                        className="bg-[#0e0e12] border border-white/10 rounded-xl px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-blue-400 outline-none focus:border-blue-500 transition-all cursor-pointer"
+                        value={dev.plan_id ?? ''} 
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          changePlan(dev.id, v ? parseInt(v, 10) : null);
+                        }}
+                        className="min-w-[140px] bg-[#0e0e12] border border-white/10 rounded-xl px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-[#d97757] outline-none focus:border-[#d97757] transition-all cursor-pointer"
                       >
                         <option value="">No Plan</option>
                         {plans.map(p => (
-                          <option key={p.id} value={p.id}>{p.name.toUpperCase()}</option>
+                          <option key={p.id} value={p.id}>{p.name}</option>
                         ))}
                       </select>
                       <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-tighter ${dev.plan_id ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>

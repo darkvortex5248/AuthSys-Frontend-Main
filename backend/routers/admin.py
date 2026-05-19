@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
+from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import func
@@ -15,11 +16,11 @@ from schemas.admin import (
     PaymentMethodCreate, PaymentMethodUpdate, PaymentMethodResponse,
     AIConfigUpdate, AIConfigResponse, AIConfigTestResponse,
 )
-from services.ai_config import get_ai_admin_view, DEFAULT_MODEL
-from services.ai_runtime import generate_chat_response, list_available_models
+from services.ai_config import get_ai_admin_view
+from services.ai_providers import generate_chat_response, list_live_models, catalog_for_admin
+from services.bootstrap import run_bootstrap, ensure_default_plans
 from schemas.auth import Token
 from datetime import timedelta
-from typing import List
 
 router = APIRouter(prefix="/api/v1/admin", tags=["Super Admin"])
 
@@ -96,19 +97,41 @@ async def ban_developer(id: int, admin: AdminUser = Depends(get_current_admin), 
     return {"status": "success", "is_banned": dev.is_banned}
 
 @router.post("/developers/{id}/plan")
-async def update_developer_plan(id: int, plan_id: int, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+async def update_developer_plan(
+    id: int,
+    plan_id: Optional[int] = Query(None),
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
     res = await db.execute(select(DeveloperAccount).where(DeveloperAccount.id == id))
     dev = res.scalars().first()
-    if not dev: raise HTTPException(404, "Developer not found")
-    
+    if not dev:
+        raise HTTPException(404, "Developer not found")
+
+    if plan_id is None or plan_id <= 0:
+        dev.plan_id = None
+        dev.subscription_tier = "tester"
+        await db.commit()
+        return {"status": "success", "tier": dev.subscription_tier, "plan_id": None}
+
     plan_res = await db.execute(select(SubscriptionPlan).where(SubscriptionPlan.id == plan_id))
     plan = plan_res.scalars().first()
-    if not plan: raise HTTPException(404, "Plan not found")
-    
+    if not plan:
+        raise HTTPException(404, "Plan not found")
+
     dev.plan_id = plan.id
-    dev.subscription_tier = plan.name
+    dev.subscription_tier = plan.name.lower()
     await db.commit()
-    return {"status": "success", "tier": dev.subscription_tier}
+    return {"status": "success", "tier": dev.subscription_tier, "plan_id": plan.id}
+
+
+@router.delete("/developers/{id}/plan")
+async def clear_developer_plan(
+    id: int,
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    return await update_developer_plan(id, plan_id=None, admin=admin, db=db)
 
 @router.get("/platform-stats", response_model=PlatformStats)
 async def get_platform_stats(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
@@ -133,7 +156,7 @@ async def get_plans(admin: AdminUser = Depends(get_current_admin), db: AsyncSess
 
 @router.post("/plans", response_model=PlanResponse)
 async def create_plan(plan_in: PlanCreate, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
-    new_plan = SubscriptionPlan(**plan_in.dict())
+    new_plan = SubscriptionPlan(**plan_in.model_dump())
     db.add(new_plan)
     await db.commit()
     await db.refresh(new_plan)
@@ -143,14 +166,43 @@ async def create_plan(plan_in: PlanCreate, admin: AdminUser = Depends(get_curren
 async def update_plan(id: int, plan_in: PlanUpdate, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SubscriptionPlan).where(SubscriptionPlan.id == id))
     plan = res.scalars().first()
-    if not plan: raise HTTPException(404, "Plan not found")
-    
-    for key, value in plan_in.dict().items():
+    if not plan:
+        raise HTTPException(404, "Plan not found")
+
+    data = plan_in.model_dump(exclude_unset=True)
+    for key, value in data.items():
         setattr(plan, key, value)
-    
+
     await db.commit()
     await db.refresh(plan)
     return plan
+
+
+@router.delete("/plans/{id}")
+async def delete_plan(id: int, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    res = await db.execute(select(SubscriptionPlan).where(SubscriptionPlan.id == id))
+    plan = res.scalars().first()
+    if not plan:
+        raise HTTPException(404, "Plan not found")
+    in_use = await db.execute(select(DeveloperAccount).where(DeveloperAccount.plan_id == id).limit(1))
+    if in_use.scalars().first():
+        raise HTTPException(400, "Cannot delete plan assigned to developers")
+    await db.delete(plan)
+    await db.commit()
+    return {"status": "success"}
+
+
+@router.post("/plans/seed")
+async def seed_plans(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    created = await ensure_default_plans(db)
+    res = await db.execute(select(SubscriptionPlan).order_by(SubscriptionPlan.id.asc()))
+    return {"created": created, "plans": res.scalars().all()}
+
+
+@router.post("/bootstrap")
+async def bootstrap_platform(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    result = await run_bootstrap(db)
+    return {"status": "success", **result}
 
 # System Settings (SDK links etc)
 async def _upsert_setting(db: AsyncSession, key: str, value: str, description: str | None = None):
@@ -184,6 +236,8 @@ async def update_ai_config(
         await _upsert_setting(db, "ai_model", model)
     if body.api_key is not None and body.api_key.strip():
         await _upsert_setting(db, "ai_api_key", body.api_key.strip())
+    if body.base_url is not None:
+        await _upsert_setting(db, "ai_base_url", body.base_url.strip())
     if body.enabled is not None:
         await _upsert_setting(db, "ai_enabled", "true" if body.enabled else "false")
     await db.commit()
@@ -200,9 +254,11 @@ async def test_ai_config(admin: AdminUser = Depends(get_current_admin), db: Asyn
 
     try:
         reply = await generate_chat_response(
+            provider=cfg["provider"],
             api_key=cfg["api_key"],
             model_name=cfg["model"],
             messages=[{"role": "user", "content": "Reply with exactly: AuthSys AI online"}],
+            base_url=cfg.get("base_url", ""),
         )
         return AIConfigTestResponse(
             success=True,
@@ -221,16 +277,50 @@ async def list_ai_models(admin: AdminUser = Depends(get_current_admin), db: Asyn
     if not cfg["api_key"]:
         return {"models": [], "message": "Set API key first"}
     try:
-        live = await list_available_models(cfg["api_key"])
-        return {"models": live or [], "cached_defaults": [DEFAULT_MODEL]}
+        live = await list_live_models(
+            provider=cfg["provider"],
+            api_key=cfg["api_key"],
+            base_url=cfg.get("base_url", ""),
+        )
+        return {
+            "models": live or [],
+            "provider": cfg["provider"],
+            "providers": catalog_for_admin(),
+        }
     except Exception as e:
-        return {"models": [], "error": str(e)}
+        return {"models": [], "error": str(e), "providers": catalog_for_admin()}
 
 
 @router.get("/settings", response_model=List[SystemSettingResponse])
 async def get_settings(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    from services.bootstrap import ensure_default_settings
+
+    await ensure_default_settings(db)
     res = await db.execute(select(SystemSetting).order_by(SystemSetting.key.asc()))
     return res.scalars().all()
+
+
+@router.put("/settings/bulk")
+async def bulk_update_settings(
+    payload: dict,
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    items = payload.get("settings") if isinstance(payload.get("settings"), dict) else payload
+    if not isinstance(items, dict):
+        raise HTTPException(400, "Expected { settings: { key: value } }")
+    updated = []
+    for key, value in items.items():
+        res = await db.execute(select(SystemSetting).where(SystemSetting.key == key))
+        row = res.scalars().first()
+        if not row:
+            row = SystemSetting(key=key, value=str(value), description=f"Auto-created {key}")
+            db.add(row)
+        else:
+            row.value = str(value)
+        updated.append(key)
+    await db.commit()
+    return {"status": "success", "updated": updated}
 
 @router.post("/settings", response_model=SystemSettingResponse)
 async def create_setting(setting_in: SystemSettingCreate, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):

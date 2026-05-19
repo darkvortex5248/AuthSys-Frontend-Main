@@ -18,7 +18,7 @@ export default function AIChatWidget() {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [modelLabel, setModelLabel] = useState('Gemini');
+  const [modelLabel, setModelLabel] = useState('AI');
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -32,9 +32,9 @@ export default function AIChatWidget() {
       api
         .get('/ai/config')
         .then((res) => {
-          if (res.data?.model) {
-            setModelLabel(res.data.model.replace('models/', ''));
-          }
+          const p = res.data?.provider || 'ai';
+          const m = res.data?.model?.replace('models/', '') || '';
+          setModelLabel(m ? `${p} · ${m}` : p);
         })
         .catch(() => {});
     }

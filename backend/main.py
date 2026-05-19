@@ -31,6 +31,17 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @app.on_event("startup")
 async def startup_event():
+    try:
+        from core.database import AsyncSessionLocal
+        from services.bootstrap import run_bootstrap
+
+        async with AsyncSessionLocal() as db:
+            result = await run_bootstrap(db)
+            if result.get("plans_created") or result.get("settings_created"):
+                logger.info("Bootstrap: %s", result)
+    except Exception as exc:
+        logger.warning("Bootstrap skipped: %s", exc)
+
     # Long-running Discord/Telegram bots cannot run on Vercel serverless
     if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
         logger.info("Skipping bot manager on serverless runtime")

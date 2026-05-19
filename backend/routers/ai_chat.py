@@ -49,17 +49,16 @@ async def ai_chat(
             detail="AI API key not configured. Admin can set it under Super Admin → AI Control.",
         )
 
-    if cfg["provider"] != "google":
-        raise HTTPException(status_code=501, detail=f"Provider '{cfg['provider']}' is not supported yet.")
-
     try:
         text = await generate_chat_response(
+            provider=cfg["provider"],
             api_key=cfg["api_key"],
             model_name=cfg["model"],
             messages=[m.model_dump() for m in req.messages],
             system_instruction=SYSTEM_PROMPT,
+            base_url=cfg.get("base_url", ""),
         )
-        return {"response": text, "model": cfg["model"]}
+        return {"response": text, "model": cfg["model"], "provider": cfg["provider"]}
     except Exception as e:
         error_msg = str(e)
         if "429" in error_msg:
