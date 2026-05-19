@@ -76,7 +76,6 @@ function VerifyEmailForm() {
   };
 
   return (
-  return (
     <div className="w-full max-w-[440px] bg-[#1a1a1a] p-[24px] rounded-xl border border-white/5 transition-all duration-300 hover:border-white/10 shadow-[0_0_40px_2px_rgba(217,119,87,0.03)]">
       <div className="flex justify-center mb-8">
         <div className="w-16 h-16 rounded-full bg-[#09a493]/10 flex items-center justify-center border border-[#09a493]/20 shadow-[0_0_20px_0px_rgba(9,164,147,0.15)]">
