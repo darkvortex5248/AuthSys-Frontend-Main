@@ -67,13 +67,13 @@ export default function CheckoutPage({ params }: { params: Promise<{ planId: str
     }
   };
 
-  if (loading) return <div className="flex items-center justify-center h-screen"><div className="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div></div>;
+  if (loading) return <div className="flex items-center justify-center h-screen"><div className="w-10 h-10 border-4 border-[#d97757] border-t-transparent rounded-full animate-spin"></div></div>;
   if (!plan) return <div>Plan not found</div>;
 
   const bdtAmount = selectedMethod ? Math.round((plan.price_monthly / 100) * selectedMethod.exchange_rate) : 0;
 
   return (
-    <div className="min-h-screen bg-[#0A0A0F] text-white p-6 pb-20 selection:bg-purple-500/30">
+    <div className="min-h-screen bg-[#0A0A0F] text-white p-6 pb-20 selection:bg-[#d97757]/30">
       <div className="max-w-5xl mx-auto">
         <Link href="/billing" className="inline-flex items-center gap-2 text-zinc-500 hover:text-white transition-colors mb-8 group">
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -100,11 +100,11 @@ export default function CheckoutPage({ params }: { params: Promise<{ planId: str
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-4 space-y-6">
               <div className="glass-card bg-white/5 border border-white/10 rounded-3xl p-8 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 blur-2xl"></div>
+                <div className="absolute top-0 right-0 w-24 h-24 bg-[#d97757]/10 blur-2xl"></div>
                 <h3 className="text-zinc-500 uppercase tracking-widest text-[10px] font-bold mb-6">Payment Summary</h3>
                 
                 <div className="flex items-center gap-4 mb-8">
-                    <div className="w-12 h-12 rounded-2xl bg-purple-500/20 flex items-center justify-center text-purple-400">
+                    <div className="w-12 h-12 rounded-2xl bg-[#d97757]/20 flex items-center justify-center text-[#d97757]">
                       <Zap size={24} />
                     </div>
                     <div>
@@ -126,21 +126,21 @@ export default function CheckoutPage({ params }: { params: Promise<{ planId: str
                         </div>
                         <div className="flex justify-between pt-4 text-xl font-black border-t border-white/5">
                           <span className="text-white">Total BDT</span>
-                          <span className="text-purple-400">{bdtAmount} ৳</span>
+                          <span className="text-[#d97757]">{bdtAmount} ৳</span>
                         </div>
                      </>
                    )}
                    {selectedMethod?.type !== 'local' && (
                      <div className="flex justify-between pt-4 text-xl font-black border-t border-white/5">
                         <span className="text-white">Total</span>
-                        <span className="text-purple-400">${(plan.price_monthly / 100).toFixed(2)}</span>
+                        <span className="text-[#d97757]">${(plan.price_monthly / 100).toFixed(2)}</span>
                      </div>
                    )}
                 </div>
               </div>
 
-              <div className="p-6 rounded-2xl bg-purple-500/5 border border-purple-500/10 flex gap-4">
-                <Shield className="w-6 h-6 text-purple-500 shrink-0" />
+              <div className="p-6 rounded-2xl bg-[#d97757]/5 border border-[#d97757]/10 flex gap-4">
+                <Shield className="w-6 h-6 text-[#d97757] shrink-0" />
                 <p className="text-[10px] text-zinc-500 leading-relaxed">
                   Your payment is verified manually by our secure administrative core. Access is granted after validation.
                 </p>
@@ -157,9 +157,9 @@ export default function CheckoutPage({ params }: { params: Promise<{ planId: str
                      <button 
                       key={m.id}
                       onClick={() => setSelectedMethod(m)}
-                      className={`p-4 rounded-2xl border-2 transition-all text-left flex flex-col gap-2 relative ${selectedMethod?.id === m.id ? 'border-purple-500 bg-purple-500/5 shadow-lg' : 'border-white/5 bg-white/5 hover:border-white/10'}`}
+                      className={`p-4 rounded-2xl border-2 transition-all text-left flex flex-col gap-2 relative ${selectedMethod?.id === m.id ? 'border-[#d97757] bg-[#d97757]/5 shadow-lg' : 'border-white/5 bg-white/5 hover:border-white/10'}`}
                      >
-                       <span className="material-symbols-outlined text-xl text-purple-400">{m.icon_name}</span>
+                       <span className="material-symbols-outlined text-xl text-[#d97757]">{m.icon_name}</span>
                        <div>
                          <p className="font-bold text-xs">{m.name}</p>
                          <p className="text-[9px] text-zinc-500 uppercase tracking-tighter">{m.type}</p>
@@ -179,10 +179,10 @@ export default function CheckoutPage({ params }: { params: Promise<{ planId: str
                           <div className="space-y-3 text-zinc-500 text-xs italic">
                             {selectedMethod.instructions || "Enter your card details for international payment."}
                              <div className="space-y-3 mt-4">
-                                <input type="text" placeholder="Card Number" className="w-full bg-[#0A0A0F] border border-white/10 rounded-xl p-3 text-sm outline-none focus:border-purple-500" />
+                                <input type="text" placeholder="Card Number" className="w-full bg-[#0A0A0F] border border-white/10 rounded-xl p-3 text-sm outline-none focus:border-[#d97757]" />
                                 <div className="grid grid-cols-2 gap-3">
-                                  <input type="text" placeholder="MM / YY" className="w-full bg-[#0A0A0F] border border-white/10 rounded-xl p-3 text-sm outline-none focus:border-purple-500" />
-                                  <input type="text" placeholder="CVC" className="w-full bg-[#0A0A0F] border border-white/10 rounded-xl p-3 text-sm outline-none focus:border-purple-500" />
+                                  <input type="text" placeholder="MM / YY" className="w-full bg-[#0A0A0F] border border-white/10 rounded-xl p-3 text-sm outline-none focus:border-[#d97757]" />
+                                  <input type="text" placeholder="CVC" className="w-full bg-[#0A0A0F] border border-white/10 rounded-xl p-3 text-sm outline-none focus:border-[#d97757]" />
                                 </div>
                              </div>
                           </div>
@@ -190,10 +190,10 @@ export default function CheckoutPage({ params }: { params: Promise<{ planId: str
                     </motion.div>
                   ) : (
                     <motion.div key="local" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-4">
-                       <div className="p-6 rounded-2xl bg-purple-500/5 border border-purple-500/10 space-y-6">
+                       <div className="p-6 rounded-2xl bg-[#d97757]/5 border border-[#d97757]/10 space-y-6">
                           <div className="flex items-center justify-between">
                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center font-black text-white">
+                                <div className="w-10 h-10 rounded-full bg-[#d97757] flex items-center justify-center font-black text-white">
                                    {selectedMethod?.name[0]}
                                 </div>
                                 <span className="text-sm font-bold">Pay via {selectedMethod?.name}</span>
@@ -206,17 +206,17 @@ export default function CheckoutPage({ params }: { params: Promise<{ planId: str
                           
                           <div className="p-4 rounded-xl bg-[#0A0A0F] border border-white/5">
                              <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">Payment Instructions</p>
-                             <p className="text-sm font-medium text-purple-300">{selectedMethod?.instructions}</p>
+                             <p className="text-sm font-medium text-[#d97757]">{selectedMethod?.instructions}</p>
                           </div>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                              <div className="space-y-2">
                                <p className="text-[10px] text-zinc-500 uppercase tracking-widest px-1">Your Wallet Number</p>
-                               <input value={walletNumber} onChange={(e) => setWalletNumber(e.target.value)} type="text" placeholder="01XXXXXXXXX" className="w-full bg-[#0A0A0F] border border-white/10 rounded-xl p-3 text-sm font-bold outline-none focus:border-purple-500" />
+                               <input value={walletNumber} onChange={(e) => setWalletNumber(e.target.value)} type="text" placeholder="01XXXXXXXXX" className="w-full bg-[#0A0A0F] border border-white/10 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#d97757]" />
                              </div>
                              <div className="space-y-2">
                                <p className="text-[10px] text-zinc-500 uppercase tracking-widest px-1">Transaction ID (TrxID)</p>
-                               <input value={trxId} onChange={(e) => setTrxId(e.target.value)} type="text" placeholder="8N7X2W..." className="w-full bg-[#0A0A0F] border border-white/10 rounded-xl p-3 text-sm font-bold outline-none focus:border-purple-500" />
+                               <input value={trxId} onChange={(e) => setTrxId(e.target.value)} type="text" placeholder="8N7X2W..." className="w-full bg-[#0A0A0F] border border-white/10 rounded-xl p-3 text-sm font-bold outline-none focus:border-[#d97757]" />
                              </div>
                           </div>
                        </div>
@@ -227,7 +227,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ planId: str
                 <button 
                   onClick={handleConfirmPayment}
                   disabled={processing || !selectedMethod}
-                  className="w-full h-16 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-black text-lg transition-all shadow-2xl shadow-purple-900/40 mt-8 disabled:opacity-50 flex items-center justify-center gap-3 group"
+                  className="w-full h-16 rounded-2xl bg-[#d97757] hover:bg-[#d97757] text-white font-black text-lg transition-all shadow-2xl shadow-[#d97757]/40 mt-8 disabled:opacity-50 flex items-center justify-center gap-3 group"
                 >
                   {processing ? (
                      <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>

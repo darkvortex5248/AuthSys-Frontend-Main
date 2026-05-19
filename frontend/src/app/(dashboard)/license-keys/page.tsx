@@ -1,7 +1,8 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function LicenseKeysPage() {
   const { selectedAppId } = useAuthStore();
@@ -15,6 +16,26 @@ export default function LicenseKeysPage() {
   const [editData, setEditData] = useState({ type: 'time', duration: 30, max_uses: 0, expires_at: '', note: '', seller_tag: '' });
   const [generating, setGenerating] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  // Search & Filter
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+
+  const filteredKeys = useMemo(() => {
+    return (keys || []).filter(k => {
+      const term = searchTerm.toLowerCase();
+      const matchesSearch = 
+        k?.key_value?.toLowerCase().includes(term) || 
+        k?.note?.toLowerCase().includes(term) ||
+        k?.seller_tag?.toLowerCase().includes(term);
+        
+      const matchesStatus = statusFilter === 'all' || 
+        (statusFilter === 'active' && !k.is_paused) || 
+        (statusFilter === 'paused' && k.is_paused);
+        
+      return matchesSearch && matchesStatus;
+    });
+  }, [keys, searchTerm, statusFilter]);
 
   const fetchKeys = async () => {
     if (!selectedAppId) {
@@ -147,6 +168,26 @@ export default function LicenseKeysPage() {
     );
   }
 
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-6">
+        <div className="flex justify-between items-end mb-8 gap-6">
+          <div className="space-y-4">
+            <div className="h-10 w-64 bg-white/5 rounded-lg animate-pulse" />
+            <div className="h-4 w-48 bg-white/5 rounded-lg animate-pulse" />
+          </div>
+          <div className="h-12 w-48 bg-white/5 rounded-xl animate-pulse" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="glass-card rounded-2xl h-32 animate-pulse bg-white/[0.02] border-white/5" />
+          ))}
+        </div>
+        <div className="glass-card rounded-2xl h-64 animate-pulse bg-white/[0.02] border-white/5" />
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6">
@@ -165,10 +206,10 @@ export default function LicenseKeysPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[
-          { label: 'Total Keys', val: keys.length, icon: 'database', color: 'var(--vault-primary)' },
-          { label: 'Active', val: keys.filter(k => !k.is_paused).length, icon: 'check_circle', color: '#34d399' },
-          { label: 'Paused', val: keys.filter(k => k.is_paused).length, icon: 'pause_circle', color: '#ffb786' },
-          { label: 'Redeemed', val: keys.filter(k => k.current_uses > 0).length, icon: 'bolt', color: 'var(--vault-tertiary)' },
+          { label: 'Total Keys', val: (keys || []).length, icon: 'database', color: 'var(--vault-primary)' },
+          { label: 'Active', val: (keys || []).filter(k => !k.is_paused).length, icon: 'check_circle', color: '#34d399' },
+          { label: 'Paused', val: (keys || []).filter(k => k.is_paused).length, icon: 'pause_circle', color: '#ffb786' },
+          { label: 'Redeemed', val: (keys || []).filter(k => k.current_uses > 0).length, icon: 'bolt', color: 'var(--vault-tertiary)' },
         ].map((stat, i) => (
           <div key={i} className="glass-card p-6 rounded-2xl flex flex-col justify-between group">
             <div className="flex items-center justify-between mb-4">
@@ -240,8 +281,29 @@ export default function LicenseKeysPage() {
       </div>
 
       <div className="glass-card rounded-2xl overflow-hidden shadow-2xl">
-        <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+        <div className="px-8 py-6 border-b border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white/[0.02] gap-4">
           <h3 className="text-lg font-bold text-[var(--vault-on-surface)]">Recent License Keys</h3>
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[var(--vault-on-surface-variant)] text-sm">search</span>
+              <input 
+                type="text" 
+                placeholder="Search keys..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full sm:w-48 pl-9 pr-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs focus:outline-none focus:border-[var(--vault-primary)]/50 transition-colors"
+              />
+            </div>
+            <select 
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs font-bold uppercase tracking-widest text-[var(--vault-on-surface-variant)] focus:outline-none focus:border-[var(--vault-primary)]/50"
+            >
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="paused">Paused</option>
+            </select>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
@@ -253,15 +315,23 @@ export default function LicenseKeysPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.02]">
-              {keys.map((k, i) => (
+              {filteredKeys.map((k, i) => (
                 <tr key={i} className="hover:bg-white/[0.02] transition-colors group">
                   <td className="px-6 py-5">
-                    <div className="flex items-center gap-2">
-                      <code className="text-xs font-mono text-[var(--vault-primary)] bg-[var(--vault-primary)]/5 px-2 py-1 rounded border border-[var(--vault-primary)]/10">{k.key_value}</code>
-                      <button 
-                        onClick={() => { navigator.clipboard.writeText(k.key_value); alert('Copied!'); }}
-                        className="opacity-0 group-hover:opacity-100 text-[var(--vault-on-surface-variant)] hover:text-[var(--vault-primary)] transition-all"
-                      ><span className="material-symbols-outlined text-base">content_copy</span></button>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <code className="text-xs font-mono text-[var(--vault-primary)] bg-[var(--vault-primary)]/5 px-2 py-1 rounded border border-[var(--vault-primary)]/10">{k.key_value}</code>
+                        <button 
+                          onClick={() => { navigator.clipboard.writeText(k.key_value); alert('Copied!'); }}
+                          className="opacity-0 group-hover:opacity-100 text-[var(--vault-on-surface-variant)] hover:text-[var(--vault-primary)] transition-all"
+                        ><span className="material-symbols-outlined text-base">content_copy</span></button>
+                      </div>
+                      {(k.note || k.seller_tag) && (
+                        <div className="flex gap-2">
+                          {k.seller_tag && <span className="text-[9px] text-[var(--vault-tertiary)] uppercase tracking-widest font-bold">[{k.seller_tag}]</span>}
+                          {k.note && <span className="text-[10px] text-[var(--vault-on-surface-variant)] line-clamp-1">{k.note}</span>}
+                        </div>
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-5 font-bold text-xs text-[var(--vault-on-surface)] uppercase">{k.key_type}</td>
@@ -290,10 +360,12 @@ export default function LicenseKeysPage() {
                           });
                         }}
                         className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-blue-400/10 transition-all text-[var(--vault-on-surface-variant)] hover:text-blue-400"
+                        title="Edit Key"
                       ><span className="material-symbols-outlined text-lg">edit</span></button>
                       <button 
                         onClick={() => handleTogglePause(k.id)}
                         className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-amber-400/10 transition-all text-[var(--vault-on-surface-variant)] hover:text-amber-400"
+                        title={k.is_paused ? 'Resume' : 'Pause'}
                       ><span className="material-symbols-outlined text-lg">{k.is_paused ? 'play_arrow' : 'pause'}</span></button>
                       <button 
                         onClick={() => handleHWIDReset(k.id)}
@@ -309,9 +381,21 @@ export default function LicenseKeysPage() {
                   </td>
                 </tr>
               ))}
-              {keys.length === 0 && !loading && (
+              {filteredKeys.length === 0 && !loading && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-10 text-center text-[var(--vault-on-surface-variant)] text-sm">No keys found for this application.</td>
+                  <td colSpan={6} className="px-6 py-20 text-center">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center text-[var(--vault-on-surface-variant)] mb-4">
+                        <span className="material-symbols-outlined text-3xl">key_off</span>
+                      </div>
+                      <h3 className="text-lg font-bold text-[var(--vault-on-surface)] mb-2">No keys found</h3>
+                      <p className="text-[var(--vault-on-surface-variant)] text-sm max-w-sm">
+                        {searchTerm || statusFilter !== 'all' 
+                          ? "We couldn't find any keys matching your current filters."
+                          : "No license keys have been generated for this application yet."}
+                      </p>
+                    </div>
+                  </td>
                 </tr>
               )}
             </tbody>
@@ -320,9 +404,21 @@ export default function LicenseKeysPage() {
       </div>
 
       {/* Single Key Creation Modal */}
+      <AnimatePresence>
       {showSingleModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-[var(--vault-surface)]/80 backdrop-blur-sm">
-          <div className="glass-card w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border border-white/10">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-[var(--vault-surface)]/80 backdrop-blur-sm"
+        >
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="glass-card w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border border-white/10"
+          >
             <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
               <h3 className="text-xl font-bold text-[var(--vault-on-surface)]">Create Single Key</h3>
               <button onClick={() => setShowSingleModal(false)} className="text-[var(--vault-on-surface-variant)] hover:text-red-400 transition-colors">
@@ -388,14 +484,27 @@ export default function LicenseKeysPage() {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
       {/* Edit Modal */}
+      <AnimatePresence>
       {showEditModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-[var(--vault-surface)]/80 backdrop-blur-sm">
-          <div className="glass-card w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border border-white/10">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-[var(--vault-surface)]/80 backdrop-blur-sm"
+        >
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="glass-card w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border border-white/10"
+          >
             <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
               <h3 className="text-xl font-bold text-[var(--vault-on-surface)]">Edit License Key</h3>
               <button onClick={() => setShowEditModal(null)} className="text-[var(--vault-on-surface-variant)] hover:text-red-400 transition-colors">
@@ -457,9 +566,10 @@ export default function LicenseKeysPage() {
                 <button type="submit" className="flex-1 py-3 rounded-xl bg-[var(--vault-primary)] text-[var(--vault-on-primary)] font-bold text-xs uppercase">Update Key</button>
               </div>
             </form>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </>
   );
 }

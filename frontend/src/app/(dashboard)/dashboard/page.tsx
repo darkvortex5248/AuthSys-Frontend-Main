@@ -20,10 +20,10 @@ export default function OverviewPage() {
       ['Suspicious (24h)', data.suspicious_24h],
       ['', ''],
       ['Key Usage Type', 'Count'],
-      ...data.key_usage.map((u: any) => [u.type, u.count]),
+      ...(data.key_usage || []).map((u: any) => [u.type, u.count]),
       ['', ''],
       ['Country', 'Users'],
-      ...data.top_countries.map((c: any) => [c.name, c.count])
+      ...(data.top_countries || []).map((c: any) => [c.name, c.count])
     ];
 
     const csvContent = "data:text/csv;charset=utf-8," 
@@ -94,7 +94,7 @@ export default function OverviewPage() {
             </button>
             
             {showTimeRange && (
-              <div className="absolute top-full right-0 mt-2 w-48 glass-card rounded-xl border border-white/10 shadow-2xl z-[100] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute top-full right-0 mt-2 w-48 glass-card rounded-xl border border-white/10 shadow-2xl z-[100] overflow-hidden">
                 {['Last 24 Hours', 'Last 7 Days', 'Last 30 Days', 'All Time'].map((range) => (
                   <button
                     key={range}
@@ -193,7 +193,7 @@ export default function OverviewPage() {
                     <div key={i} className="flex flex-col items-center gap-2 group/bar relative h-full justify-end" style={{ width: `${100 / data.chart_data.length}%` }}>
                        <div className="text-[10px] font-bold text-[var(--vault-primary)] opacity-0 group-hover/bar:opacity-100 transition-opacity mb-1">{item.logins}</div>
                        <div 
-                        className="w-full max-w-[20px] bg-gradient-to-t from-[var(--vault-primary)]/20 to-[var(--vault-primary)] rounded-t-sm transition-all duration-500 ease-out"
+                        className="w-full max-w-[20px] bg-gradient-to-t from-[var(--vault-primary)]/20 to-[var(--vault-primary)] rounded-t-sm"
                         style={{ height: `${height}%` }}
                        ></div>
                        <div className="text-[10px] text-[var(--vault-on-surface-variant)] uppercase font-bold mt-2">{item.name}</div>
@@ -226,7 +226,7 @@ export default function OverviewPage() {
                 </div>
               </div>
             ))}
-            {data.recent_activity.length === 0 && (
+            {(data.recent_activity || []).length === 0 && (
               <div className="flex flex-col items-center justify-center h-full text-[var(--vault-on-surface-variant)] text-sm">
                 No activity recorded yet.
               </div>
@@ -251,7 +251,7 @@ export default function OverviewPage() {
                     <span className="font-bold">{percentage}%</span>
                   </div>
                   <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-[var(--vault-primary)] rounded-full transition-all duration-1000" style={{ width: `${percentage}%` }}></div>
+                    <div className="h-full bg-[var(--vault-primary)] rounded-full" style={{ width: `${percentage}%` }}></div>
                   </div>
                 </div>
               );
@@ -278,7 +278,6 @@ export default function OverviewPage() {
                     strokeDasharray={dashArray} 
                     strokeDashoffset={offset} 
                     strokeLinecap="round" strokeWidth="12"
-                    className="transition-all duration-1000"
                   ></circle>
                 );
               })}
@@ -325,7 +324,7 @@ export default function OverviewPage() {
                     </td>
                   </tr>
                 ))}
-                {data.suspicious_ips.length === 0 && (
+                {(data.suspicious_ips || []).length === 0 && (
                   <tr>
                     <td colSpan={3} className="py-6 text-center text-[var(--vault-on-surface-variant)] text-xs">No active threats detected.</td>
                   </tr>

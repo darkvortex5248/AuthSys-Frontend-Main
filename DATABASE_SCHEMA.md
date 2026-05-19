@@ -187,4 +187,123 @@ CREATE TABLE variables (
     allowed_users JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Sessions Table
+CREATE TABLE sessions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES end_users(id) ON DELETE CASCADE,
+    app_id INTEGER REFERENCES applications(id) ON DELETE CASCADE,
+    token_hash VARCHAR,
+    ip_address VARCHAR,
+    hwid VARCHAR,
+    user_agent VARCHAR,
+    expires_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Activity Logs Table
+CREATE TABLE activity_logs (
+    id SERIAL PRIMARY KEY,
+    app_id INTEGER REFERENCES applications(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES end_users(id) ON DELETE CASCADE,
+    action_type VARCHAR,
+    details JSONB,
+    ip_address VARCHAR,
+    country VARCHAR,
+    user_agent VARCHAR,
+    hwid VARCHAR,
+    is_suspicious BOOLEAN DEFAULT FALSE,
+    risk_score INTEGER DEFAULT 0,
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Webhook Endpoints Table
+CREATE TABLE webhook_endpoints (
+    id SERIAL PRIMARY KEY,
+    app_id INTEGER REFERENCES applications(id) ON DELETE CASCADE,
+    url VARCHAR,
+    is_active BOOLEAN DEFAULT TRUE,
+    secret_token VARCHAR,
+    events JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Webhooks Log Table
+CREATE TABLE webhooks_log (
+    id SERIAL PRIMARY KEY,
+    app_id INTEGER REFERENCES applications(id) ON DELETE CASCADE,
+    endpoint_id INTEGER REFERENCES webhook_endpoints(id) ON DELETE CASCADE,
+    event_type VARCHAR,
+    payload JSONB,
+    response_status INTEGER,
+    delivered_at TIMESTAMP WITH TIME ZONE
+);
+
+-- AI Agent Logs Table
+CREATE TABLE ai_agent_logs (
+    id SERIAL PRIMARY KEY,
+    admin_id INTEGER,
+    developer_id INTEGER,
+    command_text VARCHAR,
+    action_taken VARCHAR,
+    result JSONB,
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- System Settings Table
+CREATE TABLE system_settings (
+    id SERIAL PRIMARY KEY,
+    key VARCHAR UNIQUE,
+    value TEXT,
+    description VARCHAR,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Payments Table
+CREATE TABLE payments (
+    id SERIAL PRIMARY KEY,
+    developer_id INTEGER REFERENCES developer_accounts(id),
+    amount INTEGER,
+    currency VARCHAR DEFAULT 'usd',
+    status VARCHAR,
+    stripe_session_id VARCHAR,
+    plan_id INTEGER REFERENCES subscription_plans(id),
+    payment_method VARCHAR,
+    wallet_number VARCHAR,
+    transaction_id VARCHAR,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- SDK Downloads Table
+CREATE TABLE sdk_downloads (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR,
+    version VARCHAR,
+    download_url VARCHAR,
+    icon_name VARCHAR DEFAULT 'deployed_code',
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Payment Methods Table
+CREATE TABLE payment_methods (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR,
+    type VARCHAR,
+    instructions TEXT,
+    exchange_rate INTEGER DEFAULT 120,
+    icon_name VARCHAR DEFAULT 'payments',
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Team Members Table
+CREATE TABLE team_members (
+    id SERIAL PRIMARY KEY,
+    developer_id INTEGER REFERENCES developer_accounts(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES developer_accounts(id) ON DELETE CASCADE,
+    role VARCHAR,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
 ```

@@ -51,7 +51,7 @@ export default function KeysPage() {
           <h1 className="text-3xl font-bold tracking-tight">License Keys</h1>
           <p className="text-zinc-400 mt-1">Generate and manage access keys for your application.</p>
         </div>
-        <Button onClick={generateKey} className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">
+        <Button onClick={generateKey} className="bg-[#d97757] hover:bg-[#d97757] text-white shadow-md">
           <Plus className="mr-2 h-4 w-4"/> Generate Key
         </Button>
       </div>

@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth';
 import api from '@/lib/api';
-import AIChatWidget from '@/components/dashboard/AIChatWidget';
+import dynamic from 'next/dynamic';
+const AIChatWidget = dynamic(() => import('@/components/dashboard/AIChatWidget'), { ssr: false });
 import { useSession, signOut } from 'next-auth/react';
 
 const navItems = [

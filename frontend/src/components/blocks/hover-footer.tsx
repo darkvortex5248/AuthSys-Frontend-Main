@@ -64,19 +64,19 @@ export function HoverFooter({ email, phone, address, paragraph }: any) {
   ];
 
   return (
-    <footer className="relative mt-20 border-t border-[#1E1E2E] bg-[#08080F] overflow-hidden">
+    <footer className="relative mt-20 border-t border-white/10 bg-[#0d0d0d] overflow-hidden">
       {/* Top highlight glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[1px] bg-gradient-to-r from-transparent via-[#6C5CE7]/50 to-transparent shadow-[0_0_20px_#6C5CE7]" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[1px] bg-gradient-to-r from-transparent via-[#d97757]/50 to-transparent shadow-[0_0_20px_rgba(217,119,87,0.5)]" />
       
       <div className="max-w-7xl mx-auto px-8 py-20 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand section */}
           <div className="flex flex-col space-y-6">
             <div className="flex items-center space-x-2">
-              <Shield className="w-6 h-6 text-[#6C5CE7]" />
+              <Shield className="w-6 h-6 text-[#d97757]" />
               <span className="text-white text-xl font-bold tracking-tight">AuthSys</span>
             </div>
-            <p className="text-sm text-[#555570] leading-relaxed max-w-[240px]">
+            <p className="text-sm text-[#8e8ea0] leading-relaxed max-w-[240px]">
               {paragraph || "The modern standard for software authentication, license management, and AI-powered threat protection."}
             </p>
             <div className="flex space-x-4">
@@ -84,7 +84,7 @@ export function HoverFooter({ email, phone, address, paragraph }: any) {
                 <a
                   key={label}
                   href={href}
-                  className="w-8 h-8 rounded-full bg-[#111118] border border-[#141428] flex items-center justify-center text-[#555570] hover:text-[#6C5CE7] hover:border-[#6C5CE7]/50 transition-all"
+                  className="w-8 h-8 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-[#8e8ea0] hover:text-[#d97757] hover:border-[#d97757]/50 transition-all"
                 >
                   {icon}
                 </a>
@@ -95,7 +95,7 @@ export function HoverFooter({ email, phone, address, paragraph }: any) {
           {/* Footer link sections */}
           {footerLinks.map((section) => (
             <div key={section.title}>
-              <h4 className="text-[#F0F0FF] text-sm font-bold uppercase tracking-widest mb-6">
+              <h4 className="text-[#ececec] text-sm font-bold uppercase tracking-widest mb-6">
                 {section.title}
               </h4>
               <ul className="space-y-4">
@@ -103,12 +103,12 @@ export function HoverFooter({ email, phone, address, paragraph }: any) {
                   <li key={link.label} className="flex items-center gap-2">
                     <a
                       href={link.href}
-                      className="text-sm text-[#555570] hover:text-[#9999BB] transition-colors"
+                      className="text-sm text-[#8e8ea0] hover:text-[#d97757] transition-colors"
                     >
                       {link.label}
                     </a>
                     {link.pulse && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#00D4AA] animate-pulse shadow-[0_0_8px_#00D4AA]"></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#34d399] animate-pulse shadow-[0_0_8px_#34d399]"></span>
                     )}
                   </li>
                 ))}
@@ -118,15 +118,15 @@ export function HoverFooter({ email, phone, address, paragraph }: any) {
 
           {/* Contact section */}
           <div>
-            <h4 className="text-[#F0F0FF] text-sm font-bold uppercase tracking-widest mb-6">
+            <h4 className="text-[#ececec] text-sm font-bold uppercase tracking-widest mb-6">
               Contact
             </h4>
             <ul className="space-y-4">
               {contactInfo.map((item, i) => (
-                <li key={i} className="flex items-center space-x-3 text-sm text-[#555570]">
-                  <span className="opacity-70">{item.icon}</span>
+                <li key={i} className="flex items-center space-x-3 text-sm text-[#8e8ea0]">
+                  <span className="opacity-70 text-[#d97757]">{item.icon}</span>
                   {item.href ? (
-                    <a href={item.href} className="hover:text-[#9999BB] transition-colors">{item.text}</a>
+                    <a href={item.href} className="hover:text-[#d97757] transition-colors">{item.text}</a>
                   ) : (
                     <span>{item.text}</span>
                   )}
@@ -136,13 +136,13 @@ export function HoverFooter({ email, phone, address, paragraph }: any) {
           </div>
         </div>
 
-        <div className="pt-8 border-t border-[#141428] flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-[#3A3A5A]">
+        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-xs text-[#8e8ea0]">
             &copy; {new Date().getFullYear()} AuthSys. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <a href="#" className="text-xs text-[#3A3A5A] hover:text-[#555570]">Privacy Policy</a>
-            <a href="#" className="text-xs text-[#3A3A5A] hover:text-[#555570]">Terms of Service</a>
+            <a href="#" className="text-xs text-[#8e8ea0] hover:text-[#ececec]">Privacy Policy</a>
+            <a href="#" className="text-xs text-[#8e8ea0] hover:text-[#ececec]">Terms of Service</a>
           </div>
         </div>
       </div>

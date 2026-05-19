@@ -1,11 +1,19 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useCallback, useRef } from 'react'
 
 export function useScrollAnimation() {
-  const ref = useRef<HTMLDivElement>(null)
+  const observerRef = useRef<IntersectionObserver | null>(null)
 
-  useEffect(() => {
+  const callbackRef = useCallback((node: HTMLDivElement | null) => {
+    // Disconnect any existing observer
+    if (observerRef.current) {
+      observerRef.current.disconnect()
+      observerRef.current = null
+    }
+
+    if (!node) return
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -16,16 +24,33 @@ export function useScrollAnimation() {
         })
       },
       { 
-        threshold: 0.08,
-        rootMargin: '0px 0px -40px 0px'
+        threshold: 0.05,
+        rootMargin: '0px 0px -20px 0px'
       }
     )
 
-    const elements = ref.current?.querySelectorAll('[data-animate]')
-    elements?.forEach((el) => observer.observe(el))
+    observerRef.current = observer
 
-    return () => observer.disconnect()
+    // Observe all children with data-animate
+    const elements = node.querySelectorAll('[data-animate]')
+    elements.forEach((el) => observer.observe(el))
+
+    // Safety fallback: reveal elements in initial viewport after a brief delay
+    const timer = setTimeout(() => {
+      elements.forEach((el) => {
+        const rect = el.getBoundingClientRect()
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+          el.classList.add('animate-in')
+        }
+      })
+    }, 400)
+
+    return () => {
+      clearTimeout(timer)
+      observer.disconnect()
+    }
   }, [])
 
-  return ref
+  return callbackRef
 }
+

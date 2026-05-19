@@ -83,7 +83,7 @@ export default function FunctionsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
          <div className="lg:col-span-1">
-            <div className="glass-card p-8 rounded-[2.5rem] border border-white/5 bg-gradient-to-br from-indigo-500/10 to-transparent">
+            <div className="glass-card p-8 rounded-[2.5rem] border border-white/5 bg-gradient-to-br from-[#d97757]/10 to-transparent">
                <h4 className="text-sm font-bold text-white mb-6 uppercase tracking-widest">New Variable</h4>
                <form onSubmit={handleCreate} className="space-y-4">
                   <div className="space-y-2">
@@ -93,7 +93,7 @@ export default function FunctionsPage() {
                       value={newKey}
                       onChange={(e) => setNewKey(e.target.value)}
                       placeholder="e.g. API_ENDPOINT"
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:ring-1 focus:ring-[#d97757] transition-all"
                     />
                   </div>
                   <div className="space-y-2">
@@ -102,14 +102,14 @@ export default function FunctionsPage() {
                       value={newValue}
                       onChange={(e) => setNewValue(e.target.value)}
                       placeholder="Enter sensitive data..."
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all min-h-[100px]"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:ring-1 focus:ring-[#d97757] transition-all min-h-[100px]"
                     />
                   </div>
                   <div className="flex items-center gap-3 px-1">
                      <button 
                        type="button"
                        onClick={() => setIsGlobal(!isGlobal)}
-                       className={`w-10 h-5 rounded-full transition-all relative ${isGlobal ? 'bg-indigo-500' : 'bg-zinc-800'}`}
+                       className={`w-10 h-5 rounded-full transition-all relative ${isGlobal ? 'bg-[#d97757]' : 'bg-zinc-800'}`}
                      >
                         <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${isGlobal ? 'left-6' : 'left-1'}`}></div>
                      </button>
@@ -117,7 +117,7 @@ export default function FunctionsPage() {
                   </div>
                   <button 
                     disabled={isCreating}
-                    className="w-full py-4 bg-indigo-500 text-white rounded-2xl text-xs font-bold active:scale-95 transition-all shadow-lg shadow-indigo-500/20"
+                    className="w-full py-4 bg-[#d97757] text-white rounded-2xl text-xs font-bold active:scale-95 transition-all shadow-lg shadow-[#d97757]/20"
                   >
                     {isCreating ? 'Adding...' : 'Inject Variable'}
                   </button>
@@ -127,7 +127,7 @@ export default function FunctionsPage() {
 
          <div className="lg:col-span-2 space-y-4">
             {loading ? (
-              <div className="flex justify-center p-20"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-indigo-500"></div></div>
+              <div className="flex justify-center p-20"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#d97757]"></div></div>
             ) : variables.length === 0 ? (
               <div className="glass-card p-20 rounded-[2.5rem] border border-white/5 text-center">
                  <p className="text-zinc-500 italic">No variables configured yet.</p>
@@ -137,7 +137,7 @@ export default function FunctionsPage() {
                  {variables.map(v => (
                    <div key={v.id} className="glass-card p-6 rounded-[2rem] border border-white/5 flex items-center justify-between group">
                       <div className="flex items-center gap-4">
-                         <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-indigo-400">
+                         <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-[#d97757]">
                             <span className="material-symbols-outlined">code</span>
                          </div>
                          <div>
@@ -146,7 +146,7 @@ export default function FunctionsPage() {
                          </div>
                       </div>
                       <div className="flex items-center gap-4">
-                         <span className={`text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-widest ${v.is_global ? 'bg-indigo-500/10 text-indigo-400' : 'bg-amber-500/10 text-amber-400'}`}>
+                         <span className={`text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-widest ${v.is_global ? 'bg-[#d97757]/10 text-[#d97757]' : 'bg-amber-500/10 text-amber-400'}`}>
                             {v.is_global ? 'Global' : 'Scoped'}
                          </span>
                          <button 

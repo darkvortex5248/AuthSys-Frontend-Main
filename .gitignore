@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Environment files (SECRETS!)
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Build outputs
+frontend/.next/
+frontend/out/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Design reference files (not needed in production)
+sign_in_stitch/
+sign_up_stitch/
+stitch_web_system/
+stitch_rinoxauth_super_admin_panel/
+
+# Temporary scripts
+frontend/fix_purple.js

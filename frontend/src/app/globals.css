@@ -73,88 +73,80 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --skeleton: hsl(0, 0%, 90%);
-  --btn-border: hsl(214deg, 31.8%, 91.4%);
+  /* Stitch Web System Tokens */
+  --bg-page: #0d0d0d;
+  --bg-surface: #131313;
+  --bg-input: #212121;
+  --text-primary: #e5e2e1;
+  --text-secondary: #c8c6c5;
+  --text-muted: #8e8ea0;
+  
+  --accent: #d97757;
+  --accent-hover: #99462a;
+  --accent-tint: rgba(217, 119, 87, 0.13);
+  
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.18);
+  
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --font: 'Inter', sans-serif;
 
-  /* RinoxAuth Tokens - Professional Blue Style */
-  --vault-background: #08080c;
-  --vault-primary: #2563EB;
-  --vault-primary-button: #2563EB;
-  --vault-secondary: #3b82f6;
-  --vault-tertiary: #60a5fa;
-  --vault-surface: #0e0e12;
-  --vault-on-surface: #f8fafc;
-  --vault-on-surface-variant: #94a3b8;
-  --vault-outline-variant: rgba(255, 255, 255, 0.05);
+  /* Standard Tailwind / shadcn variables mapped to Stitch theme */
+  --background: var(--bg-page);
+  --foreground: var(--text-primary);
+  --card: var(--bg-surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-surface);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--accent);
+  --primary-foreground: #541400; /* on-primary-container */
+  --secondary: var(--bg-input);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--bg-input);
+  --muted-foreground: var(--text-secondary);
+  --accent-foreground: #ffffff;
+  --destructive: #ffb4ab;
+  --border: var(--border);
+  --input: var(--bg-input);
+  --ring: var(--accent);
+  --radius: 0.75rem;
+
+  --font-sans: var(--font-inter), 'Inter', sans-serif;
+
+  /* Vault tokens mapped directly to Stitch theme for deep styling */
+  --vault-background: var(--bg-page);
+  --vault-primary: var(--accent);
+  --vault-primary-button: var(--accent);
+  --vault-secondary: var(--accent-hover);
+  --vault-tertiary: #5edac7;
+  --vault-surface: var(--bg-surface);
+  --vault-on-surface: var(--text-primary);
+  --vault-on-surface-variant: var(--text-secondary);
+  --vault-outline-variant: var(--border);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-  --skeleton: hsl(218, 36%, 16%);
-  --btn-border: hsl(217deg, 32.6%, 17.5%);
+  --background: var(--bg-page);
+  --foreground: var(--text-primary);
+  --card: var(--bg-surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-surface);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--accent);
+  --primary-foreground: #541400;
+  --secondary: var(--bg-input);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--bg-input);
+  --muted-foreground: var(--text-secondary);
+  --accent: var(--accent);
+  --accent-foreground: #ffffff;
+  --border: var(--border);
+  --input: var(--bg-input);
+  --ring: var(--accent);
 }
+
 
 @layer base {
   * {
@@ -187,7 +179,7 @@
   }
   .glass-input:focus {
     border-color: var(--vault-primary);
-    box-shadow: 0 0 0 2px rgba(173, 198, 255, 0.2);
+    box-shadow: 0 0 0 2px rgba(217, 119, 87, 0.2);
     outline: none;
   }
   .vault-primary-button {
@@ -210,7 +202,7 @@
     border-color: rgba(255, 255, 255, 0.2);
   }
   .active-nav-glow {
-    box-shadow: -4px 0 15px -2px rgba(173, 198, 255, 0.4);
+    box-shadow: -4px 0 15px -2px rgba(217, 119, 87, 0.4);
   }
   .custom-scrollbar::-webkit-scrollbar { width: 4px; }
   .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
@@ -240,12 +232,12 @@ html {
 
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: #08080F; }
+::-webkit-scrollbar-track { background: #0d0d0d; }
 ::-webkit-scrollbar-thumb { 
-  background: #2A2A40; 
+  background: #353534; 
   border-radius: 3px; 
 }
-::-webkit-scrollbar-thumb:hover { background: #6C5CE7; }
+::-webkit-scrollbar-thumb:hover { background: #d97757; }
 
 /* Remove mobile tap flash */
 * { -webkit-tap-highlight-color: transparent; }
@@ -290,6 +282,6 @@ select {
 }
 
 select option {
-  background-color: #10131a !important; /* Matches --vault-surface */
+  background-color: #131313 !important; /* Matches --vault-surface */
   color: white !important;
 }

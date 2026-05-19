@@ -81,7 +81,7 @@ export default function TeamManagementPage() {
                 {member.username.substring(0, 2)}
               </div>
               <span className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest ${
-                member.role === 'admin' ? 'bg-purple-500/10 text-purple-400' :
+                member.role === 'admin' ? 'bg-[#d97757]/10 text-[#d97757]' :
                 member.role === 'moderator' ? 'bg-blue-500/10 text-blue-400' :
                 'bg-emerald-500/10 text-emerald-400'
               }`}>

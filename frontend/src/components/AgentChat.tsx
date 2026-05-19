@@ -32,7 +32,7 @@ export default function AgentChat() {
   return (
     <>
       <Button
-        className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-xl z-50 bg-indigo-600 hover:bg-indigo-700 text-white"
+        className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-xl z-50 bg-[#d97757] hover:bg-[#d97757] text-white"
         onClick={() => setOpen(!open)}
       >
         {open ? <X /> : <MessageSquare />}
@@ -42,7 +42,7 @@ export default function AgentChat() {
         <Card className="fixed bottom-24 right-6 w-[400px] h-[550px] shadow-2xl z-50 flex flex-col bg-zinc-950 border-zinc-800 text-zinc-100 overflow-hidden">
           <CardHeader className="border-b border-zinc-800 pb-3 flex-shrink-0 bg-zinc-900/50">
             <CardTitle className="text-lg flex items-center gap-2">
-              <span className="bg-indigo-600 p-1.5 rounded-md text-white"><MessageSquare size={16} /></span>
+              <span className="bg-[#d97757] p-1.5 rounded-md text-white"><MessageSquare size={16} /></span>
               AuthSys AI Agent
             </CardTitle>
           </CardHeader>
@@ -55,11 +55,11 @@ export default function AgentChat() {
               )}
               {messages.map((m, i) => (
                 <div key={i} className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
-                  <div className={`px-4 py-2 text-sm rounded-2xl max-w-[85%] ${m.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-sm' : 'bg-zinc-800 text-zinc-100 rounded-tl-sm'}`}>
+                  <div className={`px-4 py-2 text-sm rounded-2xl max-w-[85%] ${m.role === 'user' ? 'bg-[#d97757] text-white rounded-tr-sm' : 'bg-zinc-800 text-zinc-100 rounded-tl-sm'}`}>
                     {m.text}
                   </div>
                   {m.data && m.data.action && (
-                    <Badge variant="outline" className="mt-1 text-[10px] border-zinc-700 bg-zinc-900 text-indigo-400">
+                    <Badge variant="outline" className="mt-1 text-[10px] border-zinc-700 bg-zinc-900 text-[#d97757]">
                       Action: {m.data.action}
                     </Badge>
                   )}
@@ -82,9 +82,9 @@ export default function AgentChat() {
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && sendCommand(input)}
                   placeholder="Ask me to do anything..." 
-                  className="bg-zinc-900 border-zinc-800 text-zinc-100 focus-visible:ring-1 focus-visible:ring-indigo-600 focus-visible:ring-offset-0"
+                  className="bg-zinc-900 border-zinc-800 text-zinc-100 focus-visible:ring-1 focus-visible:ring-[#d97757] focus-visible:ring-offset-0"
                 />
-                <Button size="icon" onClick={() => sendCommand(input)} disabled={loading} className="bg-indigo-600 hover:bg-indigo-700 text-white flex-shrink-0">
+                <Button size="icon" onClick={() => sendCommand(input)} disabled={loading} className="bg-[#d97757] hover:bg-[#d97757] text-white flex-shrink-0">
                   <Send size={16} />
                 </Button>
               </div>

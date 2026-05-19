@@ -80,7 +80,7 @@ export default function UsersPage() {
                      <Badge variant="outline" className="bg-emerald-900/10 text-emerald-400 border-emerald-900/50">Active</Badge>}
                   </TableCell>
                   <TableCell className="text-right space-x-1">
-                    <Button variant="ghost" size="icon" onClick={() => resetHwid(u.id)} title="Reset HWID" className="h-8 w-8 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-900/20">
+                    <Button variant="ghost" size="icon" onClick={() => resetHwid(u.id)} title="Reset HWID" className="h-8 w-8 text-[#d97757] hover:text-[#d97757] hover:bg-[#d97757]/20">
                       <RefreshCcw size={14} />
                     </Button>
                     {u.is_banned ? (

@@ -102,7 +102,7 @@ export default function PublicSDKPage() {
                 <a 
                   href={sdk.download_url} 
                   target="_blank"
-                  className="flex items-center justify-center gap-2 w-full py-4 rounded-xl bg-[#6C5CE7] hover:bg-[#7D6FF0] text-white font-bold transition-all shadow-lg shadow-purple-900/20 active:scale-[0.98]"
+                  className="flex items-center justify-center gap-2 w-full py-4 rounded-xl bg-[#6C5CE7] hover:bg-[#7D6FF0] text-white font-bold transition-all shadow-lg shadow-[#d97757]/20 active:scale-[0.98]"
                 >
                   <Download className="w-4 h-4" />
                   Download Binary

@@ -28,7 +28,7 @@ router = APIRouter(prefix="/api/v1/developer/apps", tags=["Apps"])
 
 @router.get("", response_model=list[AppResponse])
 async def get_apps(dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
-    # Fetch own apps + apps from teams where user is a member
+    # Optimized Query: Fetch apps and their related counts in fewer queries
     stmt = select(Application).where(
         (Application.developer_id == dev.id) |
         (Application.developer_id.in_(
@@ -38,24 +38,37 @@ async def get_apps(dev: DeveloperAccount = Depends(get_current_developer), db: A
     res = await db.execute(stmt)
     apps = res.scalars().all()
     
-    # Enrich with counts
+    if not apps:
+        return []
+
+    # Get counts for all apps at once to avoid N+1 problem
+    app_ids = [app.id for app in apps]
+    
+    # Total Users count for all apps
+    users_stmt = select(EndUser.app_id, func.count(EndUser.id)).where(EndUser.app_id.in_(app_ids), EndUser.is_shadow == False).group_by(EndUser.app_id)
+    users_res = await db.execute(users_stmt)
+    users_counts = dict(users_res.all())
+    
+    # Total Keys count for all apps
+    keys_stmt = select(LicenseKey.app_id, func.count(LicenseKey.id)).where(LicenseKey.app_id.in_(app_ids)).group_by(LicenseKey.app_id)
+    keys_res = await db.execute(keys_stmt)
+    keys_counts = dict(keys_res.all())
+    
+    # Today's logins
+    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    logins_stmt = select(ActivityLog.app_id, func.count(ActivityLog.id)).where(
+        ActivityLog.app_id.in_(app_ids),
+        ActivityLog.action_type == "login",
+        ActivityLog.timestamp >= today_start
+    ).group_by(ActivityLog.app_id)
+    logins_res = await db.execute(logins_stmt)
+    logins_counts = dict(logins_res.all())
+
+    # Map the counts back to apps
     for app in apps:
-        # Users
-        u_res = await db.execute(select(func.count(EndUser.id)).where(EndUser.app_id == app.id, EndUser.is_shadow == False))
-        app.total_users = u_res.scalar() or 0
-        
-        # Keys
-        k_res = await db.execute(select(func.count(LicenseKey.id)).where(LicenseKey.app_id == app.id))
-        app.total_keys = k_res.scalar() or 0
-        
-        # Today's logins
-        today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-        t_res = await db.execute(select(func.count(ActivityLog.id)).where(
-            ActivityLog.app_id == app.id, 
-            ActivityLog.action_type == "login",
-            ActivityLog.timestamp >= today_start
-        ))
-        app.logins_today = t_res.scalar() or 0
+        app.total_users = users_counts.get(app.id, 0)
+        app.total_keys = keys_counts.get(app.id, 0)
+        app.logins_today = logins_counts.get(app.id, 0)
         
     return apps
 

@@ -44,12 +44,12 @@ export default function BlacklistPage() {
       </div>
 
       <div className="flex gap-4 mb-8 bg-zinc-900 p-4 rounded-xl border border-zinc-800 shadow-md">
-        <select value={type} onChange={e => setType(e.target.value)} className="bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-zinc-200 outline-none focus:ring-1 focus:ring-indigo-500">
+        <select value={type} onChange={e => setType(e.target.value)} className="bg-zinc-950 border border-zinc-800 rounded-md px-3 py-2 text-zinc-200 outline-none focus:ring-1 focus:ring-[#d97757]">
           <option value="ip">IP Address</option>
           <option value="hwid">HWID</option>
           <option value="username">Username</option>
         </select>
-        <Input placeholder="Enter value to block..." value={val} onChange={e => setVal(e.target.value)} className="bg-zinc-950 border-zinc-800 text-white flex-1 focus-visible:ring-indigo-600" />
+        <Input placeholder="Enter value to block..." value={val} onChange={e => setVal(e.target.value)} className="bg-zinc-950 border-zinc-800 text-white flex-1 focus-visible:ring-[#d97757]" />
         <Button onClick={add} className="bg-red-600 hover:bg-red-700 text-white shadow-sm"><Plus className="mr-2 h-4 w-4"/> Block Access</Button>
       </div>
 

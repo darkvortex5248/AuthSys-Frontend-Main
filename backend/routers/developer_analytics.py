@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import Response
+import json
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from core.database import get_db
@@ -157,8 +159,21 @@ async def calculate_app_stats(db: AsyncSession, app_ids: list[int], days: int = 
         "suspicious_ips": suspicious_ips
     }
 
-@router.get("/overview", response_model=AppAnalyticsResponse)
+@router.get("/overview")
 async def get_overview(days: int = 7, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
+    from core.redis import get_redis
+    
+    cache_key = f"overview_{dev.id}_{days}"
+    try:
+        redis = await get_redis()
+        cached = await redis.get(cache_key)
+        if cached:
+            return Response(content=cached, media_type="application/json")
+    except Exception as e:
+        redis = None
+        print("Redis cache error:", e)
+
+    # Fetch all app IDs
     stmt = select(Application.id).where(
         (Application.developer_id == dev.id) |
         (Application.developer_id.in_(
@@ -167,10 +182,12 @@ async def get_overview(days: int = 7, dev: DeveloperAccount = Depends(get_curren
     )
     app_res = await db.execute(stmt)
     app_ids = [row for row in app_res.scalars().all()]
+    
     if not app_ids:
-        return {
+        res = {
             "total_apps": 0, 
             "total_users": 0, 
+            "banned_users": 0,
             "active_keys": 0, 
             "active_sessions": 0, 
             "chart_data": [], 
@@ -180,9 +197,22 @@ async def get_overview(days: int = 7, dev: DeveloperAccount = Depends(get_curren
             "suspicious_24h": 0, 
             "suspicious_ips": []
         }
+        return res
+        
+    # Use the original comprehensive stats calculation
     stats = await calculate_app_stats(db, app_ids, days)
     stats["total_apps"] = len(app_ids)
-    return stats
+    
+    response_model = AppAnalyticsResponse(**stats)
+    response_json = response_model.model_dump_json()
+    
+    if redis:
+        try:
+            await redis.set(cache_key, response_json, ex=60) # 60 seconds cache
+        except Exception:
+            pass
+            
+    return Response(content=response_json, media_type="application/json")
 
 @router.get("/search")
 async def global_search(q: str, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):

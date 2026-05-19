@@ -30,7 +30,7 @@ export default function BillingPage() {
 
   if (loading) return (
     <div className="flex items-center justify-center h-[60vh]">
-      <div className="w-12 h-12 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin"></div>
+      <div className="w-12 h-12 border-4 border-[#d97757]/20 border-t-[#d97757] rounded-full animate-spin"></div>
     </div>
   );
 
@@ -46,13 +46,13 @@ export default function BillingPage() {
         <div className="flex items-center gap-3 bg-white/5 border border-white/10 p-1.5 rounded-2xl">
            <button 
             onClick={() => setIsYearly(false)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${!isYearly ? 'bg-purple-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${!isYearly ? 'bg-[#d97757] text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
            >
              Monthly
            </button>
            <button 
             onClick={() => setIsYearly(true)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${isYearly ? 'bg-purple-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${isYearly ? 'bg-[#d97757] text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
            >
              Yearly
              <span className="text-[9px] bg-green-500/20 text-green-500 px-1.5 py-0.5 rounded-md uppercase tracking-tighter">Save 20%</span>
@@ -67,8 +67,8 @@ export default function BillingPage() {
           const isCustom = price === -1;
           
           return (
-            <div key={plan.id} className="glass-card bg-white/5 border border-white/10 rounded-[2.5rem] p-10 flex flex-col relative overflow-hidden group hover:border-purple-500/50 transition-all duration-500">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-3xl -mr-10 -mt-10 transition-opacity opacity-50 group-hover:opacity-100"></div>
+            <div key={plan.id} className="glass-card bg-white/5 border border-white/10 rounded-[2.5rem] p-10 flex flex-col relative overflow-hidden group hover:border-[#d97757]/50 transition-all duration-500">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#d97757]/5 blur-3xl -mr-10 -mt-10 transition-opacity opacity-50 group-hover:opacity-100"></div>
               
               <div className="mb-8 relative">
                 <h3 className="text-2xl font-black text-white mb-2">{plan.name}</h3>
@@ -109,7 +109,7 @@ export default function BillingPage() {
                 className={`w-full py-5 rounded-2xl font-black transition-all text-center uppercase tracking-widest text-xs ${
                   plan.price_monthly === 0 
                     ? 'bg-white/5 text-zinc-500 cursor-not-allowed pointer-events-none' 
-                    : 'bg-purple-600 hover:bg-purple-700 text-white shadow-xl shadow-purple-900/40 hover:-translate-y-1 active:translate-y-0'
+                    : 'bg-[#d97757] hover:bg-[#d97757] text-white shadow-xl shadow-[#d97757]/40 hover:-translate-y-1 active:translate-y-0'
                 }`}
               >
                 {plan.price_monthly === 0 ? 'Active Forever' : `Get ${plan.name}`}
@@ -123,7 +123,7 @@ export default function BillingPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-white flex items-center gap-3">
-            <span className="material-symbols-outlined text-purple-400">history</span>
+            <span className="material-symbols-outlined text-[#d97757]">history</span>
             Transaction History
           </h2>
           <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-bold text-zinc-500 uppercase tracking-widest">

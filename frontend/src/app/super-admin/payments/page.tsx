@@ -84,7 +84,7 @@ export default function TransactionLogsPage() {
                   <td className="px-8 py-5">
                      <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                           <span className="px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[9px] font-black uppercase tracking-tighter">
+                           <span className="px-1.5 py-0.5 rounded bg-[#d97757]/10 text-[#d97757] text-[9px] font-black uppercase tracking-tighter">
                              {p.method || 'Manual'}
                            </span>
                            <span className="text-[10px] text-white font-mono">{p.trx_id || 'N/A'}</span>

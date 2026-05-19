@@ -47,7 +47,7 @@ export default function AppsPage() {
         <Dialog>
           <DialogTrigger 
             render={
-              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">
+              <Button className="bg-[#d97757] hover:bg-[#d97757] text-white shadow-md">
                 <Plus className="mr-2 h-4 w-4"/> New App
               </Button>
             }
@@ -58,7 +58,7 @@ export default function AppsPage() {
             </DialogHeader>
             <div className="space-y-4 pt-4">
               <Input placeholder="Application Name" value={name} onChange={e => setName(e.target.value)} className="bg-zinc-900 border-zinc-800 text-white" />
-              <Button onClick={handleCreate} className="w-full bg-indigo-600 hover:bg-indigo-700">Create Application</Button>
+              <Button onClick={handleCreate} className="w-full bg-[#d97757] hover:bg-[#d97757]">Create Application</Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -77,7 +77,7 @@ export default function AppsPage() {
             <CardHeader className="pb-4">
               <div className="flex justify-between items-start">
                 <CardTitle className="text-xl flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-md bg-zinc-800 border border-zinc-700 flex items-center justify-center font-bold text-indigo-400 shadow-inner">
+                  <div className="h-8 w-8 rounded-md bg-zinc-800 border border-zinc-700 flex items-center justify-center font-bold text-[#d97757] shadow-inner">
                     {app.name.charAt(0).toUpperCase()}
                   </div>
                   {app.name}

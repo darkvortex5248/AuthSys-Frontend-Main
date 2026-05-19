@@ -1,7 +1,8 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function UsersPage() {
   const { selectedAppId } = useAuthStore();
@@ -14,6 +15,28 @@ export default function UsersPage() {
   const [newUser, setNewUser] = useState({ username: '', password: '', email: '' });
   const [editData, setEditData] = useState({ username: '', email: '', password: '' });
   const [mounted, setMounted] = useState(false);
+
+  // Search & Filter
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+
+  const filteredUsers = useMemo(() => {
+    return (users || []).filter(u => {
+      const term = searchTerm.toLowerCase();
+      const matchesSearch = 
+        u?.username?.toLowerCase().includes(term) || 
+        u?.email?.toLowerCase().includes(term) ||
+        u?.ip_address?.toLowerCase().includes(term) ||
+        u?.last_ip?.toLowerCase().includes(term);
+        
+      const matchesStatus = statusFilter === 'all' || 
+        (statusFilter === 'active' && !u.is_banned) || 
+        (statusFilter === 'banned' && u.is_banned) ||
+        (statusFilter === 'hwid' && u.hwid);
+        
+      return matchesSearch && matchesStatus;
+    });
+  }, [users, searchTerm, statusFilter]);
 
   const fetchUsers = async () => {
     if (!selectedAppId) {
@@ -39,6 +62,26 @@ export default function UsersPage() {
       setLoading(false);
     }
   }, [selectedAppId]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-6">
+        <div className="flex justify-between items-end mb-8 gap-6">
+          <div className="space-y-4">
+            <div className="h-10 w-64 bg-white/5 rounded-lg animate-pulse" />
+            <div className="h-4 w-48 bg-white/5 rounded-lg animate-pulse" />
+          </div>
+          <div className="h-12 w-48 bg-white/5 rounded-xl animate-pulse" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="glass-card rounded-2xl h-32 animate-pulse bg-white/[0.02] border-white/5" />
+          ))}
+        </div>
+        <div className="glass-card rounded-2xl h-64 animate-pulse bg-white/[0.02] border-white/5" />
+      </div>
+    );
+  }
 
   const handleBan = async () => {
     if (!showBanModal) return;
@@ -137,10 +180,10 @@ export default function UsersPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[
-          { label: 'Total Users', val: users.length, icon: 'groups', color: 'var(--vault-primary)' },
-          { label: 'Banned', val: users.filter(u => u.is_banned).length, icon: 'block', color: 'red-400' },
-          { label: 'Active Sessions', val: users.filter(u => u.last_login_at).length, icon: 'bolt', color: '#34d399' },
-          { label: 'HWID Locked', val: users.filter(u => u.hwid).length, icon: 'devices', color: 'var(--vault-tertiary)' },
+          { label: 'Total Users', val: (users || []).length, icon: 'groups', color: 'var(--vault-primary)' },
+          { label: 'Banned', val: (users || []).filter(u => u.is_banned).length, icon: 'block', color: 'red-400' },
+          { label: 'Active Sessions', val: (users || []).filter(u => u.last_login_at).length, icon: 'bolt', color: '#34d399' },
+          { label: 'HWID Locked', val: (users || []).filter(u => u.hwid).length, icon: 'devices', color: 'var(--vault-tertiary)' },
         ].map((stat, i) => (
           <div key={i} className="glass-card p-6 rounded-2xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
@@ -153,8 +196,30 @@ export default function UsersPage() {
       </div>
 
       <div className="glass-card rounded-2xl overflow-hidden shadow-2xl">
-        <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+        <div className="px-8 py-6 border-b border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white/[0.02] gap-4">
           <h3 className="text-lg font-bold text-[var(--vault-on-surface)]">User Directory</h3>
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[var(--vault-on-surface-variant)] text-sm">search</span>
+              <input 
+                type="text" 
+                placeholder="Search users..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full sm:w-48 pl-9 pr-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs focus:outline-none focus:border-[var(--vault-primary)]/50 transition-colors"
+              />
+            </div>
+            <select 
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs font-bold uppercase tracking-widest text-[var(--vault-on-surface-variant)] focus:outline-none focus:border-[var(--vault-primary)]/50"
+            >
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="banned">Banned</option>
+              <option value="hwid">HWID Locked</option>
+            </select>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
@@ -166,7 +231,7 @@ export default function UsersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.02]">
-              {users.map((user, i) => (
+              {filteredUsers.map((user, i) => (
                 <tr key={i} className={`hover:bg-white/[0.02] transition-colors group ${user.is_banned ? 'opacity-60' : ''}`}>
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-4">
@@ -174,7 +239,10 @@ export default function UsersPage() {
                         {user.username.substring(0, 2)}
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-[var(--vault-on-surface)] group-hover:text-[var(--vault-primary)] transition-colors">{user.username}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-bold text-[var(--vault-on-surface)] group-hover:text-[var(--vault-primary)] transition-colors">{user.username}</p>
+                          {user.hwid && <span className="material-symbols-outlined text-[12px] text-[var(--vault-tertiary)]" title="HWID Locked">devices</span>}
+                        </div>
                         <p className="text-xs text-[var(--vault-on-surface-variant)]">{user.email || 'No email'}</p>
                       </div>
                     </div>
@@ -190,13 +258,13 @@ export default function UsersPage() {
                     {user.last_login_at ? new Date(user.last_login_at).toLocaleString() : 'Never'}
                   </td>
                   <td className="px-8 py-5 text-right">
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
                         onClick={() => handleHWIDReset(user.id)}
                         title="Reset HWID"
-                        className="p-2 text-[var(--vault-on-surface-variant)] hover:text-[var(--vault-primary)] hover:bg-[var(--vault-primary)]/5 rounded-lg transition-all flex items-center justify-center"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[var(--vault-primary)]/10 transition-all text-[var(--vault-on-surface-variant)] hover:text-[var(--vault-primary)]"
                       >
-                        <span className="material-symbols-outlined text-[20px]">restart_alt</span>
+                        <span className="material-symbols-outlined text-[18px]">restart_alt</span>
                       </button>
                       <button 
                         onClick={() => {
@@ -204,41 +272,53 @@ export default function UsersPage() {
                           setEditData({ username: user.username, email: user.email || '', password: '' });
                         }}
                         title="Edit User"
-                        className="p-2 text-[var(--vault-on-surface-variant)] hover:text-blue-400 hover:bg-blue-400/5 rounded-lg transition-all"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-blue-400/10 transition-all text-[var(--vault-on-surface-variant)] hover:text-blue-400"
                       >
-                        <span className="material-symbols-outlined text-[20px]">edit</span>
+                        <span className="material-symbols-outlined text-[18px]">edit</span>
                       </button>
                       <button 
                         onClick={() => handleDeleteUser(user.id)}
                         title="Delete User"
-                        className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-400/10 transition-all text-[var(--vault-on-surface-variant)] hover:text-red-400"
                       >
-                        <span className="material-symbols-outlined text-[20px]">delete</span>
+                        <span className="material-symbols-outlined text-[18px]">delete</span>
                       </button>
                       {user.is_banned ? (
                         <button 
                           onClick={() => handleUnban(user.id)}
                           title="Unban"
-                          className="p-2 text-emerald-400 hover:bg-emerald-400/10 rounded-lg transition-all"
+                          className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-emerald-400/10 transition-all text-[var(--vault-on-surface-variant)] hover:text-emerald-400"
                         >
-                          <span className="material-symbols-outlined text-[20px]">check_circle</span>
+                          <span className="material-symbols-outlined text-[18px]">check_circle</span>
                         </button>
                       ) : (
                         <button 
                           onClick={() => setShowBanModal(user)}
                           title="Ban"
-                          className="p-2 text-red-400 hover:bg-red-400/5 rounded-lg transition-all"
+                          className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-400/10 transition-all text-[var(--vault-on-surface-variant)] hover:text-red-400"
                         >
-                          <span className="material-symbols-outlined text-[20px]">block</span>
+                          <span className="material-symbols-outlined text-[18px]">block</span>
                         </button>
                       )}
                     </div>
                   </td>
                 </tr>
               ))}
-              {users.length === 0 && !loading && (
+              {filteredUsers.length === 0 && !loading && (
                 <tr>
-                  <td colSpan={5} className="px-8 py-10 text-center text-[var(--vault-on-surface-variant)] text-sm">No users found for this application.</td>
+                  <td colSpan={5} className="px-8 py-20 text-center">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center text-[var(--vault-on-surface-variant)] mb-4">
+                        <span className="material-symbols-outlined text-3xl">group_off</span>
+                      </div>
+                      <h3 className="text-lg font-bold text-[var(--vault-on-surface)] mb-2">No users found</h3>
+                      <p className="text-[var(--vault-on-surface-variant)] text-sm max-w-sm">
+                        {searchTerm || statusFilter !== 'all' 
+                          ? "We couldn't find any users matching your current filters."
+                          : "No users have registered or been added to this application yet."}
+                      </p>
+                    </div>
+                  </td>
                 </tr>
               )}
             </tbody>
@@ -246,9 +326,21 @@ export default function UsersPage() {
         </div>
       </div>
 
+      <AnimatePresence>
       {showAddModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-[var(--vault-surface)]/80 backdrop-blur-sm">
-          <div className="glass-card w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border border-white/10">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-[var(--vault-surface)]/80 backdrop-blur-sm"
+        >
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="glass-card w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border border-white/10"
+          >
             <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
               <h3 className="text-xl font-bold text-[var(--vault-on-surface)]">Add Manual User</h3>
               <button onClick={() => setShowAddModal(false)} className="text-[var(--vault-on-surface-variant)] hover:text-red-400 transition-colors">
@@ -285,13 +377,26 @@ export default function UsersPage() {
                 <button type="submit" className="flex-1 py-3 rounded-xl bg-[var(--vault-primary)] text-[var(--vault-on-primary)] font-bold text-xs uppercase">Create User</button>
               </div>
             </form>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
+      <AnimatePresence>
       {showEditModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-[var(--vault-surface)]/80 backdrop-blur-sm">
-          <div className="glass-card w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border border-white/10">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-[var(--vault-surface)]/80 backdrop-blur-sm"
+        >
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="glass-card w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border border-white/10"
+          >
             <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
               <h3 className="text-xl font-bold text-[var(--vault-on-surface)]">Edit User: {showEditModal.username}</h3>
               <button onClick={() => setShowEditModal(null)} className="text-[var(--vault-on-surface-variant)] hover:text-red-400 transition-colors">
@@ -328,13 +433,26 @@ export default function UsersPage() {
                 <button type="submit" className="flex-1 py-3 rounded-xl bg-[var(--vault-primary)] text-[var(--vault-on-primary)] font-bold text-xs uppercase">Save Changes</button>
               </div>
             </form>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
+      <AnimatePresence>
       {showBanModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-[var(--vault-surface)]/80 backdrop-blur-sm">
-          <div className="glass-card w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border border-white/10">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-[var(--vault-surface)]/80 backdrop-blur-sm"
+        >
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="glass-card w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border border-white/10"
+          >
             <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
               <h3 className="text-xl font-bold text-red-400">Ban User: {showBanModal.username}</h3>
             </div>
@@ -359,9 +477,10 @@ export default function UsersPage() {
                 <button onClick={handleBan} className="flex-1 py-3 rounded-xl bg-red-500 text-white font-bold text-xs uppercase">Confirm Ban</button>
               </div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </>
   );
 }

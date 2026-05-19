@@ -81,7 +81,7 @@ export default function SettingsPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
                 activeTab === tab.id 
-                  ? 'bg-purple-600/10 text-purple-400 border border-purple-500/20 font-bold' 
+                  ? 'bg-[#d97757]/10 text-[#d97757] border border-[#d97757]/20 font-bold' 
                   : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5 border border-transparent'
               }`}
             >
@@ -107,14 +107,14 @@ export default function SettingsPage() {
 
                 <form onSubmit={handleUpdateProfile} className="space-y-8 max-w-2xl">
                   <div className="flex flex-col sm:flex-row items-center gap-8 mb-10">
-                    <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-purple-500 to-blue-600 p-[1px] shadow-2xl">
+                    <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[#d97757] to-blue-600 p-[1px] shadow-2xl">
                       <div className="w-full h-full bg-[#0a0a0f] rounded-[23px] flex items-center justify-center font-black text-3xl text-white uppercase tracking-tighter">
                         {profileData.username.substring(0, 2)}
                       </div>
                     </div>
                     <div className="text-center sm:text-left">
                        <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-1">Current Tier</p>
-                       <span className="px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 text-[10px] font-black uppercase tracking-widest">
+                       <span className="px-3 py-1 rounded-full bg-[#d97757]/10 text-[#d97757] border border-[#d97757]/20 text-[10px] font-black uppercase tracking-widest">
                           {user?.subscription_tier || 'Tester'}
                        </span>
                     </div>
@@ -122,9 +122,9 @@ export default function SettingsPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2 group">
-                      <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1 group-focus-within:text-purple-400 transition-colors">Developer Alias</label>
+                      <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1 group-focus-within:text-[#d97757] transition-colors">Developer Alias</label>
                       <input 
-                        className="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-zinc-800 focus:border-purple-500/50 focus:bg-white/[0.04] outline-none transition-all text-sm"
+                        className="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-zinc-800 focus:border-[#d97757]/50 focus:bg-white/[0.04] outline-none transition-all text-sm"
                         type="text" 
                         value={profileData.username} 
                         onChange={(e) => setProfileData({...profileData, username: e.target.value})}
@@ -140,7 +140,7 @@ export default function SettingsPage() {
                     <button 
                       type="submit" 
                       disabled={loading}
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-10 py-3 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-purple-500/20 hover:shadow-purple-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+                      className="bg-gradient-to-r from-[#d97757] to-blue-600 text-white px-10 py-3 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-[#d97757]/20 hover:shadow-[#d97757]/40 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
                     >
                       {loading ? 'Propagating Changes...' : 'Synchronize Profile'}
                     </button>
@@ -159,11 +159,11 @@ export default function SettingsPage() {
 
               <form onSubmit={handleChangePassword} className="space-y-6 max-w-md">
                 <div className="space-y-2 group">
-                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1 group-focus-within:text-purple-400 transition-colors">Current Passkey</label>
+                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1 group-focus-within:text-[#d97757] transition-colors">Current Passkey</label>
                   <div className="relative">
                     <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-zinc-700 text-lg">lock</span>
                     <input 
-                      className="w-full bg-white/[0.02] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white placeholder:text-zinc-800 focus:border-purple-500/50 focus:bg-white/[0.04] outline-none transition-all text-sm"
+                      className="w-full bg-white/[0.02] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white placeholder:text-zinc-800 focus:border-[#d97757]/50 focus:bg-white/[0.04] outline-none transition-all text-sm"
                       type="password" required
                       value={passwordData.old_password}
                       onChange={(e) => setPasswordData({...passwordData, old_password: e.target.value})}
@@ -171,11 +171,11 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className="space-y-2 group">
-                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1 group-focus-within:text-purple-400 transition-colors">New Passkey</label>
+                  <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1 group-focus-within:text-[#d97757] transition-colors">New Passkey</label>
                   <div className="relative">
                     <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-zinc-700 text-lg">key_visualizer</span>
                     <input 
-                      className="w-full bg-white/[0.02] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white placeholder:text-zinc-800 focus:border-purple-500/50 focus:bg-white/[0.04] outline-none transition-all text-sm"
+                      className="w-full bg-white/[0.02] border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white placeholder:text-zinc-800 focus:border-[#d97757]/50 focus:bg-white/[0.04] outline-none transition-all text-sm"
                       type="password" required
                       value={passwordData.new_password}
                       onChange={(e) => setPasswordData({...passwordData, new_password: e.target.value})}
@@ -200,7 +200,7 @@ export default function SettingsPage() {
                   <h3 className="text-2xl font-bold text-white mb-1">Infrastructure Tier</h3>
                   <p className="text-sm text-zinc-500">Overview of your current resource limits and active capabilities.</p>
                 </div>
-                <span className="px-4 py-2 rounded-xl bg-purple-600 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-purple-600/20">
+                <span className="px-4 py-2 rounded-xl bg-[#d97757] text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#d97757]/20">
                    {user?.plan?.name || 'Standard'} Plan
                 </span>
               </div>
@@ -213,7 +213,7 @@ export default function SettingsPage() {
                  ].map((stat, i) => (
                    <div key={i} className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl">
                       <div className="flex items-center gap-3 mb-4">
-                        <span className="material-symbols-outlined text-purple-400 text-xl">{stat.icon}</span>
+                        <span className="material-symbols-outlined text-[#d97757] text-xl">{stat.icon}</span>
                         <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{stat.label}</p>
                       </div>
                       <p className="text-3xl font-black text-white">{stat.value}</p>

@@ -151,7 +151,7 @@ export default function ApplicationDetailPage() {
               desc: 'Restrict access to authorized devices only.', 
               icon: 'devices',
               active: app.hwid_enabled,
-              color: 'purple'
+              color: '#d97757'
             },
             { 
               id: 'maintenance_mode', 
@@ -189,7 +189,7 @@ export default function ApplicationDetailPage() {
                     }}
                     className="sr-only peer" 
                   />
-                  <div className="w-11 h-6 bg-white/10 rounded-full peer peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500 shadow-inner"></div>
+                  <div className="w-11 h-6 bg-white/10 rounded-full peer peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#d97757] shadow-inner"></div>
                 </label>
               </div>
               <div>
@@ -203,8 +203,8 @@ export default function ApplicationDetailPage() {
 
       {/* Integration Guide Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass-card p-6 rounded-2xl border border-white/5 hover:border-purple-500/30 transition-all cursor-pointer group">
-          <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center mb-4 text-purple-400">
+        <div className="glass-card p-6 rounded-2xl border border-white/5 hover:border-[#d97757]/30 transition-all cursor-pointer group">
+          <div className="w-10 h-10 bg-[#d97757]/10 rounded-xl flex items-center justify-center mb-4 text-[#d97757]">
              <span className="material-symbols-outlined">menu_book</span>
           </div>
           <h4 className="text-sm font-bold mb-2">SDK Integration</h4>
