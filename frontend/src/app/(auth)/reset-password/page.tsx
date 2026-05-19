@@ -1,5 +1,6 @@
 'use client';
 import { useState, FormEvent, Suspense } from 'react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import api from '@/lib/api';
