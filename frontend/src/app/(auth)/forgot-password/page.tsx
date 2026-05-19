@@ -25,22 +25,31 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <>
-      <div className="flex flex-col gap-3 items-center text-center">
-        <div className="w-16 h-16 rounded-full bg-[var(--vault-primary)]/10 flex items-center justify-center mb-2 border border-[var(--vault-primary)]/20">
-          <span className="material-symbols-outlined text-[var(--vault-primary)] text-[32px]">lock_reset</span>
-        </div>
-        <h1 className="text-3xl font-bold text-[var(--vault-on-surface)]">Reset your password</h1>
-        <p className="text-[var(--vault-on-surface-variant)]">Enter your email address and we'll send you a link to reset your password.</p>
+    <div className="w-full max-w-[440px] bg-[#1a1a1a] p-[24px] rounded-xl border border-white/5 flex flex-col items-center transition-all duration-300 hover:border-white/10 shadow-2xl">
+      <div className="w-12 h-12 bg-[#212121] border border-white/5 rounded-lg flex items-center justify-center mb-6">
+        <svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 4C7 2.89543 7.89543 2 9 2H15C16.1046 2 17 2.89543 17 4V20C17 21.1046 16.1046 22 15 22H9C7.89543 22 7 21.1046 7 20V4Z" stroke="#d97757" strokeWidth="2"></path>
+          <path d="M7 8H17" stroke="#d97757" strokeWidth="2"></path>
+          <path d="M7 16H17" stroke="#d97757" strokeWidth="2"></path>
+        </svg>
+      </div>
+      
+      <div className="text-center mb-8">
+        <h1 className="text-[20px] font-semibold leading-[28px] tracking-[-0.01em] text-[#e5e2e1] mb-2">Reset password</h1>
+        <p className="text-[13.5px] font-normal leading-[20px] text-[#dbc1b9] max-w-[320px] mx-auto">
+          Enter your email address and we'll send you a link to reset your password.
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-        <div className="flex flex-col gap-2">
-          <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-[0.2em] px-1" htmlFor="email">Email Address</label>
-          <div className="relative">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/20 text-[20px]">mail</span>
+      <form onSubmit={handleSubmit} className="w-full space-y-6">
+        <div className="space-y-2">
+          <label className="text-[10.5px] font-medium leading-[16px] tracking-[0.07em] text-[#5a5a72] block uppercase">Email Address</label>
+          <div className="relative group rounded focus-within:shadow-[0_0_12px_rgba(217,119,87,0.13)] transition-all">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <span className="material-symbols-outlined text-[18px] text-[#474746] group-focus-within:text-[#d97757] transition-colors">mail</span>
+            </div>
             <input 
-              className="glass-input w-full h-[48px] pl-12 pr-4 rounded-lg text-[var(--vault-on-surface)] placeholder:text-white/10"
+              className="w-full h-[42px] bg-[#212121] border border-[rgba(255,255,255,0.08)] rounded text-[13.5px] text-[#e5e2e1] placeholder-[#3a3a4a] pl-10 focus:ring-0 focus:outline-none focus:border-[#d97757] transition-all duration-200" 
               id="email" 
               placeholder="name@company.com" 
               type="email"
@@ -50,27 +59,26 @@ export default function ForgotPasswordPage() {
             />
           </div>
         </div>
+        
         <button 
-          className="vault-primary-button w-full h-[52px] rounded-lg text-white font-bold text-sm tracking-wide flex items-center justify-center gap-2 group"
+          className="w-full h-[42px] bg-[#d97757] hover:bg-[#c4664a] active:scale-[0.98] rounded text-[13.5px] font-medium text-[#5c1902] flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50"
           type="submit"
           disabled={isLoading}
         >
-          {isLoading ? 'Sending...' : (
-            <>
-              <span>Send Reset Link</span>
-              <span className="material-symbols-outlined text-[20px] transition-transform group-hover:translate-x-1">arrow_forward</span>
-            </>
+          {isLoading ? (
+            <><span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span> Sending...</>
+          ) : (
+            <>Send reset link <span className="material-symbols-outlined text-[18px]">login</span></>
           )}
         </button>
       </form>
 
-      <div className="flex flex-col gap-6 items-center">
-        <div className="w-full h-[1px] bg-white/5"></div>
-        <Link href="/login" className="text-sm font-medium text-[var(--vault-on-surface-variant)] hover:text-[var(--vault-primary)] flex items-center gap-2 transition-colors duration-200">
-          <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-          Back to Log in
+      <div className="mt-8">
+        <Link href="/login" className="text-[13.5px] text-[#d97757] hover:text-[#ffdbd0] transition-colors flex items-center gap-1 group">
+          <span className="material-symbols-outlined text-[16px] transition-transform group-hover:-translate-x-0.5">arrow_back</span>
+          Back to sign in
         </Link>
       </div>
-    </>
+    </div>
   );
 }

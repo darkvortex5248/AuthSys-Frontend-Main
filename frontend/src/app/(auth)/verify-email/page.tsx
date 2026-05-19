@@ -76,63 +76,69 @@ function VerifyEmailForm() {
   };
 
   return (
-    <>
-      <div className="flex flex-col items-center text-center">
-        <div className="w-20 h-20 bg-[var(--vault-secondary)]/10 rounded-full flex items-center justify-center mb-8 border border-[var(--vault-secondary)]/20">
-          <span className="material-symbols-outlined text-[48px] text-[var(--vault-primary)]" style={{ fontVariationSettings: "'FILL' 1" }}>mark_email_unread</span>
-        </div>
-        
-        <h1 className="text-3xl font-bold text-[var(--vault-on-surface)] mb-2">Verify your identity</h1>
-        <p className="text-[var(--vault-on-surface-variant)] mb-8">
-          We've sent a 6-digit verification code to your email.
-        </p>
-
-        <div className="w-full space-y-8">
-          <div className="grid grid-cols-6 gap-3">
-            {otp.map((digit, i) => (
-              <input
-                key={i}
-                ref={(el) => { if (el) inputRefs.current[i] = el; }}
-                type="text"
-                className="w-full h-14 text-center text-2xl font-bold bg-black/20 border border-white/10 rounded-lg text-[var(--vault-primary)] focus:border-[var(--vault-primary)] focus:ring-1 focus:ring-[var(--vault-primary)] outline-none transition-all"
-                value={digit}
-                onChange={(e) => handleChange(i, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(i, e)}
-                onPaste={handlePaste}
-                placeholder="·"
-              />
-            ))}
-          </div>
-
-          <button 
-            onClick={handleVerify}
-            disabled={loading}
-            className="vault-primary-button w-full h-[52px] rounded-lg text-white font-bold text-sm tracking-wide flex items-center justify-center gap-2 disabled:opacity-50"
-          >
-            {loading ? 'Verifying...' : 'Verify Identity'}
-            <span className="material-symbols-outlined text-[18px]">verified_user</span>
-          </button>
-        </div>
-
-        <div className="mt-8 flex flex-col items-center gap-2">
-          <p className="text-xs text-[var(--vault-on-surface-variant)]">Didn't receive the email?</p>
-          <button 
-            onClick={handleResend}
-            className="text-[var(--vault-primary)] font-bold text-sm hover:underline flex items-center gap-1"
-          >
-            <span className="material-symbols-outlined text-[16px]">refresh</span>
-            Resend Email
-          </button>
-        </div>
-
-        <div className="mt-12 pt-8 border-t border-white/5 w-full">
-           <Link href="/login" className="text-sm font-medium text-[var(--vault-on-surface-variant)] hover:text-[var(--vault-primary)] flex items-center justify-center gap-2 transition-colors duration-200">
-            <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-            Back to Log in
-          </Link>
+  return (
+    <div className="w-full max-w-[440px] bg-[#1a1a1a] p-[24px] rounded-xl border border-white/5 transition-all duration-300 hover:border-white/10 shadow-[0_0_40px_2px_rgba(217,119,87,0.03)]">
+      <div className="flex justify-center mb-8">
+        <div className="w-16 h-16 rounded-full bg-[#09a493]/10 flex items-center justify-center border border-[#09a493]/20 shadow-[0_0_20px_0px_rgba(9,164,147,0.15)]">
+          <span className="material-symbols-outlined text-[32px] text-[#09a493]" style={{ fontVariationSettings: "'FILL' 1" }}>mark_email_unread</span>
         </div>
       </div>
-    </>
+      
+      <div className="text-center mb-8">
+        <h1 className="text-[20px] font-semibold leading-[28px] tracking-[-0.01em] text-[#e5e2e1] mb-2">Check your email</h1>
+        <p className="text-[13.5px] font-normal leading-[20px] text-[#dbc1b9] max-w-[320px] mx-auto">
+          We've sent a 6-digit verification code to <span className="font-semibold text-white">{email}</span>.
+        </p>
+      </div>
+
+      <div className="w-full space-y-8">
+        <div className="grid grid-cols-6 gap-3">
+          {otp.map((digit, i) => (
+            <input
+              key={i}
+              ref={(el) => { if (el) inputRefs.current[i] = el; }}
+              type="text"
+              className="w-full h-[52px] text-center text-xl font-bold bg-[#212121] border border-white/5 rounded-lg text-[#5edac7] focus:border-[#09a493] focus:ring-1 focus:ring-[#09a493] outline-none transition-all focus-within:shadow-[0_0_12px_rgba(9,164,147,0.15)]"
+              value={digit}
+              onChange={(e) => handleChange(i, e.target.value)}
+              onKeyDown={(e) => handleKeyDown(i, e)}
+              onPaste={handlePaste}
+              placeholder="·"
+            />
+          ))}
+        </div>
+
+        <button 
+          onClick={handleVerify}
+          disabled={loading}
+          className="w-full h-[42px] bg-[#d97757] hover:bg-[#c4664a] active:scale-[0.98] rounded text-[13.5px] font-medium text-[#5c1902] flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50"
+        >
+          {loading ? (
+            <><span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span> Verifying...</>
+          ) : (
+            <>Verify Identity <span className="material-symbols-outlined text-[18px]">verified_user</span></>
+          )}
+        </button>
+      </div>
+
+      <div className="mt-8 flex flex-col gap-4 items-center">
+        <button 
+          onClick={() => router.push('/login')}
+          className="w-full h-[42px] bg-[#212121] border border-white/5 hover:bg-[#252525] hover:border-white/10 text-[#ececec] rounded text-[13.5px] font-medium flex items-center justify-center transition-all duration-200"
+        >
+          Return to sign in
+        </button>
+        <div className="flex items-center gap-2">
+          <span className="text-[13.5px] text-[#dbc1b9]">Still need help?</span>
+          <button 
+            onClick={handleResend}
+            className="text-[13.5px] font-medium text-[#09a493] hover:text-[#5edac7] transition-colors duration-200 underline underline-offset-4 decoration-[#09a493]/30"
+          >
+            Resend email
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 

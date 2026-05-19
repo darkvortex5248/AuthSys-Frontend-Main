@@ -27,15 +27,27 @@ namespace AuthSysSDK
         private readonly string _ownerId;
         private readonly string _version;
         private readonly string _baseUrl;
+        private readonly string _appName;
         private string _sessionToken;
 
         static AuthSys()
         {
+            try
+            {
+                System.Net.ServicePointManager.Expect100Continue = false;
+                System.Net.ServicePointManager.DefaultConnectionLimit = 100;
+                System.Net.ServicePointManager.SecurityProtocol |= 
+                    System.Net.SecurityProtocolType.Tls12 | 
+                    (System.Net.SecurityProtocolType)3072; // TLS 1.3
+            }
+            catch { }
+
             Client = new HttpClient();
             Client.Timeout = TimeSpan.FromSeconds(90);
             Client.DefaultRequestHeaders.Add("User-Agent", "AuthSys-CSharp-SDK/2.0");
         }
 
+        public string AppName { get { return _appName; } }
         public string AppSecret { get { return _appSecret; } }
         public string OwnerId { get { return _ownerId; } }
         public string Version { get { return _version; } }
@@ -51,8 +63,19 @@ namespace AuthSysSDK
         public AuthSys(string credentialA, string credentialB, string version, string baseUrl)
         {
             var resolved = ResolveCredentials(credentialA, credentialB);
+            _appName = null;
             _appSecret = resolved.Item1;
             _ownerId = resolved.Item2 ?? "";
+            _version = string.IsNullOrWhiteSpace(version) ? "1.0.0" : version.Trim();
+            _baseUrl = NormalizeBaseUrl(baseUrl);
+            Hwid = GetHWID();
+        }
+
+        public AuthSys(string appName, string appSecret, string ownerId, string version, string baseUrl)
+        {
+            _appName = (appName ?? "").Trim();
+            _appSecret = (appSecret ?? "").Trim();
+            _ownerId = (ownerId ?? "").Trim();
             _version = string.IsNullOrWhiteSpace(version) ? "1.0.0" : version.Trim();
             _baseUrl = NormalizeBaseUrl(baseUrl);
             Hwid = GetHWID();
@@ -65,7 +88,7 @@ namespace AuthSysSDK
                 { "app_secret", _appSecret },
                 { "version", _version },
                 { "hwid", Hwid },
-                { "app_name", string.IsNullOrEmpty(_ownerId) ? "client" : _ownerId }
+                { "app_name", string.IsNullOrEmpty(_appName) ? (string.IsNullOrEmpty(_ownerId) ? "client" : _ownerId) : _appName }
             });
         }
 
