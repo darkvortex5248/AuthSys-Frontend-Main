@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 }
 
 import { Toaster } from '@/components/ui/sonner'
+import { ConfirmProvider } from '@/components/ui/confirm-dialog'
 
 export default function RootLayout({
   children,
@@ -32,12 +33,14 @@ export default function RootLayout({
             style={{ background: '#08080F', color: '#EEEEFF' }}>
         <NextAuthProvider>
           <QueryProvider>
-            <SmoothScroll>
-              <PageTransition>
-                {children}
-              </PageTransition>
-            </SmoothScroll>
-            <Toaster />
+            <ConfirmProvider>
+              <SmoothScroll>
+                <PageTransition>
+                  {children}
+                </PageTransition>
+              </SmoothScroll>
+              <Toaster />
+            </ConfirmProvider>
           </QueryProvider>
         </NextAuthProvider>
       </body>

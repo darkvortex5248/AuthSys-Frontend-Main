@@ -70,7 +70,7 @@ export function useLicenseKeys(appId: number | null) {
       return res.data as any[];
     },
     enabled: authed && !!appId,
-    staleTime: 15_000,
+    staleTime: 0,
   });
 }
 
@@ -83,31 +83,146 @@ export function useAppUsers(appId: number | null) {
       return res.data as any[];
     },
     enabled: authed && !!appId,
-    staleTime: 15_000,
+    staleTime: 0,
   });
 }
 
-/** Invalidate lists that change when apps/keys/users are mutated */
+/** Refetch lists immediately after mutations (no manual refresh needed) */
 export function useInvalidateDeveloperData() {
   const queryClient = useQueryClient();
 
   return {
-    apps: () => queryClient.invalidateQueries({ queryKey: queryKeys.apps }),
+    apps: () => queryClient.refetchQueries({ queryKey: queryKeys.apps }),
     overview: () =>
-      queryClient.invalidateQueries({ queryKey: ['developer', 'overview'] }),
+      queryClient.refetchQueries({ queryKey: ['developer', 'overview'] }),
     keys: (appId: number) =>
-      queryClient.invalidateQueries({ queryKey: queryKeys.keys(appId) }),
+      queryClient.refetchQueries({ queryKey: queryKeys.keys(appId) }),
     users: (appId: number) =>
-      queryClient.invalidateQueries({ queryKey: queryKeys.users(appId) }),
-    all: (appId?: number) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.apps });
-      queryClient.invalidateQueries({ queryKey: ['developer', 'overview'] });
-      if (appId) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.keys(appId) });
-        queryClient.invalidateQueries({ queryKey: queryKeys.users(appId) });
-      }
+      queryClient.refetchQueries({ queryKey: queryKeys.users(appId) }),
+    all: async (appId?: number) => {
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: queryKeys.apps }),
+        queryClient.refetchQueries({ queryKey: ['developer', 'overview'] }),
+        appId
+          ? queryClient.refetchQueries({ queryKey: queryKeys.keys(appId) })
+          : Promise.resolve(),
+        appId
+          ? queryClient.refetchQueries({ queryKey: queryKeys.users(appId) })
+          : Promise.resolve(),
+      ]);
     },
   };
+}
+
+export function useGenerateKeys() {
+  const queryClient = useQueryClient();
+  const invalidate = useInvalidateDeveloperData();
+
+  return useMutation({
+    mutationFn: async (payload: {
+      app_id: number;
+      count: number;
+      key_type: string;
+      duration_days: number | null;
+      expires_at: string | null;
+    }) => {
+      const res = await api.post('/developer/keys/bulk-generate', payload);
+      return res.data;
+    },
+    onSuccess: async (_data, vars) => {
+      await invalidate.keys(vars.app_id);
+      await invalidate.overview();
+    },
+  });
+}
+
+export function useCreateLicenseKey() {
+  const invalidate = useInvalidateDeveloperData();
+
+  return useMutation({
+    mutationFn: async (payload: Record<string, unknown>) => {
+      const res = await api.post('/developer/keys/generate', payload);
+      return res.data;
+    },
+    onSuccess: async (_data, vars: any) => {
+      if (vars?.app_id) await invalidate.keys(vars.app_id as number);
+      await invalidate.overview();
+    },
+  });
+}
+
+export function useDeleteLicenseKey() {
+  const queryClient = useQueryClient();
+  const invalidate = useInvalidateDeveloperData();
+
+  return useMutation({
+    mutationFn: async ({ id, appId }: { id: number; appId: number }) => {
+      await api.delete(`/developer/keys/${id}`);
+      return { id, appId };
+    },
+    onMutate: async ({ id, appId }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.keys(appId) });
+      const prev = queryClient.getQueryData<any[]>(queryKeys.keys(appId));
+      queryClient.setQueryData<any[]>(queryKeys.keys(appId), (old) =>
+        (old ?? []).filter((k) => k.id !== id),
+      );
+      return { prev, appId };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(queryKeys.keys(ctx.appId), ctx.prev);
+    },
+    onSettled: async (_d, _e, { appId }) => {
+      await invalidate.keys(appId);
+      await invalidate.overview();
+    },
+  });
+}
+
+export function useCreateAppUser() {
+  const invalidate = useInvalidateDeveloperData();
+
+  return useMutation({
+    mutationFn: async (payload: {
+      app_id: number;
+      username: string;
+      password: string;
+      email?: string;
+    }) => {
+      const res = await api.post('/developer/users/create', payload);
+      return res.data;
+    },
+    onSuccess: async (_data, vars) => {
+      await invalidate.users(vars.app_id);
+      await invalidate.overview();
+    },
+  });
+}
+
+export function useDeleteAppUser() {
+  const queryClient = useQueryClient();
+  const invalidate = useInvalidateDeveloperData();
+
+  return useMutation({
+    mutationFn: async ({ id, appId }: { id: number; appId: number }) => {
+      await api.delete(`/developer/users/${id}`);
+      return { id, appId };
+    },
+    onMutate: async ({ id, appId }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.users(appId) });
+      const prev = queryClient.getQueryData<any[]>(queryKeys.users(appId));
+      queryClient.setQueryData<any[]>(queryKeys.users(appId), (old) =>
+        (old ?? []).filter((u) => u.id !== id),
+      );
+      return { prev, appId };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(queryKeys.users(ctx.appId), ctx.prev);
+    },
+    onSettled: async (_d, _e, { appId }) => {
+      await invalidate.users(appId);
+      await invalidate.overview();
+    },
+  });
 }
 
 export function useCreateApp() {

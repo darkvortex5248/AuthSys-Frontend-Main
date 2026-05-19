@@ -1,163 +1,180 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
-using System.Management;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Collections.Generic;
-using System.Threading;
+using System.Threading.Tasks;
+using System.Management;
 
 namespace AuthSysSDK
 {
+    /// <summary>
+    /// AuthSys C# SDK — use App Secret from dashboard (NOT Owner ID).
+    /// Constructor: new AuthSys(appSecret, version, baseUrl)
+    /// Or: new AuthSys(appSecret, ownerId, version, baseUrl) — ownerId is optional metadata only.
+    /// </summary>
     public class AuthSys
     {
         private readonly string _appSecret;
-        private readonly string _apiUrl;
-        private readonly HttpClient _client;
+        private readonly string _version;
+        private readonly string _baseUrl;
         private string _sessionToken;
-        private CancellationTokenSource _heartbeatCts;
+        private static readonly HttpClient _client = new HttpClient();
 
-        public dynamic UserData { get; private set; }
+        public string Hwid { get; private set; }
 
-        public AuthSys(string appSecret, string apiUrl = "http://localhost:8000/api/v1/client")
+        /// <summary>Recommended: app secret + version + API base URL.</summary>
+        public AuthSys(string appSecret, string version = "1.0.0", string baseUrl = "https://authsys-vtdu.onrender.com/api/v1")
         {
-            _appSecret = appSecret;
-            _apiUrl = apiUrl;
-            _client = new HttpClient();
+            _appSecret = appSecret?.Trim() ?? "";
+            _version = version;
+            _baseUrl = NormalizeBaseUrl(baseUrl);
+            Hwid = GetHWID();
         }
 
-        public string GetHWID()
+        /// <summary>Legacy 4-arg ctor: appSecret, ownerId (ignored for auth), version, baseUrl.</summary>
+        public AuthSys(string appSecret, string ownerId, string version, string baseUrl)
+            : this(appSecret, version, baseUrl)
+        {
+            // ownerId is displayed in dashboard for reference only; API auth uses app_secret
+        }
+
+        private static string NormalizeBaseUrl(string url)
+        {
+            url = (url ?? "").Trim().TrimEnd('/');
+            if (!url.EndsWith("/api/v1", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!url.Contains("/api/v1")) url += "/api/v1";
+            }
+            return url;
+        }
+
+        public static string GetHWID()
         {
             try
             {
-                string hwidSource = "";
+                string src = "";
                 if (OperatingSystem.IsWindows())
                 {
-                    using (var searcher = new ManagementObjectSearcher("SELECT UUID FROM Win32_ComputerSystemProduct"))
-                    {
-                        foreach (var obj in searcher.Get())
-                        {
-                            hwidSource += obj["UUID"].ToString();
-                        }
-                    }
-                    using (var searcher = new ManagementObjectSearcher("SELECT SerialNumber FROM Win32_BaseBoard"))
-                    {
-                        foreach (var obj in searcher.Get())
-                        {
-                            hwidSource += obj["SerialNumber"].ToString();
-                        }
-                    }
+                    using var s = new ManagementObjectSearcher("SELECT UUID FROM Win32_ComputerSystemProduct");
+                    foreach (ManagementObject o in s.Get()) src += o["UUID"]?.ToString();
+                    using var b = new ManagementObjectSearcher("SELECT SerialNumber FROM Win32_BaseBoard");
+                    foreach (ManagementObject o in b.Get()) src += o["SerialNumber"]?.ToString();
                 }
                 else
                 {
-                    hwidSource = Environment.MachineName + Environment.UserName + Environment.ProcessorCount;
+                    src = Environment.MachineName + Environment.UserName;
                 }
-
-                using (SHA256 sha256 = SHA256.Create())
-                {
-                    byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(hwidSource));
-                    return BitConverter.ToString(bytes).Replace("-", "").ToLower();
-                }
+                using var sha = SHA256.Create();
+                var hash = sha.ComputeHash(Encoding.UTF8.GetBytes(src));
+                return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
             }
             catch
             {
-                return "fallback-" + Guid.NewGuid().ToString().Substring(0, 8);
+                return "hwid-" + Guid.NewGuid().ToString("N").Substring(0, 16);
             }
         }
 
-        public async Task<(bool success, string message)> LoginAsync(string username, string password)
+        public async Task<JsonElement> InitAsync()
         {
-            var payload = new
-            {
-                app_secret = _appSecret,
-                username = username,
-                password = password,
-                hwid = GetHWID(),
-                version = "1.0.0"
-            };
-
-            return await SendRequestAsync("login", payload);
+            return await PostAsync("/client/init", new { app_secret = _appSecret, version = _version });
         }
 
-        public async Task<(bool success, string message)> LoginLicenseAsync(string key)
+        public async Task<JsonElement> RegisterAsync(string username, string password, string licenseKey, string email = null)
         {
-            var payload = new
+            return await PostAsync("/client/register", new
             {
                 app_secret = _appSecret,
-                key = key,
-                hwid = GetHWID()
-            };
-
-            return await SendRequestAsync("login/license", payload);
+                username,
+                password,
+                license_key = licenseKey,
+                hwid = Hwid,
+                email
+            });
         }
 
-        private async Task<(bool success, string message)> SendRequestAsync(string endpoint, object payload)
+        public async Task<JsonElement> LoginAsync(string username, string password, int sessionLength = 86400)
+        {
+            var result = await PostAsync("/client/login", new
+            {
+                app_secret = _appSecret,
+                username,
+                password,
+                hwid = Hwid,
+                version = _version,
+                session_length = sessionLength
+            });
+            CaptureToken(result);
+            return result;
+        }
+
+        public async Task<JsonElement> LicenseLoginAsync(string licenseKey, int sessionLength = 86400)
+        {
+            var result = await PostAsync("/client/license-login", new
+            {
+                app_secret = _appSecret,
+                license_key = licenseKey,
+                hwid = Hwid,
+                session_length = sessionLength
+            });
+            CaptureToken(result);
+            return result;
+        }
+
+        private void CaptureToken(JsonElement result)
+        {
+            if (result.ValueKind == JsonValueKind.Object &&
+                result.TryGetProperty("success", out var ok) && ok.GetBoolean() &&
+                result.TryGetProperty("token", out var tok))
+            {
+                _sessionToken = tok.GetString();
+            }
+        }
+
+        private async Task<JsonElement> PostAsync(string path, object payload)
         {
             try
             {
-                var response = await _client.PostAsJsonAsync($"{_apiUrl}/{endpoint}", payload);
-                var content = await response.Content.ReadAsStringAsync();
-                var data = JsonSerializer.Deserialize<JsonElement>(content);
+                string json = JsonSerializer.Serialize(payload);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await _client.PostAsync(_baseUrl + path, content);
+                string body = await response.Content.ReadAsStringAsync();
 
-                if (response.IsSuccessStatusCode)
+                try
                 {
-                    _sessionToken = data.GetProperty("token").GetString();
-                    UserData = data.GetProperty("user");
-                    StartHeartbeat();
-                    return (true, "Success");
-                }
+                    using var doc = JsonDocument.Parse(body);
+                    var root = doc.RootElement.Clone();
 
-                string detail = data.TryGetProperty("detail", out var d) ? d.GetString() : "Unknown Error";
-                return (false, detail);
+                    if (root.TryGetProperty("detail", out var detail))
+                    {
+                        string msg = detail.ValueKind == JsonValueKind.String
+                            ? detail.GetString()
+                            : detail.ToString();
+                        return ToJson(new { success = false, message = msg });
+                    }
+
+                    if (response.IsSuccessStatusCode && !root.TryGetProperty("success", out _))
+                    {
+                        return ToJson(new { success = true, message = "OK", data = root });
+                    }
+
+                    return root;
+                }
+                catch
+                {
+                    return ToJson(new { success = false, message = body });
+                }
             }
             catch (Exception ex)
             {
-                return (false, $"SDK Error: {ex.Message}");
+                return ToJson(new { success = false, message = "Connection error: " + ex.Message });
             }
         }
 
-        private void StartHeartbeat()
+        private static JsonElement ToJson(object obj)
         {
-            _heartbeatCts?.Cancel();
-            _heartbeatCts = new CancellationTokenSource();
-            
-            Task.Run(async () =>
-            {
-                while (!_heartbeatCts.Token.IsCancellationRequested)
-                {
-                    try
-                    {
-                        var request = new HttpRequestMessage(HttpMethod.Post, $"{_apiUrl}/session/heartbeat");
-                        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _sessionToken);
-                        
-                        var response = await _client.SendAsync(request);
-                        if (!response.IsSuccessStatusCode) break;
-                    }
-                    catch { }
-                    await Task.Delay(TimeSpan.FromSeconds(60), _heartbeatCts.Token);
-                }
-            }, _heartbeatCts.Token);
-        }
-
-        public async Task<string> GetVarAsync(string name)
-        {
-            if (string.IsNullOrEmpty(_sessionToken)) return null;
-            try
-            {
-                var request = new HttpRequestMessage(HttpMethod.Get, $"{_apiUrl}/vars/{name}");
-                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _sessionToken);
-                
-                var response = await _client.SendAsync(request);
-                if (response.IsSuccessStatusCode)
-                {
-                    var data = await response.Content.ReadFromJsonAsync<JsonElement>();
-                    return data.GetProperty("value").GetString();
-                }
-            }
-            catch { }
-            return null;
+            return JsonSerializer.Deserialize<JsonElement>(JsonSerializer.Serialize(obj));
         }
     }
 }

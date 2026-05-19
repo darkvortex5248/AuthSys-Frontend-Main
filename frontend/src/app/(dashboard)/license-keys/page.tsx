@@ -7,11 +7,19 @@ import { toast } from 'sonner';
 import {
   useInvalidateDeveloperData,
   useLicenseKeys,
+  useGenerateKeys,
+  useCreateLicenseKey,
+  useDeleteLicenseKey,
 } from '@/hooks/use-developer-queries';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 
 export default function LicenseKeysPage() {
   const { selectedAppId } = useAuthStore();
   const invalidate = useInvalidateDeveloperData();
+  const confirm = useConfirm();
+  const generateKeys = useGenerateKeys();
+  const createKey = useCreateLicenseKey();
+  const deleteKeyMutation = useDeleteLicenseKey();
   const { data: keys = [], isLoading: loading } = useLicenseKeys(selectedAppId);
   const [genData, setGenData] = useState({ quantity: 10, type: 'time', duration: 30, expires_at: '' });
   const [showEditModal, setShowEditModal] = useState<any>(null);
@@ -49,16 +57,13 @@ export default function LicenseKeysPage() {
     if (!selectedAppId) return;
     setGenerating(true);
     try {
-      await api.post('/developer/keys/bulk-generate', {
+      await generateKeys.mutateAsync({
         app_id: selectedAppId,
         count: genData.quantity,
         key_type: genData.type,
         duration_days: genData.duration === 0 ? null : genData.duration,
-        max_uses: null,
-        expires_at: genData.expires_at || null
+        expires_at: genData.expires_at || null,
       });
-      if (selectedAppId) invalidate.keys(selectedAppId);
-      invalidate.overview();
       toast.success(`Generated ${genData.quantity} keys`);
     } catch (err) {
       toast.error('Failed to generate keys');
@@ -72,19 +77,17 @@ export default function LicenseKeysPage() {
     if (!selectedAppId) return;
     setGenerating(true);
     try {
-      await api.post('/developer/keys/generate', {
+      await createKey.mutateAsync({
         app_id: selectedAppId,
         key_type: singleData.type,
         duration_days: singleData.duration === 0 ? null : singleData.duration,
         max_uses: singleData.max_uses,
         expires_at: singleData.expires_at || null,
         note: singleData.note,
-        custom_key: singleData.custom_key || null
+        custom_key: singleData.custom_key || null,
       });
       setShowSingleModal(false);
       setSingleData({ type: 'time', duration: 30, max_uses: 1, expires_at: '', note: '', custom_key: '' });
-      if (selectedAppId) invalidate.keys(selectedAppId);
-      invalidate.overview();
       toast.success('License key created');
     } catch (err: any) {
       toast.error(err.response?.data?.detail || 'Failed to create key');
@@ -96,18 +99,24 @@ export default function LicenseKeysPage() {
   const handleTogglePause = async (id: number) => {
     try {
       await api.post(`/developer/keys/${id}/pause`);
-      if (selectedAppId) invalidate.keys(selectedAppId);
+      if (selectedAppId) await invalidate.keys(selectedAppId);
     } catch (err) {
       toast.error('Failed to toggle status');
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure?")) return;
+    if (!selectedAppId) return;
+    const ok = await confirm({
+      title: 'Delete license key?',
+      message: 'This key will stop working immediately. This cannot be undone.',
+      confirmLabel: 'Yes, delete',
+      cancelLabel: 'Cancel',
+      variant: 'danger',
+    });
+    if (!ok) return;
     try {
-      await api.delete(`/developer/keys/${id}`);
-      if (selectedAppId) invalidate.keys(selectedAppId);
-      invalidate.overview();
+      await deleteKeyMutation.mutateAsync({ id, appId: selectedAppId });
       toast.success('Key deleted');
     } catch (err) {
       toast.error('Failed to delete key');
@@ -115,7 +124,13 @@ export default function LicenseKeysPage() {
   };
 
   const handleHWIDReset = async (id: number) => {
-    if (!confirm("Reset HWID for all users using this license?")) return;
+    const ok = await confirm({
+      title: 'Reset HWID?',
+      message: 'Reset HWID for all users bound to this license key?',
+      confirmLabel: 'Yes, reset',
+      variant: 'default',
+    });
+    if (!ok) return;
     try {
       await api.post(`/developer/keys/${id}/hwid-reset`);
       toast.success('HWID reset successful');

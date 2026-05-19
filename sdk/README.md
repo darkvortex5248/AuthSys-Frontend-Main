@@ -1,46 +1,38 @@
-# 🛡️ AuthSys Development Kits (SDK)
+# AuthSys SDK
 
-Integrate next-generation security orchestration into your applications with ease. AuthSys provides robust, enterprise-grade SDKs for all major platforms.
+## C# (WinForms / WPF)
 
-## 🚀 Available SDKs (Enterprise Grade)
+### Setup
 
-| Language | Path | Features | Reliability |
-| :--- | :--- | :--- | :--- |
-| **Python** | `sdk/python/` | Heartbeat, HWID Binding, Multi-Platform | 💎 100% |
-| **C# (.NET)** | `sdk/csharp/` | Native WMI, Async Tasks, Secure IO | 💎 100% |
-| **JavaScript** | `sdk/javascript/` | Canvas Fingerprinting, Node.js Ready | 💎 100% |
-| **C++ Native** | `sdk/cpp/` | Header-Only, Low Latency, Native HWID | 💎 100% |
+1. Copy `sdk/csharp/AuthSys.cs` into your project.
+2. Add NuGet: `System.Management` (for HWID on Windows).
+3. Use credentials from **Dashboard → Applications → your app**:
+   - **App Secret** = short key (use this in SDK)
+   - **Owner ID** = long hash (reference only, NOT for login)
 
----
+```csharp
+var auth = new AuthSys(
+    appSecret: "AFhX9W2AFsmj",  // Secret Key from dashboard
+    version: "1.0.0",
+    baseUrl: "https://authsys-vtdu.onrender.com/api/v1"
+);
 
-## 🛠️ Quick Start (Enterprise Flow)
+// License login OR username login (not both at once)
+var result = await auth.LicenseLoginAsync("AUTHSYS-xxxx-xxxx");
+// var result = await auth.LoginAsync("user", "pass");
 
-```python
-from authsys import AuthSys
-
-# Initialize Infrastructure
-auth = AuthSys(app_secret="YOUR_SECRET")
-
-# Login & Start Secure Orchestration
-success, msg = auth.login("username", "password")
-
-if success:
-    print(f"Session Active: {auth.session_token}")
-    # Heartbeat is automatically handled in a background thread!
-    
-    # Retrieve Secure Variable
-    config = auth.get_var("server_config")
+if (result.TryGetProperty("success", out var ok) && ok.GetBoolean())
+    MessageBox.Show("OK");
+else if (result.TryGetProperty("message", out var msg))
+    MessageBox.Show(msg.GetString());
 ```
 
-## 🔒 Security Features
-*   **Hardware Fingerprinting**: Every session is bound to a unique HWID hash.
-*   **Session Orchestration**: Automated token rotation and validation.
-*   **License Binding**: Dynamic licensing tied to physical machine identities.
+### Common error: "Application not found or invalid secret"
 
-## HWID Security
-All SDKs automatically generate a Hardware ID (HWID) based on the user's machine signature. This ensures that:
-- Sessions cannot be shared across different computers.
-- License keys are locked to a single device (if configured).
+- You used **Owner ID** instead of **App Secret** — swap them.
+- App is **inactive** in dashboard — toggle to active.
+- Wrong API URL — must end with `/api/v1` (SDK adds `/client/login` automatically).
 
----
-*For support or custom SDK requests, please contact the RinoxAuth development team.*
+## Python / JavaScript
+
+See `sdk/python/authsys.py` and `sdk/javascript/authsys.js`.

@@ -1,145 +1,85 @@
 ﻿using AuthSysSDK;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
 using System.Windows.Forms;
-
 
 namespace test
 {
     public partial class Form1 : Form
     {
-        private AuthSys auth;
-
+        private readonly AuthSys auth;
 
         public Form1()
         {
             InitializeComponent();
 
+            // IMPORTANT: First value = App Secret (short key in dashboard "Secret Key")
+            // NOT the Owner ID (long hash). Get it from Applications → your app → Secret Key.
             auth = new AuthSys(
-                "abb8b5e8f0491c48998a9a786500c77b8d16b099a25d598344448c2801b20e71",
-                "isrvYlPAEz0m",
-                "1.0.0",
-                "https://authsys-vtdu.onrender.com/api/v1"
+                appSecret: "YOUR_APP_SECRET_HERE",
+                version: "1.0.0",
+                baseUrl: "https://authsys-vtdu.onrender.com/api/v1"
             );
         }
 
         private async void guna2Button1_Click(object sender, EventArgs e)
         {
+            guna2Button1.Enabled = false;
             try
             {
-                var result = await auth.LoginAsync(
-                    txtUsername.Text,
-                    txtPassword.Text
-                );
-
-                if (result.TryGetProperty("success", out var successElement))
+                var init = await auth.InitAsync();
+                if (init.TryGetProperty("success", out var initOk) && !initOk.GetBoolean())
                 {
-                    bool success = successElement.GetBoolean();
+                    ShowApiMessage(init, "Init failed");
+                    return;
+                }
 
-                    if (success)
-                    {
-                        MessageBox.Show("Login Success");
+                JsonElement result;
 
-                        Form2 form2 = new Form2();
-                        form2.Show();
-
-                        this.Hide();
-                    }
-                    else
-                    {
-                        string msg = "Login Failed";
-
-                        if (result.TryGetProperty("message", out var msgElement))
-                        {
-                            msg = msgElement.GetString();
-                        }
-
-                        MessageBox.Show(msg);
-                    }
+                if (!string.IsNullOrWhiteSpace(txtLicense.Text))
+                {
+                    result = await auth.LicenseLoginAsync(txtLicense.Text.Trim());
+                }
+                else if (!string.IsNullOrWhiteSpace(txtUsername.Text))
+                {
+                    result = await auth.LoginAsync(txtUsername.Text.Trim(), txtPassword.Text);
                 }
                 else
                 {
-                    MessageBox.Show(
-                        "API response does not contain 'success'\n\n" +
-                        result.ToString()
-                    );
+                    MessageBox.Show("Enter username/password OR a license key.");
+                    return;
+                }
+
+                if (result.TryGetProperty("success", out var successEl) && successEl.GetBoolean())
+                {
+                    MessageBox.Show("Login successful!", "AuthSys", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    var form2 = new Form2();
+                    form2.Show();
+                    Hide();
+                }
+                else
+                {
+                    ShowApiMessage(result, "Login failed");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-
-
-
-
-            try
+            finally
             {
-                var result = await auth.LicenseLoginAsync(
-                    txtLicense.Text
-                );
-
-                if (result.TryGetProperty("success", out var successElement))
-                {
-                    bool success = successElement.GetBoolean();
-
-                    if (success)
-                    {
-                        MessageBox.Show("Login Success");
-
-                        Form2 form2 = new Form2();
-                        form2.Show();
-
-                        this.Hide();
-                    }
-                    else
-                    {
-                        string msg = "Login Failed";
-
-                        if (result.TryGetProperty("message", out var msgElement))
-                        {
-                            msg = msgElement.GetString();
-                        }
-
-                        MessageBox.Show(msg);
-                    }
-                }
-                else
-                {
-                    MessageBox.Show(result.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
+                guna2Button1.Enabled = true;
             }
         }
 
-        private void guna2ControlBox1_Click(object sender, EventArgs e)
+        private static void ShowApiMessage(JsonElement result, string fallback)
         {
-            Application.Exit(); 
+            string msg = fallback;
+            if (result.TryGetProperty("message", out var m))
+                msg = m.GetString() ?? fallback;
+            MessageBox.Show(msg, "AuthSys", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
-        private void txtLicense_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txtUsername_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txtPassword_TextChanged(object sender, EventArgs e)
-        {
-
-        }
+        private void guna2ControlBox1_Click(object sender, EventArgs e) => Application.Exit();
     }
 }

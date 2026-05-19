@@ -69,7 +69,8 @@ async def generate_key(req: KeyGenerate, dev: DeveloperAccount = Depends(get_cur
         "timestamp": datetime.utcnow().isoformat()
     }, db)
 
-    return {"key": key_val}
+    await db.refresh(new_key)
+    return new_key
 
 @router.post("/bulk-generate")
 async def bulk_generate(req: BulkKeyGenerate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):

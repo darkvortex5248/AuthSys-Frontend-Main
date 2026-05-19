@@ -7,11 +7,17 @@ import { toast } from 'sonner';
 import {
   useAppUsers,
   useInvalidateDeveloperData,
+  useCreateAppUser,
+  useDeleteAppUser,
 } from '@/hooks/use-developer-queries';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 
 export default function UsersPage() {
   const { selectedAppId } = useAuthStore();
   const invalidate = useInvalidateDeveloperData();
+  const confirm = useConfirm();
+  const createUser = useCreateAppUser();
+  const deleteUser = useDeleteAppUser();
   const { data: users = [], isLoading: loading } = useAppUsers(selectedAppId);
   const [showBanModal, setShowBanModal] = useState<any>(null);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -84,11 +90,9 @@ export default function UsersPage() {
     e.preventDefault();
     if (!selectedAppId) return;
     try {
-      await api.post('/developer/users/create', { ...newUser, app_id: selectedAppId });
+      await createUser.mutateAsync({ ...newUser, app_id: selectedAppId });
       setShowAddModal(false);
       setNewUser({ username: '', password: '', email: '' });
-      if (selectedAppId) invalidate.users(selectedAppId);
-      invalidate.overview();
       toast.success('User created');
     } catch (err) {
       toast.error('Failed to create user. Username might be taken.');
@@ -106,7 +110,12 @@ export default function UsersPage() {
   };
 
   const handleHWIDReset = async (id: number) => {
-    if (!confirm("Reset HWID for this user?")) return;
+    const ok = await confirm({
+      title: 'Reset HWID?',
+      message: 'Allow this user to log in from a new device?',
+      confirmLabel: 'Yes, reset',
+    });
+    if (!ok) return;
     try {
       await api.post(`/developer/users/${id}/hwid-reset`);
       toast.success('HWID reset successful');
@@ -132,11 +141,17 @@ export default function UsersPage() {
   };
 
   const handleDeleteUser = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this user permanently?")) return;
+    if (!selectedAppId) return;
+    const ok = await confirm({
+      title: 'Delete user?',
+      message: 'This user and their sessions will be removed permanently.',
+      confirmLabel: 'Yes, delete',
+      cancelLabel: 'Keep user',
+      variant: 'danger',
+    });
+    if (!ok) return;
     try {
-      await api.delete(`/developer/users/${id}`);
-      if (selectedAppId) invalidate.users(selectedAppId);
-      invalidate.overview();
+      await deleteUser.mutateAsync({ id, appId: selectedAppId });
       toast.success('User deleted');
     } catch (err) {
       toast.error('Failed to delete user');

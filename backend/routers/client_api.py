@@ -19,7 +19,13 @@ from core.limiter import limiter
 router = APIRouter(prefix="/api/v1/client", tags=["Client SDK"])
 
 async def get_app_by_secret(app_secret: str, db: AsyncSession) -> Application:
-    result = await db.execute(select(Application).where(Application.app_secret == app_secret))
+    """Resolve app by secret key (also accepts owner_id if SDK credentials were swapped)."""
+    secret = (app_secret or "").strip()
+    result = await db.execute(
+        select(Application).where(
+            (Application.app_secret == secret) | (Application.owner_id == secret)
+        )
+    )
     app = result.scalars().first()
     if not app:
         raise HTTPException(status_code=404, detail="Application not found or invalid secret")
