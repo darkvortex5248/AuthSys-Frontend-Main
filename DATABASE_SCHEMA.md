@@ -307,3 +307,32 @@ CREATE TABLE team_members (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 ```
+
+## 🔀 Database Update / Migration Guide
+
+If you have an existing database from previous versions of AuthSys and need to update it to support the latest features (including `owner_id`, Shadow Users, Manual Payments, and Webhook logging), run the following SQL commands in your Neon or Supabase SQL Editor:
+
+```sql
+-- 1. Update Applications Table (Adding owner_id, maintenance_mode, developer_lock, etc.)
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS owner_id VARCHAR UNIQUE;
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS hwid_enabled BOOLEAN DEFAULT TRUE;
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS maintenance_mode BOOLEAN DEFAULT FALSE;
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS developer_lock BOOLEAN DEFAULT FALSE;
+
+-- Populate default values if there are existing rows
+UPDATE applications SET hwid_enabled = TRUE WHERE hwid_enabled IS NULL;
+UPDATE applications SET maintenance_mode = FALSE WHERE maintenance_mode IS NULL;
+UPDATE applications SET developer_lock = FALSE WHERE developer_lock IS NULL;
+
+-- 2. Update End Users Table (Adding is_shadow for License-Only key logins)
+ALTER TABLE end_users ADD COLUMN IF NOT EXISTS is_shadow BOOLEAN DEFAULT FALSE;
+UPDATE end_users SET is_shadow = FALSE WHERE is_shadow IS NULL;
+
+-- 3. Update Payments Table (Adding manual payment tracking fields)
+ALTER TABLE payments ADD COLUMN IF NOT EXISTS payment_method VARCHAR;
+ALTER TABLE payments ADD COLUMN IF NOT EXISTS wallet_number VARCHAR;
+ALTER TABLE payments ADD COLUMN IF NOT EXISTS transaction_id VARCHAR;
+
+-- 4. Update Webhooks Log Table (Adding endpoint_id relationship)
+ALTER TABLE webhooks_log ADD COLUMN IF NOT EXISTS endpoint_id INTEGER REFERENCES webhook_endpoints(id) ON DELETE CASCADE;
+```
