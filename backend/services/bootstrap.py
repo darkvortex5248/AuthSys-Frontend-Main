@@ -109,13 +109,18 @@ async def ensure_database_schema(db: AsyncSession) -> None:
     except Exception as e:
         logger.warning(f"Schema migration: Error ensuring database tables: {e}")
 
-    # Columns to check and add dynamically if missing
     columns_to_ensure = [
         (
             "end_users",
             "is_shadow",
             "ALTER TABLE end_users ADD COLUMN IF NOT EXISTS is_shadow BOOLEAN DEFAULT FALSE",
             "UPDATE end_users SET is_shadow = FALSE WHERE is_shadow IS NULL"
+        ),
+        (
+            "applications",
+            "owner_id",
+            "ALTER TABLE applications ADD COLUMN IF NOT EXISTS owner_id VARCHAR UNIQUE",
+            None
         ),
         (
             "applications",
@@ -133,6 +138,24 @@ async def ensure_database_schema(db: AsyncSession) -> None:
             "webhooks_log",
             "endpoint_id",
             "ALTER TABLE webhooks_log ADD COLUMN IF NOT EXISTS endpoint_id INTEGER",
+            None
+        ),
+        (
+            "payments",
+            "payment_method",
+            "ALTER TABLE payments ADD COLUMN IF NOT EXISTS payment_method VARCHAR",
+            None
+        ),
+        (
+            "payments",
+            "wallet_number",
+            "ALTER TABLE payments ADD COLUMN IF NOT EXISTS wallet_number VARCHAR",
+            None
+        ),
+        (
+            "payments",
+            "transaction_id",
+            "ALTER TABLE payments ADD COLUMN IF NOT EXISTS transaction_id VARCHAR",
             None
         )
     ]

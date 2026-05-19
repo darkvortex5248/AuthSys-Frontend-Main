@@ -53,8 +53,8 @@ CREATE TABLE applications (
     id SERIAL PRIMARY KEY,
     developer_id INTEGER REFERENCES developer_accounts(id),
     name VARCHAR,
-    app_secret VARCHAR UNIQUE,
-    owner_id VARCHAR UNIQUE,
+    app_secret VARCHAR UNIQUE, -- Unique application secret key for SDK communications
+    owner_id VARCHAR UNIQUE,   -- Unique owner identification hash for authorization verification
     version VARCHAR,
     min_version VARCHAR,
     status VARCHAR DEFAULT 'active',
