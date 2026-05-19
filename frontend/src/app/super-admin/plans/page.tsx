@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import api from '@/lib/api';
+import adminApi from '@/lib/admin-api';
+import { toast } from 'sonner';
 
 export default function PlansManagementPage() {
   const [plans, setPlans] = useState<any[]>([]);
@@ -13,10 +14,7 @@ export default function PlansManagementPage() {
 
   const fetchPlans = async () => {
     try {
-      const token = localStorage.getItem('admin_token');
-      const res = await api.get('/admin/plans', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await adminApi.get<any[]>('/admin/plans');
       setPlans(res.data);
     } catch (err) {
       console.error("Failed to fetch plans", err);
@@ -28,8 +26,6 @@ export default function PlansManagementPage() {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('admin_token');
-      // Ensure features_json is sent as a list
       const payload = {
         ...editingPlan,
         features_json: typeof editingPlan.features_json === 'string' 
@@ -37,12 +33,12 @@ export default function PlansManagementPage() {
           : editingPlan.features_json
       };
       
-      await api.put(`/admin/plans/${editingPlan.id}`, payload, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await adminApi.put(`/admin/plans/${editingPlan.id}`, payload);
       setEditingPlan(null);
       fetchPlans();
+      toast.success('Plan saved');
     } catch (err) {
+      toast.error('Failed to update plan');
       console.error("Failed to update plan", err);
     }
   };

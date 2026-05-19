@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import api from '@/lib/api';
+import adminApi from '@/lib/admin-api';
+import { toast } from 'sonner';
 
 export default function SDKManagementPage() {
   const [sdks, setSdks] = useState<any[]>([]);
@@ -14,7 +15,7 @@ export default function SDKManagementPage() {
 
   const fetchSdks = async () => {
     try {
-      const res = await api.get('/admin/sdks');
+      const res = await adminApi.get<any[]>('/admin/sdks');
       setSdks(res.data);
     } catch (err) {
       console.error("Failed to fetch SDKs", err);
@@ -25,34 +26,30 @@ export default function SDKManagementPage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem('admin_token');
     try {
       if (isAdding) {
-        await api.post('/admin/sdks', editingSdk, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await adminApi.post('/admin/sdks', editingSdk);
       } else {
-        await api.put(`/admin/sdks/${editingSdk.id}`, editingSdk, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await adminApi.put(`/admin/sdks/${editingSdk.id}`, editingSdk);
       }
       setEditingSdk(null);
       setIsAdding(false);
       fetchSdks();
+      toast.success('SDK saved');
     } catch (err) {
+      toast.error('Failed to save SDK');
       console.error("Failed to save SDK", err);
     }
   };
 
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to remove this SDK from distribution?")) return;
-    const token = localStorage.getItem('admin_token');
     try {
-      await api.delete(`/admin/sdks/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await adminApi.delete(`/admin/sdks/${id}`);
       fetchSdks();
+      toast.success('SDK removed');
     } catch (err) {
+      toast.error('Failed to delete SDK');
       console.error("Failed to delete SDK", err);
     }
   };

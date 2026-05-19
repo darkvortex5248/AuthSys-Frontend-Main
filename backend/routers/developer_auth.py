@@ -5,6 +5,7 @@ from sqlalchemy.future import select
 from fastapi.security import OAuth2PasswordRequestForm
 from core.database import get_db
 from core.security import get_password_hash, verify_password, create_access_token
+from core.config import settings
 from models.domain import DeveloperAccount, SubscriptionPlan
 import uuid
 from datetime import timedelta
@@ -93,7 +94,7 @@ async def login_developer(request: Request, form_data: OAuth2PasswordRequestForm
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Your account has been banned. Please contact support.",
         )
-    access_token_expires = timedelta(minutes=15)
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         subject=user.id, expires_delta=access_token_expires
     )
@@ -147,7 +148,7 @@ async def google_login(request: Request, google_data: DeveloperGoogleLogin, db: 
         await db.commit()
         await db.refresh(user)
         
-    access_token_expires = timedelta(minutes=15)
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         subject=user.id, expires_delta=access_token_expires
     )

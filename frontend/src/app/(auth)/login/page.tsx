@@ -68,16 +68,17 @@ export default function LoginPage() {
       formBody.append('turnstile_token', turnstileToken as string);
       
       const res = await api.post('/developer/auth/login', formBody);
-      
+      const accessToken = res.data.access_token as string;
+
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('admin_token');
+      }
+      setToken(accessToken);
+      const userRes = await api.get('/developer/auth/me');
+      setUser(userRes.data);
       setIsSuccess(true);
-      setTimeout(async () => {
-        setToken(res.data.access_token);
-        const userRes = await api.get('/developer/auth/me', {
-          headers: { Authorization: `Bearer ${res.data.access_token}` }
-        });
-        setUser(userRes.data);
-        toast.success('Logged in successfully');
-      }, 1000);
+      toast.success('Logged in successfully');
+      router.replace('/dashboard');
       
     } catch (err: any) {
       setHasError(true);

@@ -12,8 +12,11 @@ from schemas.admin import (
     AdminLogin, PlanCreate, PlanUpdate, PlanResponse, 
     SystemSettingCreate, SystemSettingUpdate, SystemSettingResponse, PlatformStats,
     SDKDownloadCreate, SDKDownloadUpdate, SDKDownloadResponse,
-    PaymentMethodCreate, PaymentMethodUpdate, PaymentMethodResponse
+    PaymentMethodCreate, PaymentMethodUpdate, PaymentMethodResponse,
+    AIConfigUpdate, AIConfigResponse, AIConfigTestResponse,
 )
+from services.ai_config import get_ai_admin_view, DEFAULT_MODEL
+from services.ai_runtime import generate_chat_response, list_available_models
 from schemas.auth import Token
 from datetime import timedelta
 from typing import List
@@ -124,7 +127,7 @@ async def get_platform_stats(admin: AdminUser = Depends(get_current_admin), db: 
 
 # Plan Management
 @router.get("/plans", response_model=List[PlanResponse])
-async def get_plans(db: AsyncSession = Depends(get_db)):
+async def get_plans(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SubscriptionPlan).order_by(SubscriptionPlan.id.asc()))
     return res.scalars().all()
 
@@ -150,6 +153,80 @@ async def update_plan(id: int, plan_in: PlanUpdate, admin: AdminUser = Depends(g
     return plan
 
 # System Settings (SDK links etc)
+async def _upsert_setting(db: AsyncSession, key: str, value: str, description: str | None = None):
+    res = await db.execute(select(SystemSetting).where(SystemSetting.key == key))
+    row = res.scalars().first()
+    if not row:
+        row = SystemSetting(key=key, value=value, description=description or f"AI setting: {key}")
+        db.add(row)
+    else:
+        row.value = value
+        if description:
+            row.description = description
+    return row
+
+
+@router.get("/ai/config", response_model=AIConfigResponse)
+async def get_ai_config(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    return await get_ai_admin_view(db)
+
+
+@router.put("/ai/config", response_model=AIConfigResponse)
+async def update_ai_config(
+    body: AIConfigUpdate,
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    if body.provider is not None:
+        await _upsert_setting(db, "ai_provider", body.provider.strip().lower())
+    if body.model is not None:
+        model = body.model.strip().replace("models/", "", 1)
+        await _upsert_setting(db, "ai_model", model)
+    if body.api_key is not None and body.api_key.strip():
+        await _upsert_setting(db, "ai_api_key", body.api_key.strip())
+    if body.enabled is not None:
+        await _upsert_setting(db, "ai_enabled", "true" if body.enabled else "false")
+    await db.commit()
+    return await get_ai_admin_view(db)
+
+
+@router.post("/ai/test", response_model=AIConfigTestResponse)
+async def test_ai_config(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    from services.ai_config import get_ai_runtime_config
+
+    cfg = await get_ai_runtime_config(db)
+    if not cfg["api_key"]:
+        return AIConfigTestResponse(success=False, message="No API key configured.", model=cfg["model"])
+
+    try:
+        reply = await generate_chat_response(
+            api_key=cfg["api_key"],
+            model_name=cfg["model"],
+            messages=[{"role": "user", "content": "Reply with exactly: AuthSys AI online"}],
+        )
+        return AIConfigTestResponse(
+            success=True,
+            message=f"Connection OK. Model replied: {reply[:120]}",
+            model=cfg["model"],
+        )
+    except Exception as e:
+        return AIConfigTestResponse(success=False, message=str(e), model=cfg["model"])
+
+
+@router.get("/ai/models")
+async def list_ai_models(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    from services.ai_config import get_ai_runtime_config
+
+    cfg = await get_ai_runtime_config(db)
+    if not cfg["api_key"]:
+        return {"models": [], "message": "Set API key first"}
+    try:
+        live = await list_available_models(cfg["api_key"])
+        return {"models": live or [], "cached_defaults": [DEFAULT_MODEL]}
+    except Exception as e:
+        return {"models": [], "error": str(e)}
+
+
 @router.get("/settings", response_model=List[SystemSettingResponse])
 async def get_settings(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SystemSetting).order_by(SystemSetting.key.asc()))
@@ -233,8 +310,15 @@ async def update_setting(key: str, setting_in: SystemSettingUpdate, admin: Admin
     return setting
 
 # SDK Management
+@router.get("/sdks/public", response_model=List[SDKDownloadResponse])
+async def get_public_sdks(db: AsyncSession = Depends(get_db)):
+    res = await db.execute(
+        select(SDKDownload).where(SDKDownload.is_active == True).order_by(SDKDownload.id.desc())
+    )
+    return res.scalars().all()
+
 @router.get("/sdks", response_model=List[SDKDownloadResponse])
-async def get_sdks(db: AsyncSession = Depends(get_db)):
+async def get_sdks(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SDKDownload).order_by(SDKDownload.id.desc()))
     return res.scalars().all()
 
@@ -271,7 +355,7 @@ async def delete_sdk(id: int, admin: AdminUser = Depends(get_current_admin), db:
 
 # Payment Method Management
 @router.get("/payment-methods", response_model=List[PaymentMethodResponse])
-async def get_payment_methods(db: AsyncSession = Depends(get_db)):
+async def get_payment_methods(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(PaymentMethod).order_by(PaymentMethod.id.asc()))
     return res.scalars().all()
 

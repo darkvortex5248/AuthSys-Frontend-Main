@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
-import api from '@/lib/api';
+import Link from 'next/link';
+import adminApi from '@/lib/admin-api';
+import { toast } from 'sonner';
 
 export default function SystemSettingsPage() {
   const [settings, setSettings] = useState<any[]>([]);
@@ -12,12 +14,10 @@ export default function SystemSettingsPage() {
 
   const fetchSettings = async () => {
     try {
-      const token = localStorage.getItem('admin_token');
-      const res = await api.get('/admin/settings', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await adminApi.get<any[]>('/admin/settings');
       setSettings(res.data);
     } catch (err) {
+      toast.error('Failed to load settings');
       console.error("Failed to fetch settings", err);
     } finally {
       setLoading(false);
@@ -26,12 +26,11 @@ export default function SystemSettingsPage() {
 
   const updateSettingValue = async (key: string, value: string) => {
     try {
-      const token = localStorage.getItem('admin_token');
-      await api.put(`/admin/settings/${key}`, { value }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      fetchSettings();
+      await adminApi.put(`/admin/settings/${key}`, { value });
+      await fetchSettings();
+      toast.success('Setting updated');
     } catch (err) {
+      toast.error('Failed to update setting');
       console.error("Failed to update setting", err);
     }
   };
@@ -57,6 +56,13 @@ export default function SystemSettingsPage() {
           <p className="text-[#8e8ea0] mt-1">Manage global platform behaviors and security flags</p>
         </div>
         <div className="flex gap-3">
+           <Link
+             href="/super-admin/settings/payments"
+             className="px-4 py-2 rounded-xl bg-[#d97757]/10 border border-[#d97757]/30 text-xs font-bold text-[#d97757] hover:bg-[#d97757]/20 transition-all flex items-center gap-2"
+           >
+             <span className="material-symbols-outlined text-sm">account_balance</span>
+             Payment Methods
+           </Link>
            <button 
              onClick={fetchSettings}
              className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-[#e5e2e1] hover:bg-white/10 transition-all flex items-center gap-2"

@@ -40,7 +40,7 @@ export const useAuthStore = create<AuthState>((set) => {
     user: initialUser ? JSON.parse(initialUser) : null,
     selectedAppId: initialAppId ? parseInt(initialAppId) : null,
     setToken: (token) => {
-      Cookies.set('token', token, { expires: 1, path: '/' });
+      Cookies.set('token', token, { expires: 7, path: '/', sameSite: 'lax' });
       set({ token });
     },
     setUser: (user) => {

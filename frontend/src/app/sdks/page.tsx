@@ -12,7 +12,7 @@ export default function PublicSDKPage() {
   useEffect(() => {
     const fetchSdks = async () => {
       try {
-        const res = await api.get('/admin/sdks'); // Publicly accessible for downloads
+        const res = await api.get('/admin/sdks/public');
         setSdks(res.data.filter((s: any) => s.is_active));
       } catch (err) {
         console.error("Failed to fetch SDKs", err);

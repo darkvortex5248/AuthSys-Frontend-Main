@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import api from '@/lib/api';
+import adminApi from '@/lib/admin-api';
+import { toast } from 'sonner';
 
 export default function DeveloperManagementPage() {
   const [developers, setDevelopers] = useState<any[]>([]);
@@ -14,10 +15,9 @@ export default function DeveloperManagementPage() {
 
   const fetchData = async () => {
     try {
-      const token = localStorage.getItem('admin_token');
       const [devsRes, plansRes] = await Promise.all([
-        api.get('/admin/developers', { headers: { Authorization: `Bearer ${token}` } }),
-        api.get('/admin/plans', { headers: { Authorization: `Bearer ${token}` } })
+        adminApi.get<any[]>('/admin/developers'),
+        adminApi.get<any[]>('/admin/plans'),
       ]);
       setDevelopers(devsRes.data);
       setPlans(plansRes.data);
@@ -30,25 +30,22 @@ export default function DeveloperManagementPage() {
 
   const handleBan = async (id: number) => {
     try {
-      const token = localStorage.getItem('admin_token');
-      await api.post(`/admin/developers/${id}/ban`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await adminApi.post(`/admin/developers/${id}/ban`, {});
       fetchData();
+      toast.success('Developer status updated');
     } catch (err) {
+      toast.error('Failed to toggle ban');
       console.error("Failed to toggle ban", err);
     }
   };
 
   const changePlan = async (devId: number, planId: number) => {
     try {
-      const token = localStorage.getItem('admin_token');
-      await api.post(`/admin/developers/${devId}/plan?plan_id=${planId}`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await adminApi.post(`/admin/developers/${devId}/plan?plan_id=${planId}`, {});
       fetchData();
+      toast.success('Plan updated');
     } catch (err) {
-      alert("Failed to update plan");
+      toast.error('Failed to update plan');
     }
   };
 

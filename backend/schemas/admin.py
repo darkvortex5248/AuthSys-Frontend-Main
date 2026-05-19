@@ -45,6 +45,25 @@ class SystemSettingResponse(SystemSettingBase):
     class Config:
         from_attributes = True
 
+class AIConfigUpdate(BaseModel):
+    provider: Optional[str] = None
+    model: Optional[str] = None
+    api_key: Optional[str] = None
+    enabled: Optional[bool] = None
+
+class AIConfigResponse(BaseModel):
+    provider: str
+    model: str
+    enabled: bool
+    api_key_set: bool
+    api_key_preview: str
+    supported_models: List[str]
+
+class AIConfigTestResponse(BaseModel):
+    success: bool
+    message: str
+    model: Optional[str] = None
+
 class PlatformStats(BaseModel):
     total_developers: int
     total_apps: int

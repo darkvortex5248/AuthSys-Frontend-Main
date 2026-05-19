@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import api from '@/lib/api';
+import adminApi from '@/lib/admin-api';
+import { toast } from 'sonner';
 
 export default function TransactionLogsPage() {
   const [payments, setPayments] = useState<any[]>([]);
@@ -12,10 +13,7 @@ export default function TransactionLogsPage() {
 
   const fetchPayments = async () => {
     try {
-      const token = localStorage.getItem('admin_token');
-      const res = await api.get('/admin/payments', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await adminApi.get<any[]>('/admin/payments');
       setPayments(res.data);
     } catch (err) {
       console.error("Failed to fetch payments", err);
@@ -26,12 +24,11 @@ export default function TransactionLogsPage() {
 
   const updateStatus = async (id: number, status: string) => {
     try {
-      const token = localStorage.getItem('admin_token');
-      await api.put(`/admin/payments/${id}/status?status=${status}`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await adminApi.put(`/admin/payments/${id}/status?status=${status}`, {});
       fetchPayments();
+      toast.success('Payment status updated');
     } catch (err) {
+      toast.error('Failed to update status');
       console.error("Failed to update status", err);
     }
   };

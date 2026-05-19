@@ -1,7 +1,7 @@
-import os
 import json
 import asyncio
-from models.domain import AIAgentLog, LicenseKey, Application, EndUser
+from models.domain import AIAgentLog, Application
+from services.ai_config import get_ai_runtime_config
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from datetime import datetime, timezone
@@ -46,18 +46,18 @@ async def process_natural_language_command(command: str, dev_id: int, context: d
     }}
     """
     
-    api_key = os.getenv("GEMINI_API_KEY")
-    
+    cfg = await get_ai_runtime_config(db)
+    api_key = cfg["api_key"]
+    model_name = cfg["model"]
+
     try:
-        if api_key:
-            import google.generativeai as genai  # lazy import avoids startup warning on Vercel
+        if api_key and cfg["enabled"]:
+            import google.generativeai as genai
 
             genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-1.5-flash')
-            
-            # Combine system prompt with command
+            model = genai.GenerativeModel(model_name)
+
             full_prompt = f"{system_prompt}\n\nUser Command: {command}"
-            
             response = await asyncio.to_thread(model.generate_content, full_prompt)
             raw_json = response.text.strip()
             
@@ -71,7 +71,7 @@ async def process_natural_language_command(command: str, dev_id: int, context: d
                 "action": "clarify", 
                 "params": {}, 
                 "confirmation_required": False, 
-                "human_response": "Gemini API key missing in environment. Please add GEMINI_API_KEY to your .env file."
+                "human_response": "AI is not configured. Ask your platform admin to set API key and model in Admin → AI Control."
             })
             
         action_plan = json.loads(raw_json)

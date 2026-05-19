@@ -39,8 +39,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
   const { user, setUser, selectedAppId, setSelectedAppId, logout, token, setToken } = useAuthStore();
-  const { data: apps = [] } = useApps();
-  const { data: profile } = useDeveloperMe(!!token);
+  const hasToken = Boolean(token);
+  const { data: apps = [] } = useApps(hasToken);
+  const { data: profile } = useDeveloperMe(hasToken);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any>(null);
   const [showSearch, setShowSearch] = useState(false);
@@ -51,9 +52,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
     setMounted(true);
     if (isLoggingOut) return;
-    
-    // Sync NextAuth session to our store if needed
-    // Sync NextAuth session to our store
+
     if (sessionStatus === 'authenticated' && (session as any)?.backendToken) {
       const backendToken = (session as any).backendToken as string;
       if (token !== backendToken) {
@@ -64,7 +63,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     if (profile && user?.id !== profile.id) {
       setUser(profile);
     }
-  }, [profile, setUser, user?.id]);
+  }, [sessionStatus, session, token, setToken, profile, setUser, user?.id, isLoggingOut]);
+
+  useEffect(() => {
+    if (!mounted || isLoggingOut) return;
+    if (sessionStatus === 'loading') return;
+    const hasBackendSession =
+      sessionStatus === 'authenticated' && Boolean((session as any)?.backendToken);
+    if (!token && !hasBackendSession) {
+      router.replace('/login');
+    }
+  }, [mounted, token, sessionStatus, session, router, isLoggingOut]);
 
   useEffect(() => {
     if (apps.length > 0 && !selectedAppId) {
@@ -73,6 +82,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }, [apps, selectedAppId, setSelectedAppId]);
 
   useEffect(() => {
+    if (!hasToken) return;
     const delayDebounceFn = setTimeout(() => {
       if (searchQuery.length > 1) {
         api.get(`/developer/analytics/search?q=${searchQuery}`).then(res => {
@@ -85,7 +95,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [searchQuery]);
+  }, [searchQuery, hasToken]);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);

@@ -2,9 +2,11 @@ import httpx
 from core.config import settings
 
 async def verify_turnstile(token: str, ip: str = None) -> bool:
+    if not settings.TURNSTILE_SECRET_KEY:
+        return True
     if not token:
         return False
-        
+
     async with httpx.AsyncClient() as client:
         response = await client.post(
             "https://challenges.cloudflare.com/turnstile/v0/siteverify",

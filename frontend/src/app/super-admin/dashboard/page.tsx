@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import api from '@/lib/api';
+import adminApi from '@/lib/admin-api';
+import { toast } from 'sonner';
 
 export default function SuperAdminDashboard() {
   const [stats, setStats] = useState<any>(null);
@@ -9,12 +10,10 @@ export default function SuperAdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem('admin_token');
-        const res = await api.get('/admin/platform-stats', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await adminApi.get<Record<string, unknown>>('/admin/platform-stats');
         setStats(res.data);
       } catch (err) {
+        toast.error('Failed to load platform stats');
         console.error("Failed to fetch stats", err);
       } finally {
         setLoading(false);

@@ -70,21 +70,21 @@ export default function RegisterPage() {
       });
 
       setIsSuccess(true);
-      setTimeout(async () => {
-        // Auto login after registration
-        const formBody = new FormData();
-        formBody.append('username', formData.username);
-        formBody.append('password', formData.password);
-        
-        const loginRes = await api.post('/developer/auth/login', formBody);
-        setToken(loginRes.data.access_token);
-        
-        const userRes = await api.get('/developer/auth/me', {
-          headers: { Authorization: `Bearer ${loginRes.data.access_token}` }
-        });
-        setUser(userRes.data);
-        toast.success('Registration successful!');
-      }, 1000);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('admin_token');
+      }
+      const formBody = new FormData();
+      formBody.append('username', formData.username);
+      formBody.append('password', formData.password);
+      if (turnstileToken) {
+        formBody.append('turnstile_token', turnstileToken);
+      }
+      const loginRes = await api.post('/developer/auth/login', formBody);
+      setToken(loginRes.data.access_token);
+      const userRes = await api.get('/developer/auth/me');
+      setUser(userRes.data);
+      toast.success('Registration successful!');
+      router.replace('/dashboard');
     } catch (err: any) {
       setHasError(true);
       setTimeout(() => setHasError(false), 400);

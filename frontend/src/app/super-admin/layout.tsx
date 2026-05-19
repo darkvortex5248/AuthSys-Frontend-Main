@@ -10,6 +10,7 @@ const navItems = [
   { name: 'Subscription Plans', icon: 'card_membership', href: '/super-admin/plans' },
   { name: 'Payments', icon: 'payments', href: '/super-admin/payments' },
   { name: 'SDKs', icon: 'deployed_code', href: '/super-admin/sdk' },
+  { name: 'AI Control', icon: 'smart_toy', href: '/super-admin/ai' },
   { name: 'Settings', icon: 'settings', href: '/super-admin/settings' },
 ];
 

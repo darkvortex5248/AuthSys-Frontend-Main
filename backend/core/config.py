@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "AuthSys"
     API_V1_STR: str = "/api/v1"
     SECRET_KEY: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 120 # 2 hours
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     DATABASE_URL: str = ""

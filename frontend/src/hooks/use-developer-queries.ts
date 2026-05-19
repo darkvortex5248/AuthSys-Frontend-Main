@@ -8,62 +8,79 @@ import {
 } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { queryKeys } from '@/lib/query-keys';
+import { useAuthStore } from '@/store/auth';
 
-export function useDeveloperMe(enabled = true) {
+function useIsAuthenticated() {
+  return Boolean(useAuthStore((s) => s.token));
+}
+
+export function useDeveloperMe(enabled?: boolean) {
+  const authed = useIsAuthenticated();
+  const run = enabled ?? authed;
   return useQuery({
     queryKey: queryKeys.me,
     queryFn: async () => {
       const res = await api.get('/developer/auth/me');
       return res.data;
     },
-    enabled,
+    enabled: run,
     staleTime: 60_000,
+    retry: (count, err: any) => err?.response?.status !== 401 && count < 1,
   });
 }
 
-export function useApps() {
+export function useApps(enabled?: boolean) {
+  const authed = useIsAuthenticated();
+  const run = enabled ?? authed;
   return useQuery({
     queryKey: queryKeys.apps,
     queryFn: async () => {
       const res = await api.get('/developer/apps');
       return res.data as any[];
     },
+    enabled: run,
     staleTime: 30_000,
+    retry: (count, err: any) => err?.response?.status !== 401 && count < 1,
   });
 }
 
 export function useOverview(days: number) {
+  const authed = useIsAuthenticated();
   return useQuery({
     queryKey: queryKeys.overview(days),
     queryFn: async () => {
       const res = await api.get(`/developer/analytics/overview?days=${days}`);
       return res.data;
     },
+    enabled: authed,
     placeholderData: keepPreviousData,
     staleTime: 20_000,
+    retry: (count, err: any) => err?.response?.status !== 401 && count < 1,
   });
 }
 
 export function useLicenseKeys(appId: number | null) {
+  const authed = useIsAuthenticated();
   return useQuery({
     queryKey: queryKeys.keys(appId ?? 0),
     queryFn: async () => {
       const res = await api.get(`/developer/keys/${appId}`);
       return res.data as any[];
     },
-    enabled: !!appId,
+    enabled: authed && !!appId,
     staleTime: 15_000,
   });
 }
 
 export function useAppUsers(appId: number | null) {
+  const authed = useIsAuthenticated();
   return useQuery({
     queryKey: queryKeys.users(appId ?? 0),
     queryFn: async () => {
       const res = await api.get(`/developer/users/${appId}`);
       return res.data as any[];
     },
-    enabled: !!appId,
+    enabled: authed && !!appId,
     staleTime: 15_000,
   });
 }

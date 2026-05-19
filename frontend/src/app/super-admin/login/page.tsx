@@ -18,7 +18,9 @@ export default function AdminLoginPage() {
     try {
       const res = await api.post('/admin/login', { username, password });
       localStorage.setItem('admin_token', res.data.access_token);
-      router.push('/super-admin/dashboard');
+      // Avoid developer JWT being sent on admin routes after a previous dashboard session
+      document.cookie = 'token=; path=/; max-age=0';
+      router.replace('/super-admin/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Authentication failed');
     } finally {

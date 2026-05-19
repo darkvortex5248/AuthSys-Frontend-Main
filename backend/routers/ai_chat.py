@@ -1,85 +1,69 @@
 from fastapi import APIRouter, Depends, HTTPException
-import google.generativeai as genai
-from core.config import settings
-from core.deps import get_current_developer
-from models.domain import DeveloperAccount
 from pydantic import BaseModel
 from typing import List
 
+from core.database import get_db
+from core.deps import get_current_developer
+from models.domain import DeveloperAccount
+from services.ai_config import get_ai_runtime_config
+from services.ai_runtime import SYSTEM_PROMPT, generate_chat_response
+from sqlalchemy.ext.asyncio import AsyncSession
+
 router = APIRouter(prefix="/api/v1/ai", tags=["AI"])
 
-# Configure Gemini
-genai.configure(api_key=settings.GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash')
-
-SYSTEM_PROMPT = """You are the official AuthSys AI assistant.
-
-Only answer questions related to:
-* Authentication
-* Licenses
-* HWID
-* Dashboard
-* API usage
-* Security
-* User management
-
-If the user asks unrelated questions, politely refuse.
-Always answer professionally and briefly."""
 
 class ChatMessage(BaseModel):
-    role: str  # 'user' or 'model'
+    role: str
     content: str
+
 
 class ChatRequest(BaseModel):
     messages: List[ChatMessage]
 
+
+@router.get("/config")
+async def get_public_ai_config(db: AsyncSession = Depends(get_db)):
+    """Lightweight config for the chat widget (no secrets)."""
+    cfg = await get_ai_runtime_config(db)
+    return {
+        "enabled": cfg["enabled"],
+        "model": cfg["model"],
+        "provider": cfg["provider"],
+    }
+
+
 @router.post("/chat")
-async def ai_chat(req: ChatRequest, dev: DeveloperAccount = Depends(get_current_developer)):
-    if not settings.GEMINI_API_KEY:
-        raise HTTPException(status_code=500, detail="AI Key not found in .env")
+async def ai_chat(
+    req: ChatRequest,
+    dev: DeveloperAccount = Depends(get_current_developer),
+    db: AsyncSession = Depends(get_db),
+):
+    cfg = await get_ai_runtime_config(db)
+
+    if not cfg["enabled"]:
+        raise HTTPException(status_code=503, detail="AI assistant is disabled by administrator.")
+
+    if not cfg["api_key"]:
+        raise HTTPException(
+            status_code=503,
+            detail="AI API key not configured. Admin can set it under Super Admin → AI Control.",
+        )
+
+    if cfg["provider"] != "google":
+        raise HTTPException(status_code=501, detail=f"Provider '{cfg['provider']}' is not supported yet.")
 
     try:
-        # 1. Global config (standard)
-        genai.configure(api_key=settings.GEMINI_API_KEY)
-        
-        # 2. Use gemini-1.5-flash (Best for free tier)
-        # We use the simplified 'generate_content' approach which is much more stable
-        model = genai.GenerativeModel(
-            model_name='gemini-1.5-flash',
-            system_instruction=SYSTEM_PROMPT
+        text = await generate_chat_response(
+            api_key=cfg["api_key"],
+            model_name=cfg["model"],
+            messages=[m.model_dump() for m in req.messages],
+            system_instruction=SYSTEM_PROMPT,
         )
-        
-        # 3. Format the conversation for the prompt
-        # We'll build a single prompt or use the history list
-        # Standard format for Gemini history:
-        contents = []
-        for msg in req.messages:
-            role = "user" if msg.role == "user" else "model"
-            contents.append({"role": role, "parts": [msg.content]})
-        
-        # 4. Generate response
-        # Using async call for better performance in FastAPI
-        response = await model.generate_content_async(contents)
-        
-        if not response or not response.text:
-            return {"response": "I'm sorry, I couldn't generate a response. Please check your API key status."}
-
-        return {"response": response.text}
-
+        return {"response": text, "model": cfg["model"]}
     except Exception as e:
         error_msg = str(e)
-        print(f"CRITICAL AI ERROR: {error_msg}")
-        
-        # Specific check for common free tier errors
         if "429" in error_msg:
-            return {"response": "AI Rate limit reached (Free Tier). Please wait a moment."}
+            return {"response": "AI rate limit reached. Please wait a moment and try again.", "model": cfg["model"]}
         if "API_KEY_INVALID" in error_msg:
-            return {"response": "Invalid Gemini API Key. Please check your .env file."}
-            
-        # Last resort fallback (No history, just the question)
-        try:
-            fallback_model = genai.GenerativeModel('gemini-1.5-flash')
-            res = fallback_model.generate_content(f"{SYSTEM_PROMPT}\n\nQuestion: {req.messages[-1].content}")
-            return {"response": res.text}
-        except:
-            raise HTTPException(status_code=500, detail=f"AI Error: {error_msg}")
+            raise HTTPException(status_code=503, detail="Invalid AI API key. Update it in the admin panel.")
+        raise HTTPException(status_code=500, detail=f"AI Error: {error_msg}")
