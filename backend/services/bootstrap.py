@@ -55,7 +55,18 @@ DEFAULT_PLANS = [
         "max_apps": 999999,
         "max_users_per_app": 999999,
         "max_keys_per_month": 999999,
-        "features_json": ["Dedicated Support", "Custom SLA", "Priority AI", "White Label"],
+        "features_json": [
+            "Team Management",
+            "Customer Panel",
+            "Functions",
+            "Chatrooms",
+            "Discord Bot",
+            "Telegram Bot",
+            "Seller API",
+            "Priority AI",
+            "White Label",
+            "Dedicated Support",
+        ],
         "ai_agent_access": True,
     },
 ]
@@ -89,10 +100,20 @@ async def ensure_default_plans(db: AsyncSession) -> int:
     existing = {p.name.lower(): p for p in res.scalars().all()}
     created = 0
     for data in DEFAULT_PLANS:
-        if data["name"].lower() not in existing:
+        key = data["name"].lower()
+        if key not in existing:
             db.add(SubscriptionPlan(**data))
             created += 1
+        elif key == "enterprise":
+            row = existing[key]
+            row.features_json = data["features_json"]
+            row.ai_agent_access = True
+            row.max_apps = data["max_apps"]
+            row.max_users_per_app = data["max_users_per_app"]
+            row.max_keys_per_month = data["max_keys_per_month"]
     if created:
+        await db.commit()
+    else:
         await db.commit()
     return created
 

@@ -14,6 +14,7 @@ class PlanSummary(BaseModel):
     max_users_per_app: int
     max_keys_per_month: int
     features_json: Optional[list] = []
+    ai_agent_access: bool = False
 
     class Config:
         from_attributes = True
@@ -24,6 +25,7 @@ class DeveloperResponse(BaseModel):
     email: EmailStr
     is_verified: bool
     subscription_tier: Optional[str] = "tester"
+    plan_id: Optional[int] = None
     plan: Optional[PlanSummary] = None
 
     class Config:

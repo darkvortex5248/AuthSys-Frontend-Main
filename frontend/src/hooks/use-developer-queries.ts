@@ -24,7 +24,9 @@ export function useDeveloperMe(enabled?: boolean) {
       return res.data;
     },
     enabled: run,
-    staleTime: 60_000,
+    staleTime: 5_000,
+    refetchOnWindowFocus: true,
+    refetchInterval: 30_000,
     retry: (count, err: any) => err?.response?.status !== 401 && count < 1,
   });
 }

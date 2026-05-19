@@ -2,9 +2,13 @@
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
+import { useDeveloperMe } from '@/hooks/use-developer-queries';
+import { tierDisplayName } from '@/lib/plan-access';
 
 export default function SettingsPage() {
   const { user, setUser } = useAuthStore();
+  const { data: profile, refetch: refreshSubscription, isFetching } = useDeveloperMe(true);
+  const activeUser = profile ?? user;
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(false);
   const [profileData, setProfileData] = useState({ username: '', email: '' });
@@ -12,10 +16,14 @@ export default function SettingsPage() {
   const [message, setMessage] = useState({ type: '', text: '' });
 
   useEffect(() => {
-    if (user) {
-      setProfileData({ username: user.username, email: user.email });
+    if (profile) setUser(profile);
+  }, [profile, setUser]);
+
+  useEffect(() => {
+    if (activeUser) {
+      setProfileData({ username: activeUser.username, email: activeUser.email });
     }
-  }, [user]);
+  }, [activeUser]);
 
   const showMessage = (type: 'success' | 'error', text: string) => {
     setMessage({ type, text });
@@ -115,7 +123,7 @@ export default function SettingsPage() {
                     <div className="text-center sm:text-left">
                        <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-1">Current Tier</p>
                        <span className="px-3 py-1 rounded-full bg-[#d97757]/10 text-[#d97757] border border-[#d97757]/20 text-[10px] font-black uppercase tracking-widest">
-                          {user?.subscription_tier || 'Tester'}
+                          {tierDisplayName(activeUser?.subscription_tier, activeUser?.plan?.name)}
                        </span>
                     </div>
                   </div>
@@ -201,15 +209,23 @@ export default function SettingsPage() {
                   <p className="text-sm text-zinc-500">Overview of your current resource limits and active capabilities.</p>
                 </div>
                 <span className="px-4 py-2 rounded-xl bg-[#d97757] text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#d97757]/20">
-                   {user?.plan?.name || 'Standard'} Plan
+                   {activeUser?.plan?.name || tierDisplayName(activeUser?.subscription_tier)} Plan
                 </span>
+                <button
+                  type="button"
+                  onClick={() => refreshSubscription()}
+                  disabled={isFetching}
+                  className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-widest text-[#d97757] hover:bg-[#d97757]/10 disabled:opacity-50"
+                >
+                  {isFetching ? 'Syncing…' : 'Refresh plan'}
+                </button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                  {[
-                   { label: 'Max Applications', value: user?.plan?.max_apps ?? 5, icon: 'apps' },
-                   { label: 'Max License Keys', value: (user?.plan?.max_keys_per_month === 0 || user?.plan?.max_keys_per_month === -1) ? 'Unlimited' : (user?.plan?.max_keys_per_month ?? 100), icon: 'vpn_key' },
-                   { label: 'Max Users', value: (user?.plan?.max_users_per_app === 0 || user?.plan?.max_users_per_app === -1) ? 'Unlimited' : (user?.plan?.max_users_per_app ?? 500), icon: 'group' },
+                   { label: 'Max Applications', value: activeUser?.plan?.max_apps ?? 5, icon: 'apps' },
+                   { label: 'Max License Keys', value: (activeUser?.plan?.max_keys_per_month === 0 || activeUser?.plan?.max_keys_per_month === -1) ? 'Unlimited' : (activeUser?.plan?.max_keys_per_month ?? 100), icon: 'vpn_key' },
+                   { label: 'Max Users', value: (activeUser?.plan?.max_users_per_app === 0 || activeUser?.plan?.max_users_per_app === -1) ? 'Unlimited' : (activeUser?.plan?.max_users_per_app ?? 500), icon: 'group' },
                  ].map((stat, i) => (
                    <div key={i} className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl">
                       <div className="flex items-center gap-3 mb-4">
@@ -224,7 +240,7 @@ export default function SettingsPage() {
               <div className="space-y-4">
                 <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest px-1">Active Capabilities</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                   {Array.isArray(user?.plan?.features_json) && user.plan.features_json.map((feature, i) => (
+                   {Array.isArray(activeUser?.plan?.features_json) && activeUser.plan.features_json.map((feature: string, i: number) => (
                      <div key={feature} className="flex items-center gap-3 p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-xl">
                         <span className="material-symbols-outlined text-emerald-400 text-sm">check_circle</span>
                         <span className="text-xs font-bold text-emerald-400/90">{feature}</span>

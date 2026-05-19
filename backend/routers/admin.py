@@ -19,6 +19,7 @@ from schemas.admin import (
 from services.ai_config import get_ai_admin_view
 from services.ai_providers import generate_chat_response, list_live_models, catalog_for_admin
 from services.bootstrap import run_bootstrap, ensure_default_plans
+from services.plan_tiers import tier_from_plan_name
 from schemas.auth import Token
 from datetime import timedelta
 
@@ -120,9 +121,15 @@ async def update_developer_plan(
         raise HTTPException(404, "Plan not found")
 
     dev.plan_id = plan.id
-    dev.subscription_tier = plan.name.lower()
+    dev.subscription_tier = tier_from_plan_name(plan.name)
     await db.commit()
-    return {"status": "success", "tier": dev.subscription_tier, "plan_id": plan.id}
+    await db.refresh(dev, attribute_names=["plan"])
+    return {
+        "status": "success",
+        "tier": dev.subscription_tier,
+        "plan_id": plan.id,
+        "plan_name": plan.name,
+    }
 
 
 @router.delete("/developers/{id}/plan")

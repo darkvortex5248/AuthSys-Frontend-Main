@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/auth';
 import api from '@/lib/api';
 import dynamic from 'next/dynamic';
 import { useApps, useDeveloperMe } from '@/hooks/use-developer-queries';
+import { canAccessNav, tierDisplayName, getTierLevel } from '@/lib/plan-access';
 const AIChatWidget = dynamic(() => import('@/components/dashboard/AIChatWidget'), { ssr: false });
 import { useSession, signOut } from 'next-auth/react';
 
@@ -41,7 +42,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { user, setUser, selectedAppId, setSelectedAppId, logout, token, setToken } = useAuthStore();
   const hasToken = Boolean(token);
   const { data: apps = [] } = useApps(hasToken);
-  const { data: profile } = useDeveloperMe(hasToken);
+  const { data: profile, refetch: refetchProfile, isFetching: profileFetching } = useDeveloperMe(hasToken);
+  const activeUser = profile ?? user;
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any>(null);
   const [showSearch, setShowSearch] = useState(false);
@@ -60,10 +62,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       }
     }
 
-    if (profile && user?.id !== profile.id) {
-      setUser(profile);
+    if (profile) {
+      const planChanged =
+        user?.subscription_tier !== profile.subscription_tier ||
+        user?.plan?.id !== profile.plan?.id;
+      if (!user || user.id !== profile.id || planChanged) {
+        setUser(profile);
+      }
     }
-  }, [sessionStatus, session, token, setToken, profile, setUser, user?.id, isLoggingOut]);
+  }, [sessionStatus, session, token, setToken, profile, setUser, user, isLoggingOut]);
 
   useEffect(() => {
     if (!mounted || isLoggingOut) return;
@@ -133,21 +140,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </div>
         
         <nav className="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar">
-          {mounted && navItems.filter(item => {
-            const userTier = (user?.subscription_tier || 'tester').toString().toLowerCase();
-            const planFeatures = Array.isArray(user?.plan?.features_json) 
-              ? (user.plan.features_json as string[]).map(f => f?.toString().toLowerCase())
+          {mounted && navItems.filter((item) => {
+            const userTier = activeUser?.subscription_tier || activeUser?.plan?.name || 'tester';
+            const planFeatures = Array.isArray(activeUser?.plan?.features_json)
+              ? (activeUser.plan.features_json as string[]).map((f) => f?.toString())
               : [];
-              
-            if (item.tier === 'tester') return true;
-            
-            const isDevTier = ['developer', 'seller', 'pro', 'enterprise'].includes(userTier);
-            if (item.tier === 'developer' && (isDevTier || planFeatures.includes(item.name.toLowerCase()))) return true;
-            
-            const isSellerTier = ['seller', 'enterprise'].includes(userTier);
-            if (item.tier === 'seller' && (isSellerTier || planFeatures.includes(item.name.toLowerCase()))) return true;
-            
-            return false;
+            return canAccessNav(
+              item.tier as 'tester' | 'developer' | 'seller',
+              userTier,
+              planFeatures,
+              item.name,
+            );
           }).map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -234,17 +237,39 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </div>
         
         <div className="flex items-center gap-4">
+          {mounted && activeUser && (
+            <button
+              type="button"
+              onClick={() => refetchProfile()}
+              title="Refresh subscription & features"
+              className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--vault-primary)]/30 bg-[var(--vault-primary)]/10 hover:bg-[var(--vault-primary)]/20 transition-all"
+            >
+              <span
+                className={`material-symbols-outlined text-sm text-[var(--vault-primary)] ${profileFetching ? 'animate-spin' : ''}`}
+              >
+                {profileFetching ? 'sync' : 'workspace_premium'}
+              </span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--vault-primary)]">
+                {tierDisplayName(activeUser.subscription_tier, activeUser.plan?.name)}
+              </span>
+              {getTierLevel(activeUser.subscription_tier || activeUser.plan?.name) >= 4 && (
+                <span className="text-[8px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-black">
+                  MAX
+                </span>
+              )}
+            </button>
+          )}
           <div className="flex items-center gap-3 cursor-pointer group">
             <div className="text-right hidden md:block">
               <p className="text-sm font-bold text-[var(--vault-on-surface)] group-hover:text-[var(--vault-primary)] transition-colors">
-                {mounted ? (user?.username || 'Developer') : 'Developer'}
+                {mounted ? (activeUser?.username || 'Developer') : 'Developer'}
               </p>
               <p className="text-[10px] text-[var(--vault-on-surface-variant)] uppercase tracking-wider">
-                {mounted ? (user?.email || 'Admin') : 'Admin'}
+                {mounted ? (activeUser?.email || '') : ''}
               </p>
             </div>
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[var(--vault-primary)]/20 bg-white/5 flex items-center justify-center font-bold text-base sm:text-lg text-[var(--vault-primary)] uppercase">
-               {mounted ? (user?.username?.substring(0, 2) || 'AD') : 'AD'}
+              {mounted ? (activeUser?.username?.substring(0, 2) || 'AD') : 'AD'}
             </div>
           </div>
         </div>
