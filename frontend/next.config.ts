@@ -2,12 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['127.0.0.1'],
-  async redirects() {
-    return [
-      { source: '/favicon.ico', destination: '/file.svg', permanent: false },
-      { source: '/favicon.png', destination: '/file.svg', permanent: false },
-    ];
-  },
   images: {
     remotePatterns: [
       {

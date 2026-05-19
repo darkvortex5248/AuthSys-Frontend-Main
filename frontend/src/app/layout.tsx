@@ -14,6 +14,13 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'AuthSys — Software License & Auth Platform',
   description: 'License management, HWID locking, AI-powered threat detection.',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon.png', type: 'image/png' },
+    ],
+    apple: '/favicon.png',
+  }
 }
 
 import { Toaster } from '@/components/ui/sonner'
