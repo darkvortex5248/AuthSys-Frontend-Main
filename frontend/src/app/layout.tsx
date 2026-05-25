@@ -131,6 +131,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable} data-scroll-behavior="smooth">
       <head>
+        <meta name="google-site-verification" content="ccPw8ECimP53N_B3F0Va76Iklo7wExCz7d7w816V1Ns" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
       <body className={inter.className} 
