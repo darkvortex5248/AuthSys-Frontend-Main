@@ -63,6 +63,7 @@ export default function HomePage() {
   const [plans, setPlans] = useState<any[]>([]);
   const [settings, setSettings] = useState<any[]>(defaultSettings);
   const [loading, setLoading] = useState(true);
+  const [isSupportOpen, setIsSupportOpen] = useState(false);
 
   // Add a visually hidden H1 for SEO purposes, complementing the HeroSection's visual content.
   // The sr-only class (screen reader only) ensures it doesn't affect the UI.
@@ -270,6 +271,7 @@ export default function HomePage() {
         phone={getVal('contact_phone')}
         address={getVal('contact_address')}
         paragraph={getVal('landing_paragraph')}
+        onSupportOpen={() => setIsSupportOpen(true)}
       />
     </div>
   );

@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { FooterBackgroundGradient, TextHoverEffect } from "@/components/ui/hover-footer";
 
-export function HoverFooter({ email, phone, address, paragraph }: any) {
+export function HoverFooter({ email, phone, address, paragraph, onSupportOpen }: any) {
   // Footer link data
   const footerLinks = [
     {
@@ -33,6 +33,7 @@ export function HoverFooter({ email, phone, address, paragraph }: any) {
           label: "Live Chat",
           href: "#",
           pulse: true,
+          onClick: onSupportOpen,
         },
       ],
     },
@@ -99,10 +100,16 @@ export function HoverFooter({ email, phone, address, paragraph }: any) {
                 {section.title}
               </h4>
               <ul className="space-y-4">
-                {section.links.map((link) => (
+                {section.links.map((link: any) => (
                   <li key={link.label} className="flex items-center gap-2">
                     <a
                       href={link.href}
+                      onClick={(e) => {
+                        if (link.onClick) {
+                          e.preventDefault();
+                          link.onClick();
+                        }
+                      }}
                       className="text-sm text-[#8e8ea0] hover:text-[#d97757] transition-colors"
                     >
                       {link.label}
