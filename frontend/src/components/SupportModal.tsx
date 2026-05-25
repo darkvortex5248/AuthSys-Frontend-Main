@@ -71,7 +71,7 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
 
           {/* Modal */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20, x: "-50%", yOffset: "-50%" }}
+            initial={{ opacity: 0, scale: 0.9, y: 20, x: "-50%" }}
             animate={{ opacity: 1, scale: 1, y: 0, x: "-50%" }}
             exit={{ opacity: 0, scale: 0.9, y: 20, x: "-50%" }}
             className="fixed left-1/2 bottom-10 md:bottom-auto md:top-1/2 md:-translate-y-1/2 w-[95%] max-w-[500px] z-[151] outline-none"
