@@ -68,6 +68,10 @@ export default function HomePage() {
   const [settings, setSettings] = useState<any[]>(defaultSettings);
   const [loading, setLoading] = useState(true);
 
+  // Add a visually hidden H1 for SEO purposes, complementing the HeroSection's visual content.
+  // The sr-only class (screen reader only) ensures it doesn't affect the UI.
+  const seoH1 = "AuthSys: Secure Authentication System & Cyber Security Login Platform for Developers";
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -105,12 +109,12 @@ export default function HomePage() {
 
   return (
     <div ref={scrollRef} className="min-h-screen bg-[#0d0d0d] text-[#ececec] font-sans selection:bg-[#d97757]/30">
-      
+      <h1 className="sr-only">{seoH1}</h1> {/* Visually hidden H1 for SEO */}
+
       <HeroSection 
         demoUrl={getVal('watch_demo_url')} 
         heroParagraph={getVal('landing_paragraph')}
       />
-
       <main>
         {/* SOCIAL PROOF BAR */}
         <section className="border-y border-white/10 bg-[#1a1a1a]/40 py-6 overflow-hidden">

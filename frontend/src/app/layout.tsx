@@ -12,15 +12,111 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'AuthSys — Software License & Auth Platform',
-  description: 'License management, HWID locking, AI-powered threat detection.',
+  metadataBase: new URL('https://authsys-nyz.vercel.app'),
+  title: {
+    default: 'AuthSys - Secure Authentication System & Cyber Security Login Platform',
+    template: '%s | AuthSys',
+  },
+  description: 'AuthSys is a modern authentication system and secure login platform offering advanced cyber security features like HWID locking, real-time threat detection, and AI-powered access control. Optimize your software protection with our robust, hacker-friendly auth UI.',
+  keywords: [
+    'AuthSys',
+    'authentication system',
+    'secure login platform',
+    'cyber security login',
+    'modern auth platform',
+    'hacker auth UI',
+    'secure authentication dashboard',
+    'software license management',
+    'HWID locking',
+    'AI threat detection',
+    'API authentication',
+    'developer tools',
+    'cyberpunk auth',
+    'AuthSys platform',
+    'authentication service',
+    'secure login solution',
+    'cyber security platform',
+    'modern authentication service',
+    'hacker user interface',
+    'cyberpunk authentication',
+    'developer authentication',
+    'API authentication solution',
+    'user management system',
+    'license key management',
+    'HWID protection',
+    'AI-powered security',
+    'threat detection system',
+    'real-time analytics security',
+    'software protection',
+    'developer tools security',
+    'access control system',
+    'user authentication API',
+    'secure development',
+    'anti-piracy solution',
+    'game authentication',
+    'application security',
+    'digital rights management',
+    'dev authentication',
+    'scalable authentication',
+    'high-performance auth',
+    'identity and access management',
+    'IAM solution',
+    'two-factor authentication',
+    'multi-factor authentication',
+    'MFA solution',
+    'SSO solution',
+    'single sign-on',
+    'user session management',
+    'developer SDK',
+    'python authentication',
+    'csharp authentication',
+    'javascript authentication',
+    'cpp authentication'
+  ],
+  openGraph: {
+    title: 'AuthSys - Secure Authentication System & Cyber Security Login Platform',
+    description: 'AuthSys is a modern authentication system and secure login platform offering advanced cyber security features like HWID locking, real-time threat detection, and AI-powered access control. Optimize your software protection with our robust, hacker-friendly auth UI.',
+    url: 'https://authsys-nyz.vercel.app',
+    siteName: 'AuthSys',
+    images: [
+      {
+        url: 'https://authsys-nyz.vercel.app/logo.png', // Assuming a logo.png in public directory
+        width: 800,
+        height: 600,
+        alt: 'AuthSys - Secure Authentication Platform',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'AuthSys - Secure Authentication System & Cyber Security Login Platform',
+    description: 'AuthSys is a modern authentication system and secure login platform offering advanced cyber security features like HWID locking, real-time threat detection, and AI-powered access control. Optimize your software protection with our robust, hacker-friendly auth UI.',
+    creator: '@AuthSysOfficial', // Replace with actual Twitter handle if available
+    images: ['https://authsys-nyz.vercel.app/logo.png'], // Assuming a logo.png in public directory
+  },
+  canonical: 'https://authsys-nyz.vercel.app',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: false,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
       { url: '/favicon.png', type: 'image/png' },
     ],
     apple: '/favicon.png',
-  }
+  },
+  themeColor: '#d97757', // Matching the primary orange/amber color
 }
 
 import { Toaster } from '@/components/ui/sonner'
