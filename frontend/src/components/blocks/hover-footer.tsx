@@ -31,9 +31,8 @@ export function HoverFooter({ email, phone, address, paragraph, onSupportOpen }:
         { label: "API Reference", href: "#" },
         {
           label: "Live Chat",
-          href: "#",
+          href: "/contact",
           pulse: true,
-          onClick: onSupportOpen,
         },
       ],
     },
@@ -43,17 +42,17 @@ export function HoverFooter({ email, phone, address, paragraph, onSupportOpen }:
   const contactInfo = [
     {
       icon: <Mail size={18} className="text-[#d97757]" />,
-      text: email || "support@authsys.com",
+      text: email || "rinoxauth@gmail.com",
       href: email ? `mailto:${email}` : "mailto:support@authsys.com",
     },
     {
       icon: <Phone size={18} className="text-[#d97757]" />,
-      text: phone || "+1 (800) 123-4567",
+      text: phone || "+880 1917 797839",
       href: phone ? `tel:${phone.replace(/\D/g, '')}` : "tel:+18001234567",
     },
     {
       icon: <MapPin size={18} className="text-[#d97757]" />,
-      text: address || "San Francisco, CA",
+      text: address || "Address: Khulna, Bangladesh",
     },
   ];
 
@@ -148,8 +147,8 @@ export function HoverFooter({ email, phone, address, paragraph, onSupportOpen }:
             &copy; {new Date().getFullYear()} AuthSys. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <a href="#" className="text-xs text-[#8e8ea0] hover:text-[#ececec]">Privacy Policy</a>
-            <a href="#" className="text-xs text-[#8e8ea0] hover:text-[#ececec]">Terms of Service</a>
+            <a href="/privacy" className="text-xs text-[#8e8ea0] hover:text-[#ececec]">Privacy Policy</a>
+            <a href="/terms" className="text-xs text-[#8e8ea0] hover:text-[#ececec]">Terms of Service</a>
           </div>
         </div>
       </div>

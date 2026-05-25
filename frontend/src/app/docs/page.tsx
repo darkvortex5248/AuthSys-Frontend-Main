@@ -113,7 +113,7 @@ export default function DocsPage() {
               <h3 className="text-xl font-bold mb-3">Need more help?</h3>
               <p className="text-[#8e8ea0] mb-6">Our support team is available 24/7 for technical assistance.</p>
               <Link 
-                href="mailto:support@authsys.com"
+                href="/contact"
                 className="inline-flex items-center justify-center bg-[#d97757] hover:bg-[#c96a47] text-white font-bold py-3 px-8 rounded-xl transition-all shadow-lg shadow-[#d97757]/20"
               >
                 Contact Support

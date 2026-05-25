@@ -53,9 +53,9 @@ const staggerContainer = {
 const defaultSettings = [
   { key: 'watch_demo_url', value: '#' },
   { key: 'landing_paragraph', value: 'License keys, HWID lock, real-time threat detection & AI-powered control — all in one dashboard. Ship protected software in minutes.' },
-  { key: 'contact_email', value: 'support@authsys.com' },
-  { key: 'contact_phone', value: '+1 (800) 555-0199' },
-  { key: 'contact_address', value: 'San Francisco, CA' }
+  { key: 'contact_email', value: 'rinoxauth@gmail.com' },
+  { key: 'contact_phone', value: '+880 1917 797839' },
+  { key: 'contact_address', value: 'Address: Khulna, Bangladesh' }
 ];
 
 export default function HomePage() {
@@ -63,7 +63,6 @@ export default function HomePage() {
   const [plans, setPlans] = useState<any[]>([]);
   const [settings, setSettings] = useState<any[]>(defaultSettings);
   const [loading, setLoading] = useState(true);
-  const [isSupportOpen, setIsSupportOpen] = useState(false);
 
   // Add a visually hidden H1 for SEO purposes, complementing the HeroSection's visual content.
   // The sr-only class (screen reader only) ensures it doesn't affect the UI.
