@@ -60,7 +60,7 @@ const defaultSettings = [
 
 export default function HomePage() {
   const scrollRef = useScrollAnimation();
-  const [plans, setPlans] = useState<any[]>(defaultPlans);
+  const [plans, setPlans] = useState<any[]>([]);
   const [settings, setSettings] = useState<any[]>(defaultSettings);
   const [loading, setLoading] = useState(true);
 
@@ -322,7 +322,7 @@ function SDKSection() {
 function PricingSection({ plans }: { plans: any[] }) {
   const [yearly, setYearly] = useState(false);
 
-  const displayPlans = plans.length > 0 ? plans : defaultPlans;
+  const displayPlans = plans.length > 0 ? plans : [];
 
   return (
     <section id="pricing" className="py-16 px-4 max-w-7xl mx-auto">
