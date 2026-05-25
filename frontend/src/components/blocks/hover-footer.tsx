@@ -26,7 +26,7 @@ export function HoverFooter({ email, phone, address, paragraph }: any) {
     {
       title: "Resources",
       links: [
-        { label: "Documentation", href: "#" },
+        { label: "Documentation", href: "/docs" },
         { label: "SDK Downloads", href: "/sdks" },
         { label: "API Reference", href: "#" },
         {

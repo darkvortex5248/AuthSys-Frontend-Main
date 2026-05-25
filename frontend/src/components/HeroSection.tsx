@@ -75,15 +75,19 @@ const Navbar = () => {
 
         {/* Center: Nav Links (Desktop) */}
         <div className="hidden md:flex items-center gap-8">
-          {['Features', 'Pricing', 'Docs', 'Status'].map((link) => (
-            <Link 
-              key={link} 
-              href={`#${link.toLowerCase()}`} 
-              className="text-[12px] text-[#8e8ea0] transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-[#d97757] after:transition-all after:duration-300 hover:after:w-full hover:text-white"
-            >
-              {link}
-            </Link>
-          ))}
+          {['Features', 'Pricing', 'Docs', 'Status'].map((link) => {
+            const isPage = link === 'Docs';
+            const href = isPage ? '/docs' : `#${link.toLowerCase()}`;
+            return (
+              <Link 
+                key={link} 
+                href={href} 
+                className="text-[12px] text-[#8e8ea0] transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-[#d97757] after:transition-all after:duration-300 hover:after:w-full hover:text-white"
+              >
+                {link}
+              </Link>
+            );
+          })}
         </div>
 
         {/* Right: Actions */}
@@ -115,16 +119,20 @@ const Navbar = () => {
             className="md:hidden bg-[#0d0d0d] border-b border-white/10 overflow-hidden"
           >
             <div className="px-4 py-6 flex flex-col gap-4">
-              {['Features', 'Pricing', 'Docs', 'Status'].map((link) => (
-                <Link 
-                  key={link} 
-                  href={`#${link.toLowerCase()}`} 
-                  className="text-[14px] text-[#8e8ea0]"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {link}
-                </Link>
-              ))}
+              {['Features', 'Pricing', 'Docs', 'Status'].map((link) => {
+                const isPage = link === 'Docs';
+                const href = isPage ? '/docs' : `#${link.toLowerCase()}`;
+                return (
+                  <Link 
+                    key={link} 
+                    href={href} 
+                    className="text-[14px] text-[#8e8ea0]"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {link}
+                  </Link>
+                );
+              })}
               <Link href="/login" className="text-[14px] text-[#8e8ea0]">Sign In</Link>
             </div>
           </motion.div>
