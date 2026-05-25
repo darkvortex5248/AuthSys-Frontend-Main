@@ -48,11 +48,7 @@ const staggerContainer = {
   }
 };
 
-const defaultPlans = [
-  { name: "Starter", price_monthly: 0, price_yearly: 0, max_apps: 1, max_users_per_app: 50, max_keys_per_month: 100, features_json: ["Basic Analytics", "Community Support", "All Auth Methods", "Token System"] },
-  { name: "Developer", price_monthly: 1900, price_yearly: 19000, max_apps: 5, max_users_per_app: 500, max_keys_per_month: 5000, features_json: ["Advanced Analytics", "Discord Bot", "Telegram Bot", "Chatrooms", "Team Management", "Customer Panel"] },
-  { name: "Enterprise", price_monthly: 4900, price_yearly: 45000, max_apps: 20, max_users_per_app: 5000, max_keys_per_month: 50000, features_json: ["White Label", "Custom Branding", "Priority Support", "AI Agent Access", "Seller API"] },
-];
+
 
 const defaultSettings = [
   { key: 'watch_demo_url', value: '#' },
