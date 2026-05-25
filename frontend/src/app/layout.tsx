@@ -96,7 +96,7 @@ export const metadata: Metadata = {
     creator: '@AuthSysOfficial', // Replace with actual Twitter handle if available
     images: ['https://authsys-nyz.vercel.app/logo.png'], // Assuming a logo.png in public directory
   },
-  canonical: 'https://authsys-nyz.vercel.app',
+  alternates: { canonical: 'https://authsys-nyz.vercel.app', },
   robots: {
     index: true,
     follow: true,
