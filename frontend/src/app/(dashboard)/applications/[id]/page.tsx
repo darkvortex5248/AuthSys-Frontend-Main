@@ -135,7 +135,7 @@ export default function ApplicationDetailPage() {
     "${app.app_secret}",
     "${app.owner_id}",
     "${app.version}",
-    "https://authsys-vtdu.onrender.com/api/v1"
+    "http://localhost:8000/api/v1"
 );`}
               </pre>
             </div>

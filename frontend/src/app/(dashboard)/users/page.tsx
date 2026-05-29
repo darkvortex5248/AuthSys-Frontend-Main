@@ -110,10 +110,7 @@ export default function UsersPage() {
       // Format expires_at for backend - handle empty string as null
       let formattedExpiresAt = null;
       if (newUser.expires_at && newUser.expires_at.trim() !== '') {
-        const date = new Date(newUser.expires_at);
-        if (!isNaN(date.getTime())) {
-          formattedExpiresAt = date.toISOString();
-        }
+        formattedExpiresAt = newUser.expires_at;
       }
       
       if (bulkMode) {
@@ -491,7 +488,7 @@ export default function UsersPage() {
                 <input 
                   className="glass-input w-full px-4 py-3 rounded-xl text-sm" 
                   type="datetime-local"
-                  value={newUser.expires_at} 
+                  value={newUser.expires_at || undefined} 
                   onChange={(e) => setNewUser({...newUser, expires_at: e.target.value})}
                 />
               </div>
