@@ -114,6 +114,7 @@ class EndUser(Base):
     created_at = Column(DateTime(timezone=True), default=utc_now)
     variable_data = Column(JSON, nullable=True)
     is_shadow = Column(Boolean, default=False)
+    expires_at = Column(DateTime(timezone=True), nullable=True)
 
     app = relationship("Application", back_populates="users")
 

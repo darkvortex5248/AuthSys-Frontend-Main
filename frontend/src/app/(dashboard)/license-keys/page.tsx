@@ -25,11 +25,13 @@ export default function LicenseKeysPage() {
   const { data: keys = [], isLoading: loading, isError, error, refetch } = useLicenseKeys(selectedAppId);
   const [genData, setGenData] = useState({ quantity: 10, type: 'time', duration: 30, expires_at: '' });
   const [showEditModal, setShowEditModal] = useState<any>(null);
-  const [showSingleModal, setShowSingleModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [bulkMode, setBulkMode] = useState(false);
   const [singleData, setSingleData] = useState({ type: 'time', duration: 30, max_uses: 1, expires_at: '', note: '', custom_key: '' });
   const [editData, setEditData] = useState({ type: 'time', duration: 30, max_uses: 0, expires_at: '', note: '', seller_tag: '' });
   const [generating, setGenerating] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [bulkResult, setBulkResult] = useState<any>(null);
 
   // Search & Filter
   const [searchTerm, setSearchTerm] = useState('');
@@ -70,19 +72,27 @@ export default function LicenseKeysPage() {
     if (!selectedAppId) return;
     setGenerating(true);
     try {
-      await generateKeys.mutateAsync({
+      const res = await generateKeys.mutateAsync({
         app_id: selectedAppId,
         count: genData.quantity,
         key_type: genData.type,
         duration_days: genData.duration === 0 ? null : genData.duration,
         expires_at: genData.expires_at || null,
       });
+      setBulkResult(res);
       toast.success(`Generated ${genData.quantity} keys`);
     } catch (err) {
       toast.error('Failed to generate keys');
     } finally {
       setGenerating(false);
     }
+  };
+
+  const handleCopyBulkKeys = () => {
+    if (!bulkResult?.keys) return;
+    const text = bulkResult.keys.join('\n');
+    navigator.clipboard.writeText(text);
+    toast.success('Keys copied to clipboard!');
   };
 
   const handleSingleGenerate = async (e: React.FormEvent) => {
@@ -99,7 +109,7 @@ export default function LicenseKeysPage() {
         note: singleData.note,
         custom_key: singleData.custom_key || null,
       });
-      setShowSingleModal(false);
+      setShowCreateModal(false);
       setSingleData({ type: 'time', duration: 30, max_uses: 1, expires_at: '', note: '', custom_key: '' });
       toast.success('License key created');
     } catch (err: any) {
@@ -213,11 +223,11 @@ export default function LicenseKeysPage() {
           <p className="text-[var(--vault-on-surface-variant)] mt-1 font-medium">Manage authentication keys for App ID: {selectedAppId}</p>
         </div>
         <button 
-          onClick={() => setShowSingleModal(true)}
+          onClick={() => setShowCreateModal(true)}
           className="flex items-center gap-2 bg-[var(--vault-primary)] text-[var(--vault-on-primary)] px-6 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-[var(--vault-primary)]/20 hover:scale-[1.02] transition-all"
         >
           <span className="material-symbols-outlined text-sm">add</span>
-          Create Single Key
+          Create License Key
         </button>
       </div>
 
@@ -238,63 +248,6 @@ export default function LicenseKeysPage() {
             </div>
           </div>
         ))}
-      </div>
-
-      <div className="glass-card rounded-2xl p-8 mb-8 border-[var(--vault-primary)]/20 bg-gradient-to-br from-[var(--vault-primary)]/5 to-transparent relative overflow-hidden">
-        <div className="absolute -right-16 -top-16 w-64 h-64 bg-[var(--vault-primary)]/5 blur-3xl rounded-full" />
-        <div className="flex items-start justify-between mb-6 relative z-10">
-          <div>
-            <h3 className="text-xl font-bold text-[var(--vault-primary)]">Bulk Generation</h3>
-            <p className="text-[var(--vault-on-surface-variant)] text-sm font-medium">Batch create license keys for deployment.</p>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end relative z-10">
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Quantity</label>
-            <input 
-              className="glass-input w-full px-4 py-3 rounded-xl text-sm" type="number" 
-              value={genData.quantity} onChange={(e) => setGenData({...genData, quantity: parseInt(e.target.value)})}
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Key Type</label>
-            <select 
-              className="glass-input w-full px-4 py-3 rounded-xl text-sm appearance-none"
-              value={genData.type} onChange={(e) => setGenData({...genData, type: e.target.value})}
-            >
-              <option value="time">Time Based</option>
-              <option value="lifetime">Lifetime</option>
-            </select>
-          </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Duration</label>
-            <div className="flex gap-2">
-              {[7, 30, 0].map(d => (
-                <button 
-                  key={d} 
-                  onClick={() => setGenData({...genData, duration: d})}
-                  className={`flex-1 py-3 px-2 text-[10px] font-bold rounded-xl border border-white/5 transition-all ${genData.duration === d ? 'bg-[var(--vault-primary)]/20 border-[var(--vault-primary)]/40 text-[var(--vault-primary)]' : 'bg-white/5 text-[var(--vault-on-surface-variant)] hover:border-[var(--vault-primary)]/30'}`}
-                >
-                  {d === 0 ? 'LIFETIME' : d + ' DAYS'}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Expiration (Manual)</label>
-            <input 
-              className="glass-input w-full px-4 py-3 rounded-xl text-sm" type="datetime-local" 
-              value={genData.expires_at} onChange={(e) => setGenData({...genData, expires_at: e.target.value, duration: 0})}
-            />
-          </div>
-          <button 
-            disabled={generating}
-            onClick={handleGenerate}
-            className="bg-[var(--vault-primary)] text-[var(--vault-on-primary)] font-bold py-3.5 rounded-xl hover:scale-[1.01] active:scale-[0.99] transition-all uppercase tracking-widest text-xs shadow-lg shadow-[var(--vault-primary)]/20 disabled:opacity-50"
-          >
-            {generating ? 'Generating...' : 'Execute Generation'}
-          </button>
-        </div>
       </div>
 
       <div className="glass-card rounded-2xl overflow-hidden shadow-2xl">
@@ -422,7 +375,7 @@ export default function LicenseKeysPage() {
 
       {/* Single Key Creation Modal */}
       <AnimatePresence>
-      {showSingleModal && (
+      {showCreateModal && (
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -437,70 +390,164 @@ export default function LicenseKeysPage() {
             className="glass-card w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border border-white/10"
           >
             <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
-              <h3 className="text-xl font-bold text-[var(--vault-on-surface)]">Create Single Key</h3>
-              <button onClick={() => setShowSingleModal(false)} className="text-[var(--vault-on-surface-variant)] hover:text-red-400 transition-colors">
+              <h3 className="text-xl font-bold text-[var(--vault-on-surface)]">{bulkMode ? 'Bulk Create Keys' : 'Create License Key'}</h3>
+              <button onClick={() => setShowCreateModal(false)} className="text-[var(--vault-on-surface-variant)] hover:text-red-400 transition-colors">
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            <form onSubmit={handleSingleGenerate} className="p-8 space-y-4">
-              <div className="space-y-1">
-                <label className="text-[9px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Custom Key (Optional)</label>
-                <input 
-                  className="glass-input w-full px-3 py-2 rounded-xl text-xs" 
-                  placeholder="e.g. SPECIAL-KEY-123"
-                  value={singleData.custom_key} onChange={(e) => setSingleData({...singleData, custom_key: e.target.value})}
-                />
+            <form onSubmit={bulkMode ? handleGenerate : handleSingleGenerate} className="p-8 space-y-6">
+              <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setBulkMode(false)}
+                  className={`flex-1 py-2 text-xs font-bold uppercase rounded-lg transition-all ${!bulkMode ? 'bg-[var(--vault-primary)] text-white' : 'text-[var(--vault-on-surface-variant)]'}`}
+                >
+                  Single Key
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBulkMode(true)}
+                  className={`flex-1 py-2 text-xs font-bold uppercase rounded-lg transition-all ${bulkMode ? 'bg-[var(--vault-primary)] text-white' : 'text-[var(--vault-on-surface-variant)]'}`}
+                >
+                  Bulk Create
+                </button>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[9px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Key Type</label>
-                  <select 
-                    className="glass-input w-full px-3 py-2 rounded-xl text-xs appearance-none"
-                    value={singleData.type} onChange={(e) => setSingleData({...singleData, type: e.target.value})}
-                  >
-                    <option value="time">Time Based</option>
-                    <option value="lifetime">Lifetime</option>
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[9px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Duration (Days)</label>
-                  <input 
-                    className="glass-input w-full px-3 py-2 rounded-xl text-xs" type="number" 
-                    value={singleData.duration} onChange={(e) => setSingleData({...singleData, duration: parseInt(e.target.value)})}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[9px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Max Uses (0=∞)</label>
-                  <input 
-                    className="glass-input w-full px-3 py-2 rounded-xl text-xs" type="number" 
-                    value={singleData.max_uses} onChange={(e) => setSingleData({...singleData, max_uses: parseInt(e.target.value)})}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[9px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Expiration (Manual)</label>
-                  <input 
-                    className="glass-input w-full px-3 py-2 rounded-xl text-xs" type="datetime-local" 
-                    value={singleData.expires_at} onChange={(e) => setSingleData({...singleData, expires_at: e.target.value})}
-                  />
-                </div>
-              </div>
-              <div className="space-y-1">
-                <label className="text-[9px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Note</label>
-                <textarea 
-                  className="glass-input w-full px-3 py-2 rounded-xl text-xs resize-none h-20" 
-                  placeholder="Reason for this key..."
-                  value={singleData.note} onChange={(e) => setSingleData({...singleData, note: e.target.value})}
-                />
-              </div>
+
+              {!bulkMode && (
+                <>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Custom Key (Optional)</label>
+                    <input 
+                      className="glass-input w-full px-4 py-3 rounded-xl text-sm" 
+                      placeholder="e.g. SPECIAL-KEY-123"
+                      value={singleData.custom_key} onChange={(e) => setSingleData({...singleData, custom_key: e.target.value})}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Key Type</label>
+                      <select 
+                        className="glass-input w-full px-4 py-3 rounded-xl text-sm appearance-none"
+                        value={singleData.type} onChange={(e) => setSingleData({...singleData, type: e.target.value})}
+                      >
+                        <option value="time">Time Based</option>
+                        <option value="lifetime">Lifetime</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Duration (Days)</label>
+                      <input 
+                        className="glass-input w-full px-4 py-3 rounded-xl text-sm" type="number" 
+                        value={singleData.duration} onChange={(e) => setSingleData({...singleData, duration: parseInt(e.target.value)})}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Max Uses (0=∞)</label>
+                      <input 
+                        className="glass-input w-full px-4 py-3 rounded-xl text-sm" type="number" 
+                        value={singleData.max_uses} onChange={(e) => setSingleData({...singleData, max_uses: parseInt(e.target.value)})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Expiration (Manual)</label>
+                      <input 
+                        className="glass-input w-full px-4 py-3 rounded-xl text-sm" type="datetime-local" 
+                        value={singleData.expires_at} onChange={(e) => setSingleData({...singleData, expires_at: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Note</label>
+                    <textarea 
+                      className="glass-input w-full px-4 py-3 rounded-xl text-sm resize-none h-20" 
+                      placeholder="Reason for this key..."
+                      value={singleData.note} onChange={(e) => setSingleData({...singleData, note: e.target.value})}
+                    />
+                  </div>
+                </>
+              )}
+
+              {bulkMode && (
+                <>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Quantity</label>
+                    <input 
+                      className="glass-input w-full px-4 py-3 rounded-xl text-sm" type="number" 
+                      value={genData.quantity} onChange={(e) => setGenData({...genData, quantity: parseInt(e.target.value)})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Key Type</label>
+                    <select 
+                      className="glass-input w-full px-4 py-3 rounded-xl text-sm appearance-none"
+                      value={genData.type} onChange={(e) => setGenData({...genData, type: e.target.value})}
+                    >
+                      <option value="time">Time Based</option>
+                      <option value="lifetime">Lifetime</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Duration</label>
+                    <div className="flex gap-2">
+                      {[7, 30, 0].map(d => (
+                        <button 
+                          key={d} 
+                          type="button"
+                          onClick={() => setGenData({...genData, duration: d})}
+                          className={`flex-1 py-3 px-2 text-[10px] font-bold rounded-xl border border-white/5 transition-all ${genData.duration === d ? 'bg-[var(--vault-primary)]/20 border-[var(--vault-primary)]/40 text-[var(--vault-primary)]' : 'bg-white/5 text-[var(--vault-on-surface-variant)] hover:border-[var(--vault-primary)]/30'}`}
+                        >
+                          {d === 0 ? 'LIFETIME' : d + ' DAYS'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Expiration (Manual)</label>
+                    <input 
+                      className="glass-input w-full px-4 py-3 rounded-xl text-sm" type="datetime-local" 
+                      value={genData.expires_at} onChange={(e) => setGenData({...genData, expires_at: e.target.value, duration: 0})}
+                    />
+                  </div>
+                </>
+              )}
+
               <div className="flex gap-4 pt-4">
-                <button type="button" onClick={() => setShowSingleModal(false)} className="flex-1 py-3 rounded-xl border border-white/5 font-bold text-xs uppercase">Cancel</button>
+                <button type="button" onClick={() => { setShowCreateModal(false); setBulkMode(false); setBulkResult(null); }} className="flex-1 py-3 rounded-xl border border-white/5 font-bold text-xs uppercase">Cancel</button>
                 <button type="submit" disabled={generating} className="flex-1 py-3 rounded-xl bg-[var(--vault-primary)] text-[var(--vault-on-primary)] font-bold text-xs uppercase disabled:opacity-50">
-                  {generating ? 'Creating...' : 'Create Key'}
+                  {generating ? (bulkMode ? 'Generating...' : 'Creating...') : (bulkMode ? `Create ${genData.quantity} Keys` : 'Create Key')}
                 </button>
               </div>
             </form>
+
+            {bulkResult && (
+              <div className="px-8 pb-8 border-t border-white/5 bg-white/[0.02]">
+                <div className="pt-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-bold text-[var(--vault-on-surface)]">Bulk Generation Result</h4>
+                    <button
+                      onClick={handleCopyBulkKeys}
+                      className="flex items-center gap-2 px-4 py-2 bg-[var(--vault-primary)] text-[var(--vault-on-primary)] rounded-lg text-xs font-bold uppercase hover:opacity-90 transition-opacity"
+                    >
+                      <span className="material-symbols-outlined text-sm">content_copy</span>
+                      Copy All Keys
+                    </button>
+                  </div>
+                  <div className="bg-black/30 rounded-lg p-4 max-h-48 overflow-y-auto">
+                    <pre className="text-xs text-[var(--vault-on-surface-variant)] font-mono whitespace-pre-wrap">
+                      {bulkResult.keys.join('\n')}
+                    </pre>
+                  </div>
+                  <button
+                    onClick={() => { setShowCreateModal(false); setBulkMode(false); setBulkResult(null); if (selectedAppId) invalidate.keys(selectedAppId); }}
+                    className="w-full py-3 rounded-xl border border-white/5 font-bold text-xs uppercase hover:bg-white/5 transition-colors"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            )}
           </motion.div>
         </motion.div>
       )}

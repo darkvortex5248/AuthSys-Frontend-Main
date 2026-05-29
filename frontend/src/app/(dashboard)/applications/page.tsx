@@ -48,12 +48,10 @@ export default function ApplicationsPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col gap-6">
-        <div className="h-12 w-48 bg-white/5 rounded-lg animate-pulse" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="glass-card rounded-2xl h-64 animate-pulse bg-white/[0.02] border-white/5" />
-          ))}
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--vault-primary)]"></div>
+          <p className="text-[var(--vault-on-surface-variant)] text-sm font-medium">Loading applications...</p>
         </div>
       </div>
     );

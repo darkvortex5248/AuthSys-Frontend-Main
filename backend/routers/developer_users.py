@@ -6,7 +6,7 @@ from core.database import get_db
 from core.deps import get_current_developer
 from models.domain import EndUser, DeveloperAccount
 from routers.developer_keys import verify_app_owner
-from schemas.dashboard import BanRequest
+from schemas.dashboard import BanRequest, UserCreateManual, BulkUserCreate
 from core.security import get_password_hash
 from pydantic import BaseModel
 from typing import Optional
@@ -16,12 +16,6 @@ router = APIRouter(prefix="/api/v1/developer/users", tags=["Users"])
 
 def utc_now():
     return datetime.now(timezone.utc)
-
-class UserCreateManual(BaseModel):
-    app_id: int
-    username: str
-    password: str
-    email: Optional[str] = None
 
 @router.get("/{app_id}")
 async def get_users(app_id: int, show_shadow: bool = False, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
@@ -47,12 +41,60 @@ async def create_user_manual(req: UserCreateManual, dev: DeveloperAccount = Depe
         app_id=req.app_id,
         username=req.username,
         password_hash=hashed_password,
-        email=req.email
+        email=req.email,
+        expires_at=req.expires_at
     )
     db.add(new_user)
     await db.commit()
     await db.refresh(new_user)
     return new_user
+
+@router.post("/bulk-create")
+async def bulk_create_users(req: BulkUserCreate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
+    await verify_app_owner(req.app_id, dev.id, db)
+    if req.count > 1000: raise HTTPException(400, "Max 1000 users at once")
+    
+    import secrets
+    import string
+    
+    users = []
+    user_credentials = []
+    for i in range(req.count):
+        # Generate unique username
+        username = f"user_{secrets.token_hex(4)}"
+        
+        # Generate password
+        alphabet = string.ascii_letters + string.digits + string.punctuation
+        password = ''.join(secrets.choice(alphabet) for _ in range(12))
+        if req.password_prefix:
+            password = req.password_prefix + password
+        
+        hashed_password = get_password_hash(password)
+        new_user = EndUser(
+            app_id=req.app_id,
+            username=username,
+            password_hash=hashed_password,
+            expires_at=req.expires_at
+        )
+        users.append(new_user)
+        user_credentials.append({"username": username, "password": password})
+        db.add(new_user)
+    
+    await db.commit()
+    for user in users:
+        await db.refresh(user)
+    
+    await trigger_webhook(req.app_id, "users_created", {
+        "count": req.count,
+        "expires_at": req.expires_at.isoformat() if req.expires_at else None,
+        "timestamp": utc_now().isoformat()
+    }, db)
+    
+    return {
+        "count": len(users), 
+        "users": [{"username": u.username, "id": u.id} for u in users],
+        "credentials": user_credentials
+    }
 
 @router.post("/{user_id}/ban")
 async def ban_user(user_id: int, req: BanRequest, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):

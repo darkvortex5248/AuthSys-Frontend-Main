@@ -54,6 +54,19 @@ class BanRequest(BaseModel):
     reason: str
     days: Optional[int] = None
 
+class UserCreateManual(BaseModel):
+    app_id: int
+    username: str
+    password: str
+    email: Optional[str] = None
+    expires_at: Optional[datetime] = None
+
+class BulkUserCreate(BaseModel):
+    app_id: int
+    count: int
+    password_prefix: Optional[str] = None
+    expires_at: Optional[datetime] = None
+
 class VariableCreate(BaseModel):
     app_id: int
     key_name: str

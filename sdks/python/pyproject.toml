@@ -1,9 +1,0 @@
-[build-system]
-requires = ["setuptools>=42", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "rinoxauth"
-version = "1.0.0"
-description = "AuthSys Python SDK"
-dependencies = ["requests"]

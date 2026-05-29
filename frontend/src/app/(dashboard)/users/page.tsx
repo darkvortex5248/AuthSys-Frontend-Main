@@ -25,7 +25,11 @@ export default function UsersPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState<any>(null);
   const [banData, setBanData] = useState({ reason: 'Violation of terms', days: 0 });
-  const [newUser, setNewUser] = useState({ username: '', password: '', email: '' });
+  const [newUser, setNewUser] = useState({ username: '', password: '', email: '', expires_at: '' });
+  const [bulkMode, setBulkMode] = useState(false);
+  const [bulkCount, setBulkCount] = useState(10);
+  const [bulkPasswordPrefix, setBulkPasswordPrefix] = useState('');
+  const [bulkResult, setBulkResult] = useState<any>(null);
   const [editData, setEditData] = useState({ username: '', email: '', password: '' });
   const [mounted, setMounted] = useState(false);
 
@@ -103,14 +107,52 @@ export default function UsersPage() {
     e.preventDefault();
     if (!selectedAppId) return;
     try {
-      await createUser.mutateAsync({ ...newUser, app_id: selectedAppId });
-      setShowAddModal(false);
-      setNewUser({ username: '', password: '', email: '' });
-      toast.success('User created');
+      // Format expires_at for backend - handle empty string as null
+      let formattedExpiresAt = null;
+      if (newUser.expires_at && newUser.expires_at.trim() !== '') {
+        const date = new Date(newUser.expires_at);
+        if (!isNaN(date.getTime())) {
+          formattedExpiresAt = date.toISOString();
+        }
+      }
+      
+      if (bulkMode) {
+        const res = await api.post('/developer/users/bulk-create', {
+          app_id: selectedAppId,
+          count: bulkCount,
+          password_prefix: bulkPasswordPrefix || null,
+          expires_at: formattedExpiresAt
+        });
+        setBulkResult(res.data);
+        toast.success(`Created ${res.data.count} users successfully!`);
+      } else {
+        await api.post('/developer/users/create', {
+          app_id: selectedAppId,
+          username: newUser.username,
+          password: newUser.password,
+          email: newUser.email || null,
+          expires_at: formattedExpiresAt
+        });
+        toast.success('User created');
+        setShowAddModal(false);
+        setNewUser({ username: '', password: '', email: '', expires_at: '' });
+        setBulkMode(false);
+        setBulkCount(10);
+        setBulkPasswordPrefix('');
+        if (selectedAppId) await invalidate.users(selectedAppId);
+      }
     } catch (err: any) {
+      console.error('User creation error:', err);
       const detail = err?.response?.data?.detail;
       toast.error(typeof detail === 'string' ? detail : 'Failed to create user. Username might be taken.');
     }
+  };
+
+  const handleCopyBulkCredentials = () => {
+    if (!bulkResult?.credentials) return;
+    const text = bulkResult.credentials.map((c: any) => `${c.username}:${c.password}`).join('\n');
+    navigator.clipboard.writeText(text);
+    toast.success('Credentials copied to clipboard!');
   };
 
   const handleUnban = async (id: number) => {
@@ -371,41 +413,124 @@ export default function UsersPage() {
             className="glass-card w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border border-white/10"
           >
             <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
-              <h3 className="text-xl font-bold text-[var(--vault-on-surface)]">Add Manual User</h3>
+              <h3 className="text-xl font-bold text-[var(--vault-on-surface)]">{bulkMode ? 'Bulk Create Users' : 'Add Manual User'}</h3>
               <button onClick={() => setShowAddModal(false)} className="text-[var(--vault-on-surface-variant)] hover:text-red-400 transition-colors">
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
             <form onSubmit={handleAddUser} className="p-8 space-y-6">
+              <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setBulkMode(false)}
+                  className={`flex-1 py-2 text-xs font-bold uppercase rounded-lg transition-all ${!bulkMode ? 'bg-[var(--vault-primary)] text-white' : 'text-[var(--vault-on-surface-variant)]'}`}
+                >
+                  Single User
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBulkMode(true)}
+                  className={`flex-1 py-2 text-xs font-bold uppercase rounded-lg transition-all ${bulkMode ? 'bg-[var(--vault-primary)] text-white' : 'text-[var(--vault-on-surface-variant)]'}`}
+                >
+                  Bulk Create
+                </button>
+              </div>
+
+              {!bulkMode && (
+                <>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Username</label>
+                    <input 
+                      className="glass-input w-full px-4 py-3 rounded-xl text-sm" 
+                      placeholder="Enter username" required
+                      value={newUser.username} onChange={(e) => setNewUser({...newUser, username: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Initial Password</label>
+                    <input 
+                      className="glass-input w-full px-4 py-3 rounded-xl text-sm" 
+                      type="password" placeholder="Enter password" required
+                      value={newUser.password} onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Email (Optional)</label>
+                    <input 
+                      className="glass-input w-full px-4 py-3 rounded-xl text-sm" 
+                      type="email" placeholder="Enter email"
+                      value={newUser.email} onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                    />
+                  </div>
+                </>
+              )}
+
+              {bulkMode && (
+                <>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Number of Users</label>
+                    <input 
+                      className="glass-input w-full px-4 py-3 rounded-xl text-sm" 
+                      type="number" min="1" max="1000" required
+                      value={bulkCount} onChange={(e) => setBulkCount(parseInt(e.target.value))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Password Prefix (Optional)</label>
+                    <input 
+                      className="glass-input w-full px-4 py-3 rounded-xl text-sm" 
+                      placeholder="e.g. MyApp_"
+                      value={bulkPasswordPrefix} onChange={(e) => setBulkPasswordPrefix(e.target.value)}
+                    />
+                  </div>
+                </>
+              )}
+
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Username</label>
+                <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Expiry Date (Optional)</label>
                 <input 
                   className="glass-input w-full px-4 py-3 rounded-xl text-sm" 
-                  placeholder="Enter username" required
-                  value={newUser.username} onChange={(e) => setNewUser({...newUser, username: e.target.value})}
+                  type="datetime-local"
+                  value={newUser.expires_at} 
+                  onChange={(e) => setNewUser({...newUser, expires_at: e.target.value})}
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Initial Password</label>
-                <input 
-                  className="glass-input w-full px-4 py-3 rounded-xl text-sm" 
-                  type="password" placeholder="Enter password" required
-                  value={newUser.password} onChange={(e) => setNewUser({...newUser, password: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Email (Optional)</label>
-                <input 
-                  className="glass-input w-full px-4 py-3 rounded-xl text-sm" 
-                  type="email" placeholder="Enter email"
-                  value={newUser.email} onChange={(e) => setNewUser({...newUser, email: e.target.value})}
-                />
-              </div>
+
               <div className="flex gap-4 pt-4">
-                <button type="button" onClick={() => setShowAddModal(false)} className="flex-1 py-3 rounded-xl border border-white/5 font-bold text-xs uppercase">Cancel</button>
-                <button type="submit" className="flex-1 py-3 rounded-xl bg-[var(--vault-primary)] text-[var(--vault-on-primary)] font-bold text-xs uppercase">Create User</button>
+                <button type="button" onClick={() => { setShowAddModal(false); setBulkResult(null); }} className="flex-1 py-3 rounded-xl border border-white/5 font-bold text-xs uppercase">Cancel</button>
+                <button type="submit" className="flex-1 py-3 rounded-xl bg-[var(--vault-primary)] text-[var(--vault-on-primary)] font-bold text-xs uppercase">
+                  {bulkMode ? `Create ${bulkCount} Users` : 'Create User'}
+                </button>
               </div>
             </form>
+
+            {bulkResult && (
+              <div className="px-8 pb-8 border-t border-white/5 bg-white/[0.02]">
+                <div className="pt-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-bold text-[var(--vault-on-surface)]">Bulk Creation Result</h4>
+                    <button
+                      onClick={handleCopyBulkCredentials}
+                      className="flex items-center gap-2 px-4 py-2 bg-[var(--vault-primary)] text-[var(--vault-on-primary)] rounded-lg text-xs font-bold uppercase hover:opacity-90 transition-opacity"
+                    >
+                      <span className="material-symbols-outlined text-sm">content_copy</span>
+                      Copy All Credentials
+                    </button>
+                  </div>
+                  <div className="bg-black/30 rounded-lg p-4 max-h-48 overflow-y-auto">
+                    <pre className="text-xs text-[var(--vault-on-surface-variant)] font-mono whitespace-pre-wrap">
+                      {bulkResult.credentials.map((c: any) => `${c.username}:${c.password}`).join('\n')}
+                    </pre>
+                  </div>
+                  <button
+                    onClick={() => { setShowAddModal(false); setBulkResult(null); setBulkMode(false); setBulkCount(10); setBulkPasswordPrefix(''); setNewUser({ username: '', password: '', email: '', expires_at: '' }); if (selectedAppId) invalidate.users(selectedAppId); }}
+                    className="w-full py-3 rounded-xl border border-white/5 font-bold text-xs uppercase hover:bg-white/5 transition-colors"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            )}
           </motion.div>
         </motion.div>
       )}

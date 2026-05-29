@@ -111,7 +111,8 @@ CREATE TABLE end_users (
     last_ip VARCHAR,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     variable_data JSONB,
-    is_shadow BOOLEAN DEFAULT FALSE
+    is_shadow BOOLEAN DEFAULT FALSE,
+    expires_at TIMESTAMP WITH TIME ZONE
 );
 ```
 
@@ -324,9 +325,10 @@ UPDATE applications SET hwid_enabled = TRUE WHERE hwid_enabled IS NULL;
 UPDATE applications SET maintenance_mode = FALSE WHERE maintenance_mode IS NULL;
 UPDATE applications SET developer_lock = FALSE WHERE developer_lock IS NULL;
 
--- 2. Update End Users Table (Adding is_shadow for License-Only key logins)
+-- 2. Update End Users Table (Adding is_shadow for License-Only key logins and expires_at for user expiry)
 ALTER TABLE end_users ADD COLUMN IF NOT EXISTS is_shadow BOOLEAN DEFAULT FALSE;
 UPDATE end_users SET is_shadow = FALSE WHERE is_shadow IS NULL;
+ALTER TABLE end_users ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP WITH TIME ZONE;
 
 -- 3. Update Payments Table (Adding manual payment tracking fields)
 ALTER TABLE payments ADD COLUMN IF NOT EXISTS payment_method VARCHAR;
