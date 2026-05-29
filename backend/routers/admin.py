@@ -147,12 +147,14 @@ async def get_platform_stats(admin: AdminUser = Depends(get_current_admin), db: 
     users_count = await db.execute(select(func.count(EndUser.id)))
     payments_sum = await db.execute(select(func.sum(Payment.amount)).where(Payment.status == "completed"))
     
+    total_devs = devs_count.scalar() or 0
+    
     return {
-        "total_developers": devs_count.scalar() or 0,
+        "total_developers": total_devs,
         "total_apps": apps_count.scalar() or 0,
         "total_end_users": users_count.scalar() or 0,
         "total_revenue_cents": payments_sum.scalar() or 0,
-        "active_subscriptions": devs_count.scalar() or 0 # Placeholder
+        "active_subscriptions": total_devs  # Placeholder
     }
 
 # Plan Management
