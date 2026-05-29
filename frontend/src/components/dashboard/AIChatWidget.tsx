@@ -1,25 +1,46 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import api from '@/lib/api';
+import { toast } from 'sonner';
+import { canAccessAI } from '@/lib/plan-access';
+import { useDeveloperMe } from '@/hooks/use-developer-queries';
 
 interface Message {
-  role: 'user' | 'model';
+  role: 'user' | 'assistant' | 'system';
   content: string;
+  timestamp: Date;
+}
+
+interface ActionResult {
+  success: boolean;
+  message: string;
+  data?: any;
+  error?: string;
 }
 
 export default function AIChatWidget() {
+  const { data: profile } = useDeveloperMe(true);
+  const userTier = profile?.subscription_tier;
+  const hasAIAccess = canAccessAI(userTier);
+
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
-      role: 'model',
-      content:
-        'Hello! I am your AuthSys AI Assistant. How can I help you today with your applications, licenses, or security?',
+      role: 'assistant',
+      content: 'Hello! I\'m your AI assistant. I can help you with:\n\n• Creating license keys\n• Managing users\n• Getting analytics\n• Documentation and help\n\nWhat would you like to do today?',
+      timestamp: new Date()
     },
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [actionResult, setActionResult] = useState<ActionResult | null>(null);
   const [modelLabel, setModelLabel] = useState('AI');
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Don't render if user doesn't have AI access
+  if (!hasAIAccess) {
+    return null;
+  }
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -30,11 +51,10 @@ export default function AIChatWidget() {
   useEffect(() => {
     if (isOpen) {
       api
-        .get('/ai/config')
+        .get('/ai/providers')
         .then((res) => {
-          const p = res.data?.provider || 'ai';
-          const m = res.data?.model?.replace('models/', '') || '';
-          setModelLabel(m ? `${p} · ${m}` : p);
+          const defaultProvider = res.data?.default || 'ai';
+          setModelLabel(defaultProvider);
         })
         .catch(() => {});
     }
@@ -44,26 +64,52 @@ export default function AIChatWidget() {
     e.preventDefault();
     if (!input.trim() || loading) return;
 
-    const userMessage: Message = { role: 'user', content: input };
+    const userMessage: Message = { role: 'user', content: input, timestamp: new Date() };
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
     setInput('');
     setLoading(true);
+    setActionResult(null);
 
     try {
       const res = await api.post('/ai/chat', {
-        messages: updatedMessages,
+        messages: updatedMessages.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        })),
+        context: {},
+        execute_actions: true
       });
 
-      if (res.data?.response) {
-        setMessages((prev) => [...prev, { role: 'model', content: res.data.response }]);
+      if (res.data?.content) {
+        setMessages((prev) => [...prev, { 
+          role: 'assistant', 
+          content: res.data.content,
+          timestamp: new Date()
+        }]);
+        
         if (res.data.model) {
           setModelLabel(res.data.model);
+        }
+
+        if (res.data.action_executed) {
+          setActionResult({
+            success: res.data.action_result?.success || false,
+            message: res.data.action_result?.message || '',
+            data: res.data.action_result?.data,
+            error: res.data.action_result?.error
+          });
+
+          if (res.data.action_result?.success) {
+            toast.success(res.data.action_result.message);
+          } else {
+            toast.error(res.data.action_result.message || 'Action failed');
+          }
         }
       } else {
         setMessages((prev) => [
           ...prev,
-          { role: 'model', content: 'Sorry, I received an empty response. Please try again.' },
+          { role: 'assistant', content: 'Sorry, I received an empty response. Please try again.', timestamp: new Date() },
         ]);
       }
     } catch (err: any) {
@@ -71,8 +117,9 @@ export default function AIChatWidget() {
       const errorMsg =
         typeof detail === 'string'
           ? detail
-          : 'Sorry, I encountered an error. Check Admin → AI Control for API key and model.';
-      setMessages((prev) => [...prev, { role: 'model', content: errorMsg }]);
+          : 'Sorry, I encountered an error. Please try again.';
+      setMessages((prev) => [...prev, { role: 'assistant', content: errorMsg, timestamp: new Date() }]);
+      toast.error('Failed to get AI response');
     } finally {
       setLoading(false);
     }
@@ -143,6 +190,21 @@ export default function AIChatWidget() {
               </div>
             )}
           </div>
+
+          {actionResult && (
+            <div className={`px-4 py-2 border-t border-white/[0.08] ${
+              actionResult.success ? 'bg-emerald-500/10' : 'bg-red-500/10'
+            }`}>
+              <div className={`flex items-center gap-2 text-xs ${
+                actionResult.success ? 'text-emerald-400' : 'text-red-400'
+              }`}>
+                <span className="material-symbols-outlined text-sm">
+                  {actionResult.success ? 'check_circle' : 'error'}
+                </span>
+                <span>{actionResult.message}</span>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSend} className="p-4 border-t border-white/[0.08] bg-[#1a1a1a]">
             <div className="relative">

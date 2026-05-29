@@ -296,3 +296,47 @@ class SellerAccount(Base):
     api_key = Column(String, unique=True, index=True)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), default=utc_now)
+
+class AIProviderConfig(Base):
+    __tablename__ = "ai_provider_config"
+    id = Column(Integer, primary_key=True, index=True)
+    provider = Column(String)  # openai, gemini, claude, custom
+    api_key_encrypted = Column(Text)  # API key (should be encrypted in production)
+    model_name = Column(String)  # e.g., gpt-4o, gemini-pro, claude-3-opus-20240229
+    is_active = Column(Boolean, default=True)
+    priority = Column(Integer, default=0)  # Lower number = higher priority
+    settings = Column(JSON, nullable=True)  # e.g., temperature, max_tokens
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+    updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
+
+class AIConversation(Base):
+    __tablename__ = "ai_conversations"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("developer_accounts.id", ondelete="CASCADE"))
+    role = Column(String)  # admin, user
+    messages = Column(JSON, nullable=True)
+    context = Column(JSON, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+    updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
+
+class AIActionLog(Base):
+    __tablename__ = "ai_action_logs"
+    id = Column(Integer, primary_key=True, index=True)
+    conversation_id = Column(Integer, ForeignKey("ai_conversations.id", ondelete="CASCADE"))
+    action_type = Column(String)
+    parameters = Column(JSON, nullable=True)
+    status = Column(String)  # success, failed, pending
+    result = Column(JSON, nullable=True)
+    executed_at = Column(DateTime(timezone=True), default=utc_now)
+
+class AIKnowledgeBase(Base):
+    __tablename__ = "ai_knowledge_base"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String)
+    content = Column(Text)
+    category = Column(String, nullable=True)
+    tags = Column(JSON, nullable=True)
+    embedding_vector = Column(String, nullable=True)  # Store as string for now
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+    updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)

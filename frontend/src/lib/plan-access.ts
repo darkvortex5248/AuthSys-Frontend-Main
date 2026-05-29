@@ -55,3 +55,9 @@ export function tierDisplayName(tier?: string | null, planName?: string | null):
   if (!tier) return 'Tester';
   return tier.charAt(0).toUpperCase() + tier.slice(1);
 }
+
+export function canAccessAI(userTier?: string | null): boolean {
+  if (!userTier) return false;
+  const tier = userTier.toLowerCase().trim();
+  return tier === 'enterprise' || tier === 'seller';
+}

@@ -19,16 +19,27 @@ export default function PlansManagementPage() {
   const confirm = useConfirm();
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [editingPlan, setEditingPlan] = useState<any>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [seeding, setSeeding] = useState(false);
 
   const fetchPlans = async () => {
     try {
+      setError(null);
       const res = await adminApi.get<any[]>('/admin/plans');
       setPlans(res.data);
     } catch (err: any) {
-      toast.error(err.response?.data?.detail || 'Failed to load plans');
+      console.error('Failed to load plans:', err);
+      if (err.response?.status === 401) {
+        setError('Admin authentication required. Please login again.');
+      } else if (err.response?.status === 403) {
+        setError('Access denied. Admin privileges required.');
+      } else if (err.code === 'ERR_NETWORK') {
+        setError('Network error. Backend may be unreachable. Please check if the backend is running.');
+      } else {
+        setError(err.response?.data?.detail || 'Failed to load plans');
+      }
     } finally {
       setLoading(false);
     }
@@ -111,6 +122,22 @@ export default function PlansManagementPage() {
     return (
       <div className="flex items-center justify-center h-[60vh]">
         <div className="w-12 h-12 border-4 border-[#d97757]/20 border-t-[#d97757] rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="text-center">
+          <p className="text-red-400 mb-4">{error}</p>
+          <button
+            onClick={fetchPlans}
+            className="px-6 py-3 rounded-xl bg-[#d97757] text-[#131313] font-bold text-xs uppercase tracking-widest"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }

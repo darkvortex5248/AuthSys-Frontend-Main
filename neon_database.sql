@@ -290,6 +290,54 @@ CREATE TABLE IF NOT EXISTS ai_agent_logs (
     timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- AI কনভার্সেশন টেবিল (AI Assistant এর জন্য)
+CREATE TABLE IF NOT EXISTS ai_conversations (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES developer_accounts(id) ON DELETE CASCADE,
+    role VARCHAR CHECK (role IN ('admin', 'user')),
+    messages JSONB,
+    context JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- AI অ্যাকশন লগ টেবিল (AI Assistant এর জন্য)
+CREATE TABLE IF NOT EXISTS ai_action_logs (
+    id SERIAL PRIMARY KEY,
+    conversation_id INTEGER REFERENCES ai_conversations(id) ON DELETE CASCADE,
+    action_type VARCHAR,
+    parameters JSONB,
+    status VARCHAR CHECK (status IN ('success', 'failed', 'pending')),
+    result JSONB,
+    executed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- AI নলেজ বেস টেবিল (Documentation এর জন্য)
+CREATE TABLE IF NOT EXISTS ai_knowledge_base (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR,
+    content TEXT,
+    category VARCHAR,
+    tags JSONB,
+    embedding_vector VECTOR(1536),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- AI প্রোভাইডার কনফিগারেশন টেবিল
+CREATE TABLE IF NOT EXISTS ai_provider_config (
+    id SERIAL PRIMARY KEY,
+    provider VARCHAR CHECK (provider IN ('openai', 'gemini', 'claude', 'custom')),
+    api_key_encrypted TEXT,
+    model_name VARCHAR,
+    is_active BOOLEAN DEFAULT TRUE,
+    priority INTEGER DEFAULT 0,
+    settings JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- সিস্টেম সেটিংস টেবিল
 CREATE TABLE IF NOT EXISTS system_settings (
     id SERIAL PRIMARY KEY,
@@ -383,6 +431,26 @@ CREATE INDEX IF NOT EXISTS idx_activity_logs_app_id ON activity_logs(app_id);
 CREATE INDEX IF NOT EXISTS idx_activity_logs_user_id ON activity_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_activity_logs_timestamp ON activity_logs(timestamp);
 
+-- AI কনভার্সেশন ইনডেক্স
+CREATE INDEX IF NOT EXISTS idx_ai_conversations_user_id ON ai_conversations(user_id);
+CREATE INDEX IF NOT EXISTS idx_ai_conversations_role ON ai_conversations(role);
+CREATE INDEX IF NOT EXISTS idx_ai_conversations_created_at ON ai_conversations(created_at);
+
+-- AI অ্যাকশন লগ ইনডেক্স
+CREATE INDEX IF NOT EXISTS idx_ai_action_logs_conversation_id ON ai_action_logs(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_ai_action_logs_action_type ON ai_action_logs(action_type);
+CREATE INDEX IF NOT EXISTS idx_ai_action_logs_status ON ai_action_logs(status);
+
+-- AI নলেজ বেস ইনডেক্স
+CREATE INDEX IF NOT EXISTS idx_ai_knowledge_base_category ON ai_knowledge_base(category);
+CREATE INDEX IF NOT EXISTS idx_ai_knowledge_base_tags ON ai_knowledge_base USING GIN(tags);
+CREATE INDEX IF NOT EXISTS idx_ai_knowledge_base_is_active ON ai_knowledge_base(is_active);
+
+-- AI প্রোভাইডার কনফিগ ইনডেক্স
+CREATE INDEX IF NOT EXISTS idx_ai_provider_config_provider ON ai_provider_config(provider);
+CREATE INDEX IF NOT EXISTS idx_ai_provider_config_is_active ON ai_provider_config(is_active);
+CREATE INDEX IF NOT EXISTS idx_ai_provider_config_priority ON ai_provider_config(priority);
+
 -- ============================================
 -- ৮. ট্রিগার এবং ফাংশন
 -- ============================================
@@ -405,6 +473,24 @@ CREATE TRIGGER update_applications_updated_at
 -- SDK ডাউনলোড টেবিলের জন্য ট্রিগার
 CREATE TRIGGER update_sdk_downloads_updated_at
     BEFORE UPDATE ON sdk_downloads
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- AI কনভার্সেশন টেবিলের জন্য ট্রিগার
+CREATE TRIGGER update_ai_conversations_updated_at
+    BEFORE UPDATE ON ai_conversations
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- AI নলেজ বেস টেবিলের জন্য ট্রিগার
+CREATE TRIGGER update_ai_knowledge_base_updated_at
+    BEFORE UPDATE ON ai_knowledge_base
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- AI প্রোভাইডার কনফিগ টেবিলের জন্য ট্রিগার
+CREATE TRIGGER update_ai_provider_config_updated_at
+    BEFORE UPDATE ON ai_provider_config
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
@@ -435,6 +521,14 @@ VALUES
     ('PayPal', 'international', 'Pay with your PayPal account', 120, 'paypal', true),
     ('bKash', 'local', 'Send money to 017XXXXXXXX', 120, 'bkash', true),
     ('Nagad', 'local', 'Send money to 018XXXXXXXX', 120, 'nagad', true)
+ON CONFLICT DO NOTHING;
+
+-- ডিফল্ট AI প্রোভাইডার কনফিগারেশন (API keys পরে environment variables থেকে সেট করতে হবে)
+INSERT INTO ai_provider_config (provider, model_name, is_active, priority, settings)
+VALUES 
+    ('openai', 'gpt-4o', false, 1, '{"temperature": 0.7, "max_tokens": 2000}'),
+    ('gemini', 'gemini-pro', false, 2, '{"temperature": 0.7, "max_tokens": 2000}'),
+    ('claude', 'claude-3-opus-20240229', false, 3, '{"temperature": 0.7, "max_tokens": 2000}')
 ON CONFLICT DO NOTHING;
 
 -- ============================================

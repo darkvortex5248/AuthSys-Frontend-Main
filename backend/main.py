@@ -11,7 +11,7 @@ from routers import (
     developer_auth, client_api, developer_apps, developer_keys, 
     developer_users, blacklist, ai_agent, admin, developer_analytics,
     variables, webhooks, ai_chat, billing, developer_team, developer_bots,
-    discord_interactions, chatrooms, seller_api
+    discord_interactions, chatrooms, seller_api, ai_assistant
 )
 from services.bot_manager import manager as bot_manager
 import asyncio
@@ -146,6 +146,7 @@ app.include_router(developer_bots.router)
 app.include_router(discord_interactions.router)
 app.include_router(chatrooms.router)
 app.include_router(seller_api.router)
+app.include_router(ai_assistant.router)
 
 @app.get("/")
 @limiter.limit("5/minute")

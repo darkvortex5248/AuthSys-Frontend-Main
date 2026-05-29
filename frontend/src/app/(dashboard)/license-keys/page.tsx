@@ -423,41 +423,41 @@ export default function LicenseKeysPage() {
                       value={singleData.custom_key} onChange={(e) => setSingleData({...singleData, custom_key: e.target.value})}
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Key Type</label>
-                      <select 
-                        className="glass-input w-full px-4 py-3 rounded-xl text-sm appearance-none"
-                        value={singleData.type} onChange={(e) => setSingleData({...singleData, type: e.target.value})}
-                      >
-                        <option value="time">Time Based</option>
-                        <option value="lifetime">Lifetime</option>
-                      </select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Duration (Days)</label>
-                      <input 
-                        className="glass-input w-full px-4 py-3 rounded-xl text-sm" type="number" 
-                        value={singleData.duration} onChange={(e) => setSingleData({...singleData, duration: parseInt(e.target.value)})}
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Max Uses (0=∞)</label>
+                    <input 
+                      className="glass-input w-full px-4 py-3 rounded-xl text-sm" type="number" 
+                      value={singleData.max_uses} onChange={(e) => setSingleData({...singleData, max_uses: parseInt(e.target.value)})}
+                    />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Max Uses (0=∞)</label>
-                      <input 
-                        className="glass-input w-full px-4 py-3 rounded-xl text-sm" type="number" 
-                        value={singleData.max_uses} onChange={(e) => setSingleData({...singleData, max_uses: parseInt(e.target.value)})}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Expiration (Manual)</label>
-                      <input 
-                        className="glass-input w-full px-4 py-3 rounded-xl text-sm" type="datetime-local" 
-                        value={singleData.expires_at} onChange={(e) => setSingleData({...singleData, expires_at: e.target.value})}
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Expiration (Manual)</label>
+                    <input 
+                      className="glass-input w-full px-4 py-3 rounded-xl text-sm" type="datetime-local" 
+                      value={singleData.expires_at} onChange={(e) => setSingleData({...singleData, expires_at: e.target.value})}
+                    />
                   </div>
+                  {!singleData.expires_at && (
+                    <>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Key Type</label>
+                        <select 
+                          className="glass-input w-full px-4 py-3 rounded-xl text-sm appearance-none"
+                          value={singleData.type} onChange={(e) => setSingleData({...singleData, type: e.target.value})}
+                        >
+                          <option value="time">Time Based</option>
+                          <option value="lifetime">Lifetime</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Duration (Days)</label>
+                        <input 
+                          className="glass-input w-full px-4 py-3 rounded-xl text-sm" type="number" 
+                          value={singleData.duration} onChange={(e) => setSingleData({...singleData, duration: parseInt(e.target.value)})}
+                        />
+                      </div>
+                    </>
+                  )}
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Note</label>
                     <textarea 
@@ -479,37 +479,41 @@ export default function LicenseKeysPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Key Type</label>
-                    <select 
-                      className="glass-input w-full px-4 py-3 rounded-xl text-sm appearance-none"
-                      value={genData.type} onChange={(e) => setGenData({...genData, type: e.target.value})}
-                    >
-                      <option value="time">Time Based</option>
-                      <option value="lifetime">Lifetime</option>
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Duration</label>
-                    <div className="flex gap-2">
-                      {[7, 30, 0].map(d => (
-                        <button 
-                          key={d} 
-                          type="button"
-                          onClick={() => setGenData({...genData, duration: d})}
-                          className={`flex-1 py-3 px-2 text-[10px] font-bold rounded-xl border border-white/5 transition-all ${genData.duration === d ? 'bg-[var(--vault-primary)]/20 border-[var(--vault-primary)]/40 text-[var(--vault-primary)]' : 'bg-white/5 text-[var(--vault-on-surface-variant)] hover:border-[var(--vault-primary)]/30'}`}
-                        >
-                          {d === 0 ? 'LIFETIME' : d + ' DAYS'}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="space-y-2">
                     <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Expiration (Manual)</label>
                     <input 
                       className="glass-input w-full px-4 py-3 rounded-xl text-sm" type="datetime-local" 
-                      value={genData.expires_at} onChange={(e) => setGenData({...genData, expires_at: e.target.value, duration: 0})}
+                      value={genData.expires_at} onChange={(e) => setGenData({...genData, expires_at: e.target.value})}
                     />
                   </div>
+                  {!genData.expires_at && (
+                    <>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Key Type</label>
+                        <select 
+                          className="glass-input w-full px-4 py-3 rounded-xl text-sm appearance-none"
+                          value={genData.type} onChange={(e) => setGenData({...genData, type: e.target.value})}
+                        >
+                          <option value="time">Time Based</option>
+                          <option value="lifetime">Lifetime</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Duration</label>
+                        <div className="flex gap-2">
+                          {[7, 30, 0].map(d => (
+                            <button 
+                              key={d} 
+                              type="button"
+                              onClick={() => setGenData({...genData, duration: d})}
+                              className={`flex-1 py-3 px-2 text-[10px] font-bold rounded-xl border border-white/5 transition-all ${genData.duration === d ? 'bg-[var(--vault-primary)]/20 border-[var(--vault-primary)]/40 text-[var(--vault-primary)]' : 'bg-white/5 text-[var(--vault-on-surface-variant)] hover:border-[var(--vault-primary)]/30'}`}
+                            >
+                              {d === 0 ? 'LIFETIME' : d + ' DAYS'}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </>
               )}
 
