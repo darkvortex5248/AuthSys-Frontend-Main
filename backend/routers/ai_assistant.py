@@ -9,11 +9,11 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime
 from sqlalchemy import select
 
-from backend.database import get_db
-from backend.services.ai_service import ai_service, AIMessage, AIProvider
-from backend.services.action_registry import action_registry, ActionResult
-from backend.models.domain import DeveloperAccount, AIProviderConfig
-from backend.dependencies import get_current_developer
+from core.database import get_db
+from services.ai_service import ai_service, AIMessage, AIProvider
+from services.action_registry import action_registry, ActionResult
+from models.domain import DeveloperAccount, AIProviderConfig
+from core.deps import get_current_developer
 
 router = APIRouter(prefix="/ai", tags=["ai"])
 
@@ -98,7 +98,6 @@ async def chat(
         )
     
     # Set database session for AI service to load API keys
-    from backend.services.ai_service import ai_service
     ai_service.set_database(db)
     
     try:
