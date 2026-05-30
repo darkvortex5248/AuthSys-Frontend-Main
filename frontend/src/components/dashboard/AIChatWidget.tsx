@@ -23,6 +23,11 @@ export default function AIChatWidget() {
   const userTier = profile?.subscription_tier;
   const hasAIAccess = canAccessAI(userTier);
 
+  // Don't render if user doesn't have AI access
+  if (!hasAIAccess) {
+    return null;
+  }
+
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -36,11 +41,6 @@ export default function AIChatWidget() {
   const [actionResult, setActionResult] = useState<ActionResult | null>(null);
   const [modelLabel, setModelLabel] = useState('AI');
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Don't render if user doesn't have AI access
-  if (!hasAIAccess) {
-    return null;
-  }
 
   useEffect(() => {
     if (scrollRef.current) {
