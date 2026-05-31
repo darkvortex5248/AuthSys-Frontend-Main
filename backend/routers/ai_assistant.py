@@ -321,9 +321,16 @@ async def get_provider_configs(
                     "api_key": config.api_key_encrypted[:8] + "..." if config.api_key_encrypted else None  # Partially masked
                 }
                 for config in configs
-            ]
+            ],
+            "default": "ai"  # Default provider label
         }
     except Exception as e:
+        # If table doesn't exist, return empty list instead of error
+        if "does not exist" in str(e).lower() or "no such table" in str(e).lower():
+            return {
+                "providers": [],
+                "default": "ai"
+            }
         raise HTTPException(status_code=500, detail=f"Failed to get provider configs: {str(e)}")
 
 
@@ -366,6 +373,12 @@ async def create_provider_config(
         }
     except Exception as e:
         await db.rollback()
+        # If table doesn't exist, provide helpful error
+        if "does not exist" in str(e).lower() or "no such table" in str(e).lower():
+            raise HTTPException(
+                status_code=500,
+                detail="AI provider config table not found. Please run the database migration script."
+            )
         raise HTTPException(status_code=500, detail=f"Failed to create provider config: {str(e)}")
 
 
@@ -421,6 +434,12 @@ async def update_provider_config(
         raise
     except Exception as e:
         await db.rollback()
+        # If table doesn't exist, provide helpful error
+        if "does not exist" in str(e).lower() or "no such table" in str(e).lower():
+            raise HTTPException(
+                status_code=500,
+                detail="AI provider config table not found. Please run the database migration script."
+            )
         raise HTTPException(status_code=500, detail=f"Failed to update provider config: {str(e)}")
 
 
@@ -454,4 +473,10 @@ async def delete_provider_config(
         raise
     except Exception as e:
         await db.rollback()
+        # If table doesn't exist, provide helpful error
+        if "does not exist" in str(e).lower() or "no such table" in str(e).lower():
+            raise HTTPException(
+                status_code=500,
+                detail="AI provider config table not found. Please run the database migration script."
+            )
         raise HTTPException(status_code=500, detail=f"Failed to delete provider config: {str(e)}")
