@@ -135,11 +135,7 @@ export default function ApplicationDetailPage() {
     "${app.app_secret}",
     "${app.owner_id}",
     "${app.version}",
-<<<<<<< HEAD
-    "http://localhost:8000/api/v1"
-=======
     "https://auth-sys-7xqx.vercel.app/api/v1"
->>>>>>> 5b32dc41f208213061ef14a32ed7ce8eb6330d4e
 );`}
               </pre>
             </div>
