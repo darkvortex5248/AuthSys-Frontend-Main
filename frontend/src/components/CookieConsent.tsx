@@ -43,21 +43,21 @@ export default function CookieConsent() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 30 }}
             transition={{ type: 'spring', stiffness: 280, damping: 26 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[301] w-[calc(100%-2rem)] max-w-3xl"
+            className="fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-[301] w-[calc(100%-1rem)] sm:w-[calc(100%-2rem)] max-w-3xl"
           >
-            <div className="relative rounded-2xl border border-white/[0.08] bg-gradient-to-b from-[#121212] to-[#0a0a0a] shadow-2xl shadow-black/60 p-0 overflow-hidden">
+            <div className="relative rounded-2xl border border-white/[0.08] bg-gradient-to-b from-[#121212] to-[#0a0a0a] shadow-2xl shadow-black/60 p-0 overflow-hidden flex flex-col max-h-[85vh] sm:max-h-[90vh]">
               {/* Top accent bar */}
-              <div className="h-1 w-full bg-gradient-to-r from-[var(--primary)] via-[var(--primary)] to-[var(--primary)]" />
+              <div className="h-1 shrink-0 w-full bg-gradient-to-r from-[var(--primary)] via-[var(--primary)] to-[var(--primary)]" />
 
               <button
                 onClick={decline}
-                className="absolute top-4 right-4 w-8 h-8 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.04] flex items-center justify-center text-[var(--muted-foreground)] hover:text-white transition-all z-10"
+                className="absolute top-4 right-4 w-8 h-8 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.04] flex items-center justify-center text-[var(--muted-foreground)] hover:text-white transition-all z-20"
                 aria-label="Close"
               >
                 <X className="w-4 h-4" />
               </button>
 
-              <div className="p-6 sm:p-8 lg:p-10">
+              <div className="p-5 sm:p-8 lg:p-10 overflow-y-auto">
                 <div className="flex flex-col sm:flex-row items-start gap-5 sm:gap-6">
                   {/* Icon */}
                   <div className="relative shrink-0">
