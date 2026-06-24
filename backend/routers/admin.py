@@ -956,7 +956,12 @@ async def list_announcements(
 # ── Backup & Restore ──────────────────────────────────────────
 
 BACKUP_DIR = os.path.join(os.path.dirname(__file__), "..", "backups")
-os.makedirs(BACKUP_DIR, exist_ok=True)
+try:
+    os.makedirs(BACKUP_DIR, exist_ok=True)
+except OSError:
+    import tempfile
+    BACKUP_DIR = os.path.join(tempfile.gettempdir(), "backups")
+    os.makedirs(BACKUP_DIR, exist_ok=True)
 
 @router.get("/backups")
 async def list_backups(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
