@@ -6,4 +6,7 @@ export const queryKeys = {
   keys: (appId: number) => ['developer', 'keys', appId] as const,
   users: (appId: number) => ['developer', 'users', appId] as const,
   analytics: (appId: number, days: number) => ['developer', 'analytics', appId, days] as const,
+  blacklist: (appId: number) => ['developer', 'blacklist', appId] as const,
+  variables: (appId: number) => ['developer', 'variables', appId] as const,
+  auditLogs: (appId: number) => ['developer', 'audit-logs', appId] as const,
 };

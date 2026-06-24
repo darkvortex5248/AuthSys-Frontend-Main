@@ -67,17 +67,17 @@ export default function PaymentMethodsPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-[#e5e2e1]">Payment Gateways</h1>
-          <p className="text-[#8e8ea0] mt-1">Configure manual and local payment options</p>
+          <h1 className="text-3xl font-bold text-[var(--foreground)]">Payment Gateways</h1>
+          <p className="text-[var(--muted-foreground)] mt-1">Configure manual and local payment options</p>
         </div>
         <button
           onClick={() => {
             setEditing({});
             setShowModal(true);
           }}
-          className="px-4 py-2 bg-[#d97757] text-[#131313] rounded-xl font-bold text-xs uppercase"
+          className="px-4 py-2 bg-[var(--primary)] text-[#131313] rounded-xl font-bold text-xs uppercase"
         >
           Add method
         </button>
@@ -85,7 +85,7 @@ export default function PaymentMethodsPage() {
 
       {loading ? (
         <div className="flex justify-center py-20">
-          <div className="w-10 h-10 border-4 border-[#d97757]/20 border-t-[#d97757] rounded-full animate-spin" />
+          <div className="w-10 h-10 border-4 border-[var(--primary)]/20 border-t-[var(--primary)] rounded-full animate-spin" />
         </div>
       ) : (
         <div className="grid gap-4">
@@ -95,8 +95,8 @@ export default function PaymentMethodsPage() {
               className="glass-card p-6 rounded-xl flex justify-between items-center border border-white/5"
             >
               <div>
-                <p className="font-bold text-[#e5e2e1]">{m.name}</p>
-                <p className="text-xs text-[#8e8ea0] mt-1 uppercase">{m.type}</p>
+                <p className="font-bold text-[var(--foreground)]">{m.name}</p>
+                <p className="text-xs text-[var(--muted-foreground)] mt-1 uppercase">{m.type}</p>
               </div>
               <div className="flex gap-2">
                 <button
@@ -121,33 +121,33 @@ export default function PaymentMethodsPage() {
       )}
 
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
           <form
             onSubmit={handleSave}
             className="glass-card w-full max-w-md p-8 rounded-2xl space-y-4"
           >
-            <h2 className="text-xl font-bold text-[#e5e2e1]">
+            <h2 className="text-xl font-bold text-[var(--foreground)]">
               {editing?.id ? 'Edit' : 'Add'} payment method
             </h2>
             <input
               name="name"
               defaultValue={editing?.name}
               placeholder="Name"
-              className="w-full bg-[#131313] border border-white/10 rounded-xl py-2 px-3 text-sm"
+              className="w-full bg-[var(--card)] border border-white/10 rounded-xl py-2 px-3 text-sm"
               required
             />
             <input
               name="type"
               defaultValue={editing?.type}
               placeholder="Type (local / international)"
-              className="w-full bg-[#131313] border border-white/10 rounded-xl py-2 px-3 text-sm"
+              className="w-full bg-[var(--card)] border border-white/10 rounded-xl py-2 px-3 text-sm"
               required
             />
             <textarea
               name="instructions"
               defaultValue={editing?.instructions}
               placeholder="Instructions"
-              className="w-full bg-[#131313] border border-white/10 rounded-xl py-2 px-3 text-sm h-24"
+              className="w-full bg-[var(--card)] border border-white/10 rounded-xl py-2 px-3 text-sm h-24"
             />
             <div className="flex gap-2 justify-end">
               <button
@@ -159,7 +159,7 @@ export default function PaymentMethodsPage() {
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 rounded-xl bg-[#d97757] text-[#131313] font-bold text-sm"
+                className="px-4 py-2 rounded-xl bg-[var(--primary)] text-[#131313] font-bold text-sm"
               >
                 Save
               </button>

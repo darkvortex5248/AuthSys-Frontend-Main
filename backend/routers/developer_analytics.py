@@ -9,6 +9,7 @@ from models.domain import ActivityLog, DeveloperAccount, Application, EndUser, L
 from sqlalchemy import func
 from datetime import datetime, timedelta, timezone
 from routers.developer_keys import verify_app_owner
+from services.plan_enforcer import require_feature
 from pydantic import BaseModel
 from typing import List, Optional, Any, Dict
 
@@ -87,16 +88,33 @@ async def calculate_app_stats(db: AsyncSession, app_ids: list[int], days: int = 
     activity_res = await db.execute(
         select(ActivityLog)
         .where(ActivityLog.app_id.in_(app_ids))
-        .order_by(ActivityLog.timestamp.desc())
+        .order_by(ActivityLog.created_at.desc())
         .limit(10)
     )
     recent_activity = activity_res.scalars().all()
+    recent_activity = [
+        {
+            "id": a.id,
+            "app_id": a.app_id,
+            "user_id": a.user_id,
+            "action_type": a.action_type,
+            "details": a.details,
+            "ip_address": a.ip_address or "",
+            "country": a.country,
+            "user_agent": a.user_agent,
+            "hwid": a.hwid,
+            "is_suspicious": a.is_suspicious or False,
+            "risk_score": a.risk_score or 0,
+            "timestamp": a.created_at,
+        }
+        for a in recent_activity
+    ]
     
     suspicious_count_res = await db.execute(
         select(func.count(ActivityLog.id)).where(
             ActivityLog.app_id.in_(app_ids),
             ActivityLog.is_suspicious == True,
-            ActivityLog.timestamp > utc_now() - timedelta(days=days)
+            ActivityLog.created_at > utc_now() - timedelta(days=days)
         )
     )
     suspicious_24h = suspicious_count_res.scalar() or 0
@@ -121,7 +139,7 @@ async def calculate_app_stats(db: AsyncSession, app_ids: list[int], days: int = 
         login_res = await db.execute(select(func.count(ActivityLog.id)).where(
             ActivityLog.app_id.in_(app_ids),
             ActivityLog.action_type == "login",
-            ActivityLog.timestamp.between(start, end)
+            ActivityLog.created_at.between(start, end)
         ))
         chart_data.append({
             "name": day.strftime("%a"),
@@ -257,6 +275,7 @@ async def get_app_analytics(app_id: int, dev: DeveloperAccount = Depends(get_cur
     return stats
 @router.delete("/{app_id}/logs")
 async def clear_app_logs(app_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
+    await require_feature(dev, "has_audit_logs", db)
     await verify_app_owner(app_id, dev.id, db)
     from sqlalchemy import delete
     await db.execute(delete(ActivityLog).where(ActivityLog.app_id == app_id))

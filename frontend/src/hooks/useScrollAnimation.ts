@@ -43,7 +43,7 @@ export function useScrollAnimation() {
           el.classList.add('animate-in')
         }
       })
-    }, 400)
+    }, 100)
 
     return () => {
       clearTimeout(timer)

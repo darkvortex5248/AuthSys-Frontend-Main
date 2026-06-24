@@ -53,7 +53,7 @@ class AIService:
             return None
             
         try:
-            from backend.models.domain import AIProviderConfig
+            from models.domain import AIProviderConfig
             
             result = await self._db.execute(
                 select(AIProviderConfig)

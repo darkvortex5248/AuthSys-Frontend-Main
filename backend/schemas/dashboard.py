@@ -49,6 +49,7 @@ class KeyGenerate(BaseModel):
 
 class BulkKeyGenerate(KeyGenerate):
     count: int
+    custom_keys: Optional[list[str]] = None
 
 class BanRequest(BaseModel):
     reason: str
@@ -60,12 +61,14 @@ class UserCreateManual(BaseModel):
     password: str
     email: Optional[str] = None
     expires_at: Optional[datetime] = None
+    duration_days: Optional[int] = None
 
 class BulkUserCreate(BaseModel):
     app_id: int
     count: int
     password_prefix: Optional[str] = None
     expires_at: Optional[datetime] = None
+    users_list: Optional[list[dict]] = None
 
 class VariableCreate(BaseModel):
     app_id: int
@@ -87,9 +90,26 @@ class AgentCommand(BaseModel):
 class WebhookEndpointCreate(BaseModel):
     app_id: int
     url: str
+    description: str = ''
     events: List[str] = ["login", "register"]
 
 class WebhookEndpointUpdate(BaseModel):
     url: Optional[str] = None
+    description: Optional[str] = None
     events: Optional[List[str]] = None
     is_active: Optional[bool] = None
+
+class WebhookEndpointResponse(BaseModel):
+    id: int
+    app_id: int
+    url: str
+    description: str = ''
+    secret: str = ''
+    events: List[str] = []
+    is_active: bool = True
+    last_sent_at: Optional[str] = None
+    last_status: Optional[str] = None
+    created_at: str = ''
+
+    class Config:
+        from_attributes = True

@@ -64,7 +64,7 @@ const Input = memo(
           type={type}
           className={cn(
             `flex h-11 w-full rounded-xl border-none bg-[#0F0D1E]/50 px-4 py-2 text-sm text-white transition duration-300 
-            placeholder:text-neutral-600 focus-visible:ring-1 focus-visible:ring-[#d97757]/50 focus-visible:outline-none 
+            placeholder:text-neutral-600 focus-visible:ring-1 focus-visible:ring-[var(--primary)]/50 focus-visible:outline-none 
             disabled:cursor-not-allowed disabled:opacity-50`,
             className
           )}
@@ -421,14 +421,14 @@ const AnimatedForm = memo(function AnimatedForm({
             width='unset'
           >
             <button
-              className='group/btn bg-[#111118] w-full rounded-xl border border-[#1E1E2E] h-12 font-medium outline-none hover:bg-[#161628] hover:border-[#d97757]/30 transition-all'
+              className='group/btn bg-[var(--card)] w-full rounded-xl border border-[var(--border)] h-12 font-medium outline-none hover:bg-[#161628] hover:border-[var(--primary)]/30 transition-all'
               type='button'
               onClick={() => {
                 if (onGoogleLogin) onGoogleLogin();
                 else console.log('Google login clicked');
               }}
             >
-              <span className='flex items-center justify-center w-full h-full gap-3 text-sm text-[#9B9BB4] group-hover:text-white transition-colors'>
+              <span className='flex items-center justify-center w-full h-full gap-3 text-sm text-[var(--muted-foreground)] group-hover:text-white transition-colors'>
                 <Image
                   src='https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png'
                   width={20}
@@ -524,7 +524,7 @@ const AnimatedForm = memo(function AnimatedForm({
           overflow='visible'
         >
           <button
-            className='relative group/btn bg-[#d97757] hover:bg-[#7D6FF0] w-full text-white rounded-xl h-12 font-bold transition-all active:scale-[0.98] shadow-[0_0_20px_rgba(108,92,231,0.2)]'
+            className='relative group/btn bg-[var(--primary)] hover:bg-[#7D6FF0] w-full text-white rounded-xl h-12 font-bold transition-all active:scale-[0.98] shadow-[0_0_20px_rgba(108,92,231,0.2)]'
             type='submit'
           >
             <span className="relative z-10 flex items-center justify-center gap-2">
@@ -544,7 +544,7 @@ const AnimatedForm = memo(function AnimatedForm({
             <section className='mt-6 text-center'>
               <button
                 type="button"
-                className='text-sm text-[#9B9BB4] hover:text-[#d97757] transition-colors font-medium'
+                className='text-sm text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors font-medium'
                 onClick={goTo}
               >
                 {textVariantButton}
@@ -561,7 +561,7 @@ const BottomGradient = () => {
   return (
     <>
       <span className='group-hover/btn:opacity-100 block transition duration-500 opacity-0 absolute h-px w-full -bottom-px inset-x-0 bg-gradient-to-r from-transparent via-cyan-500 to-transparent' />
-      <span className='group-hover/btn:opacity-100 blur-sm block transition duration-500 opacity-0 absolute h-px w-1/2 mx-auto -bottom-px inset-x-10 bg-gradient-to-r from-transparent via-[#d97757] to-transparent' />
+      <span className='group-hover/btn:opacity-100 blur-sm block transition duration-500 opacity-0 absolute h-px w-1/2 mx-auto -bottom-px inset-x-10 bg-gradient-to-r from-transparent via-[var(--primary)] to-transparent' />
     </>
   );
 };

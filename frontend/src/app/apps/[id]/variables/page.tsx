@@ -49,9 +49,9 @@ export default function VariablesPage() {
       </div>
 
       <div className="flex gap-4 mb-8 bg-zinc-900 p-4 rounded-xl border border-zinc-800 shadow-md">
-        <Input placeholder="Variable Name (e.g. GAME_VERSION)" value={name} onChange={e => setName(e.target.value)} className="bg-zinc-950 border-zinc-800 text-white w-1/3 focus-visible:ring-[#d97757]" />
-        <Input placeholder="Value (e.g. 1.0.5)" value={val} onChange={e => setVal(e.target.value)} className="bg-zinc-950 border-zinc-800 text-white flex-1 focus-visible:ring-[#d97757]" />
-        <Button onClick={add} className="bg-[#d97757] hover:bg-[#d97757] text-white shadow-sm"><Plus className="mr-2 h-4 w-4"/> Save Variable</Button>
+        <Input placeholder="Variable Name (e.g. GAME_VERSION)" value={name} onChange={e => setName(e.target.value)} className="bg-zinc-950 border-zinc-800 text-white w-1/3 focus-visible:ring-[var(--primary)]" />
+        <Input placeholder="Value (e.g. 1.0.5)" value={val} onChange={e => setVal(e.target.value)} className="bg-zinc-950 border-zinc-800 text-white flex-1 focus-visible:ring-[var(--primary)]" />
+        <Button onClick={add} className="bg-[var(--primary)] hover:bg-[var(--primary)] text-white shadow-sm"><Plus className="mr-2 h-4 w-4"/> Save Variable</Button>
       </div>
 
       <Card className="bg-zinc-900 border-zinc-800 shadow-lg overflow-hidden">

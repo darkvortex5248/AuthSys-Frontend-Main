@@ -7,9 +7,17 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     PROJECT_NAME: str = "AuthSys"
     API_V1_STR: str = "/api/v1"
-    SECRET_KEY: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
+    # WARNING: this in-code default is for local development only. A real,
+    # strong SECRET_KEY MUST be provided via the SECRET_KEY env var in any
+    # staging/production deployment — tokens signed with the dev key are not
+    # trustworthy and are regenerated on every boot (invalidating sessions).
+    SECRET_KEY: str = "dev-only-insecure-secret-key-change-me-in-production"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 180  # 3 hours default
+    ACCESS_TOKEN_REMEMBER_DAYS: int = 1  # 24 hours with remember-me
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    COOKIE_NAME: str = "rinox_token"
+    COOKIE_PATH: str = "/"
+    COOKIE_SAMESITE: str = "lax"
 
     DATABASE_URL: str = ""
     REDIS_URL: str = "redis://localhost:6379"
@@ -27,13 +35,29 @@ class Settings(BaseSettings):
     EMAILS_FROM_EMAIL: str = "noreply@authsys.com"
     EMAILS_FROM_NAME: str = "AuthSys"
     
-    MOCK_EMAIL: bool = True
+    MOCK_EMAIL: bool = False
     GEMINI_API_KEY: str = ""
     OPENAI_API_KEY: str = ""
     ANTHROPIC_API_KEY: str = ""
     GROQ_API_KEY: str = ""
     OPENROUTER_API_KEY: str = ""
     TURNSTILE_SECRET_KEY: str = ""
+
+    STRIPE_SECRET_KEY: str = ""
+    STRIPE_PUBLISHABLE_KEY: str = ""
+    STRIPE_WEBHOOK_SECRET: str = ""
+
+    SUPABASE_URL: str = ""
+    SUPABASE_ANON_KEY: str = ""
+    # service_role key — server-only, NEVER expose to frontend. Required to
+    # verify Supabase-issued JWTs server-side and to call the Auth Admin API.
+    SUPABASE_SERVICE_ROLE_KEY: str = ""
+    # Project ref derived from SUPABASE_URL (e.g. vbnjhqnkmbjmvlfdlrpv).
+    # Used to build the JWKS URL for RS256 verification.
+    SUPABASE_PROJECT_REF: str = ""
+    # When True, get_current_developer accepts Supabase-issued RS256 JWTs
+    # alongside the legacy HS256 tokens (dual-verifier during migration).
+    SUPABASE_AUTH_ENABLED: bool = False
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
@@ -66,3 +90,12 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+if settings.SECRET_KEY == "dev-only-insecure-secret-key-change-me-in-production":
+    import logging as _logging
+    _logging.getLogger(__name__).warning(
+        "SECRET_KEY is using the insecure built-in default. Set a strong "
+        "SECRET_KEY environment variable — the dev default must never be used "
+        "in staging/production (signed tokens are untrustworthy and rotate "
+        "across restarts)."
+    )

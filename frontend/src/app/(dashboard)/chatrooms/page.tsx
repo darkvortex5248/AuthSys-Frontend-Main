@@ -1,131 +1,238 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/auth';
+import { useDeveloperMe } from '@/hooks/use-developer-queries';
+import { isFeatureLocked } from '@/lib/plan-access';
+import PremiumLocked from '@/components/PremiumLocked';
+import { Hash, Plus, Settings, Users, Loader2, MessageSquare, Zap } from 'lucide-react';
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  show: (i = 0) => ({
+    opacity: 1, y: 0,
+    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const, delay: i * 0.07 }
+  }),
+};
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.94 },
+  show: (i = 0) => ({
+    opacity: 1, scale: 1,
+    transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const, delay: i * 0.06 }
+  }),
+};
 
 export default function ChatroomsPage() {
   const { selectedAppId } = useAuthStore();
+  const { data: profile } = useDeveloperMe(true);
+  const locked = isFeatureLocked('seller', profile?.subscription_tier);
   const [rooms, setRooms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [newRoomName, setNewRoomName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
   const fetchRooms = async () => {
+    if (locked) return;
     try {
       const res = await api.get('/developer/chatrooms');
-      // Filter rooms by selected app if needed, although backend handles it
       setRooms(res.data);
-    } catch (err) {
-      console.error("Failed to fetch rooms", err);
+    } catch {
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchRooms();
-  }, [selectedAppId]);
+    if (!locked) {
+      fetchRooms();
+    }
+  }, [selectedAppId, locked]);
 
-  const handleCreateRoom = async (e: React.FormEvent) => {
+  if (locked) return <PremiumLocked feature="Chatrooms" />;
+
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedAppId) return toast.error("Please select an application first");
-    if (!newRoomName) return toast.error("Please enter a room name");
-
+    if (!selectedAppId) return toast.error('Select an application first');
+    if (!newRoomName.trim()) return toast.error('Enter a room name');
+    setIsCreating(true);
     try {
-      setIsCreating(true);
-      await api.post('/developer/chatrooms', {
-        app_id: selectedAppId,
-        name: newRoomName
-      });
-      toast.success("Chatroom created successfully!");
+      await api.post('/developer/chatrooms', { app_id: selectedAppId, name: newRoomName });
+      toast.success('Chatroom created!');
       setNewRoomName('');
       fetchRooms();
-    } catch (err) {
-      toast.error("Failed to create chatroom");
+    } catch {
+      toast.error('Failed to create chatroom');
     } finally {
       setIsCreating(false);
     }
   };
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-[60vh]">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--vault-primary)]"></div>
+  return (
+    <div className="page-wrapper">
+      <motion.div variants={fadeUp} initial="hidden" animate="show" className="page-header">
+        <div className="page-header-content">
+          <div className="breadcrumb">
+            <Zap className="w-3 h-3 text-[var(--primary)]" />
+            <span>Real-time</span>
+            <span className="opacity-30">/</span>
+            <span className="breadcrumb-active">Communication Channels</span>
+          </div>
+          <h1 className="page-title">Chatrooms</h1>
+        </div>
+      </motion.div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+
+        <motion.div
+          variants={fadeUp} initial="hidden" animate="show"
+          className="lg:col-span-1"
+        >
+          <div className="card-wrapper overflow-hidden">
+            <div className="px-6 pt-6 pb-4 border-b border-white/6">
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--muted-foreground)] flex items-center gap-2">
+                <Plus className="w-3.5 h-3.5 text-[var(--primary)]" />
+                New Chatroom
+              </p>
+            </div>
+            <form onSubmit={handleCreate} className="p-6 space-y-4">
+              <div className="space-y-1.5">
+                <label className="field-label">Room Name</label>
+                <div className="relative">
+                  <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--primary)]/40" />
+                  <input
+                    type="text"
+                    value={newRoomName}
+                    onChange={e => setNewRoomName(e.target.value)}
+                    placeholder="e.g. Global"
+                    className="field-input pl-9"
+                  />
+                </div>
+              </div>
+
+              <motion.button
+                type="submit"
+                disabled={isCreating}
+                whileTap={{ scale: 0.97 }}
+                className="btn-primary w-full"
+              >
+                {isCreating
+                  ? <><Loader2 className="w-4 h-4 animate-spin" /> Creating…</>
+                  : <><Plus className="w-4 h-4" /> Create Room</>
+                }
+              </motion.button>
+            </form>
+          </div>
+        </motion.div>
+
+        <div className="lg:col-span-3">
+          {loading ? (
+            <div className="flex items-center justify-center h-48">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                className="w-8 h-8 border-2 border-[var(--primary)] border-t-transparent rounded-full"
+              />
+            </div>
+          ) : rooms.length === 0 ? (
+            <motion.div
+              variants={fadeUp} initial="hidden" animate="show"
+              className="glass-card rounded-xl flex flex-col items-center justify-center py-20 text-center"
+            >
+              <div className="w-16 h-16 rounded-xl bg-white/4 border border-white/8 flex items-center justify-center mb-5">
+                <MessageSquare className="w-7 h-7 text-white/20" />
+              </div>
+              <p className="text-sm font-medium text-[var(--muted-foreground)]">No chatrooms yet for this application.</p>
+              <p className="text-xs text-white/20 mt-1">Create one using the panel on the left.</p>
+            </motion.div>
+          ) : (
+            <motion.div
+              initial="hidden" animate="show"
+              variants={{ show: { transition: { staggerChildren: 0.07 } } }}
+              className="grid grid-cols-1 md:grid-cols-2 gap-4"
+            >
+              {rooms.map((room, i) => (
+                <RoomCard key={room.id} room={room} index={i} />
+              ))}
+            </motion.div>
+          )}
+        </div>
+
+      </div>
     </div>
   );
+}
+
+function RoomCard({ room, index }: { room: any; index: number }) {
+  const [hovered, setHovered] = useState(false);
 
   return (
-    <div className="max-w-6xl space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h2 className="text-4xl font-bold text-white tracking-tight">Chatrooms</h2>
-        <nav className="flex items-center gap-2 text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest mt-2">
-          <span>Real-time</span>
-          <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-          <span className="text-[var(--vault-primary)]">Communication Channels</span>
-        </nav>
-      </div>
+    <motion.div
+      variants={scaleIn}
+      custom={index}
+      onHoverStart={() => setHovered(true)}
+      onHoverEnd={() => setHovered(false)}
+      className={`relative card-wrapper overflow-hidden cursor-default group transition-all duration-300 ${
+        hovered ? 'border-[var(--primary)]/35 shadow-lg shadow-[var(--primary)]/8' : ''
+      }`}
+    >
+      <AnimatePresence>
+        {hovered && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="absolute inset-0 pointer-events-none bg-gradient-to-br from-[var(--primary)]/8 to-transparent"
+          />
+        )}
+      </AnimatePresence>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Creation Sidebar */}
-        <div className="lg:col-span-1 space-y-6">
-           <div className="glass-card p-6 rounded-[2rem] border border-white/5 bg-gradient-to-br from-[var(--vault-primary)]/10 to-transparent">
-              <h4 className="text-xs font-bold text-white mb-4 uppercase tracking-widest">New Chatroom</h4>
-              <form onSubmit={handleCreateRoom} className="space-y-4">
-                 <input 
-                   type="text"
-                   value={newRoomName}
-                   onChange={(e) => setNewRoomName(e.target.value)}
-                   placeholder="Room Name (e.g. Global)"
-                   className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--vault-primary)] transition-all"
-                 />
-                 <button 
-                   disabled={isCreating}
-                   className="w-full py-3 bg-[var(--vault-primary)] text-black rounded-xl text-xs font-bold active:scale-95 transition-all flex items-center justify-center gap-2"
-                 >
-                   {isCreating ? 'Creating...' : <><span className="material-symbols-outlined text-sm">add</span> Create Room</>}
-                 </button>
-              </form>
-           </div>
+      <div className="relative z-10 p-6">
+        <div className="flex items-start justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div
+              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                hovered ? 'bg-[var(--primary)]/15' : 'bg-white/5'
+              }`}
+            >
+              <Hash className={`w-5 h-5 transition-colors duration-300 ${
+                hovered ? 'text-[var(--primary)]' : 'text-white/30'
+              }`} />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-[var(--foreground)] leading-tight">{room.name}</h3>
+              <p className="text-[10px] font-mono text-[var(--muted-foreground)] mt-0.5">ID #{room.id}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/8 border border-emerald-500/20">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest">Live</span>
+          </div>
         </div>
 
-        {/* Rooms List */}
-        <div className="lg:col-span-3 space-y-4">
-           {rooms.length === 0 ? (
-             <div className="glass-card p-12 rounded-[2.5rem] border border-white/5 flex flex-col items-center justify-center text-center">
-                <span className="material-symbols-outlined text-5xl text-white/10 mb-4">forum</span>
-                <p className="text-zinc-500">No chatrooms found for this application.</p>
-             </div>
-           ) : (
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {rooms.map(room => (
-                  <div key={room.id} className="glass-card p-6 rounded-[2rem] border border-white/5 hover:border-[var(--vault-primary)]/30 transition-all group relative overflow-hidden">
-                     <div className="absolute -right-10 -top-10 w-32 h-32 bg-[var(--vault-primary)]/5 blur-[50px] rounded-full group-hover:bg-[var(--vault-primary)]/10 transition-all"></div>
-                     <div className="flex justify-between items-start relative z-10">
-                        <div>
-                           <h3 className="text-lg font-bold text-white mb-1">{room.name}</h3>
-                           <p className="text-[10px] text-[var(--vault-on-surface-variant)] uppercase tracking-widest font-bold">Room ID: #{room.id}</p>
-                        </div>
-                        <div className="px-3 py-1 bg-emerald-500/10 rounded-full">
-                           <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Active</span>
-                        </div>
-                     </div>
-                     <div className="mt-6 flex items-center justify-between relative z-10">
-                        <div className="flex -space-x-2">
-                           {[1,2,3].map(i => (
-                             <div key={i} className="w-7 h-7 rounded-full border-2 border-[#0A0A0A] bg-zinc-800 flex items-center justify-center text-[8px] font-bold text-white">U{i}</div>
-                           ))}
-                           <div className="w-7 h-7 rounded-full border-2 border-[#0A0A0A] bg-zinc-900 flex items-center justify-center text-[8px] font-bold text-zinc-500">+12</div>
-                        </div>
-                        <button className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-all">
-                           <span className="material-symbols-outlined text-lg">settings</span>
-                        </button>
-                     </div>
-                  </div>
-                ))}
-             </div>
-           )}
+        <div className="flex items-center justify-between pt-4 border-t border-white/5">
+          <div className="flex items-center gap-2">
+            <Users className="w-3.5 h-3.5 text-[var(--muted-foreground)]" />
+            <div className="flex -space-x-1.5">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="w-6 h-6 rounded-full border-2 border-[#0A0A0A] bg-zinc-700 flex items-center justify-center text-[8px] font-bold text-white">
+                  {String.fromCharCode(64 + i)}
+                </div>
+              ))}
+              <div className="w-6 h-6 rounded-full border-2 border-[#0A0A0A] bg-zinc-900 flex items-center justify-center text-[8px] font-bold text-zinc-500">
+                +12
+              </div>
+            </div>
+          </div>
+          <motion.button
+            whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }}
+            className="p-2 rounded-xl border border-white/6 bg-white/3 hover:bg-white/8 text-[var(--muted-foreground)] hover:text-white transition-all duration-200"
+          >
+            <Settings className="w-4 h-4" />
+          </motion.button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

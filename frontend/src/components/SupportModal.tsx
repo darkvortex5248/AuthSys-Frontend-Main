@@ -76,21 +76,21 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
             exit={{ opacity: 0, scale: 0.9, y: 20, x: "-50%" }}
             className="fixed left-1/2 bottom-10 md:bottom-auto md:top-1/2 md:-translate-y-1/2 w-[95%] max-w-[500px] z-[151] outline-none"
           >
-            <div className="bg-[#131313] border border-white/10 rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative">
+            <div className="bg-[var(--card)] border border-white/10 rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative">
               {/* Header */}
-              <div className="bg-gradient-to-r from-[#d97757]/20 to-transparent p-6 border-b border-white/5 flex items-center justify-between">
+              <div className="bg-gradient-to-r from-[var(--primary)]/20 to-transparent p-6 border-b border-white/5 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#d97757]/10 flex items-center justify-center border border-[#d97757]/20">
-                    <LifeBuoy className="w-5 h-5 text-[#d97757]" />
+                  <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center border border-[var(--primary)]/20">
+                    <LifeBuoy className="w-5 h-5 text-[var(--primary)]" />
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-white">Support Center</h2>
-                    <p className="text-xs text-[#8e8ea0]">We typically reply within a few hours</p>
+                    <p className="text-xs text-[var(--muted-foreground)]">We typically reply within a few hours</p>
                   </div>
                 </div>
                 <button 
                   onClick={onClose}
-                  className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[#8e8ea0] hover:text-white hover:bg-white/10 transition-colors"
+                  className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[var(--muted-foreground)] hover:text-white hover:bg-white/10 transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -104,16 +104,16 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
                     animate={{ opacity: 1, scale: 1 }}
                     className="py-12 text-center"
                   >
-                    <div className="w-20 h-20 rounded-full bg-[#d97757]/10 flex items-center justify-center border border-[#d97757]/20 mx-auto mb-6">
-                      <CheckCircle2 className="w-10 h-10 text-[#d97757]" />
+                    <div className="w-20 h-20 rounded-full bg-[var(--primary)]/10 flex items-center justify-center border border-[var(--primary)]/20 mx-auto mb-6">
+                      <CheckCircle2 className="w-10 h-10 text-[var(--primary)]" />
                     </div>
                     <h3 className="text-2xl font-bold mb-2">Message Sent!</h3>
-                    <p className="text-[#8e8ea0]">Thank you for reaching out. Our team will contact you at your email address shortly.</p>
+                    <p className="text-[var(--muted-foreground)]">Thank you for reaching out. Our team will contact you at your email address shortly.</p>
                   </motion.div>
                 ) : (
                   <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
                     <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-[#5a5a72] flex items-center gap-2">
+                      <label className="text-xs font-bold uppercase tracking-widest text-[var(--muted-foreground)] flex items-center gap-2">
                         <User className="w-3 h-3" /> Full Name
                       </label>
                       <input 
@@ -121,12 +121,12 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
                         name="from_name"
                         type="text" 
                         placeholder="John Doe"
-                        className="w-full bg-[#1a1a1a] border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#d97757]/50 transition-colors"
+                        className="w-full bg-[var(--card)] border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[var(--primary)]/50 transition-colors"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-[#5a5a72] flex items-center gap-2">
+                      <label className="text-xs font-bold uppercase tracking-widest text-[var(--muted-foreground)] flex items-center gap-2">
                         <Mail className="w-3 h-3" /> Email Address
                       </label>
                       <input 
@@ -134,12 +134,12 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
                         name="reply_to"
                         type="email" 
                         placeholder="john@example.com"
-                        className="w-full bg-[#1a1a1a] border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#d97757]/50 transition-colors"
+                        className="w-full bg-[var(--card)] border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[var(--primary)]/50 transition-colors"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-[#5a5a72] flex items-center gap-2">
+                      <label className="text-xs font-bold uppercase tracking-widest text-[var(--muted-foreground)] flex items-center gap-2">
                         <FileText className="w-3 h-3" /> Message
                       </label>
                       <textarea 
@@ -147,14 +147,14 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
                         name="message"
                         rows={4}
                         placeholder="How can we help you?"
-                        className="w-full bg-[#1a1a1a] border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#d97757]/50 transition-colors resize-none"
+                        className="w-full bg-[var(--card)] border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[var(--primary)]/50 transition-colors resize-none"
                       />
                     </div>
 
                     <button 
                       disabled={loading}
                       type="submit"
-                      className="w-full h-12 bg-[#d97757] hover:bg-[#c96a47] disabled:opacity-50 disabled:pointer-events-none text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_10px_20px_rgba(217,119,87,0.2)] active:scale-95"
+                      className="w-full h-12 bg-[var(--primary)] hover:bg-[var(--primary)] disabled:opacity-50 disabled:pointer-events-none text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_10px_20px_color-mix(in_srgb,var(--primary)_20%,transparent)] active:scale-95"
                     >
                       {loading ? (
                         <>
@@ -173,7 +173,7 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
               </div>
 
               {/* Decorative Glow */}
-              <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-[#d97757]/10 blur-[60px] rounded-full pointer-events-none" />
+              <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-[var(--primary)]/10 blur-[60px] rounded-full pointer-events-none" />
             </div>
           </motion.div>
         </>

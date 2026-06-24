@@ -1,54 +1,94 @@
-from fastapi import APIRouter, Request, Header, HTTPException
+from fastapi import APIRouter, Request, Header
 from nacl.signing import VerifyKey
-from nacl.exceptions import BadSignatureError
 import json
 
 from core.database import AsyncSessionLocal
 from sqlalchemy.future import select
-from models.domain import BotConfig, Application, LicenseKey, EndUser
-from core.security import generate_secure_id
+from models.domain import BotConfig
+from services.bot_service import BotService
 
 router = APIRouter(prefix="/api/v1/bots/discord", tags=["Bots"])
 
-# You need to store the PUBLIC KEY from Discord to verify signatures
-# For now, we will use a generic handler or assume verification is done at the gateway level if using a proxy
-# But for a real app, nacl is required.
+def get_settings(config) -> dict:
+    return config.settings or {}
+
+def get_prefix(config) -> str:
+    return get_settings(config).get("key_prefix", "AUTH")
 
 @router.post("/interactions")
-async def discord_interactions(request: Request, x_signature_ed25519: str = Header(None), x_signature_timestamp: str = Header(None)):
+async def discord_interactions(
+    request: Request,
+    x_signature_ed25519: str = Header(None),
+    x_signature_timestamp: str = Header(None)
+):
     body = await request.body()
-    # In a real production app, verify signature here using x_signature_ed25519 and x_signature_timestamp
-    
     data = json.loads(body)
-    
-    # Ping (Type 1)
+
+    # PING
     if data.get("type") == 1:
         return {"type": 1}
-    
-    # Application Command (Type 2)
+
+    # SLASH COMMAND
     if data.get("type") == 2:
         command_data = data.get("data", {})
         command_name = command_data.get("name")
-        
-        # We need to find which BOT this is for.
-        # Usually, Discord sends the application_id.
         discord_app_id = data.get("application_id")
-        
+
         async with AsyncSessionLocal() as db:
-            # Find bot config by some identifier (e.g. settings in JSON or we store discord_app_id)
-            # For simplicity, we'll look for the first active discord bot for now
-            # In production, we'd map discord_app_id to developer_id
-            res = await db.execute(select(BotConfig).where(BotConfig.bot_type == "discord", BotConfig.is_active == True))
+            res = await db.execute(select(BotConfig).where(
+                BotConfig.bot_type == "discord",
+                BotConfig.discord_app_id == discord_app_id,
+                BotConfig.is_active == True
+            ))
             bot = res.scalars().first()
-            
             if not bot:
                 return {"type": 4, "data": {"content": "Bot not configured in AuthSys."}}
 
-            if command_name == "usercreate":
-                # Logic to create user
-                return {"type": 4, "data": {"content": "User creation command received! (Logic Implementation in Progress)"}}
-            
+            # Verify signature if public key is set
+            if bot.discord_public_key and x_signature_ed25519 and x_signature_timestamp:
+                try:
+                    verify_key = VerifyKey(bytes.fromhex(bot.discord_public_key))
+                    verify_key.verify(
+                        f"{x_signature_timestamp}{body.decode()}",
+                        bytes.fromhex(x_signature_ed25519)
+                    )
+                except Exception:
+                    return {"type": 4, "data": {"content": "Invalid signature"}}
+
+            options = {o["name"]: o["value"] for o in command_data.get("options", [])}
+
             if command_name == "genkey":
-                return {"type": 4, "data": {"content": "License key generated: AUTH-XXXX-XXXX"}}
+                days = int(options.get("days", 1))
+                note = options.get("note", "Discord Webhook")
+                if days < 1:
+                    return {"type": 4, "data": {"content": "Days must be at least 1."}}
+                key_val = await BotService.generate_key(
+                    db, bot.app_id, bot.developer_id,
+                    key_type="time", duration=days, note=note,
+                    prefix=get_prefix(bot)
+                )
+                if not key_val:
+                    return {"type": 4, "data": {"content": "Failed to generate key."}}
+                return {"type": 4, "data": {"content": f"Key Generated: `{key_val}` ({days} days)"}}
+
+            if command_name == "keyinfo":
+                key = options.get("key", "")
+                info = await BotService.key_info(db, key, bot.developer_id)
+                return {"type": 4, "data": {"content": info or "Key not found."}}
+
+            if command_name == "pausekey":
+                key = options.get("key", "")
+                msg = await BotService.pause_key(db, key, bot.developer_id)
+                return {"type": 4, "data": {"content": msg or "Key not found."}}
+
+            if command_name == "resumekey":
+                key = options.get("key", "")
+                msg = await BotService.resume_key(db, key, bot.developer_id)
+                return {"type": 4, "data": {"content": msg or "Key not found."}}
+
+            if command_name == "delkey":
+                key = options.get("key", "")
+                msg = await BotService.delete_key(db, key, bot.developer_id)
+                return {"type": 4, "data": {"content": msg or "Key not found."}}
 
     return {"type": 4, "data": {"content": "Unknown command"}}

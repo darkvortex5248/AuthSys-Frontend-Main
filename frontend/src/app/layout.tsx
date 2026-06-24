@@ -1,14 +1,32 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import type { Metadata, Viewport } from 'next'
+import { Geist, JetBrains_Mono, Instrument_Serif } from 'next/font/google'
 import './globals.css'
 import SmoothScroll from '@/components/SmoothScroll'
 import PageTransition from '@/components/PageTransition'
-import { NextAuthProvider } from '@/components/NextAuthProvider'
+import ThemeProvider from '@/components/ThemeProvider'
 import { QueryProvider } from '@/components/providers/QueryProvider'
+import ErrorBoundary from '@/components/ErrorBoundary'
+import CookieConsent from '@/components/CookieConsent'
+import CursorGlow from '@/components/CursorGlow'
+import GrainOverlay from '@/components/GrainOverlay'
 
-const inter = Inter({ 
+const geist = Geist({ 
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-geist',
+  display: 'swap',
+})
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains',
+  display: 'swap',
+})
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-display',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
@@ -116,7 +134,10 @@ export const metadata: Metadata = {
     ],
     apple: '/favicon.png',
   },
-  themeColor: '#d97757', // Matching the primary orange/amber color
+}
+
+export const viewport: Viewport = {
+  themeColor: '#000000',
 }
 
 import { Toaster } from '@/components/ui/sonner'
@@ -129,27 +150,33 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={inter.variable} data-scroll-behavior="smooth">
+    <html lang="en" className={`${geist.variable} ${jetbrainsMono.variable} ${instrumentSerif.variable} dark`} suppressHydrationWarning>
       <head>
         <meta name="google-site-verification" content="ccPw8ECimP53N_B3F0Va76Iklo7wExCz7d7w816V1Ns" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
-      <body className={inter.className} 
-            style={{ background: '#08080F', color: '#EEEEFF' }}>
-        <NextAuthProvider>
-          <QueryProvider>
+      <body className={`${geist.className} antialiased`}>
+        <ThemeProvider>
+            <QueryProvider>
             <ConfirmProvider>
               <CopyProvider>
               <SmoothScroll>
                 <PageTransition>
-                  {children}
+                  <ErrorBoundary>
+                    <GrainOverlay />
+                    <CursorGlow />
+                    <main style={{ viewTransitionName: "page-content" }}>
+                      {children}
+                    </main>
+                  </ErrorBoundary>
+                  <CookieConsent />
                 </PageTransition>
               </SmoothScroll>
               <Toaster />
               </CopyProvider>
             </ConfirmProvider>
-          </QueryProvider>
-        </NextAuthProvider>
+            </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

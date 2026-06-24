@@ -58,7 +58,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
               <div className="flex items-start gap-4 mb-6">
                 <div
                   className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
-                    isDanger ? 'bg-red-500/15 text-red-400' : 'bg-[#d97757]/15 text-[#d97757]'
+                    isDanger ? 'bg-red-500/15 text-red-400' : 'bg-[var(--primary)]/15 text-[var(--primary)]'
                   }`}
                 >
                   <span className="material-symbols-outlined text-2xl">
@@ -66,17 +66,17 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                   </span>
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-[#e5e2e1]">
+                  <h3 className="text-lg font-bold text-[var(--foreground)]">
                     {state.title || (isDanger ? 'Confirm action' : 'Are you sure?')}
                   </h3>
-                  <p className="text-sm text-[#8e8ea0] mt-2 leading-relaxed">{state.message}</p>
+                  <p className="text-sm text-[var(--muted-foreground)] mt-2 leading-relaxed">{state.message}</p>
                 </div>
               </div>
               <div className="flex gap-3 justify-end">
                 <button
                   type="button"
                   onClick={() => close(false)}
-                  className="px-5 py-2.5 rounded-xl border border-white/10 text-sm font-bold text-[#c8c6c5] hover:bg-white/5 transition-all"
+                  className="px-5 py-2.5 rounded-xl border border-white/10 text-sm font-bold text-[var(--foreground)] hover:bg-white/5 transition-all"
                 >
                   {state.cancelLabel || 'No, cancel'}
                 </button>
@@ -86,7 +86,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                   className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
                     isDanger
                       ? 'bg-red-500 text-white hover:bg-red-600 shadow-lg shadow-red-500/20'
-                      : 'bg-[#d97757] text-[#131313] hover:opacity-90 shadow-lg shadow-[#d97757]/20'
+                      : 'bg-[var(--primary)] text-[#131313] hover:opacity-90 shadow-lg shadow-[var(--primary)]/20'
                   }`}
                 >
                   {state.confirmLabel || 'Yes, continue'}

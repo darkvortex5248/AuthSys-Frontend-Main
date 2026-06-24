@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, JSON, Text
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, JSON, Text, BigInteger, Float, UUID
 from sqlalchemy.orm import relationship
 from core.database import Base
 from datetime import datetime, timezone
+import uuid as _uuid
 
 def utc_now():
     return datetime.now(timezone.utc)
@@ -17,18 +18,55 @@ class AdminUser(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), default=utc_now)
     last_login = Column(DateTime(timezone=True), nullable=True)
+    # Link to Supabase Auth (kept for symmetry; admin auth stays custom for now).
+    supabase_user_id = Column(UUID(as_uuid=True), unique=True, index=True, nullable=True)
 
 class SubscriptionPlan(Base):
     __tablename__ = "subscription_plans"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True)
+    description = Column(String, default='')
     price_monthly = Column(Integer)
     price_yearly = Column(Integer)
-    max_apps = Column(Integer)
-    max_users_per_app = Column(Integer)
-    max_keys_per_month = Column(Integer)
+    discount = Column(Integer, default=0)
+    badge_text = Column(String, default='')
+    badge_color = Column(String, default='')
+    is_recommended = Column(Boolean, default=False)
+    button_text = Column(String, default='Choose Plan')
+    button_color = Column(String, default='var(--primary)')
+    icon = Column(String, default='card_membership')
+    sort_order = Column(Integer, default=0)
+    is_active = Column(Boolean, default=True)
+    max_apps = Column(Integer, default=2)
+    max_licenses = Column(Integer, default=50)
+    max_users_per_app = Column(Integer, default=50)
+    max_keys_per_month = Column(Integer, default=100)
+    max_variables = Column(Integer, default=40)
+    max_logs = Column(Integer, default=200)
+    max_hashes = Column(Integer, default=2)
+    max_staff = Column(Integer, default=0)
+    max_chatrooms = Column(Integer, default=0)
     features_json = Column(JSON, nullable=True)
     ai_agent_access = Column(Boolean, default=False)
+    audit_log_limit = Column(Integer, default=1000)
+    has_ip_tracking = Column(Boolean, default=False)
+    has_location_tracking = Column(Boolean, default=False)
+    has_user_panel = Column(Boolean, default=False)
+    has_staff_management = Column(Boolean, default=False)
+    has_discord_integration = Column(Boolean, default=False)
+    has_telegram_integration = Column(Boolean, default=False)
+    has_api_access = Column(Boolean, default=False)
+    has_custom_domain = Column(Boolean, default=False)
+    has_live_chat = Column(Boolean, default=False)
+    has_audit_logs = Column(Boolean, default=False)
+    has_webhooks = Column(Boolean, default=False)
+    has_white_label = Column(Boolean, default=False)
+    has_priority_support = Column(Boolean, default=False)
+    has_ssl = Column(Boolean, default=False)
+    has_global_chat = Column(Boolean, default=False)
+    has_custom_bot = Column(Boolean, default=False)
+    has_behavioral_threat_intel = Column(Boolean, default=False)
+    has_version_whitelist = Column(Boolean, default=False)
 
 class DeveloperAccount(Base):
     __tablename__ = "developer_accounts"
@@ -38,6 +76,14 @@ class DeveloperAccount(Base):
     password_hash = Column(String)
     google_id = Column(String, unique=True, index=True, nullable=True)
     avatar_url = Column(String, nullable=True)
+    display_name = Column(String, nullable=True)
+    bio = Column(String, nullable=True)
+    timezone = Column(String, default="UTC+00:00")
+    preferences = Column(JSON, nullable=True, default={})
+    last_read_at = Column(DateTime(timezone=True), nullable=True)
+    two_factor_enabled = Column(Boolean, default=False)
+    two_factor_secret = Column(String, nullable=True)
+    two_factor_backup_codes = Column(JSON, nullable=True)
     plan_id = Column(Integer, ForeignKey("subscription_plans.id"), nullable=True)
     subscription_tier = Column(String, default="tester")
     api_quota_used = Column(Integer, default=0)
@@ -45,6 +91,9 @@ class DeveloperAccount(Base):
     is_verified = Column(Boolean, default=False)
     is_banned = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), default=utc_now)
+    # Link to Supabase Auth (auth.users.id). Nullable during migration;
+    # populated for users who authenticate via Supabase Auth (OAuth, native).
+    supabase_user_id = Column(UUID(as_uuid=True), unique=True, index=True, nullable=True, default=_uuid.uuid4)
 
     apps = relationship("Application", back_populates="developer")
     plan = relationship("SubscriptionPlan")
@@ -143,6 +192,22 @@ class ActivityLog(Base):
     hwid = Column(String, nullable=True)
     is_suspicious = Column(Boolean, default=False)
     risk_score = Column(Integer, default=0)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+
+class PricingItem(Base):
+    __tablename__ = "pricing_items"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    price = Column(Integer, nullable=False)  # Price in cents
+    currency = Column(String, default="USD")
+    billing_cycle = Column(String, nullable=False)  # monthly, yearly, one-time
+    features = Column(JSON, nullable=True)  # List of features
+    is_active = Column(Boolean, default=True)
+    is_popular = Column(Boolean, default=False)
+    sort_order = Column(Integer, default=0)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+    updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
     timestamp = Column(DateTime(timezone=True), default=utc_now)
 
 class Blacklist(Base):
@@ -181,10 +246,13 @@ class WebhookEndpoint(Base):
     id = Column(Integer, primary_key=True, index=True)
     app_id = Column(Integer, ForeignKey("applications.id", ondelete="CASCADE"))
     url = Column(String)
+    description = Column(String, default='')
     is_active = Column(Boolean, default=True)
     secret_token = Column(String, nullable=True)
     events = Column(JSON, nullable=True) # e.g. ["login", "register"]
     created_at = Column(DateTime(timezone=True), default=utc_now)
+    last_sent_at = Column(DateTime(timezone=True), nullable=True)
+    last_status = Column(String, nullable=True)
 
     app = relationship("Application", back_populates="webhook_endpoints")
 
@@ -288,6 +356,17 @@ class ChatMessage(Base):
     room = relationship("ChatRoom", back_populates="messages")
     user = relationship("EndUser")
 
+class Announcement(Base):
+    __tablename__ = "announcements"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String)
+    message = Column(Text)
+    severity = Column(String, default="info")  # info, warning, critical
+    created_by = Column(Integer, ForeignKey("admin_users.id"), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+
+    creator = relationship("AdminUser")
+
 class SellerAccount(Base):
     __tablename__ = "seller_accounts"
     id = Column(Integer, primary_key=True, index=True)
@@ -336,7 +415,220 @@ class AIKnowledgeBase(Base):
     content = Column(Text)
     category = Column(String, nullable=True)
     tags = Column(JSON, nullable=True)
-    embedding_vector = Column(String, nullable=True)  # Store as string for now
+    embedding_vector = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), default=utc_now)
     updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
+
+
+# ═══════════════════════════════════════════════
+# Premium Features - Session Management
+# ═══════════════════════════════════════════════
+
+class DeveloperSession(Base):
+    __tablename__ = "developer_sessions"
+    id = Column(Integer, primary_key=True, index=True)
+    developer_id = Column(Integer, ForeignKey("developer_accounts.id", ondelete="CASCADE"))
+    token_hash = Column(String, index=True)
+    ip_address = Column(String)
+    user_agent = Column(String, nullable=True)
+    device_name = Column(String, nullable=True)
+    location = Column(String, nullable=True)
+    is_current = Column(Boolean, default=True)
+    last_activity = Column(DateTime(timezone=True), default=utc_now)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+    expires_at = Column(DateTime(timezone=True), nullable=True)
+
+
+# ═══════════════════════════════════════════════
+# Premium Features - Security & Compliance
+# ═══════════════════════════════════════════════
+
+class IPWhitelistRule(Base):
+    __tablename__ = "ip_whitelist_rules"
+    id = Column(Integer, primary_key=True, index=True)
+    app_id = Column(Integer, ForeignKey("applications.id", ondelete="CASCADE"))
+    rule_type = Column(String)
+    value = Column(String)
+    is_blocklist = Column(Boolean, default=False)
+    note = Column(String, nullable=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+
+
+class APIKey(Base):
+    __tablename__ = "api_keys"
+    id = Column(Integer, primary_key=True, index=True)
+    developer_id = Column(Integer, ForeignKey("developer_accounts.id", ondelete="CASCADE"))
+    name = Column(String)
+    key_prefix = Column(String, index=True)
+    key_hash = Column(String)
+    scopes = Column(JSON, default=list)
+    ip_restrictions = Column(JSON, nullable=True)
+    is_active = Column(Boolean, default=True)
+    last_used_at = Column(DateTime(timezone=True), nullable=True)
+    expires_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+
+
+# ═══════════════════════════════════════════════
+# Premium Features - Developer Experience
+# ═══════════════════════════════════════════════
+
+class CustomDomain(Base):
+    __tablename__ = "custom_domains"
+    id = Column(Integer, primary_key=True, index=True)
+    developer_id = Column(Integer, ForeignKey("developer_accounts.id", ondelete="CASCADE"))
+    domain = Column(String, unique=True)
+    ssl_enabled = Column(Boolean, default=False)
+    ssl_cert = Column(Text, nullable=True)
+    ssl_key = Column(Text, nullable=True)
+    is_verified = Column(Boolean, default=False)
+    verification_token = Column(String)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+
+
+class AppBackup(Base):
+    __tablename__ = "app_backups"
+    id = Column(Integer, primary_key=True, index=True)
+    app_id = Column(Integer, ForeignKey("applications.id", ondelete="CASCADE"))
+    name = Column(String)
+    config_snapshot = Column(JSON)
+    size_bytes = Column(Integer, default=0)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+
+
+class AppEnvironment(Base):
+    __tablename__ = "app_environments"
+    id = Column(Integer, primary_key=True, index=True)
+    parent_app_id = Column(Integer, ForeignKey("applications.id", ondelete="CASCADE"))
+    name = Column(String)
+    app_secret = Column(String)
+    owner_id = Column(String, unique=True, index=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+
+
+# ═══════════════════════════════════════════════
+# Premium Features - Monitoring & Analytics
+# ═══════════════════════════════════════════════
+
+class HealthCheckRecord(Base):
+    __tablename__ = "health_check_records"
+    id = Column(Integer, primary_key=True, index=True)
+    app_id = Column(Integer, ForeignKey("applications.id", ondelete="CASCADE"))
+    endpoint = Column(String)
+    status_code = Column(Integer)
+    response_time_ms = Column(Integer)
+    is_up = Column(Boolean)
+    checked_at = Column(DateTime(timezone=True), default=utc_now)
+
+
+class LogRetentionConfig(Base):
+    __tablename__ = "log_retention_configs"
+    id = Column(Integer, primary_key=True, index=True)
+    app_id = Column(Integer, ForeignKey("applications.id", ondelete="CASCADE"), unique=True)
+    retention_days = Column(Integer, default=30)
+    auto_cleanup = Column(Boolean, default=True)
+    updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
+
+
+# ═══════════════════════════════════════════════
+# Premium Features - Team & Billing
+# ═══════════════════════════════════════════════
+
+class Organization(Base):
+    __tablename__ = "organizations"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+    owner_id = Column(Integer, ForeignKey("developer_accounts.id", ondelete="CASCADE"))
+    slug = Column(String, unique=True)
+    logo_url = Column(String, nullable=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+
+    members = relationship("OrganizationMember", back_populates="organization")
+
+
+class OrganizationMember(Base):
+    __tablename__ = "organization_members"
+    id = Column(Integer, primary_key=True, index=True)
+    organization_id = Column(Integer, ForeignKey("organizations.id", ondelete="CASCADE"))
+    developer_id = Column(Integer, ForeignKey("developer_accounts.id", ondelete="CASCADE"))
+    role = Column(String)
+    invited_by = Column(Integer, ForeignKey("developer_accounts.id"), nullable=True)
+    is_accepted = Column(Boolean, default=False)
+    joined_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+
+    organization = relationship("Organization", back_populates="members")
+
+
+class UsageRecord(Base):
+    __tablename__ = "usage_records"
+    id = Column(Integer, primary_key=True, index=True)
+    developer_id = Column(Integer, ForeignKey("developer_accounts.id", ondelete="CASCADE"))
+    metric = Column(String)
+    quantity = Column(Integer, default=0)
+    billing_period_start = Column(DateTime(timezone=True))
+    billing_period_end = Column(DateTime(timezone=True))
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+
+
+class CustomPlanOverride(Base):
+    __tablename__ = "custom_plan_overrides"
+    id = Column(Integer, primary_key=True, index=True)
+    developer_id = Column(Integer, ForeignKey("developer_accounts.id", ondelete="CASCADE"))
+    feature_key = Column(String)
+    feature_value = Column(JSON)
+    label = Column(String, nullable=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+
+
+# ═══════════════════════════════════════════════
+# Premium Features - Automation
+# ═══════════════════════════════════════════════
+
+class ScheduledAction(Base):
+    __tablename__ = "scheduled_actions"
+    id = Column(Integer, primary_key=True, index=True)
+    developer_id = Column(Integer, ForeignKey("developer_accounts.id", ondelete="CASCADE"))
+    app_id = Column(Integer, ForeignKey("applications.id", ondelete="CASCADE"), nullable=True)
+    action_type = Column(String)
+    target_type = Column(String)
+    target_filter = Column(JSON, nullable=True)
+    payload = Column(JSON, nullable=True)
+    status = Column(String, default="pending")
+    result_summary = Column(JSON, nullable=True)
+    scheduled_at = Column(DateTime(timezone=True))
+    executed_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+
+
+class WebhookDelivery(Base):
+    __tablename__ = "webhook_deliveries"
+    id = Column(Integer, primary_key=True, index=True)
+    endpoint_id = Column(Integer, ForeignKey("webhook_endpoints.id", ondelete="CASCADE"))
+    event_type = Column(String)
+    payload = Column(JSON)
+    response_status = Column(Integer, nullable=True)
+    response_body = Column(Text, nullable=True)
+    attempt_number = Column(Integer, default=1)
+    max_attempts = Column(Integer, default=3)
+    next_retry_at = Column(DateTime(timezone=True), nullable=True)
+    status = Column(String, default="pending")
+    error_message = Column(String, nullable=True)
+    duration_ms = Column(Integer, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+    delivered_at = Column(DateTime(timezone=True), nullable=True)
+
+
+class SystemBackup(Base):
+    __tablename__ = "system_backups"
+    id = Column(Integer, primary_key=True, index=True)
+    filename = Column(String)
+    size_bytes = Column(Integer, default=0)
+    status = Column(String, default="completed")
+    created_at = Column(DateTime(timezone=True), default=utc_now)

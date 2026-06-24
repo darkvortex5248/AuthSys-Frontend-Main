@@ -46,15 +46,74 @@ def _env_fallback_key(provider: str) -> str:
     return settings.GEMINI_API_KEY or ""
 
 
+def _normalize_provider(provider: str) -> str:
+    """Map legacy/admin provider labels onto the canonical PROVIDER_CATALOG keys."""
+    p = (provider or "").strip().lower()
+    # Legacy aliases used by older admin UI rows / older config.
+    aliases = {
+        "gemini": "google",
+        "claude": "anthropic",
+        "google": "google",
+        "openai": "openai",
+        "anthropic": "anthropic",
+        "groq": "groq",
+        "openrouter": "openrouter",
+        "custom": "custom",
+    }
+    return aliases.get(p, p)
+
+
+async def _load_active_provider_config(db: AsyncSession):
+    """Highest-priority active AIProviderConfig row managed by the admin UI."""
+    from models.domain import AIProviderConfig
+
+    res = await db.execute(
+        select(AIProviderConfig)
+        .where(AIProviderConfig.is_active == True)  # noqa: E712
+        .order_by(AIProviderConfig.priority.asc())
+        .limit(1)
+    )
+    return res.scalar_one_or_none()
+
+
 async def get_ai_runtime_config(db: AsyncSession) -> dict:
     stored = await _load_settings_map(db)
     enabled = (stored.get("ai_enabled") or "true").lower() == "true"
-    provider = (stored.get("ai_provider") or "google").strip().lower()
+
+    # Resolve from the admin-managed AIProviderConfig row first (this is what the
+    # Super Admin -> AI Control page writes), then fall back to SystemSetting,
+    # then to .env. Previously the order was reversed, so admin-configured Groq /
+    # OpenRouter / Anthropic keys were silently ignored.
+    provider = ""
+    model = ""
+    api_key = ""
+    base_url = ""
+
+    pc = await _load_active_provider_config(db)
+    if pc and pc.api_key_encrypted:
+        api_key = pc.api_key_encrypted
+        provider = pc.provider or ""
+        model = pc.model_name or ""
+        if pc.settings and pc.settings.get("api_endpoint"):
+            base_url = pc.settings["api_endpoint"]
+
+    # Fall back to SystemSetting keys when the provider-config row is missing/empty.
+    if not api_key:
+        provider = (stored.get("ai_provider") or "").strip()
+        model = (stored.get("ai_model") or "").strip()
+        api_key = (stored.get("ai_api_key") or "").strip()
+        base_url = (stored.get("ai_base_url") or "").strip()
+
+    # Final fallback to environment variables.
+    if not api_key:
+        api_key = _env_fallback_key(_normalize_provider(provider))
+
+    provider = _normalize_provider(provider) or "google"
     if provider not in PROVIDER_CATALOG:
         provider = "google"
-    model = (stored.get("ai_model") or PROVIDER_CATALOG[provider]["default_model"]).strip()
-    api_key = (stored.get("ai_api_key") or _env_fallback_key(provider)).strip()
-    base_url = (stored.get("ai_base_url") or "").strip()
+    if not model:
+        model = PROVIDER_CATALOG[provider]["default_model"]
+    model = model.strip()
 
     if model.startswith("models/"):
         model = model.replace("models/", "", 1)

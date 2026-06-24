@@ -69,20 +69,20 @@ export default function DeveloperManagementPage() {
   );
 
   return (
-    <div className="space-y-8 pb-20">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-[#e5e2e1] tracking-tight">Developer Registry</h1>
-          <p className="text-[#8e8ea0] mt-1">Manage platform tiers and access levels</p>
+          <h1 className="text-3xl font-bold text-[var(--foreground)] tracking-tight">Developer Registry</h1>
+          <p className="text-[var(--muted-foreground)] mt-1">Manage platform tiers and access levels</p>
         </div>
-        <div className="relative w-72">
-           <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#8e8ea0] text-sm">search</span>
+        <div className="relative w-full sm:w-72">
+           <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] text-sm">search</span>
            <input 
             type="text" 
             placeholder="Search systems or devs..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full bg-white/5 border border-white/5 rounded-full py-2.5 pl-12 pr-4 text-[#e5e2e1] text-sm focus:ring-2 focus:ring-blue-500/50 transition-all outline-none placeholder:text-[#424754]"
+            className="w-full bg-white/5 border border-white/5 rounded-full py-2.5 pl-12 pr-4 text-[var(--foreground)] text-sm focus:ring-2 focus:ring-blue-500/50 transition-all outline-none placeholder:text-[#424754]"
            />
         </div>
       </div>
@@ -104,15 +104,16 @@ export default function DeveloperManagementPage() {
         </div>
       )}
 
-      <div className="glass-card rounded-3xl overflow-hidden shadow-2xl border border-white/5">
-        <table className="w-full text-left border-collapse">
+      <div className="glass-card rounded-3xl shadow-2xl border border-white/5">
+        <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse min-w-[900px]">
           <thead>
             <tr className="border-b border-white/5 bg-white/5">
-              <th className="px-8 py-5 text-[10px] font-bold text-[#8e8ea0] uppercase tracking-widest">Developer</th>
-              <th className="px-8 py-5 text-[10px] font-bold text-[#8e8ea0] uppercase tracking-widest">Subscription Tier</th>
-              <th className="px-8 py-5 text-[10px] font-bold text-[#8e8ea0] uppercase tracking-widest">Joined</th>
-              <th className="px-8 py-5 text-[10px] font-bold text-[#8e8ea0] uppercase tracking-widest">System Status</th>
-              <th className="px-8 py-5 text-[10px] font-bold text-[#8e8ea0] uppercase tracking-widest text-right">Operations</th>
+              <th className="px-8 py-5 text-[10px] font-bold text-[var(--muted-foreground)] uppercase tracking-widest">Developer</th>
+              <th className="px-8 py-5 text-[10px] font-bold text-[var(--muted-foreground)] uppercase tracking-widest">Subscription Tier</th>
+              <th className="px-8 py-5 text-[10px] font-bold text-[var(--muted-foreground)] uppercase tracking-widest">Joined</th>
+              <th className="px-8 py-5 text-[10px] font-bold text-[var(--muted-foreground)] uppercase tracking-widest">System Status</th>
+              <th className="px-8 py-5 text-[10px] font-bold text-[var(--muted-foreground)] uppercase tracking-widest text-right">Operations</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
@@ -124,8 +125,8 @@ export default function DeveloperManagementPage() {
                       {dev.username.substring(0, 2)}
                     </div>
                     <div>
-                      <p className="text-sm font-black text-[#e5e2e1] group-hover:text-blue-500 transition-colors">{dev.username}</p>
-                      <p className="text-[11px] text-[#8e8ea0] font-medium">{dev.email}</p>
+                      <p className="text-sm font-black text-[var(--foreground)] group-hover:text-blue-500 transition-colors">{dev.username}</p>
+                      <p className="text-[11px] text-[var(--muted-foreground)] font-medium">{dev.email}</p>
                     </div>
                   </div>
                 </td>
@@ -137,7 +138,7 @@ export default function DeveloperManagementPage() {
                           const v = e.target.value;
                           changePlan(dev.id, v ? parseInt(v, 10) : null);
                         }}
-                        className="min-w-[140px] bg-[#0e0e12] border border-white/10 rounded-xl px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-[#d97757] outline-none focus:border-[#d97757] transition-all cursor-pointer"
+                        className="min-w-[140px] bg-[var(--card)] border border-white/10 rounded-xl px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-[var(--primary)] outline-none focus:border-[var(--primary)] transition-all cursor-pointer"
                       >
                         <option value="">No Plan</option>
                         {plans.map(p => (
@@ -150,7 +151,7 @@ export default function DeveloperManagementPage() {
                    </div>
                 </td>
                 <td className="px-8 py-6">
-                   <p className="text-[11px] text-[#8e8ea0] font-mono">{new Date(dev.created_at).toLocaleDateString()}</p>
+                   <p className="text-[11px] text-[var(--muted-foreground)] font-mono">{new Date(dev.created_at).toLocaleDateString()}</p>
                 </td>
                 <td className="px-8 py-6">
                    <div className="flex items-center gap-2">
@@ -172,6 +173,7 @@ export default function DeveloperManagementPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

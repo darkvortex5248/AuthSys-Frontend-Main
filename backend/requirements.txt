@@ -10,12 +10,14 @@ python-jose[cryptography]
 discord.py
 PyNaCl
 python-telegram-bot
-passlib
-bcrypt==3.2.2
+bcrypt>=4.0.0
 python-multipart
 redis
 slowapi
 anthropic
 google-generativeai
-pynacl
 httpx
+stripe
+pyotp
+qrcode[pil]
+supabase

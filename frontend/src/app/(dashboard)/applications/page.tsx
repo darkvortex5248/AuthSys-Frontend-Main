@@ -13,423 +13,541 @@ import {
 import { useConfirm } from '@/components/ui/confirm-dialog';
 import { useCopy } from '@/components/ui/copy-dialog';
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  show: (i = 0) => ({
+    opacity: 1, y: 0,
+    transition: { duration: 0.35, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] as const },
+  }),
+};
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.96 },
+  show: { opacity: 1, scale: 1, transition: { type: 'spring' as const, stiffness: 380, damping: 28 } },
+};
+
+function StatChip({ label, value, accent }: { label: string; value: number | string; accent?: boolean }) {
+  return (
+    <div className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg bg-[var(--accent-opacity-8)] border border-[var(--border)]">
+      <span className={`text-sm font-bold tabular-nums ${accent ? 'text-[var(--primary)]' : 'text-[var(--foreground)]'}`}>{value}</span>
+      <span className="text-[10px] font-semibold uppercase tracking-widest text-[var(--muted-foreground)]">{label}</span>
+    </div>
+  );
+}
+
+function AppCard({
+  app, index, onManage, onDelete, onToggle, onCopySecret, onRegenSecret,
+  visibleSecret, onToggleSecret,
+}: {
+  app: any; index: number;
+  onManage: () => void; onDelete: () => void; onToggle: () => void;
+  onCopySecret: () => void; onRegenSecret: () => void;
+  visibleSecret: boolean; onToggleSecret: () => void;
+}) {
+  const isActive = app.status === 'active';
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  return (
+    <motion.article
+      custom={index}
+      variants={fadeUp}
+      initial="hidden"
+      animate="show"
+      layout
+      className={[
+        'group relative flex flex-col premium-card',
+        'shadow-xl shadow-black/40',
+        'transition-all duration-300 hover:border-white/[0.13] hover:shadow-2xl hover:shadow-black/60',
+        !isActive && 'opacity-70 hover:opacity-100',
+      ].join(' ')}
+    >
+      <div className="flex flex-col flex-1 p-5 gap-5">
+        <div className="flex items-start gap-3">
+          <div className="w-11 h-11 rounded-xl bg-[var(--accent-opacity-15)] border border-[var(--accent-opacity-20)] flex items-center justify-center shrink-0 shadow-inner shadow-[var(--accent-opacity-8)]">
+            <span className="material-symbols-outlined text-[22px] text-[var(--primary)]">token</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-[15px] font-bold text-[var(--foreground)] leading-tight truncate group-hover:text-[var(--primary)] transition-colors duration-200">
+              {app.name || 'Untitled'}
+            </h3>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-[10px] font-mono text-[var(--muted-foreground)] bg-[var(--accent-opacity-8)] px-1.5 py-0.5 rounded-md border border-[var(--border)]">
+                v{app.version}
+              </span>
+              <span className={[
+                'text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border',
+                isActive
+                  ? 'text-[var(--success)] bg-[var(--success)]/10 border-[var(--success)]/20'
+                  : 'text-[var(--muted-foreground)] bg-[var(--accent-opacity-8)] border-[var(--border)]',
+              ].join(' ')}>
+                {app.status}
+              </span>
+            </div>
+          </div>
+
+          <div className="relative">
+            <button
+              onClick={() => setMenuOpen(v => !v)}
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--accent-opacity-8)] transition-all"
+            >
+              <span className="material-symbols-outlined text-[18px]">more_vert</span>
+            </button>
+            <AnimatePresence>
+              {menuOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.92, y: -4 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.92, y: -4 }}
+                    transition={{ duration: 0.12 }}
+                    className="absolute right-0 top-9 z-20 w-44 rounded-xl bg-[var(--glass-bg)] backdrop-blur-xl border border-[var(--border)] shadow-2xl shadow-black/60 overflow-hidden py-1"
+                  >
+                    {[
+                      { icon: 'refresh', label: 'Regen Secret', action: () => { onRegenSecret(); setMenuOpen(false); } },
+                      { icon: 'content_copy', label: 'Copy Secret', action: () => { onCopySecret(); setMenuOpen(false); } },
+                    ].map(({ icon, label, action }) => (
+                      <button
+                        key={label}
+                        onClick={action}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-[12px] font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--accent-opacity-8)] transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-[15px]">{icon}</span>
+                        {label}
+                      </button>
+                    ))}
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2">
+          <StatChip label="Users" value={app.total_users ?? 0} />
+          <StatChip label="Keys" value={app.total_keys ?? 0} />
+          <StatChip label="Today" value={app.logins_today ?? 0} accent />
+        </div>
+
+        <div className="group/secret flex items-center justify-between gap-3 bg-black/30 border border-[var(--border)] rounded-xl px-3.5 py-2.5">
+          <code className="text-[11px] font-mono text-[var(--muted-foreground)] tracking-widest truncate select-none">
+            {visibleSecret ? app.app_secret : `APP_${'•'.repeat(14)}`}
+          </code>
+          <div className="flex items-center gap-1.5 shrink-0 opacity-0 group-hover/secret:opacity-100 transition-opacity">
+            <button
+              onClick={onToggleSecret}
+              className="w-6 h-6 rounded-md flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--accent-opacity-8)] transition-all"
+            >
+              <span className="material-symbols-outlined text-[14px]">
+                {visibleSecret ? 'visibility_off' : 'visibility'}
+              </span>
+            </button>
+            <button
+              onClick={onCopySecret}
+              className="w-6 h-6 rounded-md flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[var(--accent-opacity-15)] transition-all"
+            >
+              <span className="material-symbols-outlined text-[14px]">content_copy</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 mt-auto">
+          <button
+            onClick={onManage}
+            className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-xl text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)] border border-[var(--border)] bg-[var(--accent-opacity-8)] hover:bg-[var(--accent-opacity-15)] hover:text-[var(--primary)] hover:border-[var(--accent-opacity-20)] transition-all duration-200"
+          >
+            <span className="material-symbols-outlined text-[15px]">open_in_new</span>
+            Manage
+          </button>
+          <button
+            onClick={onToggle}
+            title={isActive ? 'Pause' : 'Resume'}
+            className={[
+              'w-9 h-9 rounded-xl flex items-center justify-center border transition-all duration-200',
+              isActive
+                ? 'border-[var(--warning)]/20 bg-[var(--warning)]/5 text-[var(--warning)] hover:bg-[var(--warning)]/15'
+                : 'border-[var(--success)]/20 bg-[var(--success)]/5 text-[var(--success)] hover:bg-[var(--success)]/15',
+            ].join(' ')}
+          >
+            <span className="material-symbols-outlined text-[18px]">{isActive ? 'pause' : 'play_arrow'}</span>
+          </button>
+          <button
+            onClick={onDelete}
+            title="Delete"
+            className="w-9 h-9 rounded-xl flex items-center justify-center border border-[var(--destructive)]/20 bg-[var(--destructive)]/5 text-[var(--destructive)] hover:bg-[var(--destructive)]/15 transition-all duration-200"
+          >
+            <span className="material-symbols-outlined text-[18px]">delete</span>
+          </button>
+        </div>
+      </div>
+    </motion.article>
+  );
+}
+
 export default function ApplicationsPage() {
   const router = useRouter();
   const confirm = useConfirm();
   const copy = useCopy();
-  const { data: apps = [], isLoading: loading } = useApps();
+
+  const { data: apps = [], isLoading: loading, isError, error, refetch } = useApps();
   const createApp = useCreateApp();
   const toggleApp = useToggleApp();
   const deleteApp = useDeleteApp();
+
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ name: '', version: '1.0.0', min_version: '0.9.0', hwid_enabled: true });
   const [creating, setCreating] = useState(false);
   const [visibleSecrets, setVisibleSecrets] = useState<Record<number, boolean>>({});
-  
-  // Search & Filter
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
 
-  const filteredApps = useMemo(() => {
-    return (apps || []).filter(app => {
-      const matchesSearch = app.name?.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredApps = useMemo(() =>
+    (apps || []).filter(app => {
+      const matchesSearch = (app.name || '').toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
       return matchesSearch && matchesStatus;
-    });
-  }, [apps, searchTerm, statusFilter]);
+    }),
+    [apps, searchTerm, statusFilter]
+  );
 
-  const toggleSecretVisibility = (id: number) => {
-    setVisibleSecrets(prev => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  const copyToClipboard = (text: string, label = 'Copied to clipboard') => {
-    copy(text, { label });
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-[60vh]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--vault-primary)]"></div>
-          <p className="text-[var(--vault-on-surface-variant)] text-sm font-medium">Loading applications...</p>
-        </div>
-      </div>
-    );
-  }
+  const totalUsers = (apps || []).reduce((acc, a) => acc + (a?.total_users || 0), 0);
+  const inactiveCount = (apps || []).filter(a => a?.status !== 'active').length;
 
   const handleCreate = async () => {
-    if (!formData.name.trim()) {
-      toast.error('Application name is required');
-      return;
-    }
+    if (!formData.name.trim()) { toast.error('Application name is required'); return; }
     setCreating(true);
     try {
       await createApp.mutateAsync(formData);
       setShowModal(false);
       setFormData({ name: '', version: '1.0.0', min_version: '0.9.0', hwid_enabled: true });
-      toast.success('Application created');
+      toast.success('Application created successfully');
     } catch (err: any) {
-      toast.error(err.response?.data?.detail || 'Failed to create app');
+      toast.error(err.response?.data?.detail || 'Failed to create application');
     } finally {
       setCreating(false);
     }
   };
 
   const handleToggle = async (id: number) => {
-    try {
-      await toggleApp.mutateAsync(id);
-      toast.success('Application status updated');
-    } catch {
-      toast.error('Failed to toggle app');
-    }
+    try { await toggleApp.mutateAsync(id); toast.success('Status updated'); }
+    catch { toast.error('Failed to update status'); }
   };
 
   const handleDelete = async (id: number) => {
     const ok = await confirm({
       title: 'Delete application?',
-      message: 'This will permanently delete the application and all associated keys, users, and data.',
-      confirmLabel: 'Yes, delete',
-      cancelLabel: 'No, cancel',
+      message: 'This will permanently delete the application and all associated keys, users, and data. This action cannot be undone.',
+      confirmLabel: 'Delete permanently',
+      cancelLabel: 'Cancel',
       variant: 'danger',
     });
     if (!ok) return;
-    try {
-      await deleteApp.mutateAsync(id);
-      toast.success('Application deleted');
-    } catch {
-      toast.error('Failed to delete app');
-    }
+    try { await deleteApp.mutateAsync(id); toast.success('Application deleted'); }
+    catch { toast.error('Failed to delete application'); }
   };
 
   const handleRegenSecret = async (id: number) => {
     try {
       const res = await api.post(`/developer/apps/${id}/regenerate-secret`);
-      copy(res.data.app_secret, {
-        label: 'New secret generated',
-        description: 'Copy it now — it will not be shown again.',
-      });
-    } catch {
-      toast.error('Failed to regenerate secret');
-    }
+      copy(res.data.app_secret, { label: 'New secret generated', description: 'Store it safely — it will not be shown again.' });
+    } catch { toast.error('Failed to regenerate secret'); }
   };
 
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] gap-5">
+        <div className="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center">
+          <span className="material-symbols-outlined text-3xl text-red-400">error</span>
+        </div>
+        <p className="text-[12px] font-semibold uppercase tracking-widest text-[var(--muted-foreground)]">Failed to load applications</p>
+        <p className="text-[11px] text-[var(--muted-foreground)]">{(error as any)?.message || 'Check console for details'}</p>
+        <button onClick={() => refetch()} className="btn-secondary text-xs px-4 py-2">
+          <span className="material-symbols-outlined text-[14px]">refresh</span>
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] gap-5">
+        <div className="relative w-12 h-12">
+          <div className="absolute inset-0 rounded-full border-2 border-[var(--primary)]/20" />
+          <div className="absolute inset-0 rounded-full border-t-2 border-[var(--primary)] animate-spin" />
+        </div>
+        <p className="text-[12px] font-semibold uppercase tracking-widest text-[var(--muted-foreground)]">Loading applications</p>
+      </div>
+    );
+  }
+
   return (
-    <>
-      {/* Header Section */}
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-[var(--vault-on-surface)]">My Applications</h1>
-          <div className="flex flex-wrap items-center gap-3 bg-white/5 px-4 py-1.5 rounded-full border border-white/5 mt-3">
-            <div className="flex items-center gap-1.5 border-r border-white/10 pr-3">
-              <span className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest">Total</span>
-              <span className="text-sm font-bold text-[var(--vault-primary)]">{(apps || []).length}</span>
-            </div>
-            <div className="flex items-center gap-1.5 border-r border-white/10 pr-3">
-              <span className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest">Users</span>
-              <span className="text-sm font-bold text-emerald-400">{(apps || []).reduce((acc, a) => acc + (a?.total_users || 0), 0)}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest">Inactive</span>
-              <span className="text-sm font-bold text-[var(--vault-on-surface-variant)]">{(apps || []).filter(a => a?.status !== 'active').length}</span>
-            </div>
+    <div className="page-wrapper pt-6 overflow-visible">
+      <motion.header
+        variants={fadeUp} initial="hidden" animate="show"
+        className="flex flex-col md:flex-row justify-between items-start md:items-center gap-5 mb-8"
+      >
+        <div className="flex flex-col gap-3">
+          <div>
+            <nav className="breadcrumb">
+              <span>Enterprise</span>
+              <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+              <span className="breadcrumb-active">Applications</span>
+            </nav>
+            <h1 className="page-title">My Applications</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <StatChip label="Total" value={(apps || []).length} />
+            <StatChip label="Users" value={totalUsers} accent />
+            <StatChip label="Inactive" value={inactiveCount} />
           </div>
         </div>
-        <button 
-          onClick={() => setShowModal(true)}
-          className="bg-[var(--vault-primary)] text-[var(--vault-on-primary)] px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-[var(--vault-primary)]/20 hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-widest text-sm shrink-0"
-        >
-          <span className="material-symbols-outlined text-xl">add</span>
-          Create New App
-        </button>
-      </header>
 
-      {/* Filters Section */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-8">
+        <button
+          onClick={() => setShowModal(true)}
+          className="btn-primary"
+        >
+          <span className="material-symbols-outlined text-[18px]">add</span>
+          New Application
+        </button>
+      </motion.header>
+
+      <motion.div
+        custom={1} variants={fadeUp} initial="hidden" animate="show"
+        className="flex flex-col sm:flex-row gap-3 mb-7"
+      >
         <div className="relative flex-1">
-          <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[var(--vault-on-surface-variant)] text-lg">search</span>
-          <input 
-            type="text" 
-            placeholder="Search applications..." 
+          <span className="search-icon material-symbols-outlined">search</span>
+          <input
+            type="text"
+            placeholder="Search applications..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[var(--vault-primary)]/50 transition-colors placeholder:text-white/20"
+            onChange={e => setSearchTerm(e.target.value)}
+            className="search-input"
           />
         </div>
-        <div className="flex items-center bg-white/5 p-1 rounded-xl border border-white/10 shrink-0">
-          {['all', 'active', 'inactive'].map((status) => (
+
+        <div className="flex items-center gap-1">
+          {(['all', 'active', 'inactive'] as const).map(s => (
             <button
-              key={status}
-              onClick={() => setStatusFilter(status)}
-              className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all ${statusFilter === status ? 'bg-[var(--vault-primary)]/20 text-[var(--vault-primary)] shadow-sm' : 'text-[var(--vault-on-surface-variant)] hover:text-white hover:bg-white/5'}`}
+              key={s}
+              onClick={() => setStatusFilter(s)}
+              className={`filter-tab ${statusFilter === s ? 'filter-tab-active' : ''}`}
             >
-              {status}
+              {s}
             </button>
           ))}
         </div>
-      </div>
+      </motion.div>
 
-      {/* Grid Content */}
-      {filteredApps.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-white/[0.02] border border-white/5 rounded-2xl border-dashed">
-          <div className="w-16 h-16 bg-[var(--vault-primary)]/10 rounded-full flex items-center justify-center text-[var(--vault-primary)] mb-4">
-            <span className="material-symbols-outlined text-3xl">sentiment_dissatisfied</span>
-          </div>
-          <h3 className="text-xl font-bold text-[var(--vault-on-surface)] mb-2">No applications found</h3>
-          <p className="text-[var(--vault-on-surface-variant)] text-sm mb-6 max-w-md text-center">
-            {searchTerm || statusFilter !== 'all' 
-              ? "We couldn't find any applications matching your search criteria. Try adjusting your filters."
-              : "You haven't created any applications yet. Create your first application to get started."}
-          </p>
-          {!(searchTerm || statusFilter !== 'all') && (
-            <button 
-              onClick={() => setShowModal(true)}
-              className="bg-white/5 hover:bg-white/10 text-[var(--vault-on-surface)] px-6 py-2.5 rounded-xl font-bold transition-all text-sm uppercase tracking-widest border border-white/10"
+      <AnimatePresence mode="wait">
+        {filteredApps.length === 0 ? (
+          <motion.div
+            key="empty"
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="empty-state rounded-xl border border-dashed border-[var(--border)] bg-[var(--accent-opacity-8)]"
+          >
+            <div className="empty-icon">
+              <span className="material-symbols-outlined text-3xl text-[var(--primary)]/50">layers_clear</span>
+            </div>
+            <h3 className="empty-title">No applications found</h3>
+            <p className="empty-text mb-6">
+              {searchTerm || statusFilter !== 'all'
+                ? 'No results match your current filters. Try adjusting your search.'
+                : "You haven't created any applications yet. Start by creating one."}
+            </p>
+            {!(searchTerm || statusFilter !== 'all') && (
+              <button
+                onClick={() => setShowModal(true)}
+                className="btn-secondary"
+              >
+                Create Application
+              </button>
+            )}
+          </motion.div>
+        ) : (
+          <motion.div
+            key="grid"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+          >
+            {filteredApps.map((app, i) => (
+              <AppCard
+                key={app.id ?? i}
+                app={app}
+                index={i}
+                onManage={() => router.push(`/applications/${app.id}`)}
+                onDelete={() => handleDelete(app.id)}
+                onToggle={() => handleToggle(app.id)}
+                onCopySecret={() => copy(app.app_secret, { label: 'Secret copied' })}
+                onRegenSecret={() => handleRegenSecret(app.id)}
+                visibleSecret={!!visibleSecrets[app.id]}
+                onToggleSecret={() => setVisibleSecrets(p => ({ ...p, [app.id]: !p[app.id] }))}
+              />
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="modal-overlay"
+          >
+            <motion.div
+              variants={scaleIn} initial="hidden" animate="show" exit="hidden"
+              className={[
+                'w-full max-w-4xl rounded-xl overflow-hidden',
+                'bg-[var(--glass-bg)] backdrop-blur-xl border border-[var(--border)]',
+                'shadow-2xl shadow-black/70',
+                'flex flex-col md:flex-row max-h-[90vh]',
+              ].join(' ')}
             >
-              Create Application
-            </button>
-          )}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredApps.map((app, i) => (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: i * 0.05 }}
-              key={app.id || i} 
-              className={`glass-card rounded-2xl overflow-hidden group transition-all duration-300 ${app.status !== 'active' ? 'opacity-80 hover:opacity-100' : ''}`}
-            >
-              <div className="h-24 relative" style={{ background: `linear-gradient(135deg, ${app.status === 'active' ? 'var(--vault-primary)' : 'gray'}33 0%, transparent 100%)` }}>
-                <div className="absolute top-4 right-4 px-2 py-0.5 rounded border text-[10px] font-bold uppercase tracking-widest" style={{ 
-                  backgroundColor: app.status === 'active' ? 'rgba(52, 211, 153, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-                  color: app.status === 'active' ? '#34d399' : 'gray',
-                  borderColor: app.status === 'active' ? 'rgba(52, 211, 153, 0.2)' : 'rgba(255, 255, 255, 0.1)'
-                }}>{app.status}</div>
-                <div className="absolute -bottom-3 left-6 w-16 h-16 bg-[var(--vault-surface)] rounded-2xl border border-white/10 flex items-center justify-center shadow-2xl text-[var(--vault-primary)] z-10 overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-[var(--vault-primary)]/10 to-transparent"></div>
-                  <span className="material-symbols-outlined text-3xl relative z-10">token</span>
+              <div className="hidden md:flex w-72 shrink-0 flex-col bg-[var(--background)] border-r border-[var(--border)] p-7 gap-6 justify-center items-center">
+                <div className="text-center">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[var(--primary)]/50 mb-1">Live Preview</p>
+                  <p className="text-[11px] text-[var(--muted-foreground)] leading-relaxed">Your app card as it will appear on the dashboard.</p>
                 </div>
-              </div>
-              <div className="pt-8 px-6 pb-6">
-                <div className="flex justify-between items-start mb-6">
-                  <div>
-                    <h3 className="text-xl font-bold text-[var(--vault-on-surface)] group-hover:text-[var(--vault-primary)] transition-colors">{app.name}</h3>
-                    <span className="bg-white/5 px-2 py-0.5 rounded text-[10px] text-[var(--vault-on-surface-variant)] font-bold inline-block border border-white/5 mt-1">{app.version}</span>
-                  </div>
-                  <button className="text-[var(--vault-on-surface-variant)] hover:text-[var(--vault-on-surface)]">
-                    <span className="material-symbols-outlined">more_vert</span>
-                  </button>
-                </div>
-                <div className="grid grid-cols-3 gap-2 mb-6">
-                  {[
-                    { label: 'Users', val: app.total_users || 0 },
-                    { label: 'Keys', val: app.total_keys || 0 },
-                    { label: 'Today', val: app.logins_today || 0, highlight: true },
-                  ].map((stat, j) => (
-                    <div key={j} className="bg-white/[0.02] p-2 rounded-lg border border-white/5 text-center">
-                      <p className="text-[10px] text-[var(--vault-on-surface-variant)] uppercase font-bold tracking-widest">{stat.label}</p>
-                      <p className={`text-sm font-bold ${stat.highlight ? 'text-[var(--vault-primary)]' : 'text-[var(--vault-on-surface)]'}`}>{stat.val}</p>
+
+                <div className="w-full rounded-xl overflow-hidden bg-[var(--glass-bg)] border border-[var(--border)] shadow-xl">
+                  <div className="h-0.5 bg-gradient-to-r from-[var(--primary)] via-[var(--primary-hover)] to-[var(--primary)]" />
+                  <div className="p-4 flex flex-col gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-lg bg-[var(--accent-opacity-15)] border border-[var(--accent-opacity-20)] flex items-center justify-center text-[var(--primary)]">
+                        <span className="material-symbols-outlined text-[18px]">token</span>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[13px] font-bold text-[var(--foreground)] truncate">
+                          {formData.name || 'New Application'}
+                        </p>
+                        <p className="text-[10px] font-mono text-[var(--muted-foreground)]">v{formData.version}</p>
+                      </div>
                     </div>
-                  ))}
-                </div>
-                <div className="bg-black/20 border border-white/5 rounded-xl px-4 py-3 mb-6 flex justify-between items-center group/secret overflow-hidden">
-                  <code className="text-xs text-[var(--vault-on-surface-variant)] tracking-widest font-mono">
-                    {visibleSecrets[app.id] ? app.app_secret : `APP_${"•".repeat(16)}`}
-                  </code>
-                  <div className="flex gap-2 opacity-0 group-hover/secret:opacity-100 transition-opacity">
-                    <span 
-                      onClick={() => toggleSecretVisibility(app.id)}
-                      className="material-symbols-outlined text-sm cursor-pointer hover:text-[var(--vault-primary)]"
-                    >
-                      {visibleSecrets[app.id] ? 'visibility_off' : 'visibility'}
-                    </span>
-                    <span 
-                      onClick={() => copyToClipboard(app.app_secret)}
-                      className="material-symbols-outlined text-sm cursor-pointer hover:text-[var(--vault-primary)]"
-                    >
-                      content_copy
-                    </span>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {['Users', 'Keys', 'Today'].map(l => (
+                        <div key={l} className="bg-black/20 rounded-lg p-1.5 text-center">
+                          <p className="text-[9px] text-[var(--muted-foreground)] uppercase tracking-widest">{l}</p>
+                          <p className="text-[11px] font-bold text-[var(--foreground)]/50">0</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex items-center justify-between pt-1 border-t border-[var(--border)]">
+                      <span className="text-[10px] text-[var(--muted-foreground)]">HWID Lock</span>
+                      <span className={`text-[10px] font-bold ${formData.hwid_enabled ? 'text-[var(--success)]' : 'text-[var(--destructive)]'}`}>
+                        {formData.hwid_enabled ? 'Enabled' : 'Disabled'}
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <button 
-                     onClick={() => router.push(`/applications/${app.id}`)}
-                     className="flex-1 bg-white/5 hover:bg-[var(--vault-primary)]/20 text-[var(--vault-on-surface)] font-bold py-2.5 rounded-lg border border-white/5 transition-all text-xs uppercase tracking-widest"
-                  >Manage</button>
-                  <button 
-                    onClick={() => handleDelete(app.id)}
-                    className="w-12 h-12 flex items-center justify-center bg-white/5 hover:bg-red-500/20 rounded-lg border border-white/5 transition-all"
+
+                <p className="text-[10px] text-[var(--muted-foreground)] italic text-center">Updates as you type</p>
+              </div>
+
+              <div className="flex flex-col flex-1 overflow-hidden">
+                <div className="flex items-start justify-between p-6 pb-4 border-b border-[var(--border)]">
+                  <div>
+                    <h2 className="modal-title text-[var(--foreground)]">Create Application</h2>
+                    <p className="text-[12px] text-[var(--muted-foreground)] mt-0.5">Configure your new deployment parameters.</p>
+                  </div>
+                  <button
+                    onClick={() => setShowModal(false)}
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--accent-opacity-8)] transition-all"
                   >
-                    <span className="material-symbols-outlined text-xl text-red-400">delete</span>
+                    <span className="material-symbols-outlined text-[18px]">close</span>
                   </button>
-                  {app.status === 'active' ? (
-                    <button 
-                      onClick={() => handleToggle(app.id)}
-                      className="w-12 h-12 flex items-center justify-center bg-white/5 hover:bg-amber-400/20 rounded-lg border border-white/5 transition-all"
-                    >
-                      <span className="material-symbols-outlined text-xl text-amber-400">pause</span>
-                    </button>
-                  ) : (
-                    <button 
-                      onClick={() => handleToggle(app.id)}
-                      className="w-12 h-12 flex items-center justify-center bg-white/5 hover:bg-emerald-400/20 rounded-lg border border-white/5 transition-all"
-                    >
-                      <span className="material-symbols-outlined text-xl text-emerald-400">play_arrow</span>
-                    </button>
-                  )}
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-6 space-y-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="field-label">
+                        Application Name <span className="text-[var(--primary)]">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Identity Guard"
+                        value={formData.name}
+                        onChange={e => setFormData({ ...formData, name: e.target.value })}
+                        className="field-input"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="field-label">Version</label>
+                      <input
+                        type="text"
+                        placeholder="1.0.0"
+                        value={formData.version}
+                        onChange={e => setFormData({ ...formData, version: e.target.value })}
+                        className="field-input"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="field-label">Minimum Required Version</label>
+                    <input
+                      type="text"
+                      placeholder="0.9.0"
+                      value={formData.min_version}
+                      onChange={e => setFormData({ ...formData, min_version: e.target.value })}
+                      className="field-input"
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, hwid_enabled: !formData.hwid_enabled })}
+                    className={[
+                      'w-full flex items-center justify-between gap-4 p-4 rounded-xl text-left',
+                      'border transition-all duration-200',
+                      formData.hwid_enabled
+                        ? 'bg-[var(--accent-opacity-15)] border-[var(--accent-opacity-20)] hover:bg-[var(--accent-opacity-20)]'
+                        : 'bg-[var(--accent-opacity-8)] border-[var(--border)] hover:bg-[var(--accent-opacity-10)]',
+                    ].join(' ')}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={[
+                        'w-9 h-9 rounded-lg flex items-center justify-center transition-colors',
+                        formData.hwid_enabled ? 'bg-[var(--accent-opacity-20)] text-[var(--primary)]' : 'bg-[var(--accent-opacity-8)] text-[var(--muted-foreground)]',
+                      ].join(' ')}>
+                        <span className="material-symbols-outlined text-[18px]">devices</span>
+                      </div>
+                      <div>
+                        <p className="text-[13px] font-semibold text-[var(--foreground)]/70">Hardware ID Lock</p>
+                        <p className="text-[11px] text-[var(--muted-foreground)] mt-0.5">Prevent credential sharing across devices</p>
+                      </div>
+                    </div>
+
+                    <div className={`toggle-switch ${formData.hwid_enabled ? 'active' : 'inactive'}`}>
+                      <div className={`toggle-knob ${formData.hwid_enabled ? 'active' : 'inactive'}`} />
+                    </div>
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 p-6 pt-4 border-t border-[var(--border)]">
+                  <button
+                    onClick={() => setShowModal(false)}
+                    className="btn-secondary"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleCreate}
+                    disabled={creating || !formData.name.trim()}
+                    className="btn-primary disabled:opacity-40 disabled:pointer-events-none"
+                  >
+                    <span className="material-symbols-outlined text-[17px]">
+                      {creating ? 'hourglass_top' : 'rocket_launch'}
+                    </span>
+                    {creating ? 'Launching\u2026' : 'Launch App'}
+                  </button>
                 </div>
               </div>
             </motion.div>
-          ))}
-        </div>
-      )}
-
-      {/* Create Modal */}
-      <AnimatePresence>
-      {showModal && (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-[var(--vault-surface)]/80 backdrop-blur-md"
-        >
-          <motion.div 
-            initial={{ scale: 0.95, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.95, opacity: 0, y: 20 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="glass-card w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh]"
-          >
-            {/* Left Side: Preview Area */}
-            <div className="hidden md:flex w-[380px] bg-[var(--vault-primary)]/5 p-8 border-r border-white/5 flex-col justify-center items-center gap-8 shrink-0">
-              <div className="text-center">
-                <p className="text-[10px] font-bold text-[var(--vault-primary)] uppercase tracking-[0.2em] mb-2">Live Preview</p>
-                <p className="text-[var(--vault-on-surface-variant)] text-[11px] font-medium max-w-[240px] mx-auto leading-relaxed">See how your application card will appear in the main dashboard.</p>
-              </div>
-              
-              {/* Preview Card */}
-              <div className="glass-card w-full p-6 rounded-2xl border-[var(--vault-primary)]/20 ring-4 ring-[var(--vault-primary)]/5 shadow-2xl scale-105 bg-[var(--vault-surface)]">
-                <div className="flex justify-between items-start">
-                  <div className="w-14 h-14 rounded-xl bg-[var(--vault-primary)]/20 flex items-center justify-center text-[var(--vault-primary)] shadow-lg shadow-[var(--vault-primary)]/10">
-                    <span className="material-symbols-outlined text-[36px]">token</span>
-                  </div>
-                  <span className="bg-[var(--vault-primary)]/20 text-[var(--vault-primary)] px-4 py-1 rounded-full text-[10px] font-bold border border-[var(--vault-primary)]/30 uppercase tracking-widest text-center">Active</span>
-                </div>
-                <div className="mt-6">
-                  <h3 className="text-xl font-bold text-[var(--vault-on-surface)]">New Application</h3>
-                  <p className="text-[var(--vault-on-surface-variant)] text-xs mt-2 leading-relaxed line-clamp-2">Enter a description to see it appear here in the preview card...</p>
-                </div>
-                <div className="mt-10 pt-6 border-t border-white/5 flex justify-between items-center">
-                  <div>
-                    <p className="text-[9px] text-[var(--vault-on-surface-variant)] uppercase tracking-tighter font-bold">Version</p>
-                    <div className="text-xs text-[var(--vault-primary)] font-bold">V {formData.version}</div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[9px] text-[var(--vault-on-surface-variant)] uppercase tracking-tighter font-bold">HWID Lock</p>
-                    <div className={`text-xs font-bold ${formData.hwid_enabled ? 'text-emerald-400' : 'text-red-400'}`}>
-                      {formData.hwid_enabled ? 'Enabled' : 'Disabled'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-2 text-[var(--vault-on-surface-variant)]/40">
-                <span className="material-symbols-outlined text-[16px]">info</span>
-                <span className="text-[10px] italic font-medium">Card styles update in real-time</span>
-              </div>
-            </div>
-
-            {/* Right Side: Form Area */}
-            <div className="flex-1 flex flex-col overflow-hidden bg-[var(--vault-surface)]/40">
-              {/* Header */}
-              <div className="p-8 pb-4 flex justify-between items-start">
-                <div>
-                  <h2 className="text-2xl font-bold text-[var(--vault-on-surface)]">Create New Application</h2>
-                  <p className="text-sm text-[var(--vault-on-surface-variant)] font-medium mt-1">Configure security parameters for your new deployment.</p>
-                </div>
-                <button onClick={() => setShowModal(false)} className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 hover:bg-red-400/20 transition-colors text-[var(--vault-on-surface-variant)] hover:text-red-400">
-                  <span className="material-symbols-outlined">close</span>
-                </button>
-              </div>
-
-              {/* Form Content */}
-              <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Application Name</label>
-                    <input 
-                       className="glass-input w-full px-4 py-3 rounded-xl text-sm" 
-                       placeholder="e.g. Identity Guard" type="text" 
-                       value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Version (SemVer)</label>
-                    <input 
-                       className="glass-input w-full px-4 py-3 rounded-xl text-sm font-mono" 
-                       placeholder="1.0.0" type="text" 
-                       value={formData.version} onChange={(e) => setFormData({...formData, version: e.target.value})}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-[var(--vault-on-surface-variant)] uppercase tracking-widest px-1">Minimum Required Version</label>
-                    <input 
-                       className="glass-input w-full px-4 py-3 rounded-xl text-sm font-mono" 
-                       placeholder="0.9.0" type="text" 
-                       value={formData.min_version} onChange={(e) => setFormData({...formData, min_version: e.target.value})}
-                    />
-                  </div>
-
-                {/* HWID Toggle */}
-                <div 
-                  onClick={() => setFormData({...formData, hwid_enabled: !formData.hwid_enabled})}
-                  className="bg-white/[0.02] p-6 rounded-2xl border border-white/5 flex items-center justify-between cursor-pointer hover:bg-white/[0.04] transition-all"
-                >
-                  <div className="flex gap-4 items-center">
-                    <div className="w-10 h-10 rounded-xl bg-[var(--vault-primary)]/10 flex items-center justify-center text-[var(--vault-primary)] shadow-inner">
-                      <span className="material-symbols-outlined">devices</span>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-[var(--vault-on-surface)]">Hardware Lock (HWID)</h4>
-                      <p className="text-[10px] text-[var(--vault-on-surface-variant)] font-bold uppercase tracking-widest leading-tight mt-1">Prevent credential sharing across devices.</p>
-                    </div>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer group" onClick={(e) => e.stopPropagation()}>
-                    <input 
-                      type="checkbox" 
-                      checked={formData.hwid_enabled}
-                      onChange={(e) => setFormData({...formData, hwid_enabled: e.target.checked})}
-                      className="sr-only peer" 
-                    />
-                    <div className="w-14 h-7 bg-white/10 rounded-full peer peer-checked:after:translate-x-7 after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--vault-primary)] shadow-inner ring-1 ring-white/5"></div>
-                  </label>
-                </div>
-              </div>
-
-              </div>
-
-              {/* Actions */}
-              <div className="p-8 pt-4 border-t border-white/5 flex justify-end items-center gap-4">
-                <button onClick={() => setShowModal(false)} className="px-6 py-3 rounded-xl text-[var(--vault-on-surface-variant)] font-bold text-xs uppercase tracking-widest hover:bg-white/5 transition-all">
-                  Cancel
-                </button>
-                <button 
-                  onClick={handleCreate}
-                  disabled={creating || !formData.name}
-                  className="bg-[var(--vault-primary)] px-8 py-3 rounded-xl text-[var(--vault-on-primary)] font-bold text-xs uppercase tracking-widest shadow-lg shadow-[var(--vault-primary)]/20 hover:scale-[1.02] transition-all flex items-center gap-2 disabled:opacity-50"
-                >
-                  <span className="material-symbols-outlined text-[20px]">rocket_launch</span>
-                  {creating ? 'Launching...' : 'Finalize & Launch'}
-                </button>
-              </div>
-            </div>
           </motion.div>
-        </motion.div>
-      )}
+        )}
       </AnimatePresence>
-    </>
+    </div>
   );
 }

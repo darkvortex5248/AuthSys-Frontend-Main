@@ -8,6 +8,7 @@ from models.domain import EndUser, DeveloperAccount
 from routers.developer_keys import verify_app_owner
 from schemas.dashboard import BanRequest, UserCreateManual, BulkUserCreate
 from core.security import get_password_hash
+from services.plan_enforcer import require_feature, check_limit
 from pydantic import BaseModel
 from typing import Optional
 from services.webhooks import trigger_webhook
@@ -29,7 +30,12 @@ async def get_users(app_id: int, show_shadow: bool = False, dev: DeveloperAccoun
 
 @router.post("/create")
 async def create_user_manual(req: UserCreateManual, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
-    await verify_app_owner(req.app_id, dev.id, db)
+    app = await verify_app_owner(req.app_id, dev.id, db)
+    plan = await require_feature(dev, "has_user_panel", db)
+    # Check user limit
+    user_count = await db.execute(select(EndUser).where(EndUser.app_id == req.app_id))
+    current_users = len(user_count.scalars().all())
+    await check_limit(dev, "max_licenses", current_users, db, plan)
     
     # Check if username exists for this app
     res = await db.execute(select(EndUser).where(EndUser.app_id == req.app_id, EndUser.username == req.username))
@@ -37,12 +43,16 @@ async def create_user_manual(req: UserCreateManual, dev: DeveloperAccount = Depe
         raise HTTPException(400, "Username already exists for this application")
         
     hashed_password = get_password_hash(req.password)
+    # Resolve expiry: explicit expires_at wins, otherwise derive from duration_days.
+    expires_at = req.expires_at
+    if expires_at is None and req.duration_days:
+        expires_at = datetime.now(timezone.utc) + timedelta(days=req.duration_days)
     new_user = EndUser(
         app_id=req.app_id,
         username=req.username,
         password_hash=hashed_password,
         email=req.email,
-        expires_at=req.expires_at
+        expires_at=expires_at
     )
     db.add(new_user)
     await db.commit()
@@ -51,34 +61,58 @@ async def create_user_manual(req: UserCreateManual, dev: DeveloperAccount = Depe
 
 @router.post("/bulk-create")
 async def bulk_create_users(req: BulkUserCreate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
-    await verify_app_owner(req.app_id, dev.id, db)
+    app = await verify_app_owner(req.app_id, dev.id, db)
+    plan = await require_feature(dev, "has_user_panel", db)
     if req.count > 1000: raise HTTPException(400, "Max 1000 users at once")
+    
+    # Check user limit
+    user_count = await db.execute(select(EndUser).where(EndUser.app_id == req.app_id))
+    current_users = len(user_count.scalars().all())
+    await check_limit(dev, "max_licenses", current_users, db, plan)
     
     import secrets
     import string
     
     users = []
     user_credentials = []
-    for i in range(req.count):
-        # Generate unique username
-        username = f"user_{secrets.token_hex(4)}"
-        
-        # Generate password
-        alphabet = string.ascii_letters + string.digits + string.punctuation
-        password = ''.join(secrets.choice(alphabet) for _ in range(12))
-        if req.password_prefix:
-            password = req.password_prefix + password
-        
-        hashed_password = get_password_hash(password)
-        new_user = EndUser(
-            app_id=req.app_id,
-            username=username,
-            password_hash=hashed_password,
-            expires_at=req.expires_at
-        )
-        users.append(new_user)
-        user_credentials.append({"username": username, "password": password})
-        db.add(new_user)
+    
+    if req.users_list:
+        for item in req.users_list:
+            username = item.get('username', f"user_{secrets.token_hex(4)}")
+            password = item.get('password', 'Default123')
+            email = item.get('email')
+            hashed_password = get_password_hash(password)
+            new_user = EndUser(
+                app_id=req.app_id,
+                username=username,
+                password_hash=hashed_password,
+                email=email,
+                expires_at=req.expires_at
+            )
+            users.append(new_user)
+            user_credentials.append({"username": username, "password": password})
+            db.add(new_user)
+    else:
+        for i in range(req.count):
+            # Generate unique username
+            username = f"user_{secrets.token_hex(4)}"
+            
+            # Generate password
+            alphabet = string.ascii_letters + string.digits + string.punctuation
+            password = ''.join(secrets.choice(alphabet) for _ in range(12))
+            if req.password_prefix:
+                password = req.password_prefix + password
+            
+            hashed_password = get_password_hash(password)
+            new_user = EndUser(
+                app_id=req.app_id,
+                username=username,
+                password_hash=hashed_password,
+                expires_at=req.expires_at
+            )
+            users.append(new_user)
+            user_credentials.append({"username": username, "password": password})
+            db.add(new_user)
     
     await db.commit()
     for user in users:

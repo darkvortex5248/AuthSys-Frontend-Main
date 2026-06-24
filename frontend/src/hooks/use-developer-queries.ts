@@ -24,9 +24,9 @@ export function useDeveloperMe(enabled?: boolean) {
       return res.data;
     },
     enabled: run,
-    staleTime: 5_000,
-    refetchOnWindowFocus: true,
-    refetchInterval: 30_000,
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
+    refetchInterval: 60_000,
     retry: (count, err: any) => err?.response?.status !== 401 && count < 1,
   });
 }
@@ -95,9 +95,8 @@ export function useLicenseKeys(appId: number | null) {
       return res.data as any[];
     },
     enabled: authed && !!appId,
-    staleTime: 0,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
+    staleTime: 60_000,
+    refetchOnMount: false,
   });
 }
 
@@ -110,9 +109,8 @@ export function useAppUsers(appId: number | null) {
       return res.data as any[];
     },
     enabled: authed && !!appId,
-    staleTime: 0,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
+    staleTime: 60_000,
+    refetchOnMount: false,
   });
 }
 
@@ -132,6 +130,18 @@ export function useInvalidateDeveloperData() {
       await queryClient.invalidateQueries({ queryKey: queryKeys.users(appId) });
       await queryClient.refetchQueries({ queryKey: queryKeys.users(appId), type: 'active' });
     },
+    blacklist: async (appId: number) => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.blacklist(appId) });
+      await queryClient.refetchQueries({ queryKey: queryKeys.blacklist(appId), type: 'active' });
+    },
+    variables: async (appId: number) => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.variables(appId) });
+      await queryClient.refetchQueries({ queryKey: queryKeys.variables(appId), type: 'active' });
+    },
+    auditLogs: async (appId: number) => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.auditLogs(appId) });
+      await queryClient.refetchQueries({ queryKey: queryKeys.auditLogs(appId), type: 'active' });
+    },
     all: async (appId?: number) => {
       await Promise.all([
         queryClient.refetchQueries({ queryKey: queryKeys.apps }),
@@ -141,6 +151,15 @@ export function useInvalidateDeveloperData() {
           : Promise.resolve(),
         appId
           ? queryClient.refetchQueries({ queryKey: queryKeys.users(appId) })
+          : Promise.resolve(),
+        appId
+          ? queryClient.refetchQueries({ queryKey: queryKeys.blacklist(appId) })
+          : Promise.resolve(),
+        appId
+          ? queryClient.refetchQueries({ queryKey: queryKeys.variables(appId) })
+          : Promise.resolve(),
+        appId
+          ? queryClient.refetchQueries({ queryKey: queryKeys.auditLogs(appId) })
           : Promise.resolve(),
       ]);
     },
@@ -297,9 +316,9 @@ export function useCreateApp() {
       const res = await api.post('/developer/apps/create', formData);
       return res.data;
     },
-    onSettled: () => {
-      invalidate.apps();
-      invalidate.overview();
+    onSuccess: async () => {
+      await invalidate.apps();
+      await invalidate.overview();
     },
   });
 }
@@ -337,6 +356,21 @@ export function useToggleApp() {
   });
 }
 
+export function useAnalytics(appId: number | null) {
+  const authed = useIsAuthenticated();
+  return useQuery({
+    queryKey: queryKeys.analytics(appId ?? 0, 7),
+    queryFn: async () => {
+      const res = await api.get(`/developer/analytics/${appId}`);
+      return res.data;
+    },
+    enabled: authed && !!appId,
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
+    retry: (count, err: any) => err?.response?.status !== 401 && count < 1,
+  });
+}
+
 export function useDeleteApp() {
   const invalidate = useInvalidateDeveloperData();
   const queryClient = useQueryClient();
@@ -362,6 +396,145 @@ export function useDeleteApp() {
     onSettled: () => {
       invalidate.apps();
       invalidate.overview();
+    },
+  });
+}
+
+/* ── Blacklist ────────────────────────────────────────────── */
+
+export function useBlacklist(appId: number | null) {
+  const authed = useIsAuthenticated();
+  return useQuery({
+    queryKey: queryKeys.blacklist(appId ?? 0),
+    queryFn: async () => {
+      const res = await api.get(`/developer/blacklist/${appId}`);
+      return res.data as any[];
+    },
+    enabled: authed && !!appId,
+    staleTime: 60_000,
+    refetchOnMount: false,
+  });
+}
+
+export function useAddBlacklistEntry() {
+  const queryClient = useQueryClient();
+  const invalidate = useInvalidateDeveloperData();
+  return useMutation({
+    mutationFn: async (payload: { app_id: number; type: string; value: string; reason?: string }) => {
+      const res = await api.post('/developer/blacklist/add', payload);
+      return res.data;
+    },
+    onSuccess: async (_data, vars) => {
+      await invalidate.blacklist(vars.app_id);
+    },
+  });
+}
+
+export function useDeleteBlacklistEntry() {
+  const queryClient = useQueryClient();
+  const invalidate = useInvalidateDeveloperData();
+  return useMutation({
+    mutationFn: async ({ id, appId }: { id: number; appId: number }) => {
+      await api.delete(`/developer/blacklist/${id}`);
+      return { id, appId };
+    },
+    onMutate: async ({ id, appId }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.blacklist(appId) });
+      const prev = queryClient.getQueryData<any[]>(queryKeys.blacklist(appId));
+      queryClient.setQueryData<any[]>(queryKeys.blacklist(appId), (old) =>
+        (old ?? []).filter((e) => e.id !== id),
+      );
+      return { prev, appId };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(queryKeys.blacklist(ctx.appId), ctx.prev);
+    },
+    onSettled: async (_d, _e, { appId }) => {
+      await invalidate.blacklist(appId);
+    },
+  });
+}
+
+/* ── Variables ────────────────────────────────────────────── */
+
+export function useVariables(appId: number | null) {
+  const authed = useIsAuthenticated();
+  return useQuery({
+    queryKey: queryKeys.variables(appId ?? 0),
+    queryFn: async () => {
+      const res = await api.get(`/developer/variables/${appId}`);
+      return res.data as any[];
+    },
+    enabled: authed && !!appId,
+    staleTime: 60_000,
+    refetchOnMount: false,
+  });
+}
+
+export function useCreateVariable() {
+  const invalidate = useInvalidateDeveloperData();
+  return useMutation({
+    mutationFn: async (payload: { app_id: number; key_name: string; key_value: string; is_global: boolean }) => {
+      const res = await api.post('/developer/variables/create', payload);
+      return res.data;
+    },
+    onSuccess: async (_data, vars) => {
+      await invalidate.variables(vars.app_id);
+    },
+  });
+}
+
+export function useDeleteVariable() {
+  const queryClient = useQueryClient();
+  const invalidate = useInvalidateDeveloperData();
+  return useMutation({
+    mutationFn: async ({ id, appId }: { id: number; appId: number }) => {
+      await api.delete(`/developer/variables/${id}`);
+      return { id, appId };
+    },
+    onMutate: async ({ id, appId }) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.variables(appId) });
+      const prev = queryClient.getQueryData<any[]>(queryKeys.variables(appId));
+      queryClient.setQueryData<any[]>(queryKeys.variables(appId), (old) =>
+        (old ?? []).filter((v) => v.id !== id),
+      );
+      return { prev, appId };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(queryKeys.variables(ctx.appId), ctx.prev);
+    },
+    onSettled: async (_d, _e, { appId }) => {
+      await invalidate.variables(appId);
+    },
+  });
+}
+
+/* ── Audit Logs ───────────────────────────────────────────── */
+
+export function useAuditLogs(appId: number | null) {
+  const authed = useIsAuthenticated();
+  return useQuery({
+    queryKey: queryKeys.auditLogs(appId ?? 0),
+    queryFn: async () => {
+      const res = await api.get(`/developer/analytics/${appId}`);
+      return (res.data.recent_activity || []) as any[];
+    },
+    enabled: authed && !!appId,
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
+    retry: (count, err: any) => err?.response?.status !== 401 && count < 1,
+  });
+}
+
+export function useClearAuditLogs() {
+  const invalidate = useInvalidateDeveloperData();
+  return useMutation({
+    mutationFn: async (appId: number) => {
+      await api.delete(`/developer/analytics/${appId}/logs`);
+      return appId;
+    },
+    onSuccess: async (appId) => {
+      await invalidate.auditLogs(appId);
     },
   });
 }

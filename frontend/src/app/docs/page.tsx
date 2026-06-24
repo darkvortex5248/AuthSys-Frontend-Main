@@ -1,132 +1,254 @@
-"use client";
+'use client'
 
-import { motion } from "framer-motion";
-import Link from "next/link";
-import { ShieldCheck, ArrowLeft, BookOpen, Terminal, Shield, Cpu, Zap } from "lucide-react";
+import Link from 'next/link'
+import { motion } from 'framer-motion'
+import { DOCS_NAV } from '@/lib/docs-nav'
+import {
+  ShieldCheck,
+  ArrowRight,
+  Sparkles,
+  BookOpen,
+  MessageCircle,
+  ExternalLink,
+} from 'lucide-react'
 
-export default function DocsPage() {
-  const sections = [
-    {
-      id: "introduction",
-      title: "Introduction",
-      icon: BookOpen,
-      content: "AuthSys is a next-generation authentication and security platform designed for software developers who take protection seriously. We provide a robust infrastructure for managing license keys, hardware-bound authentication (HWID), and real-time threat monitoring through an intuitive AI-powered dashboard."
-    },
-    {
-      id: "getting-started",
-      title: "Getting Started",
-      icon: Zap,
-      content: "To begin protecting your application, first create a developer account and register your first app in the dashboard. You'll receive a unique API Key that you'll use to communicate with our secure endpoints. Integration takes less than 5 minutes using our native SDKs."
-    },
-    {
-      id: "security",
-      title: "Security & HWID",
-      icon: Shield,
-      content: "Our core strength lies in our multi-layered security approach. By binding license keys to specific Hardware IDs (HWID), we ensure that your software cannot be shared or pirated. Our system continuously monitors for VPN usage, proxy attempts, and suspicious login patterns in real-time."
-    },
-    {
-      id: "integration",
-      title: "SDK Integration",
-      icon: Terminal,
-      content: "We offer native SDKs for Python, C#, C++, and JavaScript. Each SDK is designed to be lightweight and highly resistant to reverse engineering. Simply import the library, initialize with your key, and call the authenticate method to secure your application logic."
-    }
-  ];
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.04 },
+  },
+}
 
+const item = {
+  hidden: { opacity: 0, y: 16 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
+  },
+}
+
+const CATEGORY_COLORS: Record<
+  string,
+  { gradient: string; border: string; bg: string }
+> = {
+  'Getting Started': {
+    gradient:
+      'linear-gradient(135deg, rgba(109,93,246,0.12) 0%, rgba(109,93,246,0.02) 100%)',
+    border: 'border-[var(--primary)]/20',
+    bg: 'bg-[var(--primary)]/5',
+  },
+  Security: {
+    gradient:
+      'linear-gradient(135deg, rgba(239,68,68,0.10) 0%, rgba(239,68,68,0.02) 100%)',
+    border: 'border-red-500/20',
+    bg: 'bg-red-500/5',
+  },
+  'SDK Integration': {
+    gradient:
+      'linear-gradient(135deg, rgba(34,211,238,0.10) 0%, rgba(34,211,238,0.02) 100%)',
+    border: 'border-cyan-500/20',
+    bg: 'bg-cyan-500/5',
+  },
+  'API Reference': {
+    gradient:
+      'linear-gradient(135deg, rgba(251,191,36,0.10) 0%, rgba(251,191,36,0.02) 100%)',
+    border: 'border-amber-500/20',
+    bg: 'bg-amber-500/5',
+  },
+  'License Keys': {
+    gradient:
+      'linear-gradient(135deg, rgba(52,211,153,0.10) 0%, rgba(52,211,153,0.02) 100%)',
+    border: 'border-emerald-500/20',
+    bg: 'bg-emerald-500/5',
+  },
+  'Dashboard Guide': {
+    gradient:
+      'linear-gradient(135deg, rgba(168,85,247,0.10) 0%, rgba(168,85,247,0.02) 100%)',
+    border: 'border-purple-500/20',
+    bg: 'bg-purple-500/5',
+  },
+  FAQ: {
+    gradient:
+      'linear-gradient(135deg, rgba(249,115,22,0.10) 0%, rgba(249,115,22,0.02) 100%)',
+    border: 'border-orange-500/20',
+    bg: 'bg-orange-500/5',
+  },
+}
+
+const DOC_STATS = [
+  { label: 'Guides', value: '7' },
+  { label: 'Pages', value: '32+' },
+  { label: 'SDK Languages', value: '4' },
+  { label: 'API Endpoints', value: '24' },
+]
+
+export default function DocsOverview() {
   return (
-    <div className="min-h-screen bg-[#0d0d0d] text-[#ececec] font-sans selection:bg-[#d97757]/30">
-      {/* Simple Header */}
-      <header className="border-b border-white/5 bg-[#0d0d0d]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-[#d97757]/10 flex items-center justify-center border border-[#d97757]/20 group-hover:border-[#d97757]/50 transition-colors">
-              <ShieldCheck className="w-5 h-5 text-[#d97757]" />
-            </div>
-            <span className="font-bold text-lg tracking-tight">AuthSys <span className="text-[#8e8ea0] font-medium text-sm ml-1">Docs</span></span>
+    <div className="max-w-3xl">
+      {/* Hero */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        className="mb-12"
+      >
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--primary)]/20 bg-[var(--primary)]/5 px-4 py-1.5">
+          <Sparkles className="h-3.5 w-3.5 text-[var(--primary)]" />
+          <span className="text-[11px] font-semibold text-[var(--primary)]">
+            Welcome to the AuthSys documentation
+          </span>
+        </div>
+        <h1 className="text-4xl font-bold tracking-tight text-[var(--color-text-primary)] sm:text-5xl lg:text-6xl">
+          Build with{' '}
+          <span className="bg-gradient-to-r from-[var(--primary)] to-[var(--ring)] bg-clip-text text-transparent">
+            confidence
+          </span>
+        </h1>
+        <p className="mt-5 max-w-xl text-base leading-relaxed text-[var(--color-text-secondary)] sm:text-lg">
+          Everything you need to integrate enterprise-grade security into your
+          software. From quickstart guides to API references.
+        </p>
+
+        {/* Quick links */}
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <Link
+            href="/docs/getting-started/quickstart"
+            className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-[var(--primary)]/90 hover:shadow-lg hover:shadow-[var(--primary)]/20"
+          >
+            Get Started
+            <ArrowRight className="h-4 w-4" />
           </Link>
-          
-          <Link href="/" className="text-sm text-[#8e8ea0] hover:text-white flex items-center gap-1.5 transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Home
+          <Link
+            href="/docs/api-reference"
+            className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition-all duration-200 hover:border-[var(--color-border)]/50 hover:bg-[var(--color-bg-elevated)]"
+          >
+            <BookOpen className="h-4 w-4" />
+            API Reference
           </Link>
         </div>
-      </header>
+      </motion.div>
 
-      <main className="max-w-7xl mx-auto px-4 py-12 md:py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-12">
-          {/* Sidebar Nav */}
-          <aside className="hidden lg:block sticky top-28 h-fit">
-            <nav className="space-y-1">
-              {sections.map((section) => (
-                <a 
-                  key={section.id}
-                  href={`#${section.id}`}
-                  className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-[#8e8ea0] hover:text-white hover:bg-white/5 transition-all"
-                >
-                  <section.icon className="w-4 h-4" />
-                  {section.title}
-                </a>
-              ))}
-            </nav>
-          </aside>
-
-          {/* Content Area */}
-          <div className="space-y-16">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="max-w-3xl"
-            >
-              <h1 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">Documentation</h1>
-              <p className="text-lg text-[#8e8ea0] leading-relaxed">
-                Learn how to integrate AuthSys into your project and leverage our enterprise-grade security features to protect your intellectual property.
-              </p>
-            </motion.div>
-
-            <div className="space-y-24">
-              {sections.map((section, i) => (
-                <motion.section 
-                  key={section.id}
-                  id={section.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ delay: i * 0.1 }}
-                  className="scroll-mt-32"
-                >
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-[#d97757]/10 flex items-center justify-center border border-[#d97757]/20">
-                      <section.icon className="w-5 h-5 text-[#d97757]" />
-                    </div>
-                    <h2 className="text-2xl font-bold">{section.title}</h2>
-                  </div>
-                  <div className="bg-[#1a1a1a]/40 border border-white/5 rounded-2xl p-8 md:p-10">
-                    <p className="text-[#8e8ea0] text-lg leading-relaxed">
-                      {section.content}
-                    </p>
-                  </div>
-                </motion.section>
-              ))}
+      {/* Stats */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15, duration: 0.35, ease: 'easeOut' }}
+        className="mb-12 grid grid-cols-2 gap-3 sm:grid-cols-4"
+      >
+        {DOC_STATS.map((stat) => (
+          <div
+            key={stat.label}
+            className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-4 py-3 text-center"
+          >
+            <div className="text-lg font-bold text-[var(--color-text-primary)]">
+              {stat.value}
             </div>
+            <div className="text-[11px] font-medium text-[var(--color-text-muted)]">
+              {stat.label}
+            </div>
+          </div>
+        ))}
+      </motion.div>
 
-            {/* Help CTA */}
-            <section className="bg-gradient-to-br from-[#d97757]/10 to-transparent border border-[#d97757]/20 rounded-3xl p-8 md:p-12 text-center">
-              <h3 className="text-xl font-bold mb-3">Need more help?</h3>
-              <p className="text-[#8e8ea0] mb-6">Our support team is available 24/7 for technical assistance.</p>
-              <Link 
-                href="/contact"
-                className="inline-flex items-center justify-center bg-[#d97757] hover:bg-[#c96a47] text-white font-bold py-3 px-8 rounded-xl transition-all shadow-lg shadow-[#d97757]/20"
+      {/* Category Cards */}
+      <motion.div
+        variants={container}
+        initial="hidden"
+        animate="show"
+        className="mb-16 grid grid-cols-1 gap-4 sm:grid-cols-2"
+      >
+        {DOCS_NAV.map((cat) => {
+          const colors = CATEGORY_COLORS[cat.title] || CATEGORY_COLORS['Getting Started']
+          return (
+            <motion.div key={cat.href} variants={item}>
+              <Link
+                href={cat.href}
+                className="group relative block h-full overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] transition-all duration-300 hover:border-[var(--color-border)]/50"
+                style={{ background: colors.gradient }}
               >
-                Contact Support
+                <div className="p-5">
+                  <div className="mb-3 flex items-center gap-3">
+                    <div
+                      className={`flex h-9 w-9 items-center justify-center rounded-xl ${colors.bg} ${colors.border} border`}
+                    >
+                      <span className="material-symbols-outlined text-[18px] text-[var(--primary)]">
+                        {cat.icon}
+                      </span>
+                    </div>
+                    <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">
+                      {cat.title}
+                    </h3>
+                    <ArrowRight className="ml-auto h-4 w-4 text-[var(--color-text-muted)] opacity-0 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0.5" />
+                  </div>
+
+                  <ul className="space-y-1.5">
+                    {cat.pages.slice(0, 3).map((p) => (
+                      <li
+                        key={p.href}
+                        className="flex items-center gap-2 text-xs text-[var(--color-text-muted)]"
+                      >
+                        <span className="h-1 w-1 flex-shrink-0 rounded-full bg-[var(--color-text-muted)]/30" />
+                        {p.title}
+                      </li>
+                    ))}
+                    {cat.pages.length > 3 && (
+                      <li className="text-xs font-medium text-[var(--primary)]">
+                        +{cat.pages.length - 3} more guides
+                      </li>
+                    )}
+                  </ul>
+                </div>
+
+                {/* Hover glow */}
+                <div className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-[var(--primary)]/10" />
+                </div>
               </Link>
-            </section>
+            </motion.div>
+          )
+        })}
+      </motion.div>
+
+      {/* CTA */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.35, ease: 'easeOut' }}
+        className="relative overflow-hidden rounded-2xl border border-[var(--primary)]/20 bg-[var(--primary)]/5 p-8 text-center sm:p-10"
+      >
+        <div className="relative z-10">
+          <div className="mb-4 inline-flex items-center justify-center gap-2">
+            <MessageCircle className="h-5 w-5 text-[var(--primary)]" />
+            <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">
+              Need live help?
+            </h3>
+          </div>
+          <p className="mx-auto mb-6 max-w-sm text-sm leading-relaxed text-[var(--color-text-secondary)]">
+            Our support team is available 24/7 for technical assistance and
+            integration support.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-[var(--primary)]/90 hover:shadow-lg hover:shadow-[var(--primary)]/20"
+            >
+              Contact Support
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="https://github.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-5 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition-all duration-200 hover:border-[var(--color-border)]/50"
+            >
+              <ExternalLink className="h-4 w-4" />
+              GitHub
+            </Link>
           </div>
         </div>
-      </main>
-
-      {/* Simple Footer */}
-      <footer className="border-t border-white/5 py-12 mt-20 text-center">
-        <p className="text-[#5a5a72] text-sm">© 2026 AuthSys Security Platform. All rights reserved.</p>
-      </footer>
+      </motion.div>
     </div>
-  );
+  )
 }

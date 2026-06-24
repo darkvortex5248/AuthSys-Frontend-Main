@@ -6,19 +6,24 @@ import { ArrowLeft } from "lucide-react";
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-[#0d0d0d] text-[#ececec] font-sans p-4 md:p-8">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      className="min-h-screen bg-[var(--color-bg-base)] text-[var(--color-text-primary)] font-sans p-4 md:p-8"
+    >
       <div className="max-w-3xl mx-auto">
-        <Link href="/" className="inline-flex items-center gap-2 text-[#8e8ea0] hover:text-white transition-colors mb-12">
-          <ArrowLeft className="w-4 h-4" /> Back to Home
+        <Link href="/" className="inline-flex items-center gap-2 text-[var(--color-text-muted)] hover:text-white transition-colors mb-12 group">
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to Home
         </Link>
 
         <h1 className="text-4xl font-black mb-8 tracking-tight">Terms of Service</h1>
         
-        <div className="prose prose-invert prose-lg max-w-none text-[#8e8ea0] space-y-6">
+        <div className="prose prose-invert prose-lg max-w-none text-[var(--color-text-secondary)] space-y-6">
           <p className="text-white">Last updated: May 25, 2026</p>
           
           <h2 className="text-2xl font-bold text-white mt-8 mb-4">1. Acceptance of Terms</h2>
-          <p>By accessing or using the AuthSys platform ("Service"), you agree to be bound by these Terms of Service. These terms constitute a legally binding agreement between you and AuthSys. If you do not agree to these terms, please do not access or use our Service.</p>
+          <p>By accessing or using the AuthSys platform (&quot;Service&quot;), you agree to be bound by these Terms of Service. These terms constitute a legally binding agreement between you and AuthSys. If you do not agree to these terms, please do not access or use our Service.</p>
           
           <h2 className="text-2xl font-bold text-white mt-8 mb-4">2. Eligibility</h2>
           <p>You must be at least 18 years of age or the age of legal majority in your jurisdiction to use our Services. By using the Service, you represent and warrant that you have the right, authority, and capacity to enter into this agreement.</p>
@@ -46,6 +51,6 @@ export default function TermsPage() {
           <p>These Terms shall be governed and construed in accordance with the laws of the jurisdiction in which AuthSys operates, without regard to its conflict of law provisions.</p>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

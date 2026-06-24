@@ -19,40 +19,8 @@ async def init_admin():
             db.add(admin)
             print("Admin user created: admin / admin123")
         
-        # Create default plans
-        res = await db.execute(select(SubscriptionPlan))
-        if not res.scalars().all():
-            plans = [
-                SubscriptionPlan(
-                    name="Tester", 
-                    price_monthly=0, 
-                    price_yearly=0, 
-                    max_apps=5, 
-                    max_users_per_app=10, 
-                    max_keys_per_month=100,
-                    features_json=["All Auth Methods", "Token System", "Hash Checks", "Client Two Factor Authentication"]
-                ),
-                SubscriptionPlan(
-                    name="Developer", 
-                    price_monthly=299, 
-                    price_yearly=1499, 
-                    max_apps=20, 
-                    max_users_per_app=10000, 
-                    max_keys_per_month=50000,
-                    features_json=["Everything in Tester +", "Team Management", "Customer Panel", "Function Management"]
-                ),
-                SubscriptionPlan(
-                    name="Seller", 
-                    price_monthly=499, 
-                    price_yearly=2499, 
-                    max_apps=999999, 
-                    max_users_per_app=999999, 
-                    max_keys_per_month=999999,
-                    features_json=["Everything in Developer +", "Chatrooms", "Discord Bot", "Telegram Bot", "Seller API"]
-                )
-            ]
-            db.add_all(plans)
-            print("Default plans created with new features")
+        # Plans are now seeded by bootstrap on startup (Free, Developer, Seller, Enterprise)
+        # init_admin only creates the admin user
 
         # Create default settings
         res = await db.execute(select(SystemSetting).where(SystemSetting.key == "maintenance_mode"))

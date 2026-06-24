@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 export const TextHoverEffect = ({
   text,
-  duration,
+  duration = 0,
   className,
 }: {
   text: string;
@@ -52,11 +52,12 @@ export const TextHoverEffect = ({
         >
           {hovered && (
             <>
-              <stop offset="0%" stopColor="#eab308" />
-              <stop offset="25%" stopColor="#ef4444" />
-              <stop offset="50%" stopColor="#80eeb4" />
-              <stop offset="75%" stopColor="#06b6d4" />
-              <stop offset="100%" stopColor="#8b5cf6" />
+              <stop offset="0%" stopColor="var(--primary)" />
+              <stop offset="20%" stopColor="#ef4444" />
+              <stop offset="40%" stopColor="#8b5cf6" />
+              <stop offset="60%" stopColor="#06b6d4" />
+              <stop offset="80%" stopColor="#10b981" />
+              <stop offset="100%" stopColor="var(--primary)" />
             </>
           )}
         </linearGradient>
@@ -64,7 +65,7 @@ export const TextHoverEffect = ({
         <motion.radialGradient
           id="revealMask"
           gradientUnits="userSpaceOnUse"
-          r="20%"
+          r="22%"
           initial={{ cx: "50%", cy: "50%" }}
           animate={maskPosition}
           transition={{ duration: duration ?? 0, ease: "easeOut" }}
@@ -72,55 +73,60 @@ export const TextHoverEffect = ({
           <stop offset="0%" stopColor="white" />
           <stop offset="100%" stopColor="black" />
         </motion.radialGradient>
+
+        <filter id="glow">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur" />
+          <feComposite in="blur" in2="SourceGraphic" operator="over" />
+        </filter>
+
         <mask id="textMask">
-          <rect
-            x="0"
-            y="0"
-            width="100%"
-            height="100%"
-            fill="url(#revealMask)"
-          />
+          <rect x="0" y="0" width="100%" height="100%" fill="url(#revealMask)" />
         </mask>
       </defs>
+
+      {/* Outline layer (fades in on hover) */}
       <text
         x="50%"
         y="50%"
         textAnchor="middle"
         dominantBaseline="middle"
-        strokeWidth="0.3"
-        className="fill-transparent stroke-neutral-200 font-[helvetica] text-7xl font-bold dark:stroke-neutral-800"
-        style={{ opacity: hovered ? 0.7 : 0 }}
+        strokeWidth="0.25"
+        className="fill-transparent stroke-neutral-300/40 font-[helvetica] text-7xl font-bold dark:stroke-neutral-600/50"
+        style={{
+          opacity: hovered ? 1 : 0,
+          transition: 'opacity 0.3s ease',
+        }}
       >
         {text}
       </text>
+
+      {/* Animated draw-on stroke */}
       <motion.text
         x="50%"
         y="50%"
         textAnchor="middle"
         dominantBaseline="middle"
-        strokeWidth="0.3"
-        className="fill-transparent stroke-[#d97757] font-[helvetica] text-7xl font-bold dark:stroke-[#d9775799]"
-        initial={{ strokeDashoffset: 1000, strokeDasharray: 1000 }}
-        animate={{
-          strokeDashoffset: 0,
-          strokeDasharray: 1000,
-        }}
-        transition={{
-          duration: 4,
-          ease: "easeInOut",
-        }}
+        strokeWidth="0.25"
+        className="fill-transparent font-[helvetica] text-7xl font-bold"
+        style={{ stroke: 'var(--primary)' }}
+        initial={{ strokeDashoffset: 1000, strokeDasharray: 1000, opacity: 0.6 }}
+        animate={{ strokeDashoffset: 0, strokeDasharray: 1000, opacity: 0.9 }}
+        transition={{ duration: 4, ease: "easeInOut" }}
       >
         {text}
       </motion.text>
+
+      {/* Color reveal layer (follows cursor) */}
       <text
         x="50%"
         y="50%"
         textAnchor="middle"
         dominantBaseline="middle"
         stroke="url(#textGradient)"
-        strokeWidth="0.3"
+        strokeWidth="0.25"
         mask="url(#textMask)"
         className="fill-transparent font-[helvetica] text-7xl font-bold"
+        filter={hovered ? "url(#glow)" : undefined}
       >
         {text}
       </text>
@@ -128,14 +134,15 @@ export const TextHoverEffect = ({
   );
 };
 
-
 export const FooterBackgroundGradient = () => {
   return (
     <div
       className="absolute inset-0 z-0 pointer-events-none"
       style={{
-        background:
-          "radial-gradient(125% 125% at 50% 10%, #0F0F1166 50%, #d977571A 100%)",
+        background: [
+          "radial-gradient(ellipse 80% 60% at 50% 100%, color-mix(in srgb, var(--primary) 12%, transparent) 0%, transparent 60%)",
+          "radial-gradient(ellipse 100% 80% at 50% 120%, color-mix(in srgb, var(--primary) 6%, transparent) 0%, transparent 50%)",
+        ].join(", "),
       }}
     />
   );

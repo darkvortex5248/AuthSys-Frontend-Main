@@ -22,10 +22,10 @@ function ErrorContent() {
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
       <header className="mb-8 relative">
         <div className="absolute -top-6 -left-6 w-12 h-12 bg-red-500/10 rounded-full blur-xl animate-pulse"></div>
-        <h2 className="text-4xl font-extrabold text-[var(--vault-on-surface)] mb-2 tracking-tight">
+        <h2 className="text-4xl font-extrabold text-[var(--foreground)] mb-2 tracking-tight">
           {errorTitle.split(' ')[0]} <span className="text-red-500">{errorTitle.split(' ').slice(1).join(' ')}</span>
         </h2>
-        <p className="text-[var(--vault-on-surface-variant)] text-sm font-medium">
+        <p className="text-[var(--muted-foreground)] text-sm font-medium">
           Error Protocol Code: <span className="text-red-500/80 font-mono">{error || "UNKNOWN_ERR"}</span>
         </p>
       </header>
@@ -58,7 +58,7 @@ function ErrorContent() {
       </div>
 
       <footer className="text-center pt-8 border-t border-white/5 mt-8">
-        <p className="text-[10px] text-[var(--vault-on-surface-variant)] font-bold uppercase tracking-[0.2em] opacity-50">
+        <p className="text-[10px] text-[var(--muted-foreground)] font-bold uppercase tracking-[0.2em] opacity-50">
           Security Subsystem Error Handling v2.1
         </p>
       </footer>

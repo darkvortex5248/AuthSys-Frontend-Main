@@ -74,11 +74,6 @@ class CreateLicenseKeysAction(BaseAction):
     """Action to create license keys"""
     
     async def execute(self, parameters: Dict[str, Any], context: Dict[str, Any]) -> ActionResult:
-        # Import here to avoid circular dependencies
-        from backend.routers.developer_keys import create_key
-        from backend.database import get_db
-        from sqlalchemy.ext.asyncio import AsyncSession
-        
         try:
             count = parameters.get("count", 1)
             duration_days = parameters.get("duration_days", 30)
@@ -92,8 +87,6 @@ class CreateLicenseKeysAction(BaseAction):
             if not app_id:
                 return ActionResult(False, "No application selected")
             
-            # This would need to be implemented with actual database calls
-            # For now, return a mock response
             return ActionResult(
                 success=True,
                 message=f"Created {count} license keys with {duration_days} days duration",

@@ -20,7 +20,10 @@ async def trigger_webhook(app_id: int, event_type: str, payload: Dict[str, Any],
     endpoints = res.scalars().all()
     
     for ep in endpoints:
-        if ep.events and event_type not in ep.events:
+        events = ep.events
+        if isinstance(events, str):
+            events = [e.strip() for e in events.split(",") if e.strip()]
+        if events and event_type not in events:
             continue
 
         log = WebhookLog(

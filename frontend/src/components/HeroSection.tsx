@@ -62,15 +62,15 @@ const Navbar = () => {
     <nav 
       className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 border-b ${
         scrolled 
-          ? 'bg-[#0d0d0d]/80 backdrop-blur-md border-white/10 shadow-[0_4px_20px_-10px_rgba(217,119,87,0.2)]' 
-          : 'bg-[#0d0d0d] border-white/5'
+          ? 'bg-[var(--glass-bg)] backdrop-blur-xl border-[var(--glass-border)] shadow-[0_4px_20px_-10px_var(--accent-opacity-15)]' 
+          : 'bg-[var(--background)] border-[var(--border)]'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
         {/* Left: Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <ShieldCheck className="w-[18px] h-[18px] text-[#d97757]" />
-          <span className="text-[14px] font-semibold text-[#ececec]">AuthSys</span>
+          <ShieldCheck className="w-[18px] h-[18px] text-[var(--primary)]" />
+          <span className="text-[14px] font-semibold text-[var(--foreground)] tracking-tight">AuthSys</span>
         </Link>
 
         {/* Center: Nav Links (Desktop) */}
@@ -82,7 +82,7 @@ const Navbar = () => {
               <Link 
                 key={link} 
                 href={href} 
-                className="text-[12px] text-[#8e8ea0] transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-[#d97757] after:transition-all after:duration-300 hover:after:w-full hover:text-white"
+                className="text-[12px] text-[var(--muted-foreground)] transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-[var(--primary)] after:transition-all after:duration-300 hover:after:w-full hover:text-[var(--foreground)] font-medium"
               >
                 {link}
               </Link>
@@ -92,16 +92,16 @@ const Navbar = () => {
 
         {/* Right: Actions */}
         <div className="flex items-center gap-4">
-          <Link href="/login" className="hidden sm:block text-[12px] text-[#8e8ea0] hover:text-white font-medium transition-colors">
+          <Link href="/login" className="hidden sm:block text-[12px] text-[var(--muted-foreground)] hover:text-white font-medium transition-colors">
             Sign In
           </Link>
           <Link href="/register">
-            <MagneticButton className="bg-[#d97757] hover:bg-[#c96a47] text-white rounded-[6px] px-[14px] py-[6px] text-[12px] font-medium transition-all active:scale-95 shadow-[0_4px_15px_rgba(217,119,87,0.3)]">
+            <MagneticButton className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] rounded-xl px-[32px] py-[18px] text-[15px] font-bold transition-all duration-250 hover:translate-y-[-2px] shadow-[0_4px_20px_rgba(0,0,0,0.25)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.3)]">
               Start Free
             </MagneticButton>
           </Link>
           <button 
-            className="md:hidden text-[#8e8ea0]"
+            className="md:hidden text-[var(--muted-foreground)]"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -116,7 +116,7 @@ const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-[#0d0d0d] border-b border-white/10 overflow-hidden"
+            className="md:hidden bg-[var(--glass-bg)] backdrop-blur-xl border-b border-[var(--glass-border)] overflow-hidden"
           >
             <div className="px-4 py-6 flex flex-col gap-4">
               {['Features', 'Pricing', 'Docs', 'Status'].map((link) => {
@@ -126,14 +126,14 @@ const Navbar = () => {
                   <Link 
                     key={link} 
                     href={href} 
-                    className="text-[14px] text-[#8e8ea0]"
+                    className="text-[14px] text-[var(--muted-foreground)]"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {link}
                   </Link>
                 );
               })}
-              <Link href="/login" className="text-[14px] text-[#8e8ea0]">Sign In</Link>
+              <Link href="/login" className="text-[14px] text-[var(--muted-foreground)]">Sign In</Link>
             </div>
           </motion.div>
         )}
@@ -146,20 +146,20 @@ const StatCard = ({ icon: Icon, iconBg, iconColor, trend, number, label, endValu
   const displayValue = useCountUp(endValue);
   
   return (
-    <div className="bg-[#1a1a1a] border-[0.5px] border-white/10 rounded-[5px] p-[6px_7px] flex flex-col">
+    <div className="bg-[var(--glass-bg)] backdrop-blur-sm border-[0.5px] border-[var(--glass-border)] rounded-xl p-[6px_7px] flex flex-col shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
       <div className="flex items-center justify-between mb-1">
         <div 
-          className="w-[16px] h-[16px] rounded-[3px] flex items-center justify-center" 
+          className="w-[16px] h-[16px] rounded-sm flex items-center justify-center" 
           style={{ backgroundColor: iconBg }}
         >
           <Icon size={9} color={iconColor} />
         </div>
         <span className="text-[7px] font-bold" style={{ color: iconColor }}>{trend}</span>
       </div>
-      <span className="text-[14px] font-bold leading-none transition-all duration-200 hover:text-[#d97757]" style={{ color: number.includes('#') ? number : '#ececec' }}>
+      <span className="text-[14px] font-bold leading-none transition-all duration-200 hover:text-[var(--primary)]" style={{ color: number.includes('#') ? number : 'var(--foreground)' }}>
         {displayValue}
       </span>
-      <span className="text-[7px] text-[#5a5a72] mt-[2px]">{label}</span>
+      <span className="text-[7px] text-[var(--muted-foreground)] mt-[2px]">{label}</span>
     </div>
   );
 };
@@ -183,16 +183,16 @@ const DashboardFrame = () => {
       className="max-w-[580px] mx-auto mt-12 relative z-10"
     >
       {/* Browser Chrome */}
-      <div className="bg-[#1a1a1a] border-t border-x border-white/10 rounded-t-[10px] overflow-hidden">
+      <div className="bg-[var(--card)] border-t border-x border-white/10 rounded-t-xl overflow-hidden">
         <div className="h-8 border-b-[0.5px] border-white/10 flex items-center px-3 justify-between">
           <div className="flex gap-[6px]">
             <div className="w-[7px] h-[7px] rounded-full bg-[#FF5F57]" />
             <div className="w-[7px] h-[7px] rounded-full bg-[#FFBD2E]" />
             <div className="w-[7px] h-[7px] rounded-full bg-[#28C840]" />
           </div>
-          <div className="bg-[#212121] rounded-[4px] px-3 py-[3px] flex items-center gap-1.5">
-            <Lock size={9} className="text-[#8e8ea0]" />
-            <span className="text-[9px] text-[#8e8ea0] font-medium font-sans">dash.authsys.com / overview</span>
+          <div className="bg-[var(--card)] rounded-md px-3 py-[3px] flex items-center gap-1.5">
+            <Lock size={9} className="text-[var(--muted-foreground)]" />
+            <span className="text-[9px] text-[var(--muted-foreground)] font-medium font-sans">dash.authsys.com / overview</span>
           </div>
           <div className="w-10" /> {/* Spacer */}
         </div>
@@ -200,19 +200,19 @@ const DashboardFrame = () => {
         {/* Dashboard Layout */}
         <div className="flex h-[220px]">
           {/* Sidebar */}
-          <div className="w-[88px] bg-[#0d0d0d] border-r-[0.5px] border-white/10 flex flex-col">
+          <div className="w-[88px] bg-[var(--background)] border-r-[0.5px] border-white/10 flex flex-col">
             <div className="p-3 border-b-[0.5px] border-white/10 flex items-center gap-1.5 mb-2">
-              <ShieldCheck size={10} className="text-[#d97757]" />
-              <span className="text-[10px] font-bold text-[#d97757]">AuthSys</span>
+              <ShieldCheck size={10} className="text-[var(--primary)]" />
+              <span className="text-[10px] font-bold text-[var(--primary)]">AuthSys</span>
             </div>
             
             <div className="px-2 mb-1">
-              <span className="text-[8px] text-[#5a5a72] uppercase tracking-[.08em] font-bold">Main</span>
+              <span className="text-[8px] text-[var(--muted-foreground)] uppercase tracking-[.08em] font-bold">Main</span>
             </div>
 
             <div className="flex flex-col gap-0.5">
-              <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#d97757]/10 text-white border-r-2 border-[#d97757]">
-                <LayoutDashboard size={11} className="text-[#d97757]" />
+              <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[var(--primary)]/10 text-white border-r-2 border-[var(--primary)]">
+                <LayoutDashboard size={11} className="text-[var(--primary)]" />
                 <span className="text-[9px] font-medium">Overview</span>
               </div>
               {[
@@ -222,20 +222,20 @@ const DashboardFrame = () => {
                 { icon: LineChart, label: "Analytics" },
                 { icon: Shield, label: "Blacklist" },
               ].map((item, i) => (
-                <div key={i} className="flex items-center justify-between px-2.5 py-1.5 text-[#8e8ea0] hover:text-white transition-colors cursor-pointer">
+                <div key={i} className="flex items-center justify-between px-2.5 py-1.5 text-[var(--muted-foreground)] hover:text-white transition-colors cursor-pointer">
                   <div className="flex items-center gap-1.5">
                     <item.icon size={11} />
                     <span className="text-[9px] font-medium">{item.label}</span>
                   </div>
                   {item.badge && (
-                    <span className="bg-[#d97757]/20 text-[#d97757] text-[8px] px-1 rounded-[2px]">{item.badge}</span>
+                    <span className="bg-[var(--primary)]/20 text-[var(--primary)] text-[8px] px-1 rounded-xs">{item.badge}</span>
                   )}
                 </div>
               ))}
             </div>
 
             <div className="px-2 mt-3 mb-1">
-              <span className="text-[8px] text-[#5a5a72] uppercase tracking-[.08em] font-bold">Insights</span>
+              <span className="text-[8px] text-[var(--muted-foreground)] uppercase tracking-[.08em] font-bold">Insights</span>
             </div>
             
             <div className="flex flex-col gap-0.5">
@@ -244,7 +244,7 @@ const DashboardFrame = () => {
                 { icon: Shield, label: "Blacklist" },
                 { icon: Braces, label: "Variables" },
               ].map((item, i) => (
-                <div key={i} className="flex items-center gap-1.5 px-2.5 py-1.5 text-[#8e8ea0] hover:text-white transition-colors cursor-pointer">
+                <div key={i} className="flex items-center gap-1.5 px-2.5 py-1.5 text-[var(--muted-foreground)] hover:text-white transition-colors cursor-pointer">
                   <item.icon size={11} />
                   <span className="text-[9px] font-medium">{item.label}</span>
                 </div>
@@ -252,24 +252,24 @@ const DashboardFrame = () => {
             </div>
 
             <div className="mt-auto p-2">
-              <div className="bg-gradient-to-br from-[#1a1a1a] to-[#212121] border-[0.5px] border-white/10 rounded-[6px] p-1.5 text-center cursor-pointer hover:border-[#d97757] transition-all">
+              <div className="bg-gradient-to-br from-[var(--card)] to-[var(--card)] border-[0.5px] border-white/10 rounded-xl p-1.5 text-center cursor-pointer hover:border-[var(--primary)] transition-all">
                 <div className="flex items-center justify-center gap-1 mb-0.5">
-                  <Bot size={8} className="text-[#d97757]" />
-                  <span className="text-[8px] text-[#d97757] font-bold">AI Agent</span>
+                  <Bot size={8} className="text-[var(--primary)]" />
+                  <span className="text-[8px] text-[var(--primary)] font-bold">AI Agent</span>
                 </div>
-                <span className="text-[7px] text-[#8e8ea0]">Ask anything →</span>
+                <span className="text-[7px] text-[var(--muted-foreground)]">Ask anything →</span>
               </div>
             </div>
           </div>
 
           {/* Main Content */}
-          <div className="flex-1 bg-[#0d0d0d] p-[10px] flex flex-col">
+          <div className="flex-1 bg-[var(--background)] p-[10px] flex flex-col">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-semibold text-[#ececec]">Overview</span>
-              <div className="bg-[#1a1a1a] border-[0.5px] border-white/10 rounded-[4px] px-2 py-[3px] flex items-center gap-1.5 cursor-pointer">
-                <div className="w-[5px] h-[5px] rounded-full bg-[#d97757]" />
-                <span className="text-[8px] text-[#8e8ea0]">MyCheatApp v2.1</span>
-                <ChevronDown size={8} className="text-[#8e8ea0]" />
+              <span className="text-[10px] font-semibold text-[var(--foreground)]">Overview</span>
+              <div className="bg-[var(--card)] border-[0.5px] border-white/10 rounded-lg px-2 py-[3px] flex items-center gap-1.5 cursor-pointer">
+                <div className="w-[5px] h-[5px] rounded-full bg-[var(--primary)]" />
+                <span className="text-[8px] text-[var(--muted-foreground)]">MyCheatApp v2.1</span>
+                <ChevronDown size={8} className="text-[var(--muted-foreground)]" />
               </div>
             </div>
 
@@ -277,37 +277,37 @@ const DashboardFrame = () => {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-[5px] mb-2">
               <StatCard 
                 icon={Users} 
-                iconBg="rgba(217,119,87,0.1)" 
-                iconColor="#d97757" 
+                iconBg="color-mix(in srgb, var(--primary) 10%, transparent)" 
+                iconColor="var(--primary)" 
                 trend="↑12%" 
-                number="#ececec" 
+                number="var(--foreground)" 
                 label="Total users" 
                 endValue={1284}
               />
               <StatCard 
                 icon={Activity} 
-                iconBg="rgba(217,119,87,0.15)" 
-                iconColor="#d97757" 
+                iconBg="color-mix(in srgb, var(--primary) 15%, transparent)" 
+                iconColor="var(--primary)" 
                 trend="↑8%" 
-                number="#d97757" 
+                number="var(--primary)" 
                 label="Active now" 
                 endValue={847}
               />
               <StatCard 
                 icon={Key} 
-                iconBg="rgba(217,119,87,0.1)" 
-                iconColor="#d97757" 
+                iconBg="color-mix(in srgb, var(--primary) 10%, transparent)" 
+                iconColor="var(--primary)" 
                 trend="200/mo" 
-                number="#d97757" 
+                number="var(--primary)" 
                 label="Keys issued" 
                 endValue={3921}
               />
               <StatCard 
                 icon={AlertTriangle} 
-                iconBg="rgba(217,119,87,0.15)" 
-                iconColor="#d97757" 
+                iconBg="color-mix(in srgb, var(--primary) 15%, transparent)" 
+                iconColor="var(--primary)" 
                 trend="↓3" 
-                number="#d97757" 
+                number="var(--primary)" 
                 label="Alerts" 
                 endValue={12}
               />
@@ -315,17 +315,17 @@ const DashboardFrame = () => {
 
             {/* Bottom Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-[6px] flex-1">
-              <div className="bg-[#1a1a1a] border-[0.5px] border-white/10 rounded-[5px] p-[7px] flex flex-col">
+              <div className="bg-[var(--card)] border-[0.5px] border-white/10 rounded-xl p-[7px] flex flex-col">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[8px] text-[#8e8ea0] font-medium">Logins last 7 days</span>
-                  <span className="text-[7px] text-[#5a5a72]">+18% vs last week</span>
+                  <span className="text-[8px] text-[var(--muted-foreground)] font-medium">Logins last 7 days</span>
+                  <span className="text-[7px] text-[var(--muted-foreground)]">+18% vs last week</span>
                 </div>
                 <div className="flex items-end gap-[3px] h-[40px] mt-auto pb-1">
                   {barData.map((val, i) => (
                     <div 
                       key={i} 
-                      className={`flex-1 rounded-t-[2px] transition-all duration-700 ${
-                        i === 5 ? 'bg-[#d97757]' : 'bg-[#212121] border-[0.5px] border-white/10'
+                      className={`flex-1 rounded-t-sm transition-all duration-700 ${
+                        i === 5 ? 'bg-[var(--primary)]' : 'bg-[var(--card)] border-[0.5px] border-white/10'
                       }`}
                       style={{ 
                         height: barsVisible ? `${(val / maxBar) * 100}%` : '0%',
@@ -336,17 +336,17 @@ const DashboardFrame = () => {
                 </div>
               </div>
 
-              <div className="bg-[#1a1a1a] border-[0.5px] border-white/10 rounded-[5px] p-[7px] flex flex-col overflow-hidden">
+              <div className="bg-[var(--card)] border-[0.5px] border-white/10 rounded-xl p-[7px] flex flex-col overflow-hidden">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[8px] text-[#8e8ea0] font-medium">Live activity log</span>
-                  <span className="text-[7px] text-[#5a5a72]">real-time</span>
+                  <span className="text-[8px] text-[var(--muted-foreground)] font-medium">Live activity log</span>
+                  <span className="text-[7px] text-[var(--muted-foreground)]">real-time</span>
                 </div>
                 <div className="flex flex-col gap-0">
                   {[
-                    { dot: "#d97757", event: "user_login", meta: "john123 · BD", badge: "success", badgeBg: "rgba(217,119,87,0.15)", badgeColor: "#d97757" },
-                    { dot: "#d97757", event: "hwid_mismatch", meta: "dev99 · RU", badge: "risk 50", badgeBg: "rgba(217,119,87,0.15)", badgeColor: "#d97757" },
-                    { dot: "#d97757", event: "vpn_detected", meta: "user77 · US", badge: "warn", badgeBg: "rgba(217,119,87,0.15)", badgeColor: "#d97757" },
-                    { dot: "#d97757", event: "brute_force", meta: "192.168.x · CN", badge: "auto-ban", badgeBg: "rgba(217,119,87,0.15)", badgeColor: "#d97757" },
+                    { dot: "var(--primary)", event: "user_login", meta: "john123 · BD", badge: "success", badgeBg: "color-mix(in srgb, var(--primary) 15%, transparent)", badgeColor: "var(--primary)" },
+                    { dot: "var(--primary)", event: "hwid_mismatch", meta: "dev99 · RU", badge: "risk 50", badgeBg: "color-mix(in srgb, var(--primary) 15%, transparent)", badgeColor: "var(--primary)" },
+                    { dot: "var(--primary)", event: "vpn_detected", meta: "user77 · US", badge: "warn", badgeBg: "color-mix(in srgb, var(--primary) 15%, transparent)", badgeColor: "var(--primary)" },
+                    { dot: "var(--primary)", event: "brute_force", meta: "192.168.x · CN", badge: "auto-ban", badgeBg: "color-mix(in srgb, var(--primary) 15%, transparent)", badgeColor: "var(--primary)" },
                   ].map((row, i) => (
                     <motion.div 
                       initial={{ opacity: 0, x: -5 }}
@@ -358,12 +358,12 @@ const DashboardFrame = () => {
                       <div className="flex items-center gap-1.5 overflow-hidden">
                         <div className="w-[5px] h-[5px] rounded-full shrink-0" style={{ backgroundColor: row.dot }} />
                         <div className="flex flex-col leading-tight overflow-hidden">
-                          <span className="text-[8px] text-[#ececec] truncate">{row.event}</span>
-                          <span className="text-[7px] text-[#5a5a72] truncate">{row.meta}</span>
+                          <span className="text-[8px] text-[var(--foreground)] truncate">{row.event}</span>
+                          <span className="text-[7px] text-[var(--muted-foreground)] truncate">{row.meta}</span>
                         </div>
                       </div>
                       <div 
-                        className="text-[8px] px-1.5 py-0.5 rounded-[2px] font-bold shrink-0"
+                        className="text-[8px] px-1.5 py-0.5 rounded-xs font-bold shrink-0"
                         style={{ backgroundColor: row.badgeBg, color: row.badgeColor }}
                       >
                         {row.badge}
@@ -378,7 +378,7 @@ const DashboardFrame = () => {
       </div>
 
       {/* Fade Overlay */}
-      <div className="h-[50px] bg-gradient-to-t from-[#0d0d0d] to-transparent relative z-[2] -mt-[50px] pointer-events-none" />
+      <div className="h-[50px] bg-gradient-to-t from-[var(--background)] to-transparent relative z-[2] -mt-[50px] pointer-events-none" />
     </motion.div>
   );
 };
@@ -392,17 +392,17 @@ export default function HeroSection({ demoUrl, heroParagraph }: { demoUrl?: stri
       
       <section className="pt-[100px] pb-24 px-4 relative">
         {/* Background Gradients */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-[#d97757]/5 blur-[120px] rounded-full -z-10 pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-[var(--primary)]/5 blur-[120px] rounded-full -z-10 pointer-events-none" />
         
         {/* Hero Text Block */}
         <div className="max-w-5xl mx-auto text-center flex flex-col items-center">
           {/* Announcement Badge */}
           <div 
             data-animate
-            className="bg-[#1a1a1a] border-[0.5px] border-white/10 rounded-[20px] px-3 py-1 flex items-center gap-2 mb-8 cursor-pointer hover:border-[#d97757] transition-colors"
+            className="bg-[var(--card)] border-[0.5px] border-white/10 rounded-2xl px-3 py-1 flex items-center gap-2 mb-8 cursor-pointer hover:border-[var(--primary)] transition-colors shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
           >
-            <div className="w-[6px] h-[6px] rounded-full bg-[#d97757] animate-pulse shadow-[0_0_8px_#d97757]" />
-            <span className="text-[11px] text-[#8e8ea0] font-medium">AI Agent — control your app in plain English</span>
+            <div className="w-[6px] h-[6px] rounded-full bg-[var(--primary)] animate-pulse shadow-[0_0_8px_var(--primary)]" />
+            <span className="text-[11px] text-[var(--muted-foreground)] font-medium">AI Agent — control your app in plain English</span>
           </div>
 
           {/* H1 Headline */}
@@ -411,13 +411,13 @@ export default function HeroSection({ demoUrl, heroParagraph }: { demoUrl?: stri
             className="text-[34px] md:text-[56px] font-extrabold leading-[1.1] tracking-[-0.5px] mb-6 max-w-4xl"
           >
             The Auth Platform <br />
-            Built for <span className="bg-gradient-to-r from-[#d97757] to-[#c96a47] bg-clip-text text-transparent transition-colors duration-200 hover:text-[#c96a47]">Serious Developers</span>
+            Built for <span className="bg-gradient-to-r from-[var(--primary)] to-[var(--primary)] bg-clip-text text-transparent transition-colors duration-200 hover:text-[var(--primary)]">Serious Developers</span>
           </h1>
 
           {/* Subtitle */}
           <p 
             data-animate data-delay="2"
-            className="text-[13px] md:text-[16px] text-[#8e8ea0] max-w-[400px] md:max-w-xl mx-auto leading-[1.7] mb-10"
+            className="text-[13px] md:text-[16px] text-[var(--muted-foreground)] max-w-[400px] md:max-w-xl mx-auto leading-[1.7] mb-10"
           >
             {heroParagraph || "License keys, HWID lock, real-time threat detection & AI-powered control — all in one dashboard. Ship protected software in minutes."}
           </p>
@@ -425,17 +425,17 @@ export default function HeroSection({ demoUrl, heroParagraph }: { demoUrl?: stri
           {/* CTA Buttons */}
           <div 
             data-animate data-delay="3"
-            className="flex flex-col sm:flex-row items-center gap-[10px] mb-12"
+            className="flex flex-col sm:flex-row items-center gap-[16px] mb-12"
           >
             <Link href="/register">
-              <MagneticButton className="flex items-center gap-2 bg-[#d97757] hover:bg-[#c96a47] text-white rounded-[8px] px-6 py-[11px] text-[13px] font-bold transition-all active:scale-95 shadow-[0_4px_20px_rgba(217,119,87,0.3)]">
-                <Zap size={13} fill="currentColor" />
+              <MagneticButton className="flex items-center gap-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] rounded-xl px-[36px] py-[18px] text-[16px] font-bold transition-all duration-250 hover:translate-y-[-2px] shadow-[0_4px_24px_rgba(0,0,0,0.25)] hover:shadow-[0_6px_28px_rgba(0,0,0,0.3)]">
+                <Zap size={16} fill="currentColor" />
                 Start for free
               </MagneticButton>
             </Link>
             <a href={demoUrl || '#'} target={demoUrl ? "_blank" : "_self"}>
-              <MagneticButton className="flex items-center gap-2 bg-transparent text-[#8e8ea0] border-[0.5px] border-white/10 hover:border-white/20 hover:text-white rounded-[8px] px-[18px] py-[11px] text-[13px] font-medium transition-all">
-                <Play size={12} fill="currentColor" />
+              <MagneticButton className="flex items-center gap-3 bg-[var(--glass-bg)] backdrop-blur-sm text-[var(--foreground)] border-[1px] border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 rounded-xl px-[36px] py-[18px] text-[16px] font-semibold transition-all duration-250 hover:translate-y-[-2px] shadow-[0_2px_12px_rgba(0,0,0,0.15)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)]">
+                <Play size={16} fill="currentColor" />
                 Watch demo
               </MagneticButton>
             </a>
@@ -453,8 +453,8 @@ export default function HeroSection({ demoUrl, heroParagraph }: { demoUrl?: stri
               "Free forever plan"
             ].map((item) => (
               <div key={item} className="flex items-center gap-1.5">
-                <Check size={12} className="text-[#d97757]" strokeWidth={3} />
-                <span className="text-[11px] text-[#8e8ea0] font-medium">{item}</span>
+                <Check size={12} className="text-[var(--primary)]" strokeWidth={3} />
+                <span className="text-[11px] text-[var(--muted-foreground)] font-medium">{item}</span>
               </div>
             ))}
           </div>
@@ -467,7 +467,7 @@ export default function HeroSection({ demoUrl, heroParagraph }: { demoUrl?: stri
       </section>
 
       {/* Decorative Blur */}
-      <div className="fixed bottom-0 left-0 right-0 h-[200px] bg-gradient-to-t from-[#0d0d0d] to-transparent pointer-events-none -z-10" />
+      <div className="fixed bottom-0 left-0 right-0 h-[200px] bg-gradient-to-t from-[var(--background)] to-transparent pointer-events-none -z-10" />
     </div>
   );
 }

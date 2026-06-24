@@ -1,415 +1,170 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import adminApi from '@/lib/admin-api';
 import { toast } from 'sonner';
-import { useConfirm } from '@/components/ui/confirm-dialog';
-
-const emptyPlan = {
-  name: '',
-  price_monthly: 0,
-  price_yearly: 0,
-  max_apps: 5,
-  max_users_per_app: 100,
-  max_keys_per_month: 1000,
-  features_json: '',
-  ai_agent_access: false,
-};
 
 export default function PlansManagementPage() {
-  const confirm = useConfirm();
+  const router = useRouter();
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [editingPlan, setEditingPlan] = useState<any>(null);
-  const [isCreating, setIsCreating] = useState(false);
-  const [seeding, setSeeding] = useState(false);
 
-  const fetchPlans = async () => {
+  const fetchPlans = useCallback(async () => {
     try {
-      setError(null);
       const res = await adminApi.get<any[]>('/admin/plans');
-      setPlans(res.data);
-    } catch (err: any) {
-      console.error('Failed to load plans:', err);
-      if (err.response?.status === 401) {
-        setError('Admin authentication required. Please login again.');
-      } else if (err.response?.status === 403) {
-        setError('Access denied. Admin privileges required.');
-      } else if (err.code === 'ERR_NETWORK') {
-        setError('Network error. Backend may be unreachable. Please check if the backend is running.');
+      if (res.data.length === 0) {
+        const seed = await adminApi.post<{ plans: any[] }>('/admin/plans/seed');
+        setPlans(seed.data.plans || []);
       } else {
-        setError(err.response?.data?.detail || 'Failed to load plans');
+        setPlans(res.data.sort((a, b) => a.sort_order - b.sort_order));
       }
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || 'Failed to load plans');
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchPlans();
   }, []);
 
-  const handleSeed = async () => {
-    setSeeding(true);
+  useEffect(() => { fetchPlans() }, [fetchPlans]);
+
+  const toggleActive = async (plan: any) => {
     try {
-      const res = await adminApi.post<{ created: number; plans: any[] }>('/admin/plans/seed');
-      setPlans(res.data.plans || []);
-      toast.success(
-        res.data.created
-          ? `Created ${res.data.created} default plan(s)`
-          : 'All default plans already exist',
-      );
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || 'Failed to seed plans');
-    } finally {
-      setSeeding(false);
-    }
+      await adminApi.put(`/admin/plans/${plan.id}`, { ...plan, is_active: !plan.is_active });
+      setPlans(prev => prev.map(p => p.id === plan.id ? { ...p, is_active: !p.is_active } : p));
+      toast.success(`${plan.name} ${plan.is_active ? 'disabled' : 'enabled'}`);
+    } catch { toast.error('Failed to toggle plan'); }
   };
 
-  const openCreate = () => {
-    setIsCreating(true);
-    setEditingPlan({ ...emptyPlan });
+  const duplicatePlan = async (plan: any) => {
+    try {
+      const dup = { ...plan, id: undefined, name: `${plan.name} (Copy)`, sort_order: plans.length + 1 };
+      const res = await adminApi.post('/admin/plans', dup);
+      setPlans(prev => [...prev, res.data].sort((a, b) => a.sort_order - b.sort_order));
+      toast.success('Plan duplicated');
+    } catch { toast.error('Failed to duplicate'); }
   };
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const deletePlan = async (plan: any) => {
+    if (!confirm(`Delete "${plan.name}"? This cannot be undone.`)) return;
     try {
-      const payload = {
-        ...editingPlan,
-        features_json:
-          typeof editingPlan.features_json === 'string'
-            ? editingPlan.features_json
-                .split('\n')
-                .map((f: string) => f.trim())
-                .filter(Boolean)
-            : editingPlan.features_json,
-      };
-
-      if (isCreating) {
-        await adminApi.post('/admin/plans', payload);
-        toast.success('Plan created');
-      } else {
-        await adminApi.put(`/admin/plans/${editingPlan.id}`, payload);
-        toast.success('Plan updated');
-      }
-      setEditingPlan(null);
-      setIsCreating(false);
-      fetchPlans();
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || 'Failed to save plan');
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    const ok = await confirm({
-      title: 'Delete plan?',
-      message: 'Delete this plan? Developers on this plan must be reassigned first.',
-      confirmLabel: 'Yes, delete',
-      cancelLabel: 'No, cancel',
-      variant: 'danger',
-    });
-    if (!ok) return;
-    try {
-      await adminApi.delete(`/admin/plans/${id}`);
+      await adminApi.delete(`/admin/plans/${plan.id}`);
+      setPlans(prev => prev.filter(p => p.id !== plan.id));
       toast.success('Plan deleted');
-      fetchPlans();
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || 'Cannot delete plan');
-    }
+    } catch { toast.error('Failed to delete'); }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-[60vh]">
-        <div className="w-12 h-12 border-4 border-[#d97757]/20 border-t-[#d97757] rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-[60vh]">
-        <div className="text-center">
-          <p className="text-red-400 mb-4">{error}</p>
-          <button
-            onClick={fetchPlans}
-            className="px-6 py-3 rounded-xl bg-[#d97757] text-[#131313] font-bold text-xs uppercase tracking-widest"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="flex items-center justify-center h-[60vh]">
+      <div className="w-12 h-12 border-4 border-[var(--primary)]/20 border-t-[var(--primary)] rounded-full animate-spin" />
+    </div>
+  );
 
   return (
-    <div className="space-y-10 pb-20">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-[#e5e2e1] tracking-tight">Subscription Architecture</h1>
-          <p className="text-[#8e8ea0] mt-1">Configure pricing tiers and system quotas</p>
+          <h1 className="text-3xl font-bold text-[var(--foreground)] tracking-tight">Pricing Plans</h1>
+          <p className="text-[var(--muted-foreground)] mt-1">Create, edit, and manage pricing plans</p>
         </div>
-        <div className="flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={handleSeed}
-            disabled={seeding}
-            className="px-5 py-2.5 rounded-lg bg-white/5 border border-white/10 text-[#e5e2e1] font-bold text-xs uppercase tracking-widest hover:bg-white/10 disabled:opacity-50"
-          >
-            {seeding ? 'Seeding…' : 'Load defaults'}
-          </button>
-          <button
-            type="button"
-            onClick={openCreate}
-            className="px-6 py-2.5 rounded-lg bg-[#d97757] text-[#131313] font-bold transition-all flex items-center gap-2 shadow-lg shadow-[#d97757]/10 hover:opacity-90"
-          >
-            <span className="material-symbols-outlined">add</span>
-            New Plan
-          </button>
-        </div>
+        <Link
+          href="/super-admin/plans/new"
+          className="inline-flex items-center gap-2 bg-[var(--primary)] text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:brightness-110 transition-all"
+        >
+          <span className="material-symbols-outlined text-sm">add</span>
+          New Plan
+        </Link>
       </div>
 
-      {plans.length === 0 ? (
-        <div className="glass-card rounded-3xl p-16 text-center border border-dashed border-white/10">
-          <span className="material-symbols-outlined text-5xl text-[#8e8ea0] mb-4">card_membership</span>
-          <p className="text-lg font-bold text-[#e5e2e1] mb-2">No subscription plans yet</p>
-          <p className="text-sm text-[#8e8ea0] mb-6 max-w-md mx-auto">
-            Load default tiers (Free, Tester, Developer, Seller, Enterprise) or create a custom plan.
-          </p>
-          <button
-            onClick={handleSeed}
-            disabled={seeding}
-            className="px-8 py-3 rounded-xl bg-[#d97757] text-[#131313] font-bold text-xs uppercase tracking-widest"
-          >
-            Create default plans
-          </button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {plans.map((plan) => (
-            <div
-              key={plan.id}
-              className="glass-card rounded-[2rem] p-8 flex flex-col relative overflow-hidden group border border-white/5 hover:border-[#d97757]/30 transition-all"
-            >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-[#d97757]/5 blur-3xl -mr-10 -mt-10" />
-              <div className="mb-6">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-2xl font-black text-[#e5e2e1]">{plan.name}</h3>
-                  <span className="p-2 rounded-lg bg-white/5 text-[#d97757]">
-                    <span
-                      className="material-symbols-outlined"
-                      style={{ fontVariationSettings: "'FILL' 1" }}
+      <div className="glass-card rounded-xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[900px]">
+            <thead>
+              <tr className="border-b border-white/5 bg-white/5">
+                <th className="px-6 py-4 text-[10px] font-bold text-[var(--muted-foreground)] uppercase tracking-widest">Order</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-[var(--muted-foreground)] uppercase tracking-widest">Plan</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-[var(--muted-foreground)] uppercase tracking-widest">Price</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-[var(--muted-foreground)] uppercase tracking-widest">Yearly</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-[var(--muted-foreground)] uppercase tracking-widest">Features</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-[var(--muted-foreground)] uppercase tracking-widest">Status</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-[var(--muted-foreground)] uppercase tracking-widest">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/[0.03]">
+              {plans.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-16 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <span className="material-symbols-outlined text-4xl text-white/20">inventory_2</span>
+                      <p className="text-[var(--muted-foreground)] text-sm">No plans yet. Create your first plan.</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : plans.map((plan, idx) => (
+                <tr key={plan.id} className="hover:bg-white/[0.02] transition-colors group">
+                  <td className="px-6 py-4">
+                    <span className="text-xs text-[var(--muted-foreground)] font-mono">#{plan.sort_order}</span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <span className="material-symbols-outlined text-[var(--primary)]">{plan.icon || 'card_membership'}</span>
+                      <div>
+                        <p className="text-sm font-bold text-[var(--foreground)]">{plan.name}</p>
+                        {plan.description && (
+                          <p className="text-[11px] text-[var(--muted-foreground)] truncate max-w-[200px]">{plan.description}</p>
+                        )}
+                      </div>
+                      {plan.is_recommended && (
+                        <span className="text-[9px] bg-[var(--primary)]/15 text-[var(--primary)] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">Popular</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="text-sm font-bold text-[var(--foreground)]">${(plan.price_monthly / 100).toFixed(0)}</span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="text-sm font-bold text-[var(--foreground)]">${(plan.price_yearly / 100).toFixed(0)}</span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="text-xs text-[var(--muted-foreground)]">{(plan.features || []).filter((f: any) => f.included).length} features</span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <button onClick={() => toggleActive(plan)}
+                      className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border transition-colors ${
+                        plan.is_active
+                          ? 'text-emerald-400 border-emerald-500/20 bg-emerald-500/10'
+                          : 'text-red-400 border-red-500/20 bg-red-500/10'
+                      }`}
                     >
-                      card_membership
-                    </span>
-                  </span>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-black text-[#d97757]">
-                    ${(plan.price_monthly / 100).toFixed(2)}
-                  </span>
-                  <span className="text-[#8e8ea0] font-bold text-xs">/mo</span>
-                </div>
-              </div>
-
-              <div className="space-y-2 mb-6 flex-1">
-                <p className="text-[10px] font-bold text-[#8e8ea0] uppercase tracking-widest mb-3">
-                  Key Features
-                </p>
-                {(plan.features_json || []).map((f: string, i: number) => (
-                  <div key={i} className="flex items-center gap-2 text-xs text-[#e5e2e1]/70">
-                    <span className="material-symbols-outlined text-green-500 text-sm">
-                      check_circle
-                    </span>
-                    {f}
-                  </div>
-                ))}
-              </div>
-
-              <div className="space-y-3 mb-6 pt-4 border-t border-white/5">
-                {[
-                  { label: 'Applications', value: plan.max_apps },
-                  { label: 'Users per App', value: plan.max_users_per_app },
-                  { label: 'Monthly Keys', value: plan.max_keys_per_month },
-                ].map((item) => (
-                  <div key={item.label} className="flex items-center justify-between py-1.5">
-                    <span className="text-[9px] font-bold text-[#8e8ea0] uppercase tracking-widest">
-                      {item.label}
-                    </span>
-                    <span className="text-xs font-black text-[#e5e2e1]">
-                      {Number(item.value).toLocaleString()}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsCreating(false);
-                    setEditingPlan({
-                      ...plan,
-                      features_json: (plan.features_json || []).join('\n'),
-                    });
-                  }}
-                  className="flex-1 py-3 rounded-xl bg-white/5 border border-white/5 text-[#e5e2e1] font-bold hover:bg-[#d97757]/10 text-xs uppercase tracking-widest"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDelete(plan.id)}
-                  className="px-4 py-3 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-bold uppercase"
-                >
-                  Del
-                </button>
-              </div>
-            </div>
-          ))}
+                      {plan.is_active ? 'Active' : 'Disabled'}
+                    </button>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/super-admin/plans/${plan.id}`}
+                        className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-all"
+                      >
+                        <span className="material-symbols-outlined text-sm">edit</span>
+                      </Link>
+                      <button onClick={() => duplicatePlan(plan)}
+                        className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-all"
+                      >
+                        <span className="material-symbols-outlined text-sm">content_copy</span>
+                      </button>
+                      <button onClick={() => deletePlan(plan)}
+                        className="w-8 h-8 rounded-lg bg-white/5 hover:bg-red-500/10 flex items-center justify-center text-[var(--muted-foreground)] hover:text-red-400 transition-all"
+                      >
+                        <span className="material-symbols-outlined text-sm">delete</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      )}
-
-      {editingPlan && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#0b0e15]/80 backdrop-blur-sm overflow-y-auto">
-          <div className="w-full max-w-2xl bg-[#1d2027] border border-white/10 rounded-[2rem] p-10 shadow-2xl relative my-auto">
-            <button
-              type="button"
-              onClick={() => {
-                setEditingPlan(null);
-                setIsCreating(false);
-              }}
-              className="absolute top-8 right-8 text-[#8e8ea0] hover:text-[#e5e2e1]"
-            >
-              <span className="material-symbols-outlined text-3xl">close</span>
-            </button>
-
-            <h2 className="text-2xl font-black text-[#e5e2e1] mb-8">
-              {isCreating ? 'Create plan' : `Edit ${editingPlan.name}`}
-            </h2>
-
-            <form onSubmit={handleSave} className="grid grid-cols-2 gap-4">
-              {isCreating && (
-                <div className="col-span-2">
-                  <label className="block text-[10px] font-bold text-[#8e8ea0] uppercase tracking-widest mb-1.5">
-                    Plan name
-                  </label>
-                  <input
-                    required
-                    value={editingPlan.name}
-                    onChange={(e) => setEditingPlan({ ...editingPlan, name: e.target.value })}
-                    className="w-full bg-[#0b0e15]/50 border border-white/5 rounded-xl py-2.5 px-4 text-[#e5e2e1] text-sm"
-                  />
-                </div>
-              )}
-              <div>
-                <label className="block text-[10px] font-bold text-[#8e8ea0] uppercase mb-1.5">
-                  Monthly (cents)
-                </label>
-                <input
-                  type="number"
-                  value={editingPlan.price_monthly}
-                  onChange={(e) =>
-                    setEditingPlan({ ...editingPlan, price_monthly: parseInt(e.target.value, 10) || 0 })
-                  }
-                  className="w-full bg-[#0b0e15]/50 border border-white/5 rounded-xl py-2.5 px-4 text-[#e5e2e1] text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-[#8e8ea0] uppercase mb-1.5">
-                  Yearly (cents)
-                </label>
-                <input
-                  type="number"
-                  value={editingPlan.price_yearly}
-                  onChange={(e) =>
-                    setEditingPlan({ ...editingPlan, price_yearly: parseInt(e.target.value, 10) || 0 })
-                  }
-                  className="w-full bg-[#0b0e15]/50 border border-white/5 rounded-xl py-2.5 px-4 text-[#e5e2e1] text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-[#8e8ea0] uppercase mb-1.5">
-                  Max apps
-                </label>
-                <input
-                  type="number"
-                  value={editingPlan.max_apps}
-                  onChange={(e) =>
-                    setEditingPlan({ ...editingPlan, max_apps: parseInt(e.target.value, 10) || 0 })
-                  }
-                  className="w-full bg-[#0b0e15]/50 border border-white/5 rounded-xl py-2.5 px-4 text-[#e5e2e1] text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-[#8e8ea0] uppercase mb-1.5">
-                  Max users/app
-                </label>
-                <input
-                  type="number"
-                  value={editingPlan.max_users_per_app}
-                  onChange={(e) =>
-                    setEditingPlan({
-                      ...editingPlan,
-                      max_users_per_app: parseInt(e.target.value, 10) || 0,
-                    })
-                  }
-                  className="w-full bg-[#0b0e15]/50 border border-white/5 rounded-xl py-2.5 px-4 text-[#e5e2e1] text-sm"
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="block text-[10px] font-bold text-[#8e8ea0] uppercase mb-1.5">
-                  Max keys/month
-                </label>
-                <input
-                  type="number"
-                  value={editingPlan.max_keys_per_month}
-                  onChange={(e) =>
-                    setEditingPlan({
-                      ...editingPlan,
-                      max_keys_per_month: parseInt(e.target.value, 10) || 0,
-                    })
-                  }
-                  className="w-full bg-[#0b0e15]/50 border border-white/5 rounded-xl py-2.5 px-4 text-[#e5e2e1] text-sm"
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="block text-[10px] font-bold text-[#8e8ea0] uppercase mb-1.5">
-                  Features (one per line)
-                </label>
-                <textarea
-                  value={editingPlan.features_json}
-                  onChange={(e) => setEditingPlan({ ...editingPlan, features_json: e.target.value })}
-                  className="w-full bg-[#0b0e15]/50 border border-white/5 rounded-xl py-3 px-4 text-[#e5e2e1] text-sm h-28 resize-none"
-                />
-              </div>
-              <div className="col-span-2">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setEditingPlan({ ...editingPlan, ai_agent_access: !editingPlan.ai_agent_access })
-                  }
-                  className={`w-full py-2.5 rounded-xl border text-xs font-bold uppercase ${
-                    editingPlan.ai_agent_access
-                      ? 'bg-[#d97757]/10 border-[#d97757]/30 text-[#d97757]'
-                      : 'bg-[#0b0e15]/50 border-white/5 text-[#8e8ea0]'
-                  }`}
-                >
-                  AI Agent: {editingPlan.ai_agent_access ? 'ON' : 'OFF'}
-                </button>
-              </div>
-              <div className="col-span-2 pt-2">
-                <button
-                  type="submit"
-                  className="w-full py-4 rounded-2xl bg-[#d97757] text-[#131313] font-black uppercase tracking-widest text-xs"
-                >
-                  {isCreating ? 'Create plan' : 'Save changes'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

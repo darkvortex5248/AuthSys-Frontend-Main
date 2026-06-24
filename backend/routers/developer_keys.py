@@ -10,6 +10,7 @@ from core.database import get_db
 from core.deps import get_current_developer
 from models.domain import Application, DeveloperAccount, SubscriptionPlan, EndUser, LicenseKey, ActivityLog, TeamMember
 from schemas.dashboard import KeyGenerate, BulkKeyGenerate
+from services.plan_enforcer import require_feature, check_limit
 from services.webhooks import trigger_webhook
 
 router = APIRouter(prefix="/api/v1/developer/keys", tags=["Keys"])
@@ -46,7 +47,12 @@ async def get_keys(app_id: int, dev: DeveloperAccount = Depends(get_current_deve
 
 @router.post("/generate")
 async def generate_key(req: KeyGenerate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
-    await verify_app_owner(req.app_id, dev.id, db)
+    app = await verify_app_owner(req.app_id, dev.id, db)
+    plan = await require_feature(dev, "has_api_access", db)
+    # Check key limit
+    key_count = await db.execute(select(LicenseKey).where(LicenseKey.app_id == req.app_id))
+    current_keys = len(key_count.scalars().all())
+    await check_limit(dev, "max_keys_per_month", current_keys, db, plan)
     key_val = req.custom_key if req.custom_key else generate_key_string()
     
     # Check if key already exists
@@ -77,9 +83,15 @@ async def bulk_generate(req: BulkKeyGenerate, dev: DeveloperAccount = Depends(ge
     await verify_app_owner(req.app_id, dev.id, db)
     if req.count > 1000: raise HTTPException(400, "Max 1000 keys at once")
     keys = []
-    for _ in range(req.count):
+    key_values = req.custom_keys if req.custom_keys else []
+    for i in range(req.count):
+        key_val = key_values[i] if i < len(key_values) else generate_key_string()
+        # Check for duplicates
+        existing = await db.execute(select(LicenseKey).where(LicenseKey.key_value == key_val))
+        if existing.scalars().first():
+            continue
         k = LicenseKey(
-            app_id=req.app_id, key_value=generate_key_string(), 
+            app_id=req.app_id, key_value=key_val,
             key_type=req.key_type, duration_days=req.duration_days, 
             max_uses=req.max_uses, note=req.note, seller_tag=req.seller_tag,
             expires_at=req.expires_at

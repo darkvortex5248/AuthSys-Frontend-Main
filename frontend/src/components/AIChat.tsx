@@ -38,7 +38,7 @@ export default function AIChat({ role = 'user', context, onClose }: AIChatProps)
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
   };
 
   useEffect(() => {
@@ -130,21 +130,21 @@ export default function AIChat({ role = 'user', context, onClose }: AIChatProps)
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
-      className="fixed bottom-4 right-4 w-96 max-h-[600px] bg-[var(--vault-surface)] border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+      className="fixed bottom-4 right-4 w-96 max-h-[600px] bg-[var(--card)] border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
       style={{ zIndex: 1000 }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[var(--vault-primary)]/10">
+      <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[var(--primary)]/10">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-[var(--vault-primary)]" />
-          <span className="font-bold text-sm text-[var(--vault-on-surface)]">AI Assistant</span>
+          <Sparkles className="w-5 h-5 text-[var(--primary)]" />
+          <span className="font-bold text-sm text-[var(--foreground)]">AI Assistant</span>
         </div>
         {onClose && (
           <button
             onClick={onClose}
             className="p-1 hover:bg-white/10 rounded-lg transition-colors"
           >
-            <X className="w-4 h-4 text-[var(--vault-on-surface-variant)]" />
+            <X className="w-4 h-4 text-[var(--muted-foreground)]" />
           </button>
         )}
       </div>
@@ -161,8 +161,8 @@ export default function AIChat({ role = 'user', context, onClose }: AIChatProps)
             <div
               className={`max-w-[80%] rounded-xl px-4 py-2 ${
                 message.role === 'user'
-                  ? 'bg-[var(--vault-primary)] text-[var(--vault-on-primary)]'
-                  : 'bg-white/10 text-[var(--vault-on-surface)]'
+                  ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
+                  : 'bg-white/10 text-[var(--foreground)]'
               }`}
             >
               <p className="text-sm whitespace-pre-wrap">{message.content}</p>
@@ -177,8 +177,8 @@ export default function AIChat({ role = 'user', context, onClose }: AIChatProps)
             className="flex justify-start"
           >
             <div className="bg-white/10 rounded-xl px-4 py-2 flex items-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin text-[var(--vault-primary)]" />
-              <span className="text-sm text-[var(--vault-on-surface-variant)]">Thinking...</span>
+              <Loader2 className="w-4 h-4 animate-spin text-[var(--primary)]" />
+              <span className="text-sm text-[var(--muted-foreground)]">Thinking...</span>
             </div>
           </motion.div>
         )}
@@ -221,12 +221,12 @@ export default function AIChat({ role = 'user', context, onClose }: AIChatProps)
             onKeyPress={handleKeyPress}
             placeholder="Ask me anything..."
             disabled={isLoading}
-            className="flex-1 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-[var(--vault-on-surface)] placeholder:text-[var(--vault-on-surface-variant)] focus:outline-none focus:border-[var(--vault-primary)]/50 disabled:opacity-50"
+            className="flex-1 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:border-[var(--primary)]/50 disabled:opacity-50"
           />
           <button
             onClick={handleSendMessage}
             disabled={isLoading || !input.trim()}
-            className="p-2 rounded-xl bg-[var(--vault-primary)] text-[var(--vault-on-primary)] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-2 rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Send className="w-4 h-4" />
           </button>
@@ -235,3 +235,4 @@ export default function AIChat({ role = 'user', context, onClose }: AIChatProps)
     </motion.div>
   );
 }
+

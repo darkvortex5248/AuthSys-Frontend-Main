@@ -8,6 +8,7 @@ from datetime import datetime
 from core.database import get_db
 from core.deps import get_current_developer
 from models.domain import ChatRoom, ChatMessage, Application, DeveloperAccount, EndUser
+from services.plan_enforcer import require_feature, check_limit
 
 router = APIRouter(prefix="/api/v1/developer/chatrooms", tags=["Chatrooms"])
 
@@ -35,10 +36,16 @@ async def get_rooms(dev: DeveloperAccount = Depends(get_current_developer), db: 
 
 @router.post("", response_model=ChatRoomResponse)
 async def create_room(req: ChatRoomCreate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
+    plan = await require_feature(dev, "has_live_chat", db)
     # Verify app ownership
     app_res = await db.execute(select(Application).where(Application.id == req.app_id, Application.developer_id == dev.id))
     if not app_res.scalars().first():
         raise HTTPException(status_code=404, detail="Application not found")
+    
+    # Check chatroom limit
+    room_count = await db.execute(select(ChatRoom).where(ChatRoom.app_id == req.app_id))
+    current_rooms = len(room_count.scalars().all())
+    await check_limit(dev, "max_chatrooms", current_rooms, db, plan)
         
     new_room = ChatRoom(app_id=req.app_id, name=req.name)
     db.add(new_room)

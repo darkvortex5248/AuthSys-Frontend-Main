@@ -7,8 +7,9 @@ import uuid
 import hashlib
 
 from core.database import get_db
-from models.domain import Application, EndUser, LicenseKey, Session, Variable, ActivityLog, Blacklist, ChatRoom, ChatMessage
+from models.domain import Application, EndUser, LicenseKey, Session, Variable, ActivityLog, Blacklist, ChatRoom, ChatMessage, DeveloperAccount, SubscriptionPlan
 from services.webhooks import trigger_webhook
+from services.plan_enforcer import check_limit
 from schemas.client import (
     ClientInitRequest, ClientInitResponse, ClientRegisterRequest, 
     ClientLoginRequest, ClientLicenseCheckRequest, ClientLicenseLoginRequest
@@ -86,6 +87,18 @@ async def register_user(request: Request, req: ClientRegisterRequest, db: AsyncS
     user_res = await db.execute(select(EndUser).where(EndUser.app_id == app.id, EndUser.username == req.username))
     if user_res.scalars().first():
         raise HTTPException(status_code=400, detail="Username already taken")
+    
+    # Check plan user limit
+    dev_res = await db.execute(select(DeveloperAccount).where(DeveloperAccount.id == app.developer_id))
+    dev = dev_res.scalars().first()
+    if dev and dev.plan_id:
+        plan_res = await db.execute(select(SubscriptionPlan).where(SubscriptionPlan.id == dev.plan_id))
+        plan = plan_res.scalars().first()
+        if plan:
+            user_count = await db.execute(select(EndUser).where(EndUser.app_id == app.id))
+            current_users = len(user_count.scalars().all())
+            if current_users >= plan.max_users_per_app:
+                raise HTTPException(status_code=403, detail="Application has reached its maximum user limit. Contact the developer.")
     
     key_res = await db.execute(select(LicenseKey).where(LicenseKey.app_id == app.id, LicenseKey.key_value == req.license_key))
     license_key = key_res.scalars().first()

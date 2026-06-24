@@ -1,6 +1,5 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '@/store/auth';
-import { signOut } from 'next-auth/react';
 
 const getBaseUrl = () => {
   if (process.env.NEXT_PUBLIC_API_URL) {
@@ -101,7 +100,7 @@ api.interceptors.response.use(
         } else if (hadDevAuth) {
           useAuthStore.getState().logout();
           if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
-            await signOut({ callbackUrl: '/login' });
+            window.location.href = '/login';
           }
         }
       } finally {

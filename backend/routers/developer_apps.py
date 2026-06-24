@@ -59,7 +59,7 @@ async def get_apps(dev: DeveloperAccount = Depends(get_current_developer), db: A
     logins_stmt = select(ActivityLog.app_id, func.count(ActivityLog.id)).where(
         ActivityLog.app_id.in_(app_ids),
         ActivityLog.action_type == "login",
-        ActivityLog.timestamp >= today_start
+        ActivityLog.created_at >= today_start
     ).group_by(ActivityLog.app_id)
     logins_res = await db.execute(logins_stmt)
     logins_counts = dict(logins_res.all())
@@ -91,7 +91,7 @@ async def get_app(app_id: int, dev: DeveloperAccount = Depends(get_current_devel
         select(func.count(ActivityLog.id)).where(
             ActivityLog.app_id == app_id,
             ActivityLog.action_type == "login",
-            ActivityLog.timestamp >= today_start,
+            ActivityLog.created_at >= today_start,
         )
     )).scalar() or 0
 

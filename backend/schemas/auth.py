@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import Optional, Literal
 
 class DeveloperCreate(BaseModel):
     username: str
@@ -15,6 +15,7 @@ class PlanSummary(BaseModel):
     max_keys_per_month: int
     features_json: Optional[list] = []
     ai_agent_access: bool = False
+    audit_log_limit: int = 1000
 
     class Config:
         from_attributes = True
@@ -24,6 +25,12 @@ class DeveloperResponse(BaseModel):
     username: str
     email: EmailStr
     is_verified: bool
+    display_name: Optional[str] = None
+    bio: Optional[str] = None
+    timezone: Optional[str] = None
+    preferences: Optional[dict] = None
+    avatar_url: Optional[str] = None
+    two_factor_enabled: bool = False
     subscription_tier: Optional[str] = "tester"
     plan_id: Optional[int] = None
     plan: Optional[PlanSummary] = None
@@ -50,7 +57,7 @@ class PasswordResetRequest(BaseModel):
 class OTPVerify(BaseModel):
     email: EmailStr
     code: str
-    purpose: str # 'verification' or 'password_reset'
+    purpose: Literal['verification', 'password_reset']
 
 class NewPassword(BaseModel):
     email: EmailStr
@@ -64,3 +71,28 @@ class ChangePassword(BaseModel):
 class DeveloperUpdate(BaseModel):
     username: Optional[str] = None
     avatar_url: Optional[str] = None
+    display_name: Optional[str] = None
+    bio: Optional[str] = None
+    timezone: Optional[str] = None
+
+class PreferencesUpdate(BaseModel):
+    theme: Optional[str] = None
+    accent: Optional[str] = None
+    sidebar: Optional[str] = None
+    notifications: Optional[dict] = None
+
+class TwoFactorSetupResponse(BaseModel):
+    secret: str
+    provisioning_uri: str
+    qr_code: str  # base64 PNG
+    backup_codes: list[str]
+
+class TwoFactorVerifyRequest(BaseModel):
+    code: str
+
+class TwoFactorDisableRequest(BaseModel):
+    password: str
+
+class TwoFactorLoginVerify(BaseModel):
+    temp_token: str
+    code: str

@@ -14,7 +14,7 @@ async def detect_anomalies(user_id: int, app_id: int, ip_address: str, hwid: str
             ActivityLog.app_id == app_id, 
             ActivityLog.ip_address == ip_address, 
             ActivityLog.action_type == "failed_login",
-            ActivityLog.timestamp > time_limit
+            ActivityLog.created_at > time_limit
         )
     )
     fails_list = recent_fails.scalars().all()
@@ -27,7 +27,7 @@ async def detect_anomalies(user_id: int, app_id: int, ip_address: str, hwid: str
         select(ActivityLog.hwid).where(
             ActivityLog.user_id == user_id,
             ActivityLog.action_type == "login",
-            ActivityLog.timestamp > utc_now() - timedelta(hours=24)
+            ActivityLog.created_at > utc_now() - timedelta(hours=24)
         ).distinct()
     )
     hwids = [h for h in recent_hwids.scalars().all() if h]
