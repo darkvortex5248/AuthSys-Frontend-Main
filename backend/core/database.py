@@ -65,11 +65,13 @@ def build_async_database_url(raw_url: str) -> tuple[str, dict]:
 
 db_url, _connect_args = build_async_database_url(settings.DATABASE_URL)
 
+from sqlalchemy.pool import NullPool
+
 engine = create_async_engine(
     db_url,
     connect_args=_connect_args,
     echo=False,
-    pool_pre_ping=True,
+    poolclass=NullPool,
 )
 
 AsyncSessionLocal = async_sessionmaker(
