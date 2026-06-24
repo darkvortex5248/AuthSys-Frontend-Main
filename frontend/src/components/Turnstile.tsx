@@ -1,55 +1,24 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import { Turnstile as ReactTurnstile } from '@marsidev/react-turnstile';
 
 interface TurnstileProps {
   onVerify: (token: string) => void;
 }
 
 export default function Turnstile({ onVerify }: TurnstileProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const widgetIdRef = useRef<string | null>(null);
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+  
+  if (!siteKey) return null;
 
-  useEffect(() => {
-    const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
-    if (!siteKey) return;
-
-    const scriptId = 'cloudflare-turnstile-script';
-    let script = document.getElementById(scriptId) as HTMLScriptElement;
-
-    const renderWidget = () => {
-      if ((window as any).turnstile && containerRef.current && !widgetIdRef.current) {
-        widgetIdRef.current = (window as any).turnstile.render(containerRef.current, {
-          sitekey: siteKey,
-          callback: (token: string) => {
-            onVerify(token);
-          },
-        });
-      }
-    };
-
-    if (!script) {
-      script = document.createElement('script');
-      script.id = scriptId;
-      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-      script.async = true;
-      script.defer = true;
-      script.onload = renderWidget;
-      document.head.appendChild(script);
-    } else {
-      if ((window as any).turnstile) {
-        renderWidget();
-      } else {
-        script.addEventListener('load', renderWidget);
-      }
-    }
-
-    return () => {
-      if (widgetIdRef.current && (window as any).turnstile) {
-        (window as any).turnstile.remove(widgetIdRef.current);
-        widgetIdRef.current = null;
-      }
-    };
-  }, [onVerify]);
-
-  return <div ref={containerRef} className="flex justify-center my-4" />;
+  return (
+    <div className="flex justify-center my-4 min-h-[65px]">
+      <ReactTurnstile 
+        siteKey={siteKey} 
+        onSuccess={onVerify}
+        options={{
+          theme: 'dark' // Or 'light' or 'auto', auto is default, but your app looks dark
+        }}
+      />
+    </div>
+  );
 }
