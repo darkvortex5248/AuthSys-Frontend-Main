@@ -65,9 +65,15 @@ api.interceptors.response.use(
         window.location.pathname.startsWith('/super-admin');
       const hadDevAuth = Boolean(error.config?.headers?.Authorization);
       const isProtectedAdmin = isProtectedAdminRoute(url);
+      const state = useAuthStore.getState();
 
       // Public routes: never force logout
       if (isPublicAdminRoute(url)) {
+        return Promise.reject(error);
+      }
+
+      // Don't logout while session restore is in progress
+      if (state.isLoading) {
         return Promise.reject(error);
       }
 
@@ -80,7 +86,7 @@ api.interceptors.response.use(
               window.location.href = '/super-admin/login';
             }
           }
-        } else if (hadDevAuth) {
+        } else if (hadDevAuth && state.token) {
           useAuthStore.getState().logout();
           if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
             window.location.href = '/login';

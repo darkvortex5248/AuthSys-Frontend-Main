@@ -95,7 +95,8 @@ export const useAuthStore = create<AuthState>((set) => {
         }
       } catch { /* fall through */ }
 
-      set({ token: null, user: null, isLoading: false });
+      const currentState = useAuthStore.getState();
+      set({ token: currentState.token, user: currentState.user, isLoading: false });
     },
 
     logout: async () => {
