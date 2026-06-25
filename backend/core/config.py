@@ -72,6 +72,7 @@ class Settings(BaseSettings):
                 "POSTGRES_URL_NON_POOLING",
                 "POSTGRES_PRISMA_URL",
                 "DATABASE_URL_UNPOOLED",
+                "DATABASE_PUBLIC_URL",
             ):
                 value = os.getenv(key)
                 if value:
