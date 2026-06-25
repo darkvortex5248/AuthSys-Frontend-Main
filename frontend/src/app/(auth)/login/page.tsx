@@ -1,6 +1,6 @@
 'use client';
-import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, ChangeEvent, FormEvent, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/store/auth';
 import api from '@/lib/api';
 import { getApiBaseUrl } from '@/lib/api-base-url';
@@ -8,6 +8,48 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 import Turnstile from '@/components/Turnstile';
 import { motion } from 'framer-motion';
+
+function LoginBanner() {
+  const searchParams = useSearchParams();
+  const [banner, setBanner] = useState<{ type: 'success' | 'info'; message: string } | null>(null);
+  const [showBanner, setShowBanner] = useState(true);
+
+  useEffect(() => {
+    if (searchParams.get('registered') === 'true') {
+      setBanner({ type: 'success', message: 'Account created successfully! Please sign in.' });
+      const url = new URL(window.location.href);
+      url.searchParams.delete('registered');
+      window.history.replaceState({}, '', url.toString());
+    } else if (searchParams.get('exists') === 'true') {
+      setBanner({ type: 'info', message: 'Account already exists. Please sign in.' });
+      const url = new URL(window.location.href);
+      url.searchParams.delete('exists');
+      window.history.replaceState({}, '', url.toString());
+    }
+    const t = setTimeout(() => setShowBanner(false), 6000);
+    return () => clearTimeout(t);
+  }, [searchParams]);
+
+  if (!banner || !showBanner) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium ${
+        banner.type === 'success'
+          ? 'bg-[#10b981]/10 border border-[#10b981]/30 text-[#10b981]'
+          : 'bg-[#3b82f6]/10 border border-[#3b82f6]/30 text-[#3b82f6]'
+      }`}
+    >
+      <span className="material-symbols-outlined text-[20px]">
+        {banner.type === 'success' ? 'check_circle' : 'info'}
+      </span>
+      {banner.message}
+    </motion.div>
+  );
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -115,6 +157,10 @@ export default function LoginPage() {
         <Link href="/login" className="relative flex-1 py-2 text-sm font-medium leading-[1] text-center text-white z-10 transition-colors">Sign in</Link>
         <Link href="/register" className="relative flex-1 py-2 text-sm font-medium leading-[1] text-center text-[var(--color-text-secondary)] z-10 transition-colors">Sign up</Link>
       </motion.div>
+
+      <Suspense fallback={null}>
+        <LoginBanner />
+      </Suspense>
 
       {/* Header */}
       <motion.header variants={itemVariants} className="flex flex-col items-center text-center gap-4">

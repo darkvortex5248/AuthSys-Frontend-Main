@@ -36,96 +36,59 @@ export default function CookieConsent() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[300] bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[9980] bg-black/60 backdrop-blur-sm"
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 30 }}
-            transition={{ type: 'spring', stiffness: 280, damping: 26 }}
-            className="fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-[301] w-[calc(100%-1rem)] sm:w-[calc(100%-2rem)] max-w-3xl"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+            className="fixed bottom-0 left-0 right-0 z-[9999] sm:bottom-6 sm:left-1/2 sm:-translate-x-1/2 sm:w-[calc(100%-3rem)] sm:max-w-lg"
           >
-            <div className="relative rounded-2xl border border-white/[0.08] bg-gradient-to-b from-[#121212] to-[#0a0a0a] shadow-2xl shadow-black/60 p-0 overflow-hidden flex flex-col max-h-[85vh] sm:max-h-[90vh]">
-              {/* Top accent bar */}
-              <div className="h-1 shrink-0 w-full bg-gradient-to-r from-[var(--primary)] via-[var(--primary)] to-[var(--primary)]" />
-
+            <div className="relative rounded-t-2xl sm:rounded-2xl border border-white/[0.06] bg-gradient-to-b from-[#181818] to-[#0d0d0d] shadow-2xl shadow-black/80 p-4 sm:p-6">
+              {/* Close — desktop only */}
               <button
                 onClick={decline}
-                className="absolute top-4 right-4 w-8 h-8 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.04] flex items-center justify-center text-[var(--muted-foreground)] hover:text-white transition-all z-20"
+                className="hidden sm:flex absolute top-3 right-3 w-7 h-7 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.04] items-center justify-center text-[var(--muted-foreground)] hover:text-white transition-all z-20"
                 aria-label="Close"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
 
-              <div className="p-5 sm:p-8 lg:p-10 overflow-y-auto">
-                <div className="flex flex-col sm:flex-row items-start gap-5 sm:gap-6">
-                  {/* Icon */}
-                  <div className="relative shrink-0">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--primary)]/20 to-[var(--primary)]/5 border border-[var(--primary)]/15 flex items-center justify-center">
-                      <Cookie className="w-7 h-7 text-[var(--primary)]" />
-                    </div>
-                    <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[var(--card)] border border-white/[0.06] flex items-center justify-center">
-                      <Shield className="w-3 h-3 text-[var(--primary)]" />
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-lg sm:text-xl font-bold text-white mb-2 tracking-tight">
-                      Your Privacy Matters to Us
-                    </h2>
-                    <p className="text-sm sm:text-base text-[var(--muted-foreground)] leading-relaxed mb-4">
-                      We use cookies and similar technologies to secure your session, remember your preferences, 
-                      and help us improve our platform. We prioritize your data security and never sell your 
-                      personal information.
-                    </p>
-
-                    {/* Info cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-                      <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.04]">
-                        <Shield className="w-4 h-4 text-[var(--primary)] mt-0.5 shrink-0" />
-                        <div>
-                          <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-0.5">Essential Cookies</p>
-                          <p className="text-[11px] text-[var(--muted-foreground)] leading-relaxed">Required for authentication & security. Always active.</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.04]">
-                        <Info className="w-4 h-4 text-[var(--primary)] mt-0.5 shrink-0" />
-                        <div>
-                          <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-0.5">Preference Cookies</p>
-                          <p className="text-[11px] text-[var(--muted-foreground)] leading-relaxed">Remember your UI settings & theme choices.</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Buttons */}
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                      <button
-                        onClick={accept}
-                        className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[var(--primary)] text-black text-sm font-black uppercase tracking-widest hover:bg-[var(--primary)]/90 active:scale-[0.97] transition-all shadow-lg shadow-[var(--primary)]/25"
-                      >
-                        <Check className="w-4 h-4" />
-                        Accept All
-                      </button>
-                      <button
-                        onClick={decline}
-                        className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-white/[0.08] text-[var(--muted-foreground)] text-sm font-black uppercase tracking-widest hover:text-white hover:bg-white/[0.04] active:scale-[0.97] transition-all"
-                      >
-                        Decline
-                      </button>
-                      <Link
-                        href="/cookies"
-                        className="text-center sm:text-left text-[11px] font-medium text-[var(--primary)] hover:text-[var(--primary)] underline underline-offset-4 transition-colors whitespace-nowrap"
-                      >
-                        Cookie Policy
-                      </Link>
-                    </div>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+                {/* Icon — desktop only */}
+                <div className="hidden sm:flex relative shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--primary)]/20 to-[var(--primary)]/5 border border-[var(--primary)]/15 flex items-center justify-center">
+                    <Cookie className="w-5 h-5 text-[var(--primary)]" />
                   </div>
                 </div>
-              </div>
 
-              {/* Bottom gradient */}
-              <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-white mb-0.5">
+                    This site uses cookies
+                  </p>
+                  <p className="text-xs text-[var(--muted-foreground)] leading-relaxed sm:mb-0">
+                    We use essential cookies for security &amp; preferences. Read our{' '}
+                    <Link href="/cookies" className="text-[var(--primary)] underline underline-offset-2">Cookie Policy</Link>.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                  <button
+                    onClick={accept}
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl bg-[var(--primary)] text-black text-xs font-black uppercase tracking-widest hover:bg-[var(--primary)]/90 active:scale-[0.97] transition-all shadow-lg shadow-[var(--primary)]/20"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    Accept
+                  </button>
+                  <button
+                    onClick={decline}
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl border border-white/[0.08] text-[var(--muted-foreground)] text-xs font-black uppercase tracking-widest hover:text-white hover:bg-white/[0.04] active:scale-[0.97] transition-all"
+                  >
+                    Decline
+                  </button>
+                </div>
+              </div>
             </div>
           </motion.div>
         </>

@@ -72,26 +72,21 @@ export default function RegisterPage() {
       });
 
       setIsSuccess(true);
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('admin_token');
-      }
-      const formBody = new FormData();
-      formBody.append('username', formData.username);
-      formBody.append('password', formData.password);
-      if (turnstileToken) formBody.append('turnstile_token', turnstileToken);
-      const loginRes = await api.post('/developer/auth/login', formBody);
-      const { setToken, setUser } = useAuthStore.getState();
-      setToken(loginRes.data.access_token);
-      const userRes = await api.get('/developer/auth/me');
-      setUser(userRes.data);
-      toast.success('Registration successful!');
-      router.replace('/dashboard');
+      toast.success('Account created! Check your email for verification.');
+      setTimeout(() => {
+        router.push('/login?registered=true');
+      }, 1500);
     } catch (err: any) {
       setHasError(true);
       setTimeout(() => setHasError(false), 400);
       setIsSubmitting(false);
       const detail = err.response?.data?.detail;
-      if (typeof detail === 'string') {
+      if (typeof detail === 'string' && detail.toLowerCase().includes('already registered')) {
+        toast.info('Account already exists! Redirecting to sign in...');
+        setTimeout(() => {
+          router.push('/login?exists=true');
+        }, 1000);
+      } else if (typeof detail === 'string') {
         toast.error(detail);
       } else if (Array.isArray(detail)) {
         toast.error(detail[0]?.msg || 'Registration failed');
