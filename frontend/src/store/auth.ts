@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import Cookies from 'js-cookie';
 import { getApiBaseUrl } from '@/lib/api-base-url';
 
 interface User {
@@ -27,6 +26,7 @@ interface AuthState {
   user: User | null;
   selectedAppId: number | null;
   isLoading: boolean;
+  sessionReady: boolean;
   setToken: (token: string) => void;
   setUser: (user: User | null) => void;
   setSelectedAppId: (id: number | null) => void;
@@ -34,69 +34,61 @@ interface AuthState {
   logout: () => void;
 }
 
+function getStoredToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  try { return localStorage.getItem('auth_token'); } catch { return null; }
+}
+
+function setStoredToken(token: string | null): void {
+  if (typeof window === 'undefined') return;
+  try {
+    if (token) localStorage.setItem('auth_token', token);
+    else localStorage.removeItem('auth_token');
+  } catch { /* ignore */ }
+}
+
 export const useAuthStore = create<AuthState>((set) => {
-  const initialToken = Cookies.get('token');
-  const initialAppId = Cookies.get('selectedAppId');
-  const initialUser = Cookies.get('user');
+  const initialToken = getStoredToken();
 
   return {
-    token: initialToken || null,
-    user: initialUser ? JSON.parse(initialUser) : null,
-    selectedAppId: initialAppId ? parseInt(initialAppId) : null,
+    token: initialToken,
+    user: null,
+    selectedAppId: null,
     isLoading: true,
+    sessionReady: false,
 
     setToken: (token) => {
-      if (token) Cookies.set('token', token, { expires: 1, path: '/' });
-      else Cookies.remove('token', { path: '/' });
+      setStoredToken(token);
       set({ token });
     },
 
     setUser: (user) => {
-      if (user) Cookies.set('user', JSON.stringify(user), { expires: 1, path: '/' });
-      else Cookies.remove('user', { path: '/' });
       set({ user });
     },
 
     setSelectedAppId: (id) => {
-      if (id) Cookies.set('selectedAppId', id.toString(), { expires: 7, path: '/' });
-      else Cookies.remove('selectedAppId', { path: '/' });
       set({ selectedAppId: id });
     },
 
     restoreSession: async () => {
-      set({ isLoading: true });
-      const state = useAuthStore.getState();
+      set({ isLoading: true, sessionReady: false });
+      const token = getStoredToken();
 
-      // Priority 1: Existing token → validate via /me
-      if (state.token) {
+      if (token) {
         try {
           const res = await fetch(`${getApiBaseUrl()}/developer/auth/me`, {
-            headers: { 'Authorization': `Bearer ${state.token}` },
+            headers: { 'Authorization': `Bearer ${token}` },
           });
           if (res.ok) {
             const user = await res.json();
-            set({ user, isLoading: false });
+            set({ token, user, isLoading: false, sessionReady: true });
             return;
           }
         } catch { /* fall through */ }
       }
 
-      // Priority 2: Cookie-based session (same-origin or SameSite=None)
-      try {
-        const res = await fetch(`${getApiBaseUrl()}/developer/auth/session`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          set({ token: data.access_token, user: data.user, isLoading: false });
-          return;
-        }
-      } catch { /* fall through */ }
-
-      const currentState = useAuthStore.getState();
-      set({ token: currentState.token, user: currentState.user, isLoading: false });
+      // No valid token → session restore done, no user
+      set({ token: null, user: null, isLoading: false, sessionReady: true });
     },
 
     logout: async () => {
@@ -107,10 +99,8 @@ export const useAuthStore = create<AuthState>((set) => {
           headers: { 'Content-Type': 'application/json' },
         });
       } catch { /* ignore */ }
-      Cookies.remove('token', { path: '/' });
-      Cookies.remove('user', { path: '/' });
-      Cookies.remove('selectedAppId', { path: '/' });
-      set({ token: null, user: null, selectedAppId: null });
+      setStoredToken(null);
+      set({ token: null, user: null, selectedAppId: null, sessionReady: true });
     },
   };
 });

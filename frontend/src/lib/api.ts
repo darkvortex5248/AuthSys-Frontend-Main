@@ -72,8 +72,8 @@ api.interceptors.response.use(
         return Promise.reject(error);
       }
 
-      // Don't logout while session restore is in progress
-      if (state.isLoading) {
+      // Don't logout until session has finished restoring
+      if (!state.sessionReady) {
         return Promise.reject(error);
       }
 
