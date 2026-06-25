@@ -3,6 +3,7 @@ import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth';
 import api from '@/lib/api';
+import { getApiBaseUrl } from '@/lib/api-base-url';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -46,17 +47,12 @@ export default function LoginPage() {
   );
 
   const finishLogin = async (accessToken: string) => {
-    // Exchange the Supabase access token for the app developer profile.
     try {
-      const profileRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || ''}`.replace(/\/$/, '') +
-          '/api/v1/developer/auth/supabase/session',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ access_token: accessToken }),
-        }
-      );
+      const profileRes = await fetch(`${getApiBaseUrl()}/developer/auth/supabase/session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token: accessToken }),
+      });
       if (profileRes.ok) {
         const data = await profileRes.json();
         if (data.user) {
@@ -66,7 +62,7 @@ export default function LoginPage() {
         }
       }
     } catch {
-      // non-fatal — session will be restored on dashboard mount
+      // non-fatal — AuthProvider.restoreSession runs on dashboard mount
     }
   };
 

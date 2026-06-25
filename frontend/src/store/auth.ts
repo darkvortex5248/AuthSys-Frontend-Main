@@ -1,21 +1,7 @@
 import { create } from 'zustand';
 import Cookies from 'js-cookie';
+import { getApiBaseUrl } from '@/lib/api-base-url';
 import { supabase } from '@/lib/supabase';
-
-function getApiBaseUrl(): string {
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    const url = process.env.NEXT_PUBLIC_API_URL;
-    return url.endsWith('/') ? url + 'api/v1' : url + '/api/v1';
-  }
-  if (typeof window !== 'undefined') {
-    const protocol = window.location.protocol.startsWith('http')
-      ? window.location.protocol
-      : 'http:';
-    const hostname = window.location.hostname || 'localhost';
-    return `${protocol}//${hostname}:8000/api/v1`;
-  }
-  return 'http://127.0.0.1:8000/api/v1';
-}
 
 interface User {
   id: number;
@@ -114,6 +100,15 @@ export const useAuthStore = create<AuthState>((set) => {
             const user = await fetchDevProfile(accessToken);
             if (user) {
               set({ token: accessToken, user, isLoading: false });
+              return;
+            }
+            const cachedUser = Cookies.get('user');
+            if (cachedUser) {
+              set({
+                token: accessToken,
+                user: JSON.parse(cachedUser),
+                isLoading: false,
+              });
               return;
             }
           }

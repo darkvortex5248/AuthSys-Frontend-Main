@@ -5,6 +5,7 @@ import SmoothScroll from '@/components/SmoothScroll'
 import PageTransition from '@/components/PageTransition'
 import ThemeProvider from '@/components/ThemeProvider'
 import { QueryProvider } from '@/components/providers/QueryProvider'
+import { AuthProvider } from '@/components/providers/AuthProvider'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import CookieConsent from '@/components/CookieConsent'
 import CursorGlow from '@/components/CursorGlow'
@@ -158,6 +159,7 @@ export default function RootLayout({
       <body className={`${geist.className} antialiased`}>
         <ThemeProvider>
             <QueryProvider>
+            <AuthProvider>
             <ConfirmProvider>
               <CopyProvider>
               <SmoothScroll>
@@ -175,6 +177,7 @@ export default function RootLayout({
               <Toaster />
               </CopyProvider>
             </ConfirmProvider>
+            </AuthProvider>
             </QueryProvider>
         </ThemeProvider>
       </body>

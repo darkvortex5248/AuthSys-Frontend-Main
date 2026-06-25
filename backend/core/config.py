@@ -61,6 +61,17 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
+    @model_validator(mode="after")
+    def auto_enable_supabase_auth(self) -> "Settings":
+        if not self.SUPABASE_AUTH_ENABLED:
+            if self.SUPABASE_URL and self.SUPABASE_SERVICE_ROLE_KEY:
+                self.SUPABASE_AUTH_ENABLED = True
+        if self.SUPABASE_URL and not self.SUPABASE_PROJECT_REF:
+            # e.g. https://vbnjhqnkmbjmvlfdlrpv.supabase.co → vbnjhqnkmbjmvlfdlrpv
+            host = self.SUPABASE_URL.rstrip("/").split("//")[-1]
+            self.SUPABASE_PROJECT_REF = host.split(".")[0]
+        return self
+
     @model_validator(mode="before")
     @classmethod
     def resolve_env_aliases(cls, data: object) -> object:

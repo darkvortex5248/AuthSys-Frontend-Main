@@ -1,23 +1,6 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios';
+import { getApiBaseUrl } from '@/lib/api-base-url';
 import { useAuthStore } from '@/store/auth';
-
-const getBaseUrl = () => {
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL.endsWith('/')
-      ? process.env.NEXT_PUBLIC_API_URL + 'api/v1'
-      : process.env.NEXT_PUBLIC_API_URL + '/api/v1';
-  }
-
-  if (typeof window !== 'undefined') {
-    const protocol = window.location.protocol.startsWith('http')
-      ? window.location.protocol
-      : 'http:';
-    const hostname = window.location.hostname || 'localhost';
-    return `${protocol}//${hostname}:8000/api/v1`;
-  }
-
-  return 'http://127.0.0.1:8000/api/v1';
-};
 
 /** Routes under /admin/ that do not require admin JWT */
 function isPublicAdminRoute(url: string): boolean {
@@ -36,7 +19,7 @@ function isProtectedAdminRoute(url: string): boolean {
 let handlingUnauthorized = false;
 
 const api = axios.create({
-  baseURL: getBaseUrl(),
+  baseURL: getApiBaseUrl(),
 });
 
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {

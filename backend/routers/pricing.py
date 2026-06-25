@@ -3,10 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import delete, update
 from core.database import get_db
-from core.deps import oauth2_scheme
-from jose import jwt, JWTError
-from core.config import settings
-from core.security import ALGORITHM
+from core.deps import get_current_developer
 from models.domain import PricingItem, DeveloperAccount
 from typing import List, Optional
 from pydantic import BaseModel
@@ -53,20 +50,6 @@ class PricingItemResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
-# Dependency to get current developer
-async def get_current_developer(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: str = payload.get("sub")
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
-    
-    res = await db.execute(select(DeveloperAccount).where(DeveloperAccount.id == int(user_id)))
-    developer = res.scalars().first()
-    if not developer:
-        raise HTTPException(status_code=401, detail="Developer not found")
-    return developer
 
 @router.get("/items", response_model=List[PricingItemResponse])
 async def get_pricing_items(

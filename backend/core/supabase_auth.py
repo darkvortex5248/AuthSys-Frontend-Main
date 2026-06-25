@@ -14,6 +14,8 @@ We then resolve the returned user UUID to a `DeveloperAccount` via the
 
 from __future__ import annotations
 
+import base64
+import json
 import logging
 from typing import Any, Optional
 from uuid import UUID
@@ -37,14 +39,25 @@ def _auth_user_url() -> str:
 
 def looks_like_supabase_token(token: str) -> bool:
     """
-    Heuristic to pick the right verifier. A Supabase JWT carries the project
-    ref in its `iss` claim (e.g. "https://<ref>.supabase/auth/v1") OR has
-    `role`/`aal` claims. We just check it's a 3-part JWT — the actual
-    validity is confirmed by the Supabase Auth call below.
+    Detect Supabase-issued JWTs by inspecting unverified claims (iss / role).
+    Legacy HS256 app tokens are routed to the SECRET_KEY verifier instead.
     """
     if not token or token.count(".") != 2:
         return False
-    return True
+    if not settings.SUPABASE_AUTH_ENABLED:
+        return False
+    try:
+        payload_b64 = token.split(".")[1]
+        payload_b64 += "=" * (-len(payload_b64) % 4)
+        payload = json.loads(base64.urlsafe_b64decode(payload_b64))
+        iss = str(payload.get("iss", "")).lower()
+        if "supabase" in iss:
+            return True
+        if payload.get("role") in ("authenticated", "anon", "service_role"):
+            return True
+    except Exception:
+        pass
+    return False
 
 
 async def verify_supabase_token(token: str) -> Optional[dict[str, Any]]:

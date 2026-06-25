@@ -44,12 +44,11 @@ async def get_current_developer(token: str = Depends(oauth2_scheme), db: AsyncSe
     # ── New path: Supabase RS256 JWT ──────────────────────────────────────
     if looks_like_supabase_token(token):
         payload = await verify_supabase_token(token)
-        if payload is None:
-            raise credentials_exception
-        dev = await resolve_developer_from_supabase(db, payload)
-        if dev is None:
-            raise credentials_exception
-        return dev
+        if payload is not None:
+            dev = await resolve_developer_from_supabase(db, payload)
+            if dev is not None:
+                return dev
+        raise credentials_exception
 
     # ── Legacy path: HS256 JWT signed with settings.SECRET_KEY ────────────
     try:

@@ -44,7 +44,7 @@ const navItems = [
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, setUser, selectedAppId, setSelectedAppId, logout, token, setToken, isLoading } = useAuthStore();
+  const { user, setUser, selectedAppId, setSelectedAppId, logout, token, isLoading } = useAuthStore();
   let { sidebar: sidebarPref, setSidebar: setSidebarPref } = useUIStore();
   // Migrate removed 'collapsed' state to 'expanded'
   if ((sidebarPref as string) === 'collapsed') {
@@ -72,7 +72,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     if (profile) {
       setUser(profile);
     }
-  }, [token, setToken, profile, setUser, user, isLoggingOut]);
+  }, [profile, setUser, user, isLoggingOut]);
 
   useEffect(() => {
     if (!mounted || isLoggingOut) return;
@@ -111,6 +111,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     await logout();
     router.replace('/login');
   };
+
+  if (!mounted || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs text-[var(--muted-foreground)] font-medium">Loading session...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="font-body-md text-[var(--foreground)] selection:bg-[var(--accent-opacity-15)] min-h-screen bg-[var(--background)] overflow-visible">

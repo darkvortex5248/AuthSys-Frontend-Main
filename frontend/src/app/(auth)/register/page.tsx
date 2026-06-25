@@ -3,6 +3,7 @@ import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth';
 import api from '@/lib/api';
+import { getApiBaseUrl } from '@/lib/api-base-url';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -87,15 +88,11 @@ export default function RegisterPage() {
           const { setToken, setUser } = useAuthStore.getState();
           setToken(data.session.access_token);
           try {
-            const profileRes = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL || ''}`.replace(/\/$/, '') +
-                '/api/v1/developer/auth/supabase/session',
-              {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ access_token: data.session.access_token }),
-              }
-            );
+            const profileRes = await fetch(`${getApiBaseUrl()}/developer/auth/supabase/session`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ access_token: data.session.access_token }),
+            });
             if (profileRes.ok) {
               const pd = await profileRes.json();
               if (pd.user) setUser(pd.user);
