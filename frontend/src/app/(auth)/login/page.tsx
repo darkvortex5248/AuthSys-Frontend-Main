@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth';
 import api from '@/lib/api';
 import { getApiBaseUrl } from '@/lib/api-base-url';
-import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import Turnstile from '@/components/Turnstile';
@@ -42,61 +41,11 @@ export default function LoginPage() {
   const [hasError, setHasError] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const hasSupabaseConfig = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
-
-  const finishLogin = async (accessToken: string) => {
-    try {
-      const profileRes = await fetch(`${getApiBaseUrl()}/developer/auth/supabase/session`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ access_token: accessToken }),
-      });
-      if (profileRes.ok) {
-        const data = await profileRes.json();
-        if (data.user) {
-          const { setUser, setToken } = useAuthStore.getState();
-          setToken(accessToken);
-          setUser(data.user);
-        }
-      }
-    } catch {
-      // non-fatal — AuthProvider.restoreSession runs on dashboard mount
-    }
-  };
-
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
       setIsSubmitting(true);
 
-      // ── New path: Supabase password sign-in ─────────────────────────
-      if (hasSupabaseConfig) {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: formData.username,
-          password: formData.password,
-        });
-        if (error) {
-          setHasError(true);
-          setTimeout(() => setHasError(false), 400);
-          setIsSubmitting(false);
-          toast.error(error.message || 'Invalid credentials');
-          return;
-        }
-        if (data.session) {
-          if (typeof window !== 'undefined') {
-            localStorage.removeItem('admin_token');
-          }
-          await finishLogin(data.session.access_token);
-          setIsSuccess(true);
-          toast.success('Logged in successfully');
-          router.replace('/dashboard');
-        }
-        return;
-      }
-
-      // ── Legacy path: backend form login (pre-migration) ─────────────
       const formBody = new FormData();
       formBody.append('username', formData.username);
       formBody.append('password', formData.password);
@@ -124,17 +73,18 @@ export default function LoginPage() {
     }
   };
 
-  const handleSocialSignIn = async (provider: string) => {
-    if (!hasSupabaseConfig) {
-      toast.error('Social login is not configured yet.');
-      return;
-    }
-    // Supabase handles the full OAuth flow + redirect to /auth/callback.
-    // Supported providers: google, github, discord, azure (Microsoft).
-    await supabase.auth.signInWithOAuth({
-      provider: provider as 'google' | 'github' | 'discord' | 'azure',
-      options: { redirectTo: `${window.location.origin}/auth/callback?next=/dashboard` },
-    });
+  const handleSocialSignIn = (provider: string) => {
+    const baseUrl = getApiBaseUrl().replace('/api/v1', '');
+    const redirectUri = `${window.location.origin}/auth/callback`;
+    const providers: Record<string, string> = {
+      google: `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=openid%20email%20profile&state=google`,
+      github: `https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}&redirect_uri=${redirectUri}&scope=user:email&state=github`,
+      discord: `https://discord.com/api/oauth2/authorize?client_id=${process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=identify%20email&state=discord`,
+      azure: `https://login.microsoftonline.com/${process.env.NEXT_PUBLIC_AZURE_TENANT_ID || 'common'}/oauth2/v2.0/authorize?client_id=${process.env.NEXT_PUBLIC_AZURE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=openid%20email%20profile&state=azure`,
+    };
+    const url = providers[provider];
+    if (url) window.location.href = url;
+    else toast.error('Social login is not configured yet.');
   };
 
   const [showPassword, setShowPassword] = useState(false);
@@ -237,11 +187,9 @@ export default function LoginPage() {
           <label htmlFor="remember" className="text-sm text-[var(--color-text-secondary)] select-none cursor-pointer">Keep me signed in</label>
         </motion.div>
 
-        {!hasSupabaseConfig && (
-          <motion.div variants={itemVariants} className="py-1">
-            <Turnstile onVerify={(token) => setTurnstileToken(token)} />
-          </motion.div>
-        )}
+        <motion.div variants={itemVariants} className="py-1">
+          <Turnstile onVerify={(token) => setTurnstileToken(token)} />
+        </motion.div>
 
         <motion.div variants={itemVariants}>
           <button

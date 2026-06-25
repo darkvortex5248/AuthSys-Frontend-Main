@@ -1,38 +1,52 @@
 import { NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase-server';
+import { getApiBaseUrl } from '@/lib/api-base-url';
 
-/**
- * OAuth callback handler.
- *
- * After a Supabase OAuth sign-in (Google / GitHub / Discord), Supabase
- * redirects here with a `code` query param. We exchange it for a session,
- * which sets the auth cookies, then redirect into the dashboard.
- *
- * For email confirmation / password-reset flows that include `type` and
- * a hash, Supabase redirects here too; we forward to the appropriate page.
- */
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
-  const type = requestUrl.searchParams.get('type');
-  const next = requestUrl.searchParams.get('next') ?? '/dashboard';
+  const state = requestUrl.searchParams.get('state') || 'google';
+  const error = requestUrl.searchParams.get('error');
 
-  const supabase = await createSupabaseServerClient();
-
-  // Password reset / email confirmation redirects to a dedicated page.
-  if (type === 'recovery') {
-    return NextResponse.redirect(`${requestUrl.origin}/reset-password`);
+  if (error) {
+    return NextResponse.redirect(
+      `${requestUrl.origin}/login?error=${encodeURIComponent(error)}`
+    );
   }
 
-  if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (error) {
-      // Surface the error on the login page so the user sees what happened.
+  if (!code) {
+    return NextResponse.redirect(`${requestUrl.origin}/login?error=No authorization code received`);
+  }
+
+  try {
+    const apiBase = getApiBaseUrl();
+    const res = await fetch(`${apiBase}/developer/auth/oauth/callback`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code,
+        provider: state,
+        redirect_uri: `${requestUrl.origin}/auth/callback`,
+      }),
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({ detail: 'OAuth failed' }));
       return NextResponse.redirect(
-        `${requestUrl.origin}/login?error=${encodeURIComponent(error.message)}`
+        `${requestUrl.origin}/login?error=${encodeURIComponent(errData.detail || 'OAuth authentication failed')}`
       );
     }
-  }
 
-  return NextResponse.redirect(`${requestUrl.origin}${next}`);
+    const response = NextResponse.redirect(`${requestUrl.origin}/dashboard`);
+
+    const setCookie = res.headers.get('set-cookie');
+    if (setCookie) {
+      response.headers.set('set-cookie', setCookie);
+    }
+
+    return response;
+  } catch {
+    return NextResponse.redirect(
+      `${requestUrl.origin}/login?error=OAuth callback failed`
+    );
+  }
 }

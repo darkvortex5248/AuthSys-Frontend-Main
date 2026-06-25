@@ -45,6 +45,13 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     username: Optional[str] = None
 
+class GoogleIdToken(BaseModel):
+    credential: str
+
+class OAuthCode(BaseModel):
+    code: str
+    provider: str
+
 class DeveloperGoogleLogin(BaseModel):
     email: EmailStr
     name: str

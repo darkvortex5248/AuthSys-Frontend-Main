@@ -3,36 +3,15 @@ import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import api from '@/lib/api';
-import { supabase } from '@/lib/supabase';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const hasSupabaseConfig = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      // ── New path: Supabase password reset ──────────────────────────
-      if (hasSupabaseConfig) {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        });
-        if (error) {
-          toast.error(error.message || 'Failed to send reset link');
-          return;
-        }
-        // Supabase sends a magic-link email; clicking it redirects to
-        // /auth/callback?type=recovery → /reset-password.
-        toast.success('Reset link sent to ' + email);
-        return;
-      }
-
-      // ── Legacy path: backend OTP flow ──────────────────────────────
       await api.post('/developer/auth/forgot-password', { email });
       toast.success('Reset code sent to ' + email);
       window.location.href = `/verify-email?email=${encodeURIComponent(email)}&purpose=password_reset`;
@@ -56,7 +35,7 @@ export default function ForgotPasswordPage() {
       <div className="text-center mb-8">
         <h1 className="text-[20px] font-semibold leading-[28px] tracking-[-0.01em] text-[#ffffff] mb-2">Reset password</h1>
         <p className="text-[13.5px] font-normal leading-[20px] text-[#a1a1aa] max-w-[320px] mx-auto">
-          Enter your email address and we'll send you a link to reset your password.
+          Enter your email address and we'll send you a code to reset your password.
         </p>
       </div>
 
@@ -87,7 +66,7 @@ export default function ForgotPasswordPage() {
           {isLoading ? (
             <><span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span> Sending...</>
           ) : (
-            <>Send reset link <span className="material-symbols-outlined text-[18px]">login</span></>
+            <>Send reset code <span className="material-symbols-outlined text-[18px]">login</span></>
           )}
         </button>
       </form>

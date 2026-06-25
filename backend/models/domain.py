@@ -1,8 +1,7 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, JSON, Text, BigInteger, Float, UUID
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, JSON, Text, BigInteger, Float
 from sqlalchemy.orm import relationship
 from core.database import Base
 from datetime import datetime, timezone
-import uuid as _uuid
 
 def utc_now():
     return datetime.now(timezone.utc)
@@ -18,8 +17,6 @@ class AdminUser(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), default=utc_now)
     last_login = Column(DateTime(timezone=True), nullable=True)
-    # Link to Supabase Auth (kept for symmetry; admin auth stays custom for now).
-    supabase_user_id = Column(UUID(as_uuid=True), unique=True, index=True, nullable=True)
 
 class SubscriptionPlan(Base):
     __tablename__ = "subscription_plans"
@@ -91,9 +88,9 @@ class DeveloperAccount(Base):
     is_verified = Column(Boolean, default=False)
     is_banned = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), default=utc_now)
-    # Link to Supabase Auth (auth.users.id). Nullable during migration;
-    # populated for users who authenticate via Supabase Auth (OAuth, native).
-    supabase_user_id = Column(UUID(as_uuid=True), unique=True, index=True, nullable=True, default=_uuid.uuid4)
+    discord_id = Column(String, unique=True, index=True, nullable=True)
+    github_id = Column(String, unique=True, index=True, nullable=True)
+    azure_id = Column(String, unique=True, index=True, nullable=True)
 
     apps = relationship("Application", back_populates="developer")
     plan = relationship("SubscriptionPlan")

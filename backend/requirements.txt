@@ -20,4 +20,4 @@ httpx
 stripe
 pyotp
 qrcode[pil]
-supabase
+google-auth

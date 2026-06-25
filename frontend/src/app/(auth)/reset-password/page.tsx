@@ -1,23 +1,21 @@
 'use client';
 import { useState, FormEvent, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import api from '@/lib/api';
-import { supabase } from '@/lib/supabase';
 
 function ResetPasswordForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get('email') || '';
+  const code = searchParams.get('code') || '';
 
   const [formData, setFormData] = useState({
     password: '',
     confirmPassword: '',
   });
   const [loading, setLoading] = useState(false);
-
-  const hasSupabaseConfig = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -28,26 +26,9 @@ function ResetPasswordForm() {
 
     setLoading(true);
     try {
-      // ── New path: Supabase recovery session ────────────────────────
-      // User arrived here via /auth/callback?type=recovery, so Supabase
-      // has established a recovery session — updateUser changes the pw.
-      if (hasSupabaseConfig) {
-        const { error } = await supabase.auth.updateUser({
-          password: formData.password,
-        });
-        if (error) {
-          toast.error(error.message || 'Failed to reset password');
-          return;
-        }
-        // Sign out so they re-authenticate with the new password.
-        await supabase.auth.signOut();
-        toast.success('Password reset successfully');
-        router.push('/login');
-        return;
-      }
-
-      // ── Legacy path: backend OTP reset ─────────────────────────────
       await api.post('/developer/auth/reset-password', {
+        email,
+        code,
         new_password: formData.password,
       });
       toast.success('Password reset successfully');
@@ -62,7 +43,6 @@ function ResetPasswordForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Calculate password strength
   const calculateStrength = (password: string) => {
     let score = 0;
     if (password.length > 0) score++;

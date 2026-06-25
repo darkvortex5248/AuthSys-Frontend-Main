@@ -16,7 +16,7 @@ from routers import (
     developer_sessions, developer_security, developer_domains,
     developer_backups, developer_environments, developer_health,
     developer_organization, developer_usage, developer_scheduled,
-    admin_custom_plans, supabase_auth,
+    admin_custom_plans, oauth,
 )
 from services.bot_manager import manager as bot_manager
 import asyncio
@@ -93,8 +93,8 @@ class DynamicCORSMiddleware(BaseHTTPMiddleware):
             return False
         if origin in allowed_origins:
             return True
-        # Allow first-party deploy hosts by suffix match on the registrable host.
-        if origin.endswith(".vercel.app") or origin.endswith(".onrender.com"):
+        # Allow common deployment hosts
+        if origin.endswith(".vercel.app") or origin.endswith(".onrender.com") or origin.endswith(".railway.app") or origin.endswith(".up.railway.app"):
             return True
         return cls._is_local_origin(origin)
 
@@ -166,7 +166,6 @@ async def maintenance_middleware(request: Request, call_next):
 
 # Include Routers
 app.include_router(developer_auth.router)
-app.include_router(supabase_auth.router)
 app.include_router(client_api.router)
 app.include_router(developer_apps.router)
 app.include_router(developer_keys.router)
@@ -196,6 +195,7 @@ app.include_router(developer_organization.router)
 app.include_router(developer_usage.router)
 app.include_router(developer_scheduled.router)
 app.include_router(admin_custom_plans.router)
+app.include_router(oauth.router)
 
 # Background scheduler loop
 import asyncio

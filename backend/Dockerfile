@@ -7,9 +7,8 @@ RUN pip install anthropic celery redis
 
 COPY . .
 
-# Security: Non-root user
 RUN useradd -m myuser && chown -R myuser /app
 USER myuser
 
 EXPOSE 8000
-CMD ["sh", "-c", "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--forwarded-allow-ips", "*"]

@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import Cookies from 'js-cookie';
 import { getApiBaseUrl } from '@/lib/api-base-url';
-import { supabase } from '@/lib/supabase';
 
 interface User {
   id: number;
@@ -13,7 +12,6 @@ interface User {
   timezone?: string;
   is_verified: boolean;
   subscription_tier?: string;
-  supabase_user_id?: string | null;
   plan?: {
     id: number;
     name: string;
@@ -34,26 +32,6 @@ interface AuthState {
   setSelectedAppId: (id: number | null) => void;
   restoreSession: () => Promise<void>;
   logout: () => void;
-}
-
-/**
- * Fetch the application developer profile from the backend using a Supabase
- * access token. The backend verifies the RS256 token and resolves it to a
- * `developer_accounts` row (Phase 3 dual-verifier).
- */
-async function fetchDevProfile(accessToken: string): Promise<User | null> {
-  try {
-    const res = await fetch(`${getApiBaseUrl()}/developer/auth/supabase/session`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ access_token: accessToken }),
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.user ?? null;
-  } catch {
-    return null;
-  }
 }
 
 export const useAuthStore = create<AuthState>((set) => {
@@ -85,38 +63,6 @@ export const useAuthStore = create<AuthState>((set) => {
     restoreSession: async () => {
       try {
         set({ isLoading: true });
-
-        // ── New path: Supabase session ──────────────────────────────────
-        // If Supabase env vars are configured, read the session from the
-        // browser client (cookies are synced by @supabase/ssr).
-        const hasSupabaseConfig = Boolean(
-          process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-        );
-
-        if (hasSupabaseConfig) {
-          const { data: sessionData, error } = await supabase.auth.getSession();
-          if (!error && sessionData.session) {
-            const accessToken = sessionData.session.access_token;
-            const user = await fetchDevProfile(accessToken);
-            if (user) {
-              set({ token: accessToken, user, isLoading: false });
-              return;
-            }
-            const cachedUser = Cookies.get('user');
-            if (cachedUser) {
-              set({
-                token: accessToken,
-                user: JSON.parse(cachedUser),
-                isLoading: false,
-              });
-              return;
-            }
-          }
-          set({ token: null, isLoading: false });
-          return;
-        }
-
-        // ── Legacy path: backend httpOnly cookie (pre-migration) ────────
         const res = await fetch(`${getApiBaseUrl()}/developer/auth/session`, {
           method: 'POST',
           credentials: 'include',
@@ -131,27 +77,14 @@ export const useAuthStore = create<AuthState>((set) => {
     },
 
     logout: async () => {
-      // Sign out of Supabase (clears its cookies + revokes the session).
-      const hasSupabaseConfig = Boolean(
-        process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-      );
-      if (hasSupabaseConfig) {
-        try {
-          await supabase.auth.signOut();
-        } catch {
-          // ignore — clear local state anyway
-        }
-      } else {
-        // Legacy backend logout
-        try {
-          await fetch(`${getApiBaseUrl()}/developer/auth/logout`, {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-          });
-        } catch {
-          // ignore errors — clear local state anyway
-        }
+      try {
+        await fetch(`${getApiBaseUrl()}/developer/auth/logout`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+        });
+      } catch {
+        // ignore errors — clear local state anyway
       }
       Cookies.remove('user', { path: '/' });
       Cookies.remove('selectedAppId', { path: '/' });

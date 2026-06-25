@@ -27,6 +27,17 @@ class Settings(BaseSettings):
         "http://0.0.0.0:3000"
     ]
 
+    # OAuth provider credentials
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+    GITHUB_CLIENT_ID: str = ""
+    GITHUB_CLIENT_SECRET: str = ""
+    DISCORD_CLIENT_ID: str = ""
+    DISCORD_CLIENT_SECRET: str = ""
+    AZURE_CLIENT_ID: str = ""
+    AZURE_CLIENT_SECRET: str = ""
+    AZURE_TENANT_ID: str = "common"
+
     # SMTP Settings
     SMTP_HOST: str = "smtp.gmail.com"
     SMTP_PORT: int = 587
@@ -47,30 +58,7 @@ class Settings(BaseSettings):
     STRIPE_PUBLISHABLE_KEY: str = ""
     STRIPE_WEBHOOK_SECRET: str = ""
 
-    SUPABASE_URL: str = ""
-    SUPABASE_ANON_KEY: str = ""
-    # service_role key — server-only, NEVER expose to frontend. Required to
-    # verify Supabase-issued JWTs server-side and to call the Auth Admin API.
-    SUPABASE_SERVICE_ROLE_KEY: str = ""
-    # Project ref derived from SUPABASE_URL (e.g. vbnjhqnkmbjmvlfdlrpv).
-    # Used to build the JWKS URL for RS256 verification.
-    SUPABASE_PROJECT_REF: str = ""
-    # When True, get_current_developer accepts Supabase-issued RS256 JWTs
-    # alongside the legacy HS256 tokens (dual-verifier during migration).
-    SUPABASE_AUTH_ENABLED: bool = False
-
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
-
-    @model_validator(mode="after")
-    def auto_enable_supabase_auth(self) -> "Settings":
-        if not self.SUPABASE_AUTH_ENABLED:
-            if self.SUPABASE_URL and self.SUPABASE_SERVICE_ROLE_KEY:
-                self.SUPABASE_AUTH_ENABLED = True
-        if self.SUPABASE_URL and not self.SUPABASE_PROJECT_REF:
-            # e.g. https://vbnjhqnkmbjmvlfdlrpv.supabase.co → vbnjhqnkmbjmvlfdlrpv
-            host = self.SUPABASE_URL.rstrip("/").split("//")[-1]
-            self.SUPABASE_PROJECT_REF = host.split(".")[0]
-        return self
 
     @model_validator(mode="before")
     @classmethod
