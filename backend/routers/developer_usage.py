@@ -4,7 +4,7 @@ from sqlalchemy.future import select
 from sqlalchemy import func
 from core.database import get_db
 from core.deps import get_current_developer
-from models.domain import DeveloperAccount, UsageRecord, Application, LicenseKey, EndUser, ActivityLog, SubscriptionPlan
+from models.domain import DeveloperAccount, UsageRecord, Application, LicenseKey, EndUser, ActivityLog, SubscriptionPlan, TeamMember
 from schemas.premium import UsageRecordResponse
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
@@ -45,16 +45,23 @@ async def get_current_usage(dev: DeveloperAccount = Depends(get_current_develope
         )
     )).scalar() or 0
     plan_limits = {}
+    plan = None
     if dev.plan_id:
         plan_res = await db.execute(select(SubscriptionPlan).where(SubscriptionPlan.id == dev.plan_id))
         plan = plan_res.scalars().first()
         if plan:
             plan_limits = {
-                "max_apps": plan.max_apps, "max_users": plan.max_users_per_app,
-                "max_keys": plan.max_keys_per_month, "audit_log_limit": plan.audit_log_limit,
+                "max_apps": plan.max_apps,
+                "max_users": plan.max_users_per_app,
+                "max_licenses": plan.max_licenses,
+                "max_keys": plan.max_keys_per_month,
+                "max_variables": plan.max_variables,
+                "max_staff": plan.max_staff,
+                "max_chatrooms": plan.max_chatrooms,
+                "audit_log_limit": plan.audit_log_limit,
             }
     team_count = (await db.execute(
-        select(func.count(DeveloperAccount.id)).where(DeveloperAccount.id == dev.id)  # placeholder
+        select(func.count(TeamMember.id)).where(TeamMember.developer_id == dev.id)
     )).scalar() or 0
     return {
         "apps": {"current": app_count, "limit": plan_limits.get("max_apps", 999999)},
@@ -70,7 +77,7 @@ async def get_current_usage(dev: DeveloperAccount = Depends(get_current_develope
         "api_requests": api_calls_month,
         "api_limit": plan_limits.get("audit_log_limit", 1000),
         "team_count": team_count,
-        "team_limit": plan_limits.get("max_users", 1),
+        "team_limit": plan_limits.get("max_staff", 0),
     }
 
 @router.get("/history", response_model=List[UsageRecordResponse])
