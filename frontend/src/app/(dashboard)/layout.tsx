@@ -44,7 +44,7 @@ const navItems = [
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, setUser, selectedAppId, setSelectedAppId, logout, token, isLoading } = useAuthStore();
+  const { user, setUser, selectedAppId, setSelectedAppId, logout, token } = useAuthStore();
   let { sidebar: sidebarPref, setSidebar: setSidebarPref } = useUIStore();
   // Migrate removed 'collapsed' state to 'expanded'
   if ((sidebarPref as string) === 'collapsed') {
@@ -76,11 +76,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!mounted || isLoggingOut) return;
-    if (isLoading) return;
     if (!token) {
       router.replace('/login');
     }
-  }, [mounted, token, router, isLoggingOut, isLoading]);
+  }, [mounted, token, router, isLoggingOut]);
 
   useEffect(() => {
     if (apps.length === 0) return;
@@ -112,7 +111,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     router.replace('/login');
   };
 
-  if (!mounted || isLoading) {
+  if (!mounted) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
         <div className="flex flex-col items-center gap-3">

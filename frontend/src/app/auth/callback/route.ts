@@ -36,11 +36,24 @@ export async function GET(request: Request) {
       );
     }
 
+    const data = await res.json();
+    const token = data.access_token;
+
     const response = NextResponse.redirect(`${requestUrl.origin}/dashboard`);
 
+    // Save token as JS-accessible cookie so Zustand can read it on mount
+    response.cookies.set('auth_token', token, {
+      path: '/',
+      maxAge: 60 * 60 * 24,
+      httpOnly: false,
+      sameSite: 'lax',
+      secure: requestUrl.protocol === 'https:',
+    });
+
+    // Forward httpOnly cookie too (for server-side session endpoints)
     const setCookie = res.headers.get('set-cookie');
     if (setCookie) {
-      response.headers.set('set-cookie', setCookie);
+      response.headers.append('set-cookie', setCookie);
     }
 
     return response;

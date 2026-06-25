@@ -1,29 +1,41 @@
 'use client';
 
 import { useEffect } from 'react';
+import { getApiBaseUrl } from '@/lib/api-base-url';
 import { useAuthStore } from '@/store/auth';
 
-function LoadingFallback() {
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-white" />
-    </div>
-  );
-}
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const restoreSession = useAuthStore((s) => s.restoreSession);
-  const token = useAuthStore((s) => s.token);
-  const sessionReady = useAuthStore((s) => s.sessionReady);
+  const setUser = useAuthStore((s) => s.setUser);
 
   useEffect(() => {
-    restoreSession();
-  }, [restoreSession]);
+    const token = useAuthStore.getState().token;
 
-  // If we have a stored token but session hasn't been validated yet, show loader
-  if (token && !sessionReady) {
-    return <LoadingFallback />;
-  }
+    if (!token) return;
+
+    // Migrate OAuth cookie → localStorage (one-time)
+    if (!localStorage.getItem('auth_token')) {
+      const match = document.cookie.match(/(?:^|;\s*)auth_token=([^;]*)/);
+      if (match) {
+        const cookieToken = decodeURIComponent(match[1]);
+        localStorage.setItem('auth_token', cookieToken);
+        document.cookie = 'auth_token=; path=/; max-age=0';
+        useAuthStore.getState().setToken(cookieToken);
+      }
+    }
+
+    // Fire-and-forget /me to populate user
+    fetch(`${getApiBaseUrl()}/developer/auth/me`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (res.ok) return res.json();
+        return null;
+      })
+      .then((user) => {
+        if (user) setUser(user);
+      })
+      .catch(() => {});
+  }, [setUser]);
 
   return <>{children}</>;
 }
