@@ -10,5 +10,5 @@ COPY . .
 RUN useradd -m myuser && chown -R myuser /app
 USER myuser
 
-EXPOSE 8000
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--forwarded-allow-ips", "*"]
+EXPOSE ${PORT:-8080}
+CMD sh -c "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080} --forwarded-allow-ips '*'"
