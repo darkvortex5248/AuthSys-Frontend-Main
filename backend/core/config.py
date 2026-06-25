@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     COOKIE_NAME: str = "rinox_token"
     COOKIE_PATH: str = "/"
-    COOKIE_SAMESITE: str = "lax"
+    COOKIE_SAMESITE: str = "none"
 
     DATABASE_URL: str = ""
     REDIS_URL: str = "redis://localhost:6379"

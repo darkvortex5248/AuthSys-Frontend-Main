@@ -35,16 +35,19 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set) => {
+  const initialToken = Cookies.get('token');
   const initialAppId = Cookies.get('selectedAppId');
   const initialUser = Cookies.get('user');
 
   return {
-    token: null,
+    token: initialToken || null,
     user: initialUser ? JSON.parse(initialUser) : null,
     selectedAppId: initialAppId ? parseInt(initialAppId) : null,
     isLoading: true,
 
     setToken: (token) => {
+      if (token) Cookies.set('token', token, { expires: 1, path: '/' });
+      else Cookies.remove('token', { path: '/' });
       set({ token });
     },
 
@@ -61,19 +64,38 @@ export const useAuthStore = create<AuthState>((set) => {
     },
 
     restoreSession: async () => {
+      set({ isLoading: true });
+      const state = useAuthStore.getState();
+
+      // Priority 1: Existing token → validate via /me
+      if (state.token) {
+        try {
+          const res = await fetch(`${getApiBaseUrl()}/developer/auth/me`, {
+            headers: { 'Authorization': `Bearer ${state.token}` },
+          });
+          if (res.ok) {
+            const user = await res.json();
+            set({ user, isLoading: false });
+            return;
+          }
+        } catch { /* fall through */ }
+      }
+
+      // Priority 2: Cookie-based session (same-origin or SameSite=None)
       try {
-        set({ isLoading: true });
         const res = await fetch(`${getApiBaseUrl()}/developer/auth/session`, {
           method: 'POST',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
         });
-        if (!res.ok) throw new Error('No session');
-        const data = await res.json();
-        set({ token: data.access_token, user: data.user, isLoading: false });
-      } catch {
-        set({ token: null, isLoading: false });
-      }
+        if (res.ok) {
+          const data = await res.json();
+          set({ token: data.access_token, user: data.user, isLoading: false });
+          return;
+        }
+      } catch { /* fall through */ }
+
+      set({ token: null, user: null, isLoading: false });
     },
 
     logout: async () => {
@@ -83,9 +105,8 @@ export const useAuthStore = create<AuthState>((set) => {
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
         });
-      } catch {
-        // ignore errors — clear local state anyway
-      }
+      } catch { /* ignore */ }
+      Cookies.remove('token', { path: '/' });
       Cookies.remove('user', { path: '/' });
       Cookies.remove('selectedAppId', { path: '/' });
       set({ token: null, user: null, selectedAppId: null });
