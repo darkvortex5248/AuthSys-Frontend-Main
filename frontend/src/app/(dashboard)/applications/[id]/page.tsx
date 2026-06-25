@@ -35,7 +35,7 @@ const LANGS: Record<LangKey, Lang> = {
 const LANG_ORDER: LangKey[] = ['csharp','cpp','python','javascript','typescript','java','php','lua','rust','go','swift','kotlin','ruby','dart','shell'];
 
 function getSnippet(lang: LangKey, secret: string, ownerId: string, version: string): string {
-  const base = 'https://auth-sys-7xqx.vercel.app/api/v1';
+  const base = 'https://authsys-main-production.up.railway.app/api/v1';
   switch (lang) {
     case 'csharp': return `public static Auth AuthlyXApp = new Auth(
     ownerId: "${ownerId}",
