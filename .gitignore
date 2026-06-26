@@ -44,3 +44,6 @@ stitch_rinoxauth_super_admin_panel/
 
 # Temporary scripts
 frontend/fix_purple.js
+
+# ImGui example project (not part of AuthSys)
+ImGui - Prime' External/
