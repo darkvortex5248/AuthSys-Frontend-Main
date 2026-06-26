@@ -1,0 +1,1728 @@
+﻿  imgui.cpp
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(9,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(10,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(11,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(12,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(13,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(14,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(15,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(16,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(17,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(21,13): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(23,14): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(28,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(29,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(32,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(33,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(35,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(36,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(38,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(39,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(41,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(42,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(44,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(48,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(49,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(50,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(51,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(53,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(55,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(60,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(62,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(63,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(64,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(65,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(67,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(72,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(73,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(75,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(76,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(77,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(78,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(79,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(84,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(86,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(87,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(88,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(94,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(95,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(97,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(98,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(99,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(100,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(101,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(104,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(105,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(106,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(107,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(109,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui.cpp')
+  
+  imgui_freetype.cpp
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_freetype.cpp(39,10): error C1083: Cannot open include file: 'ft2build.h': No such file or directory
+  imgui_widgets.cpp
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(9,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(10,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(11,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(12,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(13,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(14,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(15,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(16,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(17,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(21,13): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(23,14): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(28,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(29,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(32,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(33,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(35,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(36,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(38,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(39,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(41,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(42,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(44,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(48,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(49,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(50,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(51,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(53,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(55,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(60,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(62,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(63,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(64,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(65,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(67,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(72,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(73,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(75,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(76,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(77,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(78,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(79,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(84,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(86,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(87,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(88,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(94,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(95,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(97,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(98,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(99,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(100,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(101,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(104,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(105,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(106,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(107,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(109,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file '../../imgui_widgets.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_widgets.cpp(746,142): warning C4244: 'argument': conversion from 'float' to 'ImDrawFlags', possible loss of data
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_widgets.cpp(963,172): warning C4244: 'argument': conversion from 'float' to 'ImDrawFlags', possible loss of data
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_widgets.cpp(1419,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_widgets.cpp(1419,27): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_widgets.cpp(1601,138): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_widgets.cpp(1602,136): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_widgets.cpp(1839,139): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_widgets.cpp(1841,138): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_widgets.cpp(5482,195): warning C4244: 'argument': conversion from 'float' to 'ImDrawFlags', possible loss of data
+  DynamicSelector.cpp
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(9,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(10,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(11,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(12,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(13,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(14,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(15,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(16,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(17,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(21,13): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(23,14): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(28,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(29,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(32,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(33,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(35,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(36,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(38,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(39,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(41,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(42,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(44,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(48,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(49,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(50,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(51,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(53,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(55,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(60,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(62,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(63,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(64,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(65,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(67,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(72,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(73,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(75,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(76,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(77,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(78,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(79,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(84,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(86,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(87,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(88,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(94,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(95,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(97,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(98,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(99,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(100,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(101,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(104,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(105,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(106,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(107,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(109,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'DynamicSelector.cpp')
+  
+  imgui_edited.cpp
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(9,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(10,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(11,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(12,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(13,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(14,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(15,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(16,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(17,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(21,13): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(23,14): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(28,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(29,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(32,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(33,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(35,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(36,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(38,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(39,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(41,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(42,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(44,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(48,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(49,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(50,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(51,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(53,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(55,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(60,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(62,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(63,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(64,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(65,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(67,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(72,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(73,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(75,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(76,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(77,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(78,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(79,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(84,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(86,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(87,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(88,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(94,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(95,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(97,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(98,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(99,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(100,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(101,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(104,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(105,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(106,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(107,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(109,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'imgui_edited.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(253,136): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(255,135): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(358,136): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(373,135): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(424,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(424,31): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(473,132): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(486,131): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(1042,136): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(1053,135): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(1121,235): warning C4244: 'argument': conversion from 'float' to 'ImDrawFlags', possible loss of data
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(1124,235): warning C4244: 'argument': conversion from 'float' to 'ImDrawFlags', possible loss of data
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(1224,110): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(1225,130): warning C4244: 'argument': conversion from 'float' to 'ImDrawFlags', possible loss of data
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(1227,131): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(1388,28): warning C4456: declaration of 'col_v4' hides previous local declaration
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(1351,26):
+      see declaration of 'col_v4'
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(1437,125): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(1481,30): warning C4456: declaration of 'i' hides previous local declaration
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(1292,13):
+      see declaration of 'i'
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(1514,168): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(1515,167): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(1446,33): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(1448,33): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(1703,95): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(1724,101): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\imgui_edited.cpp(1868,79): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  main.cpp
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(9,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(10,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(11,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(12,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(13,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(14,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(15,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(16,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(17,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(21,13): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(23,14): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(28,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(29,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(32,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(33,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(35,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(36,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(38,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(39,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(41,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(42,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(44,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(48,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(49,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(50,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(51,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(53,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(55,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(60,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(62,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(63,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(64,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(65,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(67,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(72,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(73,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(75,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(76,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(77,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(78,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(79,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(84,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(86,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(87,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(88,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(94,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(95,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(97,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(98,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(99,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(100,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(101,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(104,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(105,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(106,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(107,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(109,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\utils.hpp(11,12): error C2039: 'filesystem': is not a member of 'std'
+  (compiling source file 'main.cpp')
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\json.hpp(24426,11):
+      see declaration of 'std'
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\utils.hpp(11,12): error C3083: 'filesystem': the symbol to the left of a '::' must be a type
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\utils.hpp(11,24): error C2039: 'exists': is not a member of 'std'
+  (compiling source file 'main.cpp')
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\json.hpp(24426,11):
+      see declaration of 'std'
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\utils.hpp(11,24): error C3861: 'exists': identifier not found
+  (compiling source file 'main.cpp')
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\utils.hpp(20,12): error C2039: 'filesystem': is not a member of 'std'
+  (compiling source file 'main.cpp')
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\json.hpp(24426,11):
+      see declaration of 'std'
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\utils.hpp(20,12): error C3083: 'filesystem': the symbol to the left of a '::' must be a type
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\utils.hpp(20,24): error C2039: 'exists': is not a member of 'std'
+  (compiling source file 'main.cpp')
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\json.hpp(24426,11):
+      see declaration of 'std'
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\utils.hpp(20,24): error C3861: 'exists': identifier not found
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\utils.hpp(43,12): error C2039: 'filesystem': is not a member of 'std'
+  (compiling source file 'main.cpp')
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\json.hpp(24426,11):
+      see declaration of 'std'
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\utils.hpp(43,12): error C3083: 'filesystem': the symbol to the left of a '::' must be a type
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\utils.hpp(43,24): error C2039: 'exists': is not a member of 'std'
+  (compiling source file 'main.cpp')
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\json.hpp(24426,11):
+      see declaration of 'std'
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\utils.hpp(43,24): error C3861: 'exists': identifier not found
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\wnetwrap.h(41,25): warning C4244: 'argument': conversion from 'int' to '_Elem', possible loss of data
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\wnetwrap.h(41,25): warning C4244:         with
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\wnetwrap.h(41,25): warning C4244:         [
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\wnetwrap.h(41,25): warning C4244:             _Elem=char
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\wnetwrap.h(41,25): warning C4244:         ]
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\wnetwrap.h(45,25): warning C4244: 'argument': conversion from 'int' to '_Elem', possible loss of data
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\wnetwrap.h(45,25): warning C4244:         with
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\wnetwrap.h(45,25): warning C4244:         [
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\wnetwrap.h(45,25): warning C4244:             _Elem=char
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Auth\wnetwrap.h(45,25): warning C4244:         ]
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.h(149,24): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.h(574,13): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.h(575,13): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.h(593,13): error C2664: 'int _wcsicmp(const wchar_t *,const wchar_t *)': cannot convert argument 2 from 'const char *' to 'const wchar_t *'
+  (compiling source file 'main.cpp')
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.h(593,36):
+      Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or parenthesized function-style cast
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\ucrt\corecrt_wstring.h(305,37):
+      see declaration of '_wcsicmp'
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.h(593,13):
+      while trying to match the argument list '(WCHAR [260], const char *)'
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.h(618,13): error C2664: 'int _wcsicmp(const wchar_t *,const wchar_t *)': cannot convert argument 2 from 'const char *' to 'const wchar_t *'
+  (compiling source file 'main.cpp')
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.h(618,36):
+      Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or parenthesized function-style cast
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\ucrt\corecrt_wstring.h(305,37):
+      see declaration of '_wcsicmp'
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.h(618,13):
+      while trying to match the argument list '(WCHAR [260], const char *)'
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.h(667,17): error C2664: 'int _stricmp(const char *,const char *)': cannot convert argument 1 from 'WCHAR [260]' to 'const char *'
+  (compiling source file 'main.cpp')
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.h(667,38):
+      Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or parenthesized function-style cast
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\ucrt\string.h(189,22):
+      see declaration of '_stricmp'
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.h(667,17):
+      while trying to match the argument list '(WCHAR [260], const char *)'
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.h(727,17): error C2664: 'int _stricmp(const char *,const char *)': cannot convert argument 1 from 'WCHAR [260]' to 'const char *'
+  (compiling source file 'main.cpp')
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.h(727,38):
+      Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or parenthesized function-style cast
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\ucrt\string.h(189,22):
+      see declaration of '_stricmp'
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.h(727,17):
+      while trying to match the argument list '(WCHAR [260], const char *)'
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\SmartyMem2.h(747,17): error C2664: 'int _wcsicmp(const wchar_t *,const wchar_t *)': cannot convert argument 2 from 'const char *' to 'const wchar_t *'
+  (compiling source file 'main.cpp')
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\SmartyMem2.h(747,40):
+      Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or parenthesized function-style cast
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\ucrt\corecrt_wstring.h(305,37):
+      see declaration of '_wcsicmp'
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\SmartyMem2.h(747,17):
+      while trying to match the argument list '(WCHAR [260], const char *)'
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\SmartyMem2.h(778,25): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\SmartyMem2.h(873,24): warning C4244: 'return': conversion from 'DWORD_PTR' to 'int', possible loss of data
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\SmartyMem2.h(890,17): error C2664: 'int _wcsicmp(const wchar_t *,const wchar_t *)': cannot convert argument 2 from 'const char *' to 'const wchar_t *'
+  (compiling source file 'main.cpp')
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\SmartyMem2.h(890,40):
+      Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or parenthesized function-style cast
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\ucrt\corecrt_wstring.h(305,37):
+      see declaration of '_wcsicmp'
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\SmartyMem2.h(890,17):
+      while trying to match the argument list '(WCHAR [260], const char *)'
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\SmartyMem.h(54,17): error C2664: 'int _wcsicmp(const wchar_t *,const wchar_t *)': cannot convert argument 2 from 'const char *' to 'const wchar_t *'
+  (compiling source file 'main.cpp')
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\SmartyMem.h(54,40):
+      Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or parenthesized function-style cast
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\ucrt\corecrt_wstring.h(305,37):
+      see declaration of '_wcsicmp'
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\SmartyMem.h(54,17):
+      while trying to match the argument list '(WCHAR [260], const char *)'
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\SmartyMem.h(134,25): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\SmartyMem.h(167,25): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\SmartyMem.h(274,24): warning C4244: 'return': conversion from 'DWORD_PTR' to 'int', possible loss of data
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\BrutalMemory.h(469,25): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\BrutalMemory.h(502,25): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\BrutalMemory.h(599,24): warning C4244: 'return': conversion from 'DWORD_PTR' to 'int', possible loss of data
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\DiscordRPC\DiscordWebhook.h(59,97): warning C4245: 'argument': conversion from 'int' to 'DWORD', signed/unsigned mismatch
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\SuperFastMemory.h(53,25): error C2664: 'int _stricmp(const char *,const char *)': cannot convert argument 1 from 'WCHAR [260]' to 'const char *'
+  (compiling source file 'main.cpp')
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\SuperFastMemory.h(53,36):
+      Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or parenthesized function-style cast
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\ucrt\string.h(189,22):
+      see declaration of '_stricmp'
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\SuperFastMemory.h(53,25):
+      while trying to match the argument list '(WCHAR [260], const char *)'
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\SuperFastMemory.h(264,31): warning C4244: 'return': conversion from 'DWORD_PTR' to 'int', possible loss of data
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Mem\SuperFastMemory.h(272,25): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'main.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.cpp(796,61): warning C4566: character represented by universal-character-name '\uF034' cannot be represented in the current code page (1252)
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.cpp(843,9): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.cpp(844,9): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.cpp(899,222): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.cpp(899,206): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.cpp(899,170): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\main.cpp(899,110): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+  PopupDialog.cpp
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(9,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(10,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(11,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(12,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(13,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(14,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(15,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(16,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(17,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(21,13): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(23,14): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(28,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(29,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(32,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(33,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(35,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(36,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(38,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(39,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(41,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(42,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(44,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(48,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(49,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(50,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(51,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(53,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(55,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(60,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(62,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(63,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(64,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(65,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(67,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(72,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(73,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(75,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(76,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(77,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(78,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(79,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(84,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(86,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(87,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(88,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(94,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(95,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(97,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(98,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(99,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(100,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(101,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(104,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(105,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(106,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(107,17): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\imgui_settings.h(109,16): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'Xyz/PopupDialog.cpp')
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\PopupDialog.cpp(53,46): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\PopupDialog.cpp(213,46): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  VirusScanner.cpp
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(103,33): error C2440: 'initializing': cannot convert from 'WCHAR [260]' to 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>'
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(103,33):
+      'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string': no overloaded function could convert all the argument types
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(768,5):
+          could be 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string(const _Elem *const )'
+          with
+          [
+              _Elem=char
+          ]
+              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(103,33):
+              'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string(const _Elem *const )': cannot convert argument 1 from 'WCHAR [260]' to 'const _Elem *const '
+          with
+          [
+              _Elem=char
+          ]
+                  D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(103,37):
+                  Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or parenthesized function-style cast
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(1340,5):
+          or       'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string(std::initializer_list<_Elem>,const _Alloc &)'
+          with
+          [
+              _Elem=char,
+              _Alloc=std::allocator<char>
+          ]
+              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(103,33):
+              'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string(std::initializer_list<_Elem>,const _Alloc &)': cannot convert argument 1 from 'WCHAR [260]' to 'std::initializer_list<_Elem>'
+          with
+          [
+              _Elem=char,
+              _Alloc=std::allocator<char>
+          ]
+          and
+          [
+              _Elem=char
+          ]
+                  D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(103,37):
+                  'std::initializer_list<_Elem>::initializer_list': no overloaded function could convert all the argument types
+          with
+          [
+              _Elem=char
+          ]
+                      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\initializer_list(51,1):
+                      could be 'std::initializer_list<_Elem>::initializer_list(std::initializer_list<_Elem> &&)'
+          with
+          [
+              _Elem=char
+          ]
+                          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(103,37):
+                          'std::initializer_list<_Elem>::initializer_list(std::initializer_list<_Elem> &&)': cannot convert argument 1 from 'WCHAR [260]' to 'std::initializer_list<_Elem> &&'
+          with
+          [
+              _Elem=char
+          ]
+                              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(103,37):
+                              Reason: cannot convert from 'WCHAR [260]' to 'std::initializer_list<_Elem>'
+          with
+          [
+              _Elem=char
+          ]
+                              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(103,37):
+                              Conversion requires a second user-defined-conversion operator or constructor
+                      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\initializer_list(51,1):
+                      or       'std::initializer_list<_Elem>::initializer_list(const std::initializer_list<_Elem> &)'
+          with
+          [
+              _Elem=char
+          ]
+                          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(103,37):
+                          'std::initializer_list<_Elem>::initializer_list(const std::initializer_list<_Elem> &)': cannot convert argument 1 from 'WCHAR [260]' to 'const std::initializer_list<_Elem> &'
+          with
+          [
+              _Elem=char
+          ]
+                              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(103,37):
+                              Reason: cannot convert from 'WCHAR [260]' to 'const std::initializer_list<_Elem>'
+          with
+          [
+              _Elem=char
+          ]
+                              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(103,37):
+                              Conversion requires a second user-defined-conversion operator or constructor
+                      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(103,37):
+                      while trying to match the argument list '(WCHAR [260])'
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(798,5):
+          or       'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string(_Iter,_Iter,const _Alloc &)'
+          with
+          [
+              _Alloc=std::allocator<char>
+          ]
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(103,33):
+          while trying to match the argument list '(WCHAR [260])'
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(471,30): error C2440: 'initializing': cannot convert from 'WCHAR [260]' to 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>'
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(471,30):
+      'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string': no overloaded function could convert all the argument types
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(768,5):
+          could be 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string(const _Elem *const )'
+          with
+          [
+              _Elem=char
+          ]
+              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(471,30):
+              'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string(const _Elem *const )': cannot convert argument 1 from 'WCHAR [260]' to 'const _Elem *const '
+          with
+          [
+              _Elem=char
+          ]
+                  D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(471,34):
+                  Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or parenthesized function-style cast
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(1340,5):
+          or       'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string(std::initializer_list<_Elem>,const _Alloc &)'
+          with
+          [
+              _Elem=char,
+              _Alloc=std::allocator<char>
+          ]
+              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(471,30):
+              'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string(std::initializer_list<_Elem>,const _Alloc &)': cannot convert argument 1 from 'WCHAR [260]' to 'std::initializer_list<_Elem>'
+          with
+          [
+              _Elem=char,
+              _Alloc=std::allocator<char>
+          ]
+          and
+          [
+              _Elem=char
+          ]
+                  D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(471,34):
+                  'std::initializer_list<_Elem>::initializer_list': no overloaded function could convert all the argument types
+          with
+          [
+              _Elem=char
+          ]
+                      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\initializer_list(51,1):
+                      could be 'std::initializer_list<_Elem>::initializer_list(std::initializer_list<_Elem> &&)'
+          with
+          [
+              _Elem=char
+          ]
+                          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(471,34):
+                          'std::initializer_list<_Elem>::initializer_list(std::initializer_list<_Elem> &&)': cannot convert argument 1 from 'WCHAR [260]' to 'std::initializer_list<_Elem> &&'
+          with
+          [
+              _Elem=char
+          ]
+                              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(471,34):
+                              Reason: cannot convert from 'WCHAR [260]' to 'std::initializer_list<_Elem>'
+          with
+          [
+              _Elem=char
+          ]
+                              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(471,34):
+                              Conversion requires a second user-defined-conversion operator or constructor
+                      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\initializer_list(51,1):
+                      or       'std::initializer_list<_Elem>::initializer_list(const std::initializer_list<_Elem> &)'
+          with
+          [
+              _Elem=char
+          ]
+                          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(471,34):
+                          'std::initializer_list<_Elem>::initializer_list(const std::initializer_list<_Elem> &)': cannot convert argument 1 from 'WCHAR [260]' to 'const std::initializer_list<_Elem> &'
+          with
+          [
+              _Elem=char
+          ]
+                              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(471,34):
+                              Reason: cannot convert from 'WCHAR [260]' to 'const std::initializer_list<_Elem>'
+          with
+          [
+              _Elem=char
+          ]
+                              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(471,34):
+                              Conversion requires a second user-defined-conversion operator or constructor
+                      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(471,34):
+                      while trying to match the argument list '(WCHAR [260])'
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(798,5):
+          or       'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string(_Iter,_Iter,const _Alloc &)'
+          with
+          [
+              _Alloc=std::allocator<char>
+          ]
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(471,30):
+          while trying to match the argument list '(WCHAR [260])'
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(489,38): error C2440: 'initializing': cannot convert from 'WCHAR [260]' to 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>'
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(489,38):
+      'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string': no overloaded function could convert all the argument types
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(768,5):
+          could be 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string(const _Elem *const )'
+          with
+          [
+              _Elem=char
+          ]
+              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(489,38):
+              'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string(const _Elem *const )': cannot convert argument 1 from 'WCHAR [260]' to 'const _Elem *const '
+          with
+          [
+              _Elem=char
+          ]
+                  D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(489,42):
+                  Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or parenthesized function-style cast
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(1340,5):
+          or       'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string(std::initializer_list<_Elem>,const _Alloc &)'
+          with
+          [
+              _Elem=char,
+              _Alloc=std::allocator<char>
+          ]
+              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(489,38):
+              'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string(std::initializer_list<_Elem>,const _Alloc &)': cannot convert argument 1 from 'WCHAR [260]' to 'std::initializer_list<_Elem>'
+          with
+          [
+              _Elem=char,
+              _Alloc=std::allocator<char>
+          ]
+          and
+          [
+              _Elem=char
+          ]
+                  D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(489,42):
+                  'std::initializer_list<_Elem>::initializer_list': no overloaded function could convert all the argument types
+          with
+          [
+              _Elem=char
+          ]
+                      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\initializer_list(51,1):
+                      could be 'std::initializer_list<_Elem>::initializer_list(std::initializer_list<_Elem> &&)'
+          with
+          [
+              _Elem=char
+          ]
+                          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(489,42):
+                          'std::initializer_list<_Elem>::initializer_list(std::initializer_list<_Elem> &&)': cannot convert argument 1 from 'WCHAR [260]' to 'std::initializer_list<_Elem> &&'
+          with
+          [
+              _Elem=char
+          ]
+                              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(489,42):
+                              Reason: cannot convert from 'WCHAR [260]' to 'std::initializer_list<_Elem>'
+          with
+          [
+              _Elem=char
+          ]
+                              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(489,42):
+                              Conversion requires a second user-defined-conversion operator or constructor
+                      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\initializer_list(51,1):
+                      or       'std::initializer_list<_Elem>::initializer_list(const std::initializer_list<_Elem> &)'
+          with
+          [
+              _Elem=char
+          ]
+                          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(489,42):
+                          'std::initializer_list<_Elem>::initializer_list(const std::initializer_list<_Elem> &)': cannot convert argument 1 from 'WCHAR [260]' to 'const std::initializer_list<_Elem> &'
+          with
+          [
+              _Elem=char
+          ]
+                              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(489,42):
+                              Reason: cannot convert from 'WCHAR [260]' to 'const std::initializer_list<_Elem>'
+          with
+          [
+              _Elem=char
+          ]
+                              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(489,42):
+                              Conversion requires a second user-defined-conversion operator or constructor
+                      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(489,42):
+                      while trying to match the argument list '(WCHAR [260])'
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(798,5):
+          or       'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string(_Iter,_Iter,const _Alloc &)'
+          with
+          [
+              _Alloc=std::allocator<char>
+          ]
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(489,38):
+          while trying to match the argument list '(WCHAR [260])'
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60): error C2678: binary '+': no operator found which takes a left-hand operand of type 'WCHAR [260]' (or there is no acceptable conversion)
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\comutil.h(451,16):
+      could be '_bstr_t operator +(const wchar_t *,const _bstr_t &)'
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+          '_bstr_t operator +(const wchar_t *,const _bstr_t &)': cannot convert argument 2 from 'std::string' to 'const _bstr_t &'
+              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,84):
+              Reason: cannot convert from 'std::string' to 'const _bstr_t'
+              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,84):
+              No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\comutil.h(441,16):
+      or       '_bstr_t operator +(const char *,const _bstr_t &)'
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+          '_bstr_t operator +(const char *,const _bstr_t &)': cannot convert argument 1 from 'WCHAR [260]' to 'const char *'
+              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+              Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or parenthesized function-style cast
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xutility(1984,50):
+      or       'std::reverse_iterator<_BidIt> std::operator +(reverse_iterator<_BidIt>::difference_type,const std::reverse_iterator<_BidIt> &) noexcept(<expr>)'
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+          'std::reverse_iterator<_BidIt> std::operator +(reverse_iterator<_BidIt>::difference_type,const std::reverse_iterator<_BidIt> &) noexcept(<expr>)': could not deduce template argument for 'const std::reverse_iterator<_BidIt> &' from 'std::string'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xutility(4535,46):
+      or       'std::move_iterator<_Iter> std::operator +(move_iterator<_Iter>::difference_type,const std::move_iterator<_Iter> &) noexcept(<expr>)'
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+          'std::move_iterator<_Iter> std::operator +(move_iterator<_Iter>::difference_type,const std::move_iterator<_Iter> &) noexcept(<expr>)': could not deduce template argument for 'const std::move_iterator<_Iter> &' from 'std::string'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(3147,62):
+      or       'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(const std::basic_string<_Elem,_Traits,_Alloc> &,const std::basic_string<_Elem,_Traits,_Alloc> &)'
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+          'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(const std::basic_string<_Elem,_Traits,_Alloc> &,const std::basic_string<_Elem,_Traits,_Alloc> &)': could not deduce template argument for 'const std::basic_string<_Elem,_Traits,_Alloc> &' from 'WCHAR [260]'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(3159,62):
+      or       'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(const _Elem *const ,const std::basic_string<_Elem,_Traits,_Alloc> &)'
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+          'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(const _Elem *const ,const std::basic_string<_Elem,_Traits,_Alloc> &)': template parameter '_Elem' is ambiguous
+              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+              could be 'char'
+              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+              or       'WCHAR'
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+          'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(const _Elem *const ,const std::basic_string<_Elem,_Traits,_Alloc> &)': could not deduce template argument for 'const std::basic_string<_Elem,_Traits,_Alloc> &' from 'std::string'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(3172,62):
+      or       'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(const _Elem,const std::basic_string<_Elem,_Traits,_Alloc> &)'
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+          'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(const _Elem,const std::basic_string<_Elem,_Traits,_Alloc> &)': template parameter '_Elem' is ambiguous
+              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+              could be 'char'
+              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+              or       'WCHAR *'
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+          'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(const _Elem,const std::basic_string<_Elem,_Traits,_Alloc> &)': could not deduce template argument for 'const std::basic_string<_Elem,_Traits,_Alloc> &' from 'std::string'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(3183,62):
+      or       'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(const std::basic_string<_Elem,_Traits,_Alloc> &,const _Elem *const )'
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+          'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(const std::basic_string<_Elem,_Traits,_Alloc> &,const _Elem *const )': could not deduce template argument for 'const std::basic_string<_Elem,_Traits,_Alloc> &' from 'WCHAR [260]'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(3196,62):
+      or       'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(const std::basic_string<_Elem,_Traits,_Alloc> &,const _Elem)'
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+          'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(const std::basic_string<_Elem,_Traits,_Alloc> &,const _Elem)': could not deduce template argument for 'const std::basic_string<_Elem,_Traits,_Alloc> &' from 'WCHAR [260]'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(3207,62):
+      or       'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(const std::basic_string<_Elem,_Traits,_Alloc> &,std::basic_string<_Elem,_Traits,_Alloc> &&)'
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+          'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(const std::basic_string<_Elem,_Traits,_Alloc> &,std::basic_string<_Elem,_Traits,_Alloc> &&)': could not deduce template argument for 'const std::basic_string<_Elem,_Traits,_Alloc> &' from 'WCHAR [260]'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(3213,62):
+      or       'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(std::basic_string<_Elem,_Traits,_Alloc> &&,const std::basic_string<_Elem,_Traits,_Alloc> &)'
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+          'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(std::basic_string<_Elem,_Traits,_Alloc> &&,const std::basic_string<_Elem,_Traits,_Alloc> &)': could not deduce template argument for 'std::basic_string<_Elem,_Traits,_Alloc> &&' from 'WCHAR [260]'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(3219,62):
+      or       'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(std::basic_string<_Elem,_Traits,_Alloc> &&,std::basic_string<_Elem,_Traits,_Alloc> &&)'
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+          'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(std::basic_string<_Elem,_Traits,_Alloc> &&,std::basic_string<_Elem,_Traits,_Alloc> &&)': could not deduce template argument for 'std::basic_string<_Elem,_Traits,_Alloc> &&' from 'WCHAR [260]'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(3232,62):
+      or       'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(const _Elem *const ,std::basic_string<_Elem,_Traits,_Alloc> &&)'
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+          'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(const _Elem *const ,std::basic_string<_Elem,_Traits,_Alloc> &&)': template parameter '_Elem' is ambiguous
+              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+              could be 'char'
+              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+              or       'WCHAR'
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+          'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(const _Elem *const ,std::basic_string<_Elem,_Traits,_Alloc> &&)': could not deduce template argument for 'std::basic_string<_Elem,_Traits,_Alloc> &&' from 'std::string'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(3238,62):
+      or       'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(const _Elem,std::basic_string<_Elem,_Traits,_Alloc> &&)'
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+          'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(const _Elem,std::basic_string<_Elem,_Traits,_Alloc> &&)': template parameter '_Elem' is ambiguous
+              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+              could be 'char'
+              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+              or       'WCHAR *'
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+          'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(const _Elem,std::basic_string<_Elem,_Traits,_Alloc> &&)': could not deduce template argument for 'std::basic_string<_Elem,_Traits,_Alloc> &&' from 'std::string'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(3244,62):
+      or       'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(std::basic_string<_Elem,_Traits,_Alloc> &&,const _Elem *const )'
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+          'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(std::basic_string<_Elem,_Traits,_Alloc> &&,const _Elem *const )': could not deduce template argument for 'std::basic_string<_Elem,_Traits,_Alloc> &&' from 'WCHAR [260]'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(3250,62):
+      or       'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(std::basic_string<_Elem,_Traits,_Alloc> &&,const _Elem)'
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+          'std::basic_string<_Elem,_Traits,_Alloc> std::operator +(std::basic_string<_Elem,_Traits,_Alloc> &&,const _Elem)': could not deduce template argument for 'std::basic_string<_Elem,_Traits,_Alloc> &&' from 'WCHAR [260]'
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(847,60):
+      while trying to match the argument list '(WCHAR [260], std::string)'
+  
+D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(1130,34): error C2440: 'initializing': cannot convert from 'WCHAR [260]' to 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>'
+      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(1130,34):
+      'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string': no overloaded function could convert all the argument types
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(768,5):
+          could be 'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string(const _Elem *const )'
+          with
+          [
+              _Elem=char
+          ]
+              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(1130,34):
+              'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string(const _Elem *const )': cannot convert argument 1 from 'WCHAR [260]' to 'const _Elem *const '
+          with
+          [
+              _Elem=char
+          ]
+                  D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(1130,38):
+                  Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or parenthesized function-style cast
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(1340,5):
+          or       'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string(std::initializer_list<_Elem>,const _Alloc &)'
+          with
+          [
+              _Elem=char,
+              _Alloc=std::allocator<char>
+          ]
+              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(1130,34):
+              'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string(std::initializer_list<_Elem>,const _Alloc &)': cannot convert argument 1 from 'WCHAR [260]' to 'std::initializer_list<_Elem>'
+          with
+          [
+              _Elem=char,
+              _Alloc=std::allocator<char>
+          ]
+          and
+          [
+              _Elem=char
+          ]
+                  D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(1130,38):
+                  'std::initializer_list<_Elem>::initializer_list': no overloaded function could convert all the argument types
+          with
+          [
+              _Elem=char
+          ]
+                      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\initializer_list(51,1):
+                      could be 'std::initializer_list<_Elem>::initializer_list(std::initializer_list<_Elem> &&)'
+          with
+          [
+              _Elem=char
+          ]
+                          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(1130,38):
+                          'std::initializer_list<_Elem>::initializer_list(std::initializer_list<_Elem> &&)': cannot convert argument 1 from 'WCHAR [260]' to 'std::initializer_list<_Elem> &&'
+          with
+          [
+              _Elem=char
+          ]
+                              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(1130,38):
+                              Reason: cannot convert from 'WCHAR [260]' to 'std::initializer_list<_Elem>'
+          with
+          [
+              _Elem=char
+          ]
+                              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(1130,38):
+                              Conversion requires a second user-defined-conversion operator or constructor
+                      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\initializer_list(51,1):
+                      or       'std::initializer_list<_Elem>::initializer_list(const std::initializer_list<_Elem> &)'
+          with
+          [
+              _Elem=char
+          ]
+                          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(1130,38):
+                          'std::initializer_list<_Elem>::initializer_list(const std::initializer_list<_Elem> &)': cannot convert argument 1 from 'WCHAR [260]' to 'const std::initializer_list<_Elem> &'
+          with
+          [
+              _Elem=char
+          ]
+                              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(1130,38):
+                              Reason: cannot convert from 'WCHAR [260]' to 'const std::initializer_list<_Elem>'
+          with
+          [
+              _Elem=char
+          ]
+                              D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(1130,38):
+                              Conversion requires a second user-defined-conversion operator or constructor
+                      D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(1130,38):
+                      while trying to match the argument list '(WCHAR [260])'
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\xstring(798,5):
+          or       'std::basic_string<char,std::char_traits<char>,std::allocator<char>>::basic_string(_Iter,_Iter,const _Alloc &)'
+          with
+          [
+              _Alloc=std::allocator<char>
+          ]
+          D:\DOCUMENT\other working pj\ImGui - Prime' External\examples\example_win32_directx11\Xyz\VirusScanner.cpp(1130,34):
+          while trying to match the argument list '(WCHAR [260])'
+  
+  Generating Code...

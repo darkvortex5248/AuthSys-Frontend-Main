@@ -55,7 +55,10 @@ export default function AuditLogsPage() {
     try {
       await clearMutation.mutateAsync(selectedAppId);
       toast.success('Logs cleared successfully');
-    } catch { toast.error('Failed to clear logs'); }
+    } catch (err: any) {
+      const msg = err?.response?.data?.detail || err?.message || 'Failed to clear logs';
+      toast.error(msg);
+    }
   };
 
   const stats = useMemo(() => ({

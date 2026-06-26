@@ -598,6 +598,26 @@ a, button, input, select, textarea, [role="button"] {
   }
   .btn-danger:active { transform: scale(0.97); }
 
+  .btn-ghost {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    background: transparent;
+    color: var(--muted-foreground);
+    border: 1px solid transparent;
+    border-radius: var(--r-btn);
+    padding: 7px 20px; font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    transition: background var(--dur-fast) var(--ease-in-out),
+                color var(--dur-fast) var(--ease-in-out),
+                transform  var(--dur-fast) var(--ease-out-expo);
+  }
+  .btn-ghost:hover {
+    background: color-mix(in srgb, var(--foreground) 5%, transparent);
+    color: var(--foreground);
+    transform: translateY(-1px);
+  }
+  .btn-ghost:active { transform: scale(0.97); }
+  .btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
   .btn-primary-legacy {
     display: inline-flex; align-items: center; justify-content: center; gap: 7px;
     height: 34px; padding: 0 18px; border-radius: var(--r-btn);
