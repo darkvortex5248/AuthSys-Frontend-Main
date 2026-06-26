@@ -41,8 +41,9 @@ function getSnippet(lang: LangKey, secret: string, ownerId: string, version: str
     case 'csharp': return `using AuthSysSDK;
 
 AuthSys auth = new AuthSys(
-    "${secret}",
+    "${name}",
     "${ownerId}",
+    "${secret}",
     "${version}",
     "${base}"
 );
@@ -74,9 +75,10 @@ AuthSys::api AuthSysApp(
     case 'python': return `from authly import Auth
 
 app = Auth(
+    name="${name}",
     owner_id="${ownerId}",
-    version="${version}",
     secret="${secret}",
+    version="${version}",
     api="${base}"
 )
 
@@ -84,25 +86,26 @@ app = Auth(
 # Optional: app.anti_debug = False`;
     case 'javascript': return `import { Auth } from '@authly/sdk';
 
-const app = new Auth({
-    ownerId: '${ownerId}',
-    version: '${version}',
-    secret: '${secret}',
-    api: '${base}',
-});
+const app = new Auth(
+    '${name}',
+    '${ownerId}',
+    '${secret}',
+    '${version}',
+    '${base}'
+);
 
 // Optional: app.debug = false;`;
-    case 'typescript': return `import { Auth, AuthConfig } from '@authly/sdk';
+    case 'typescript': return `import { Auth } from '@authly/sdk';
 
-const config: AuthConfig = {
-    ownerId: '${ownerId}',
-    version: '${version}',
-    secret: '${secret}',
-    api: '${base}',
-};
-
-const app = new Auth(config);`;
+const app = new Auth(
+    '${name}',
+    '${ownerId}',
+    '${secret}',
+    '${version}',
+    '${base}'
+);`;
     case 'java': return `Auth app = new Auth.Builder()
+    .name("${name}")
     .ownerId("${ownerId}")
     .version("${version}")
     .secret("${secret}")
@@ -114,6 +117,7 @@ const app = new Auth(config);`;
 use Authly\\Auth;
 
 $app = new Auth([
+    'name'    => '${name}',
     'ownerId' => '${ownerId}',
     'version' => '${version}',
     'secret'  => '${secret}',
@@ -124,6 +128,7 @@ $app = new Auth([
     case 'lua': return `local Auth = require("authly")
 
 local app = Auth.new({
+    name     = "${name}",
     owner_id = "${ownerId}",
     version  = "${version}",
     secret   = "${secret}",
@@ -134,6 +139,7 @@ local app = Auth.new({
     case 'rust': return `use authly::Auth;
 
 let app = Auth::builder()
+    .name("${name}")
     .owner_id("${ownerId}")
     .version("${version}")
     .secret("${secret}")
@@ -142,6 +148,7 @@ let app = Auth::builder()
     case 'go': return `import "github.com/authly/sdk-go"
 
 app, err := authly.NewAuth(authly.Config{
+    Name:    "${name}",
     OwnerID: "${ownerId}",
     Version: "${version}",
     Secret:  "${secret}",
@@ -150,6 +157,7 @@ app, err := authly.NewAuth(authly.Config{
     case 'swift': return `import AuthlySDK
 
 let app = Auth(
+    name: "${name}",
     ownerId: "${ownerId}",
     version: "${version}",
     secret: "${secret}",
@@ -158,6 +166,7 @@ let app = Auth(
 
 // Optional: app.debug = false`;
     case 'kotlin': return `val app = Auth.Builder()
+    .name("${name}")
     .ownerId("${ownerId}")
     .version("${version}")
     .secret("${secret}")
@@ -168,6 +177,7 @@ let app = Auth(
     case 'ruby': return `require 'authly'
 
 app = Authly::Auth.new(
+  name:     '${name}',
   owner_id: '${ownerId}',
   version:  '${version}',
   secret:   '${secret}',
@@ -178,6 +188,7 @@ app = Authly::Auth.new(
     case 'dart': return `import 'package:authly/authly.dart';
 
 final app = Auth(
+  name: '${name}',
   ownerId: '${ownerId}',
   version: '${version}',
   secret: '${secret}',
