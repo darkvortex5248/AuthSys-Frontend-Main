@@ -22,6 +22,9 @@ build/
 .idea/
 *.swp
 *.swo
+.vs/
+*.ipch
+*.VC.db
 
 # OS
 .DS_Store
