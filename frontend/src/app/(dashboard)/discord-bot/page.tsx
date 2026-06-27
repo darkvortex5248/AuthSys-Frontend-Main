@@ -410,7 +410,6 @@ export default function DiscordBotPage() {
               ))}
             </div>
           </div>
-        </div>
 
           {/* SDK Setup Guide */}
           <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-8 backdrop-blur-sm">

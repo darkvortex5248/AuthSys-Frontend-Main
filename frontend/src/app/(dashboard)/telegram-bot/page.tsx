@@ -293,7 +293,6 @@ export default function TelegramBotPage() {
               ))}
             </div>
           </div>
-        </div>
 
           {/* SDK Setup Guide */}
           <div className="premium-card overflow-hidden p-8">
