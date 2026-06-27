@@ -72,7 +72,7 @@ AuthSys::api AuthSysApp(
 // AuthSysApp.login("username", "password");
 // License example:
 // AuthSysApp.license("license-key");`;
-    case 'python': return `from authly import Auth
+    case 'python': return `from authsys import Auth
 
 app = Auth(
     name="${name}",
@@ -84,7 +84,7 @@ app = Auth(
 
 # Optional: app.debug = False
 # Optional: app.anti_debug = False`;
-    case 'javascript': return `import { Auth } from '@authly/sdk';
+    case 'javascript': return `import { Auth } from '@authsys/sdk';
 
 const app = new Auth(
     '${name}',
@@ -95,7 +95,7 @@ const app = new Auth(
 );
 
 // Optional: app.debug = false;`;
-    case 'typescript': return `import { Auth } from '@authly/sdk';
+    case 'typescript': return `import { Auth } from '@authsys/sdk';
 
 const app = new Auth(
     '${name}',
@@ -114,7 +114,7 @@ const app = new Auth(
 
 // Optional: app.setDebug(false);`;
     case 'php': return `<?php
-use Authly\\Auth;
+use AuthSys\\Auth;
 
 $app = new Auth([
     'name'    => '${name}',
@@ -125,7 +125,7 @@ $app = new Auth([
 ]);
 
 // Optional: $app->setDebug(false);`;
-    case 'lua': return `local Auth = require("authly")
+    case 'lua': return `local Auth = require("authsys")
 
 local app = Auth.new({
     name     = "${name}",
@@ -136,7 +136,7 @@ local app = Auth.new({
 })
 
 -- Optional: app:setDebug(false)`;
-    case 'rust': return `use authly::Auth;
+    case 'rust': return `use authsys::Auth;
 
 let app = Auth::builder()
     .name("${name}")
@@ -145,16 +145,16 @@ let app = Auth::builder()
     .secret("${secret}")
     .api("${base}")
     .build()?;`;
-    case 'go': return `import "github.com/authly/sdk-go"
+    case 'go': return `import "github.com/authsys/sdk-go"
 
-app, err := authly.NewAuth(authly.Config{
+app, err := authsys.NewAuth(authsys.Config{
     Name:    "${name}",
     OwnerID: "${ownerId}",
     Version: "${version}",
     Secret:  "${secret}",
     API:     "${base}",
 })`;
-    case 'swift': return `import AuthlySDK
+    case 'swift': return `import AuthSysSDK
 
 let app = Auth(
     name: "${name}",
@@ -174,9 +174,9 @@ let app = Auth(
     .build()
 
 // Optional: app.debug = false`;
-    case 'ruby': return `require 'authly'
+    case 'ruby': return `require 'authsys'
 
-app = Authly::Auth.new(
+app = AuthSys::Auth.new(
   name:     '${name}',
   owner_id: '${ownerId}',
   version:  '${version}',
@@ -185,7 +185,7 @@ app = Authly::Auth.new(
 )
 
 # Optional: app.debug = false`;
-    case 'dart': return `import 'package:authly/authly.dart';
+    case 'dart': return `import 'package:authsys/authsys.dart';
 
 final app = Auth(
   name: '${name}',
@@ -197,15 +197,15 @@ final app = Auth(
 
 // Optional: app.debug = false;`;
     case 'shell': return `# Set your credentials as environment variables
-export AUTHLY_OWNER_ID="${ownerId}"
-export AUTHLY_SECRET="${secret}"
-export AUTHLY_VERSION="${version}"
-export AUTHLY_API="${base}"
+export AUTHSYS_OWNER_ID="${ownerId}"
+export AUTHSYS_SECRET="${secret}"
+export AUTHSYS_VERSION="${version}"
+export AUTHSYS_API="${base}"
 
 # Authenticate
-curl -X POST "$AUTHLY_API/auth/login" \\
+curl -X POST "$AUTHSYS_API/auth/login" \\
   -H "Content-Type: application/json" \\
-  -d '{"owner_id":"'"$AUTHLY_OWNER_ID"'","secret":"'"$AUTHLY_SECRET"'"}'`;
+  -d '{"owner_id":"'"$AUTHSYS_OWNER_ID"'","secret":"'"$AUTHSYS_SECRET"'"}'`;
     default: return '';
   }
 }
