@@ -67,7 +67,7 @@ export default function PlanPage() {
           <SectionLabel>Current billing period</SectionLabel>
           <div className="space-y-5">
             <UsageBar label="Applications" current={usage.app_count || 0} limit={usage.app_limit || 1} pct={limitPct(usage.app_count, usage.app_limit)} />
-            <UsageBar label="License Keys" current={usage.key_count || 0} limit={usage.key_limit || 10} pct={limitPct(usage.key_count, usage.key_limit)} />
+            <UsageBar label="Monthly Key Gen" current={usage.key_count || 0} limit={usage.key_limit || 10} pct={limitPct(usage.key_count, usage.key_limit)} />
             <UsageBar label="API Requests (today)" current={usage.api_requests || 0} limit={usage.api_limit || 1000} pct={limitPct(usage.api_requests, usage.api_limit)} />
             <UsageBar label="Team Members" current={usage.team_count || 0} limit={usage.team_limit || 1} pct={limitPct(usage.team_count, usage.team_limit)} />
           </div>

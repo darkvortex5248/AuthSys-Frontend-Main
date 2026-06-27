@@ -106,7 +106,7 @@ export const DEFAULT_PLANS: Plan[] = [
     id: 1, name: 'Free', description: 'Essential auth, HWID lock, license keys, 2 apps', price_monthly: 0, price_yearly: 0, discount: 0,
     badge_text: '', badge_color: '', is_recommended: false,
     button_text: 'Get Started', button_color: 'var(--primary)',
-    max_apps: 2, max_users: 50, max_licenses: 50, max_variables: 40, max_logs: 200, max_hashes: 2,
+    max_apps: 2, max_users: 30, max_licenses: 30, max_variables: 40, max_logs: 200, max_hashes: 2,
     max_staff: 0, max_chatrooms: 0,
     has_ip_tracking: false, has_location_tracking: false, has_user_panel: true,
     has_staff_management: true, has_discord_integration: false, has_telegram_integration: false,

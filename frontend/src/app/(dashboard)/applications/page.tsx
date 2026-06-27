@@ -82,6 +82,14 @@ function AppCard({
               ].join(' ')}>
                 {app.status}
               </span>
+              <span className={[
+                'material-symbols-outlined text-[11px] rounded-full p-0.5',
+                app.hwid_enabled
+                  ? 'text-[var(--success)]'
+                  : 'text-[var(--muted-foreground)] opacity-40',
+              ].join(' ')}>
+                {app.hwid_enabled ? 'lock' : 'lock_open'}
+              </span>
             </div>
           </div>
 
