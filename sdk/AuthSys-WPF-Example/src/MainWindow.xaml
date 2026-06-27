@@ -1,0 +1,32 @@
+<Window x:Class="AuthSysWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AuthSys WPF Example" Height="450" Width="500"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="10">
+        <StackPanel>
+            <TextBlock Text="AuthSys WPF SDK Example" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
+
+            <GroupBox Header="Login" Margin="0,0,0,10">
+                <StackPanel>
+                    <TextBox x:Name="txtUsername" Margin="0,5" ToolTip="Username"/>
+                    <PasswordBox x:Name="txtPassword" Margin="0,5" ToolTip="Password"/>
+                    <Button x:Name="btnLogin" Content="Login" Click="BtnLogin_Click" Margin="0,5" Padding="5"/>
+                    <Button x:Name="btnLicenseLogin" Content="License Login" Click="BtnLicenseLogin_Click" Margin="0,5" Padding="5"/>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox Header="Register" Margin="0,0,0,10">
+                <StackPanel>
+                    <TextBox x:Name="txtRegUsername" Margin="0,5" ToolTip="Username"/>
+                    <PasswordBox x:Name="txtRegPassword" Margin="0,5" ToolTip="Password"/>
+                    <TextBox x:Name="txtLicenseKey" Margin="0,5" ToolTip="License Key"/>
+                    <Button x:Name="btnRegister" Content="Register" Click="BtnRegister_Click" Margin="0,5" Padding="5"/>
+                </StackPanel>
+            </GroupBox>
+
+            <TextBox x:Name="txtOutput" IsReadOnly="True" Height="100" TextWrapping="Wrap" Margin="0,0,0,5"/>
+            <TextBlock x:Name="lblStatus" Foreground="Gray" FontSize="12"/>
+        </StackPanel>
+    </Grid>
+</Window>

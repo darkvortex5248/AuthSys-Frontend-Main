@@ -1,0 +1,37 @@
+const { SlashCommandBuilder, Colors, EmbedBuilder } = require("discord.js");
+const db = require('../../utils/database')
+const config = require('../../utils/config')
+
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName("kill-all-sessions")
+        .setDescription("Kill All Existing Sessions")
+        .setDescriptionLocalizations({
+            "en-US": "Kill All Existing Sessions",
+            "fi": "Tappaa kaikki olemassa olevat istunnot",
+            "fr": "Tuez toutes les sessions existantes",
+            "de": "Töten Sie alle vorhandenen Sitzungen",
+            "it": "Uccidi tutte le sessioni esistenti",
+            "nl": "Dood alle bestaande sessies",
+            "ru": "Убейте все существующие сеансы",
+            "pl": "Zabij wszystkie istniejące sesje",
+            "tr": "Tüm Mevcut Oturumları Öldürün",
+            "cs": "Zabijte všechny existující relace",
+            "ja": "すべての既存のセッションを終了する",
+            "ko": "모든 기존 세션 죽이기",
+        }),
+    async execute(interaction) {
+        let idfrom = interaction.guild ? interaction.guild.id : interaction.user.id;
+        let ephemeral = !interaction.guild ? false : true;
+
+        let sellerkey = await db.get(`token_${idfrom}`)
+        if (sellerkey === null) return interaction.editReply({ embeds: [new EmbedBuilder().setDescription(`Your \`SellerKey\` **has not been set!**\n In order to use this bot, you must run the \`/add-application\` Command First.`).setColor(Colors.Red).setTimestamp()], ephemeral: ephemeral })
+
+        let json = await config.api("/kill-all-sessions", {}, sellerkey)
+        if (json.status === "success") {
+            interaction.editReply({ embeds: [new EmbedBuilder().setTitle("Successfully Killed All Sessions").setColor(Colors.Green).setTimestamp().setFooter({ text: "AuthSys Discord Bot" })], ephemeral: ephemeral })
+        } else {
+            interaction.editReply({ embeds: [new EmbedBuilder().setTitle(json.detail || json.message).addFields([{ name: 'Note:', value: `Your seller key is most likely invalid. Change your seller key with \`/add-application\` command.` }]).setColor(Colors.Red).setFooter({ text: "AuthSys Discord Bot" }).setTimestamp()], ephemeral: ephemeral })
+        }
+    },
+};

@@ -412,6 +412,66 @@ export default function DiscordBotPage() {
           </div>
         </div>
 
+          {/* SDK Setup Guide */}
+          <div className="rounded-3xl border border-white/5 bg-white/[0.02] p-8 backdrop-blur-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-indigo-500/15 flex items-center justify-center border border-indigo-500/25">
+                <span className="material-symbols-outlined text-[18px] text-indigo-400">package_2</span>
+              </div>
+              <div>
+                <h4 className="text-xs font-black text-white uppercase tracking-[0.2em]">SDK Setup</h4>
+                <p className="text-[9px] text-white/30 font-medium">Run the bot on your own infrastructure</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-5 rounded-2xl border border-white/5 bg-white/[0.015] space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[15px] text-emerald-400">download</span>
+                  <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">Step 1</span>
+                </div>
+                <p className="text-[11px] text-white/45 leading-relaxed">
+                  Download the bot from <code className="text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded text-[10px] font-mono">sdk/AuthSys-Discord-Bot-Example/</code>
+                </p>
+              </div>
+              <div className="p-5 rounded-2xl border border-white/5 bg-white/[0.015] space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[15px] text-emerald-400">terminal</span>
+                  <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">Step 2</span>
+                </div>
+                <p className="text-[11px] text-white/45 leading-relaxed">
+                  Run <code className="text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded text-[10px] font-mono">npm install</code> then <code className="text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded text-[10px] font-mono">node .</code>
+                </p>
+              </div>
+              <div className="p-5 rounded-2xl border border-white/5 bg-white/[0.015] space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[15px] text-emerald-400">settings</span>
+                  <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">Step 3</span>
+                </div>
+                <p className="text-[11px] text-white/45 leading-relaxed">
+                  Configure <code className="text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded text-[10px] font-mono">.env</code> with your seller API key &amp; bot token
+                </p>
+              </div>
+              <div className="p-5 rounded-2xl border border-white/5 bg-white/[0.015] space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[15px] text-emerald-400">check_circle</span>
+                  <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">Step 4</span>
+                </div>
+                <p className="text-[11px] text-white/45 leading-relaxed">
+                  Bot calls the Seller API — no backend changes needed
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 p-4 rounded-xl bg-amber-500/5 border border-amber-500/15 flex items-start gap-3">
+              <span className="material-symbols-outlined text-[16px] text-amber-400 shrink-0 mt-0.5">info</span>
+              <p className="text-[10px] text-amber-400/70 leading-relaxed">
+                The bot runs on your machine, not on AuthSys servers. All operations use your seller API key.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Sidebar */}
         <div className="lg:col-span-4 space-y-5">
 

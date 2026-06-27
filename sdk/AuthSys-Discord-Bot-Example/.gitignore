@@ -1,0 +1,25 @@
+# Ignore Node.js basics
+node_modules/
+package-lock.json
+
+# Ignore .env files
+.env
+
+# Ignore config.json files
+config.json
+
+# Ignore package-lock.json
+package-lock.json
+yarn.lock
+bun.lock
+bun.lockb
+deno.lock
+pnpm-lock.yaml
+
+# Ignore json.sqlite
+json.sqlite
+
+# Ignore JetBrains IDE
+.idea
+
+.nixpacks/

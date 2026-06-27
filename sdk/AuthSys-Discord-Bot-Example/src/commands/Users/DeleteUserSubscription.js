@@ -1,0 +1,80 @@
+const { SlashCommandBuilder, Colors, EmbedBuilder } = require("discord.js");
+const db = require('../../utils/database')
+const config = require('../../utils/config')
+
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName("delete-user-subscription")
+        .setDescription("Delete users subscription")
+        .setDescriptionLocalizations({
+            "en-US": "Delete users subscription",
+            "fi": "Poista käyttäjän tilaus",
+            "fr": "Supprimer l'abonnement de l'utilisateur",
+            "de": "Löschen Sie das Abonnement des Benutzers",
+            "it": "Elimina l'abbonamento dell'utente",
+            "nl": "Verwijder het abonnement van de gebruiker",
+            "ru": "Удалить подписку пользователя",
+            "pl": "Usuń subskrypcję użytkownika",
+            "tr": "Kullanıcının aboneliğini sil",
+            "cs": "Odstranit předplatné uživatele",
+            "ja": "ユーザーのサブスクリプションを削除する",
+            "ko": "사용자의 구독 삭제",
+        })
+        .addStringOption((option) =>
+            option
+                .setName("user")
+                .setDescription("Username of the user you'd like to delete the subscription from.")
+                .setDescriptionLocalizations({
+                    "en-US": "Username of the user you'd like to delete the subscription from.",
+                    "fi": "Käyttäjän käyttäjänimi, jolta poistat tilauksen",
+                    "fr": "Nom d'utilisateur de l'utilisateur dont vous supprimez l'abonnement",
+                    "de": "Benutzername des Benutzers, von dem Sie das Abonnement löschen",
+                    "it": "Nome utente dell'utente da cui stai eliminando l'abbonamento",
+                    "nl": "Gebruikersnaam van de gebruiker waarvan u het abonnement verwijdert",
+                    "ru": "Имя пользователя пользователя, от которого вы удаляете подписку",
+                    "pl": "Nazwa użytkownika użytkownika, z którego usuwasz subskrypcję",
+                    "tr": "Aboneliğini sildiğiniz kullanıcının kullanıcı adı",
+                    "cs": "Uživatelské jméno uživatele, ze kterého odstraňujete předplatné",
+                    "ja": "サブスクリプションを削除するユーザーのユーザー名",
+                    "ko": "구독을 삭제하는 사용자의 사용자 이름",
+                })
+                .setRequired(true)
+        )
+        .addStringOption((option) =>
+            option
+                .setName("name")
+                .setDescription("Enter the name of the subscription you're deleting from user.")
+                .setDescriptionLocalizations({
+                    "en-US": "Enter the name of the subscription you're deleting from user.",
+                    "fi": "Tilauksen nimi, jonka poistat käyttäjältä",
+                    "fr": "Nom de l'abonnement que vous supprimez de l'utilisateur",
+                    "de": "Name des Abonnements, das Sie vom Benutzer löschen",
+                    "it": "Nome dell'abbonamento che stai eliminando dall'utente",
+                    "nl": "Naam van het abonnement dat u van de gebruiker verwijdert",
+                    "ru": "Название подписки, которую вы удаляете у пользователя",
+                    "pl": "Nazwa subskrypcji, którą usuwasz od użytkownika",
+                    "tr": "Kullanıcıdan sildiğiniz abonelik adı",
+                    "cs": "Název předplatného, který odstraňujete od uživatele",
+                    "ja": "ユーザーから削除するサブスクリプションの名前",
+                    "ko": "사용자에서 삭제하는 구독 이름",
+                })
+                .setRequired(true)
+        ),
+    async execute(interaction) {
+        let idfrom = interaction.guild ? interaction.guild.id : interaction.user.id;
+        let ephemeral = !interaction.guild ? false : true;
+
+        let sellerkey = await db.get(`token_${idfrom}`)
+        if (sellerkey === null) return interaction.editReply({ embeds: [new EmbedBuilder().setDescription(`Your \`SellerKey\` **has not been set!**\n In order to use this bot, you must run the \`/add-application\` Command First.`).setColor(Colors.Red).setTimestamp()], ephemeral: ephemeral })
+
+        let user = interaction.options.getString("user")
+        let name = interaction.options.getString("name")
+
+        let json = await config.api("/delete-user-subscription", { username: user, subscription: name }, sellerkey)
+        if (json.status === "success") {
+            interaction.editReply({ embeds: [new EmbedBuilder().setTitle(json.message).addFields([{ name: 'Subscription deleted:', value: `\`${name}\`` }]).setColor(Colors.Green).setTimestamp()], ephemeral: ephemeral })
+        } else {
+            interaction.editReply({ embeds: [new EmbedBuilder().setTitle(json.detail || json.message).addFields([{ name: 'Note:', value: `Your seller key is most likely invalid. Change your seller key with \`/add-application\` command.` }]).setColor(Colors.Red).setTimestamp()], ephemeral: ephemeral })
+        }
+    },
+};

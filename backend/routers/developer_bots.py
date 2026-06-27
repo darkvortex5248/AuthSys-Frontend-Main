@@ -9,8 +9,6 @@ from core.database import get_db
 from core.deps import get_current_developer
 from models.domain import BotConfig, DeveloperAccount, Application
 from services.plan_enforcer import require_feature
-from services.bot_manager import manager as bot_manager
-import asyncio
 
 router = APIRouter(prefix="/api/v1/developer/bots", tags=["Bots"])
 
@@ -68,8 +66,6 @@ async def configure_bot(req: BotCreateRequest, dev: DeveloperAccount = Depends(g
     existing = res.scalars().first()
 
     if existing:
-        # Stop old bot before updating
-        asyncio.create_task(bot_manager.stop_bot(existing.id, existing.bot_type))
         existing.bot_token = req.bot_token
         existing.discord_app_id = req.discord_app_id
         existing.discord_public_key = req.discord_public_key
@@ -92,13 +88,18 @@ async def configure_bot(req: BotCreateRequest, dev: DeveloperAccount = Depends(g
     await db.commit()
     await db.refresh(new_bot)
 
-    if new_bot.bot_type == "discord":
-        asyncio.create_task(bot_manager.run_discord_bot(new_bot))
-    elif new_bot.bot_type == "telegram":
-        asyncio.create_task(bot_manager.run_telegram_bot(new_bot))
-
     new_bot.bot_token = BotConfigResponse.mask_token(new_bot.bot_token)
     return new_bot
+
+@router.patch("/{bot_id}/toggle")
+async def toggle_bot(bot_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
+    res = await db.execute(select(BotConfig).where(BotConfig.id == bot_id, BotConfig.developer_id == dev.id))
+    bot = res.scalars().first()
+    if not bot:
+        raise HTTPException(status_code=404, detail="Bot config not found")
+    bot.is_active = not bot.is_active
+    await db.commit()
+    return {"status": "success", "is_active": bot.is_active}
 
 @router.delete("/{bot_id}")
 async def delete_bot(bot_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
@@ -107,7 +108,6 @@ async def delete_bot(bot_id: int, dev: DeveloperAccount = Depends(get_current_de
     if not bot:
         raise HTTPException(status_code=404, detail="Bot config not found")
 
-    asyncio.create_task(bot_manager.stop_bot(bot.id, bot.bot_type))
     await db.delete(bot)
     await db.commit()
     return {"status": "success"}

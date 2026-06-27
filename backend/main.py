@@ -18,7 +18,6 @@ from routers import (
     developer_organization, developer_usage, developer_scheduled,
     admin_custom_plans, oauth,
 )
-from services.bot_manager import manager as bot_manager
 import asyncio
 import logging
 import os
@@ -52,23 +51,13 @@ async def startup_event():
     except Exception as exc:
         logger.warning("Bootstrap skipped: %s", exc)
 
-    # Long-running Discord/Telegram bots cannot run on Vercel serverless
-    if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
-        logger.info("Skipping bot manager on serverless runtime")
-        return
-
-    async def _safe_start_bots():
-        try:
-            await bot_manager.start_all_bots()
-        except Exception as exc:
-            logger.warning("Bot manager failed to start: %s", exc)
-
-    asyncio.create_task(_safe_start_bots())
+    # Note: Bots run client-side (user's own machine). See SDK folders:
+    # sdk/AuthSys-Discord-Bot-Example/ and sdk/AuthSys-Telegram-Bot-Example/
+    logger.info("Bot manager disabled — bots run client-side via AuthSys Seller API")
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    logger.info("Shutting down bot manager...")
-    await bot_manager.stop_all()
+    pass
 
 # CORS Middleware - Allow Vercel and localhost origins
 class DynamicCORSMiddleware(BaseHTTPMiddleware):
