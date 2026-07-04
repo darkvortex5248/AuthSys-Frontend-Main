@@ -126,7 +126,7 @@ export default function UsersPage() {
           count: bulkCount,
           password_prefix: bulkPasswordPrefix || null,
           expires_at: formattedExpiresAt,
-          max_uses: hwidEnabled ? newUser.max_uses : 0,
+          max_uses: 0,
         });
         setBulkResult(res.data);
         toast.success(`Created ${res.data.count} users successfully!`);
@@ -832,7 +832,7 @@ export default function UsersPage() {
                 </div>
               )}
 
-              {hwidEnabled && (
+              {hwidEnabled && !bulkMode && (
                 <div className="shrink-0">
                   <FieldLabel>Max Uses (0=∞)</FieldLabel>
                   <GlassInput

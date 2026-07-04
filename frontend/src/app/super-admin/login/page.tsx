@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 
 export default function AdminLoginPage() {
@@ -8,7 +7,6 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,9 +16,7 @@ export default function AdminLoginPage() {
     try {
       const res = await api.post('/admin/login', { username, password });
       localStorage.setItem('admin_token', res.data.access_token);
-      // Avoid developer JWT being sent on admin routes after a previous dashboard session
-      document.cookie = 'token=; path=/; max-age=0';
-      router.replace('/super-admin/dashboard');
+      window.location.href = '/super-admin/dashboard';
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Authentication failed');
     } finally {
