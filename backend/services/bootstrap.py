@@ -7,6 +7,7 @@ from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import Base
+from core.security import get_password_hash
 from models.domain import * # Import all models to register with Base.metadata
 
 logger = logging.getLogger(__name__)
@@ -632,6 +633,26 @@ async def ensure_default_settings(db: AsyncSession) -> int:
     return created
 
 
+async def ensure_default_admin(db: AsyncSession) -> int:
+    """Create a default super admin if none exist."""
+    from models.domain import AdminUser
+    res = await db.execute(select(AdminUser))
+    existing = res.scalars().first()
+    if existing:
+        return 0
+    admin = AdminUser(
+        username="atik",
+        email="mdatikurrohoman524860@gmail.com",
+        password_hash=get_password_hash("4G!PYJP*SvE2epy"),
+        role="super_admin",
+        is_active=True,
+    )
+    db.add(admin)
+    await db.commit()
+    logger.info("Default super admin created (username: atik)")
+    return 1
+
+
 async def run_bootstrap(db: AsyncSession) -> dict:
     # 1. First ensure database schema and tables are 100% correct
     await ensure_database_schema(db)
@@ -639,6 +660,9 @@ async def run_bootstrap(db: AsyncSession) -> dict:
     # 2. Seed plans and settings
     plans = await ensure_default_plans(db)
     settings_count = await ensure_default_settings(db)
+    
+    # 3. Seed default super admin if none exists
+    admin_created = await ensure_default_admin(db)
 
     # 3. Seed default payment method for international (Stripe)
     pm_res = await db.execute(select(PaymentMethod).where(PaymentMethod.type == "international"))
@@ -653,4 +677,4 @@ async def run_bootstrap(db: AsyncSession) -> dict:
         ))
         await db.commit()
 
-    return {"plans_created": plans, "settings_created": settings_count}
+    return {"plans_created": plans, "settings_created": settings_count, "admin_created": admin_created}
