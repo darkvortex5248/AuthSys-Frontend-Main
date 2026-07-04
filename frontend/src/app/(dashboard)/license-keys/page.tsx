@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/auth';
 import { AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import {
+  useApps,
   useInvalidateDeveloperData,
   useLicenseKeys,
   useGenerateKeys,
@@ -36,6 +37,9 @@ const statConfig = [
 
 export default function LicenseKeysPage() {
   const { selectedAppId } = useAuthStore();
+  const { data: apps = [] } = useApps();
+  const selectedApp = apps.find((a: any) => a.id === selectedAppId);
+  const hwidEnabled = selectedApp?.hwid_enabled ?? true;
   const invalidate = useInvalidateDeveloperData();
   const confirm = useConfirm();
   const copy = useCopy();
@@ -324,7 +328,7 @@ export default function LicenseKeysPage() {
         String(k.current_uses || 0),
         String(k.max_uses || '∞'),
         k.created_at ? new Date(k.created_at).toISOString() : '',
-        k.expires_at ? new Date(k.expires_at).toISOString() : 'Lifetime',
+        k.expires_at ? new Date(k.expires_at).toISOString() : (k.duration_days ? new Date(new Date(k.created_at).getTime() + k.duration_days * 86400000).toISOString() : 'Lifetime'),
         k.note || '',
         k.seller_tag || '',
       ]);
@@ -661,7 +665,7 @@ export default function LicenseKeysPage() {
                       {new Date(k.created_at).toLocaleDateString()}
                     </p>
                     <p className="text-[9px] text-[var(--muted-foreground)] uppercase tracking-widest mt-0.5">
-                      exp: {k.expires_at ? new Date(k.expires_at).toLocaleDateString() : 'Lifetime'}
+                      exp: {k.expires_at ? new Date(k.expires_at).toLocaleDateString() : (k.duration_days ? new Date(new Date(k.created_at).getTime() + k.duration_days * 86400000).toLocaleDateString() : 'Lifetime')}
                     </p>
                   </td>
 
@@ -785,14 +789,16 @@ export default function LicenseKeysPage() {
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <FieldLabel>Max Uses (0=∞)</FieldLabel>
-                      <GlassInput
-                        type="number"
-                        value={singleData.max_uses}
-                        onChange={e => setSingleData({ ...singleData, max_uses: parseInt(e.target.value) })}
-                      />
-                    </div>
+                    {hwidEnabled && (
+                      <div>
+                        <FieldLabel>Max Uses (0=∞)</FieldLabel>
+                        <GlassInput
+                          type="number"
+                          value={singleData.max_uses}
+                          onChange={e => setSingleData({ ...singleData, max_uses: parseInt(e.target.value) })}
+                        />
+                      </div>
+                    )}
                     <div>
                       <FieldLabel>Key Type</FieldLabel>
                       <GlassSelect value={singleData.type} onChange={e => setSingleData({ ...singleData, type: e.target.value })}>
@@ -1031,14 +1037,16 @@ export default function LicenseKeysPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <FieldLabel>Max Uses (0=∞)</FieldLabel>
-                  <GlassInput
-                    type="number"
-                    value={editData.max_uses}
-                    onChange={e => setEditData({ ...editData, max_uses: parseInt(e.target.value) })}
-                  />
-                </div>
+                {hwidEnabled && (
+                  <div>
+                    <FieldLabel>Max Uses (0=∞)</FieldLabel>
+                    <GlassInput
+                      type="number"
+                      value={editData.max_uses}
+                      onChange={e => setEditData({ ...editData, max_uses: parseInt(e.target.value) })}
+                    />
+                  </div>
+                )}
                 <div>
                   <FieldLabel>Expiration</FieldLabel>
                   <GlassInput

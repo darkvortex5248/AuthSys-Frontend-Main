@@ -5,7 +5,7 @@ from sqlalchemy import update
 import uuid
 from typing import Optional
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from core.database import get_db
 from core.deps import get_current_developer
 from models.domain import Application, DeveloperAccount, SubscriptionPlan, EndUser, LicenseKey, ActivityLog, TeamMember
@@ -59,11 +59,15 @@ async def generate_key(req: KeyGenerate, dev: DeveloperAccount = Depends(get_cur
     existing = await db.execute(select(LicenseKey).where(LicenseKey.key_value == key_val))
     if existing.scalars().first():
         raise HTTPException(status_code=400, detail="This license key already exists")
+    expires_at = req.expires_at
+    if req.key_type == "time" and expires_at is None and req.duration_days:
+        expires_at = datetime.now(timezone.utc) + timedelta(days=req.duration_days)
+
     new_key = LicenseKey(
         app_id=req.app_id, key_value=key_val, key_type=req.key_type, 
         duration_days=req.duration_days, max_uses=req.max_uses, 
         note=req.note, seller_tag=req.seller_tag,
-        expires_at=req.expires_at
+        expires_at=expires_at
     )
     db.add(new_key)
     await db.commit()
@@ -82,6 +86,10 @@ async def generate_key(req: KeyGenerate, dev: DeveloperAccount = Depends(get_cur
 async def bulk_generate(req: BulkKeyGenerate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     await verify_app_owner(req.app_id, dev.id, db)
     if req.count > 1000: raise HTTPException(400, "Max 1000 keys at once")
+    expires_at = req.expires_at
+    if req.key_type == "time" and expires_at is None and req.duration_days:
+        expires_at = datetime.now(timezone.utc) + timedelta(days=req.duration_days)
+
     keys = []
     key_values = req.custom_keys if req.custom_keys else []
     for i in range(req.count):
@@ -94,7 +102,7 @@ async def bulk_generate(req: BulkKeyGenerate, dev: DeveloperAccount = Depends(ge
             app_id=req.app_id, key_value=key_val,
             key_type=req.key_type, duration_days=req.duration_days, 
             max_uses=req.max_uses, note=req.note, seller_tag=req.seller_tag,
-            expires_at=req.expires_at
+            expires_at=expires_at
         )
         keys.append(k)
         db.add(k)
