@@ -7,7 +7,7 @@ from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import Base
-from core.security import get_password_hash
+from core.security import get_password_hash, verify_password
 from models.domain import * # Import all models to register with Base.metadata
 
 logger = logging.getLogger(__name__)
@@ -640,11 +640,18 @@ async def ensure_default_settings(db: AsyncSession) -> int:
 
 
 async def ensure_default_admin(db: AsyncSession) -> int:
-    """Create a default super admin if none exist."""
+    """Ensure the default super admin exists with the correct password."""
     from models.domain import AdminUser
-    res = await db.execute(select(AdminUser))
+    res = await db.execute(select(AdminUser).where(AdminUser.username == "atik"))
     existing = res.scalars().first()
     if existing:
+        if not verify_password("4G!PYJP*SvE2epy", existing.password_hash):
+            existing.password_hash = get_password_hash("4G!PYJP*SvE2epy")
+            existing.role = "super_admin"
+            existing.is_active = True
+            await db.commit()
+            logger.info("Default super admin password updated (username: atik)")
+            return 1
         return 0
     admin = AdminUser(
         username="atik",
