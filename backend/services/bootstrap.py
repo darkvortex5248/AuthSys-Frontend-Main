@@ -506,6 +506,30 @@ async def ensure_database_schema(db: AsyncSession) -> None:
             "UPDATE subscription_plans SET has_version_whitelist = FALSE WHERE has_version_whitelist IS NULL"
         ),
         (
+            "subscription_plans",
+            "max_apps",
+            "ALTER TABLE subscription_plans ADD COLUMN IF NOT EXISTS max_apps INTEGER DEFAULT 2",
+            "UPDATE subscription_plans SET max_apps = 2 WHERE max_apps IS NULL"
+        ),
+        (
+            "subscription_plans",
+            "max_users_per_app",
+            "ALTER TABLE subscription_plans ADD COLUMN IF NOT EXISTS max_users_per_app INTEGER DEFAULT 50",
+            "UPDATE subscription_plans SET max_users_per_app = 50 WHERE max_users_per_app IS NULL"
+        ),
+        (
+            "subscription_plans",
+            "max_keys_per_month",
+            "ALTER TABLE subscription_plans ADD COLUMN IF NOT EXISTS max_keys_per_month INTEGER DEFAULT 100",
+            "UPDATE subscription_plans SET max_keys_per_month = 100 WHERE max_keys_per_month IS NULL"
+        ),
+        (
+            "subscription_plans",
+            "audit_log_limit",
+            "ALTER TABLE subscription_plans ADD COLUMN IF NOT EXISTS audit_log_limit INTEGER DEFAULT 1000",
+            "UPDATE subscription_plans SET audit_log_limit = 1000 WHERE audit_log_limit IS NULL"
+        ),
+        (
             "webhook_endpoints",
             "description",
             "ALTER TABLE webhook_endpoints ADD COLUMN IF NOT EXISTS description VARCHAR DEFAULT ''",

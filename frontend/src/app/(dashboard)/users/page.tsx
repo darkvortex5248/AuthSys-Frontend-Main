@@ -832,26 +832,27 @@ export default function UsersPage() {
                 </div>
               )}
 
-              {hwidEnabled && !bulkMode && (
-                <div className="shrink-0">
-                  <FieldLabel>Max Uses (0=∞)</FieldLabel>
-                  <GlassInput
-                    type="number"
-                    value={newUser.max_uses}
-                    onChange={e => setNewUser({ ...newUser, max_uses: parseInt(e.target.value) || 0 })}
-                  />
+              <div className="grid grid-cols-2 gap-3">
+                {hwidEnabled && !bulkMode && (
+                  <div>
+                    <FieldLabel>Max Uses (0=∞)</FieldLabel>
+                    <GlassInput
+                      type="number"
+                      value={newUser.max_uses}
+                      onChange={e => setNewUser({ ...newUser, max_uses: parseInt(e.target.value) || 0 })}
+                    />
+                  </div>
+                )}
+                <div>
+                  <FieldLabel>User Type</FieldLabel>
+                  <GlassSelect
+                    value={newUser.type}
+                    onChange={e => setNewUser({ ...newUser, type: e.target.value, use_custom_expiry: false })}
+                  >
+                    <option value="time">Time Based</option>
+                    <option value="lifetime">Lifetime</option>
+                  </GlassSelect>
                 </div>
-              )}
-
-              <div className="shrink-0">
-                <FieldLabel>User Type</FieldLabel>
-                <GlassSelect
-                  value={newUser.type}
-                  onChange={e => setNewUser({ ...newUser, type: e.target.value, use_custom_expiry: false })}
-                >
-                  <option value="time">Time Based</option>
-                  <option value="lifetime">Lifetime</option>
-                </GlassSelect>
               </div>
 
               {newUser.type === 'time' && (
