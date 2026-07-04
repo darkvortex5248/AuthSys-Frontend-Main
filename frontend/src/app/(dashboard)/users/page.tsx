@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/auth';
 import { AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import {
+  useApps,
   useAppUsers,
   useInvalidateDeveloperData,
   useCreateAppUser,
@@ -34,6 +35,9 @@ const statConfig = [
 
 export default function UsersPage() {
   const { selectedAppId } = useAuthStore();
+  const { data: apps = [] } = useApps();
+  const selectedApp = apps.find((a: any) => a.id === selectedAppId);
+  const hwidEnabled = selectedApp?.hwid_enabled ?? true;
   const invalidate = useInvalidateDeveloperData();
   const confirm = useConfirm();
   const copy = useCopy();
@@ -112,7 +116,7 @@ export default function UsersPage() {
     if (!selectedAppId) return;
     setSubmitting(true);
     try {
-      const isLifetime = newUser.type === 'lifetime';
+      const isLifetime = !hwidEnabled || newUser.type === 'lifetime';
       const useCustom = !isLifetime && newUser.use_custom_expiry;
       const formattedExpiresAt = useCustom && newUser.expires_at?.trim() ? newUser.expires_at : null;
       const durationDays = isLifetime || useCustom ? null : newUser.duration;
@@ -826,77 +830,87 @@ export default function UsersPage() {
                 </div>
               )}
 
-              <div className="shrink-0">
-                <FieldLabel>User Type</FieldLabel>
-                <GlassSelect
-                  value={newUser.type}
-                  onChange={e => setNewUser({ ...newUser, type: e.target.value, use_custom_expiry: false })}
-                >
-                  <option value="time">Time Based</option>
-                  <option value="lifetime">Lifetime</option>
-                </GlassSelect>
-              </div>
-
-              {newUser.type === 'time' && (
+              {hwidEnabled ? (
                 <>
-                  {!newUser.use_custom_expiry && (
-                    <div className="shrink-0 space-y-3">
-                      <div>
-                        <FieldLabel>Duration (Days)</FieldLabel>
-                        <GlassInput
-                          type="number"
-                          value={newUser.duration}
-                          onChange={e => setNewUser({ ...newUser, duration: parseInt(e.target.value) || 0 })}
-                        />
-                      </div>
-                      <div className="flex gap-2">
-                        {[{ label: '7 Days', val: 7 }, { label: '30 Days', val: 30 }, { label: '90 Days', val: 90 }].map(d => (
-                          <button
-                            key={d.val}
-                            type="button"
-                            onClick={() => setNewUser({ ...newUser, duration: d.val })}
-                            className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl border transition-all duration-200 ${
-                              newUser.duration === d.val
-                                ? 'bg-[var(--primary)]/20 border-[var(--primary)]/40 text-[var(--primary)]'
-                                : 'bg-white/5 border-white/8 text-white/35 hover:border-[var(--primary)]/25 hover:text-white/60'
-                            }`}
-                          >
-                            {d.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                  <div className="shrink-0">
+                    <FieldLabel>User Type</FieldLabel>
+                    <GlassSelect
+                      value={newUser.type}
+                      onChange={e => setNewUser({ ...newUser, type: e.target.value, use_custom_expiry: false })}
+                    >
+                      <option value="time">Time Based</option>
+                      <option value="lifetime">Lifetime</option>
+                    </GlassSelect>
+                  </div>
+
+                  {newUser.type === 'time' && (
+                    <>
+                      {!newUser.use_custom_expiry && (
+                        <div className="shrink-0 space-y-3">
+                          <div>
+                            <FieldLabel>Duration (Days)</FieldLabel>
+                            <GlassInput
+                              type="number"
+                              value={newUser.duration}
+                              onChange={e => setNewUser({ ...newUser, duration: parseInt(e.target.value) || 0 })}
+                            />
+                          </div>
+                          <div className="flex gap-2">
+                            {[{ label: '7 Days', val: 7 }, { label: '30 Days', val: 30 }, { label: '90 Days', val: 90 }].map(d => (
+                              <button
+                                key={d.val}
+                                type="button"
+                                onClick={() => setNewUser({ ...newUser, duration: d.val })}
+                                className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl border transition-all duration-200 ${
+                                  newUser.duration === d.val
+                                    ? 'bg-[var(--primary)]/20 border-[var(--primary)]/40 text-[var(--primary)]'
+                                    : 'bg-white/5 border-white/8 text-white/35 hover:border-[var(--primary)]/25 hover:text-white/60'
+                                }`}
+                              >
+                                {d.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <label className="shrink-0 flex items-center gap-2.5 cursor-pointer select-none pt-2">
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={newUser.use_custom_expiry}
+                          onClick={() => setNewUser({ ...newUser, use_custom_expiry: !newUser.use_custom_expiry })}
+                          className={`toggle-switch ${newUser.use_custom_expiry ? 'active' : 'inactive'}`}
+                        >
+                          <span className={`toggle-knob ${newUser.use_custom_expiry ? 'active' : 'inactive'}`} />
+                        </button>
+                        <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Custom Expiry</span>
+                      </label>
+                      {newUser.use_custom_expiry && (
+                        <div className="shrink-0">
+                          <FieldLabel>Expiry Date</FieldLabel>
+                          <GlassInput
+                            type="datetime-local"
+                            value={newUser.expires_at}
+                            onChange={e => setNewUser({ ...newUser, expires_at: e.target.value })}
+                          />
+                        </div>
+                      )}
+                    </>
                   )}
 
-                  <label className="shrink-0 flex items-center gap-2.5 cursor-pointer select-none pt-2">
-                    <button
-                      type="button"
-                      role="switch"
-                      aria-checked={newUser.use_custom_expiry}
-                      onClick={() => setNewUser({ ...newUser, use_custom_expiry: !newUser.use_custom_expiry })}
-                      className={`toggle-switch ${newUser.use_custom_expiry ? 'active' : 'inactive'}`}
-                    >
-                      <span className={`toggle-knob ${newUser.use_custom_expiry ? 'active' : 'inactive'}`} />
-                    </button>
-                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Custom Expiry</span>
-                  </label>
-                  {newUser.use_custom_expiry && (
-                    <div className="shrink-0">
-                      <FieldLabel>Expiry Date</FieldLabel>
-                      <GlassInput
-                        type="datetime-local"
-                        value={newUser.expires_at}
-                        onChange={e => setNewUser({ ...newUser, expires_at: e.target.value })}
-                      />
+                  {newUser.type === 'lifetime' && (
+                    <div className="shrink-0 px-4 py-3 rounded-xl bg-white/[0.02] border border-white/5">
+                      <p className="text-xs text-white/40 text-center font-medium">
+                        Lifetime users never expire
+                      </p>
                     </div>
                   )}
                 </>
-              )}
-
-              {newUser.type === 'lifetime' && (
+              ) : (
                 <div className="shrink-0 px-4 py-3 rounded-xl bg-white/[0.02] border border-white/5">
                   <p className="text-xs text-white/40 text-center font-medium">
-                    Lifetime users never expire
+                    HWID unlocked — users created without expiry
                   </p>
                 </div>
               )}
