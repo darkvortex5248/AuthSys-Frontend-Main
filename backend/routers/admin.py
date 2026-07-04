@@ -36,7 +36,7 @@ async def get_current_admin(token: str = Depends(oauth2_scheme), db: AsyncSessio
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str = payload.get("sub")
         role: str = payload.get("role")
-        if role != "admin":
+        if role not in ("admin", "super_admin"):
             raise HTTPException(401, "Not an admin")
     except JWTError:
         raise HTTPException(401, "Invalid token")
@@ -90,7 +90,7 @@ async def admin_restore_session(request: Request):
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
         role = payload.get("role")
-        if role != "admin":
+        if role not in ("admin", "super_admin"):
             raise HTTPException(status_code=401, detail="Not an admin")
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid or expired session")
