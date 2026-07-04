@@ -52,7 +52,8 @@ async def create_user_manual(req: UserCreateManual, dev: DeveloperAccount = Depe
         username=req.username,
         password_hash=hashed_password,
         email=req.email,
-        expires_at=expires_at
+        expires_at=expires_at,
+        max_uses=req.max_uses
     )
     db.add(new_user)
     await db.commit()
@@ -87,7 +88,8 @@ async def bulk_create_users(req: BulkUserCreate, dev: DeveloperAccount = Depends
                 username=username,
                 password_hash=hashed_password,
                 email=email,
-                expires_at=req.expires_at
+                expires_at=req.expires_at,
+                max_uses=req.max_uses
             )
             users.append(new_user)
             user_credentials.append({"username": username, "password": password})
@@ -108,7 +110,8 @@ async def bulk_create_users(req: BulkUserCreate, dev: DeveloperAccount = Depends
                 app_id=req.app_id,
                 username=username,
                 password_hash=hashed_password,
-                expires_at=req.expires_at
+                expires_at=req.expires_at,
+                max_uses=req.max_uses
             )
             users.append(new_user)
             user_credentials.append({"username": username, "password": password})

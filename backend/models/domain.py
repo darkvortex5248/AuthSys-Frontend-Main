@@ -161,7 +161,8 @@ class EndUser(Base):
     variable_data = Column(JSON, nullable=True)
     is_shadow = Column(Boolean, default=False)
     expires_at = Column(DateTime(timezone=True), nullable=True)
-
+    max_uses = Column(Integer, default=0)
+    
     app = relationship("Application", back_populates="users")
 
 class Session(Base):

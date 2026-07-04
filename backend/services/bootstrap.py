@@ -576,6 +576,12 @@ async def ensure_database_schema(db: AsyncSession) -> None:
             "two_factor_backup_codes",
             "ALTER TABLE developer_accounts ADD COLUMN IF NOT EXISTS two_factor_backup_codes JSON",
             None
+        ),
+        (
+            "end_users",
+            "max_uses",
+            "ALTER TABLE end_users ADD COLUMN IF NOT EXISTS max_uses INTEGER DEFAULT 0",
+            "UPDATE end_users SET max_uses = 0 WHERE max_uses IS NULL"
         )
     ]
     

@@ -189,6 +189,13 @@ async def login_user(request: Request, req: ClientLoginRequest, db: AsyncSession
             # First login, bind HWID
             user.hwid = req.hwid
 
+    if user.max_uses > 0:
+        active_sessions = await db.execute(
+            select(Session).where(Session.user_id == user.id, Session.expires_at > utc_now())
+        )
+        if len(active_sessions.scalars().all()) >= user.max_uses:
+            raise HTTPException(status_code=403, detail=f"Max sessions ({user.max_uses}) reached")
+
     session_token = str(uuid.uuid4())
     token_hash = hashlib.sha256(session_token.encode()).hexdigest()
     expires = utc_now() + timedelta(seconds=req.session_length)
