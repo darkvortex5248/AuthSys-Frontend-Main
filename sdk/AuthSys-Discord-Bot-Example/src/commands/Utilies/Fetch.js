@@ -133,35 +133,35 @@ module.exports = {
                 case "users":
                     endpoint = "/fetch-users"; title = "AuthSys Application Users"; dataKey = "users"; formatItem = (item) => item.username + "\n"; break;
                 case "user-vars":
-                    endpoint = "/fetch-user-vars"; title = "AuthSys Application User Vars"; dataKey = "vars"; formatItem = () => ""; break;
+                    endpoint = "/fetch-user-vars"; title = "AuthSys Application Variables"; dataKey = "variables"; formatItem = (item) => `ID: ${item.id} - ${item.key_name}: ${item.key_value}\n`; break;
                 case "usernames":
-                    endpoint = "/fetch-usernames"; title = "AuthSys Application Usernames"; dataKey = "usernames"; formatItem = (item) => item.username + "\n"; break;
+                    endpoint = "/fetch-usernames"; title = "AuthSys Application Usernames"; dataKey = "users"; formatItem = (item) => item.username + "\n"; break;
                 case "subs":
-                    endpoint = "/fetch-subscriptions"; title = "AuthSys Application Subscriptions"; dataKey = "subs"; formatItem = (item) => item.username + "\n"; break;
+                    endpoint = "/fetch-subscriptions"; title = "AuthSys Application Users"; dataKey = "users"; formatItem = (item) => item.username + "\n"; break;
                 case "chats":
-                    endpoint = "/fetch-chats"; title = "AuthSys Application Chat Channels"; dataKey = "chats"; formatItem = (item) => `Name: ${item.name} - Delay: ${item.delay}\n`; break;
+                    endpoint = "/fetch-chats"; title = "AuthSys Application Chat Channels"; dataKey = "chats"; formatItem = (item) => `Name: ${item.name} - Active: ${item.is_active}\n`; break;
                 case "sessions":
-                    endpoint = "/fetch-sessions"; title = "AuthSys Application Sessions"; dataKey = "sessions"; formatItem = (item) => `ID: ${item.id} - Validated: ${item.validated ? true : false}\n`; break;
+                    endpoint = "/fetch-sessions"; title = "AuthSys Application Sessions"; dataKey = "sessions"; formatItem = (item) => `ID: ${item.id} - IP: ${item.ip} - HWID: ${item.hwid}\n`; break;
                 case "files":
-                    endpoint = "/fetch-files"; title = "AuthSys Application Files"; dataKey = "files"; formatItem = (item) => `ID: ${item.id} - Download: [Here](${item.url})\n`; break;
+                    endpoint = "/fetch-users"; title = "AuthSys Application Users"; dataKey = "users"; formatItem = (item) => item.username + "\n"; break;
                 case "vars":
-                    endpoint = "/fetch-variables"; title = "AuthSys Application Variables"; dataKey = "vars"; formatItem = (item) => `ID: ${item.varid} - Data: ${item.msg}\n`; break;
+                    endpoint = "/fetch-variables"; title = "AuthSys Application Variables"; dataKey = "variables"; formatItem = (item) => `ID: ${item.id} - ${item.key_name}: ${item.key_value}\n`; break;
                 case "blacklists":
-                    endpoint = "/fetch-blacklists"; title = "AuthSys Application Blacklists"; dataKey = "blacklists"; formatItem = (item) => { let btemp = item.ip ? `\`\`\`${item.ip}\`\`\`` : `\`\`\`${item.hwid}\`\`\``; return `**ID: ${item.id} - Type: ${item.type}** ${btemp}\n`; }; break;
+                    endpoint = "/fetch-blacklists"; title = "AuthSys Application Blacklists"; dataKey = "blacklists"; formatItem = (item) => `**ID: ${item.id} - Type: ${item.type}** \`\`\`${item.value}\`\`\`\n`; break;
                 case "webhooks":
-                    endpoint = "/fetch-webhooks"; title = "AuthSys Application Webhooks"; dataKey = "webhooks"; formatItem = (item) => { let authed = (item.authed == "1") ? "True" : "False"; return `Web ID: \`${item.webid}\` - Base link: \`${item.short_baselink}\` - Useragent: \`${item.useragent}\` - Authed: \`${authed}\`\n` }; break;
+                    endpoint = "/fetch-webhooks"; title = "AuthSys Application Webhooks"; dataKey = "webhooks"; formatItem = (item) => `ID: \`${item.id}\` - URL: \`${item.url}\` - Active: \`${item.is_active}\`\n`; break;
                 case "buttons":
-                    endpoint = "/fetch-buttons"; title = "AuthSys Application Buttons"; dataKey = "buttons"; formatItem = (item) => `Text: ${item.text} - Value: ${item.value}`; break;
+                    endpoint = "/fetch-webhooks"; title = "AuthSys Application Buttons"; dataKey = "webhooks"; formatItem = (item) => `ID: ${item.id} - URL: ${item.url}\n`; break;
                 case "mutes":
-                    endpoint = "/fetch-mutes"; title = "AuthSys Application Mutes"; dataKey = "mutes"; formatItem = (item) => `Username: ${item.user} - Time: ${item.time}\n`; break;
+                    endpoint = "/fetch-users"; title = "AuthSys Application Muted Users"; dataKey = "users"; formatItem = (item) => `${item.username}\n`; break;
                 case "channels":
-                    endpoint = "/fetch-chats"; title = "AuthSys Application Channels"; dataKey = "channels"; formatItem = (item) => `Name: ${item.name} - Delay: ${item.delay}\n`; break;
+                    endpoint = "/fetch-chats"; title = "AuthSys Application Channels"; dataKey = "chats"; formatItem = (item) => `Name: ${item.name} - Active: ${item.is_active}\n`; break;
                 case "appdetails":
                     endpoint = "/app-details"; title = "AuthSys Application Details"; dataKey = "appdetails"; formatItem = null; break;
                 case "logs":
-                    endpoint = "/fetch-logs"; title = "AuthSys Application Logs"; dataKey = "logs"; formatItem = null; break;
+                    endpoint = "/fetch-users"; title = "AuthSys Application Users"; dataKey = "users"; formatItem = (item) => item.username + "\n"; break;
                 case "team":
-                    endpoint = "/fetch-team"; title = "AuthSys Application Team Members"; dataKey = null; formatItem = null; break;
+                    endpoint = "/fetch-users"; title = "AuthSys Application Users"; dataKey = "users"; formatItem = (item) => item.username + "\n"; break;
             }
 
             interaction.editReply({ embeds: [new EmbedBuilder().setTitle(`Fetching ${subcommand}...`).setColor(Colors.Green).setTimestamp()], ephemeral: ephemeral })

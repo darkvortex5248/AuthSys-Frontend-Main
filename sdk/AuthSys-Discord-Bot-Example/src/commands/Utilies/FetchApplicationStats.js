@@ -27,7 +27,7 @@ module.exports = {
         let sellerkey = await db.get(`token_${idfrom}`)
         if (sellerkey === null) return interaction.editReply({ embeds: [new EmbedBuilder().setDescription(`Your \`SellerKey\` **has not been set!**\n In order to use this bot, you must run the \`/add-application\` Command First.`).setColor(Colors.Red).setTimestamp()], ephemeral: ephemeral })
 
-        let json = await config.api("/stats", {}, sellerkey)
+        let json = await config.api("/app-stats", {}, sellerkey)
         if (json.status === "success") {
             const embed = new EmbedBuilder()
                 .setTitle('Application Statistics')

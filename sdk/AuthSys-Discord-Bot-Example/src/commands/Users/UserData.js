@@ -52,25 +52,21 @@ module.exports = {
         let json = await config.api("/user-info", { username: user }, sellerkey)
         if (json.status !== "success") return interaction.editReply({ embeds: [new EmbedBuilder().setTitle(json.detail || json.message).addFields([{ name: 'Note:', value: `Your seller key is most likely invalid. Change your seller key with \`/add-application\` command.` }]).setColor(Colors.Red).setFooter({ text: "AuthSys Discord Bot" }).setTimestamp()], ephemeral: ephemeral })
 
-        const data = json.data || json;
+        const data = json.userdata || json;
         let hwid = data.hwid || "N/A";
         let ip = data.ip || "N/A";
-        let lastlogin = (data.lastlogin !== null && data.lastlogin !== undefined) ? `<t:${data.lastlogin}:f>` : "N/A";
-        let expiry = "N/A";
-        let subscription = "N/A";
-        if (data.subscriptions && data.subscriptions.length !== 0) {
-            expiry = (data.subscriptions[0].expiry !== null && data.subscriptions[0].expiry !== undefined) ? `<t:${data.subscriptions[0].expiry}:f>` : "N/A";
-            subscription = (data.subscriptions[0].subscription !== null && data.subscriptions[0].subscription !== undefined) ? data.subscriptions[0].subscription : "N/A";
-        }
+        let lastlogin = data.last_login ? `<t:${Math.floor(new Date(data.last_login).getTime() / 1000)}:f>` : "N/A";
+        let expiry = data.subscription_expires ? `<t:${Math.floor(new Date(data.subscription_expires).getTime() / 1000)}:f>` : "N/A";
+        let createdOn = data.created_at ? `<t:${Math.floor(new Date(data.created_at).getTime() / 1000)}:f>` : "N/A";
 
         const embed = new EmbedBuilder()
             .setTitle(`User data for ${user}`)
             .addFields([
                 { name: 'Expiry:', value: `${expiry}` },
-                { name: 'Subscription name:', value: `${subscription}` },
+                { name: 'Subscription:', value: `N/A` },
                 { name: 'Last Login:', value: `${lastlogin}` },
                 { name: 'HWID:', value: `${hwid}` },
-                { name: 'Created On:', value: data.createdate ? `<t:${data.createdate}:f>` : "N/A" },
+                { name: 'Created On:', value: createdOn },
                 { name: 'IP Address:', value: `${ip}` },
             ])
             .setColor(Colors.Blue)

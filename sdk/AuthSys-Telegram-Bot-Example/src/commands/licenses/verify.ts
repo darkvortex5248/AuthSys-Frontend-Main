@@ -29,7 +29,7 @@ async function handleLicense(ctx: Context): Promise<void> {
   }
 
   const response = await Request("/verify-key", {
-    key: license,
+    key_value: license,
   }, sellerKey);
 
   if (response.status !== "success") {

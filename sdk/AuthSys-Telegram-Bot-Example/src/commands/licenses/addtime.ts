@@ -26,8 +26,8 @@ async function handleTime(ctx: Context): Promise<void> {
   const userId = ctx.from?.id;
 
   if (time && userId) {
-    const response = await Request("/add-time", {
-      time: Number(time),
+    const response = await Request("/add-key-time", {
+      days: Math.floor(Number(time) / 86400),
     }, sellerKey);
 
     if (response.status !== "success") {

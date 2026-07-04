@@ -55,10 +55,10 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setTitle(`Key Information for ${key}`)
             .addFields([
-                { name: 'Status:', value: `${json.status || json.data?.status || 'N/A'}` },
-                { name: 'Level:', value: `${json.data?.level || 'N/A'}` },
-                { name: 'Created By:', value: `${json.data?.created_by || 'N/A'}` },
-                { name: 'Created On:', value: `${json.data?.created_on || 'N/A'}` },
+                { name: 'Status:', value: `${json.status || 'N/A'}` },
+                { name: 'Level:', value: `${json.level || 'N/A'}` },
+                { name: 'Created By:', value: `${json.createdby || 'N/A'}` },
+                { name: 'Created On:', value: json.creationdate ? `<t:${Math.floor(new Date(json.creationdate).getTime() / 1000)}:f>` : 'N/A' },
             ])
             .setColor(Colors.Blue)
             .setTimestamp()

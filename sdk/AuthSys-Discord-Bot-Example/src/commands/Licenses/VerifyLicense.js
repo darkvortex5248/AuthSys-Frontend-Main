@@ -51,7 +51,7 @@ module.exports = {
 
         let json = await config.api("/verify-key", { key_value: key }, sellerkey)
         if (json.status === "success") {
-            interaction.editReply({ embeds: [new EmbedBuilder().setTitle(json.message).setColor(Colors.Green).setTimestamp()], ephemeral: ephemeral })
+            interaction.editReply({ embeds: [new EmbedBuilder().setTitle(`License ${json.key} is valid: ${json.valid}`).setColor(Colors.Green).setTimestamp()], ephemeral: ephemeral })
         } else {
             interaction.editReply({ embeds: [new EmbedBuilder().setTitle(json.detail || json.message).addFields([{ name: 'Note:', value: `Your seller key is most likely invalid. Change your seller key with \`/add-application\` command.` }]).setColor(Colors.Red).setFooter({ text: "AuthSys Discord Bot" }).setTimestamp()], ephemeral: ephemeral })
         }

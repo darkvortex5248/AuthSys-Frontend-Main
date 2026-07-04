@@ -68,9 +68,8 @@ async function handlePassword(ctx: Context): Promise<void> {
   }
 
   const response = await Request("/activate-key", {
-    key: licenseKey,
-    user: user,
-    pass: password,
+    username: user,
+    password: password,
   }, sellerKey);
 
   if (response.status !== "success") {

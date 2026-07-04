@@ -113,7 +113,7 @@ module.exports = {
 		if (days) {
 			let json = await config.api("/generate-key", { duration: parseInt(days), level: level, amount: amount ? parseInt(amount) : 1, mask: license_mask, character: character, note: note }, sellerkey)
 			if (json.status === "success") {
-				interaction.followUp({ content: `${json.message}`, ephemeral: ephemeral });
+				interaction.followUp({ content: `Key: \`${json.key}\``, ephemeral: ephemeral });
 				db.set(`licenseAdd_${idfrom}`, `{ "days": ${days}, "level": "${level}", "amount": "${amount}", "character": "${character}", "note": "${note}" }`)
 			} else {
 				interaction.editReply({ embeds: [new EmbedBuilder().setTitle(json.detail || json.message).addFields([{ name: 'Note:', value: `Your seller key is most likely invalid. Change your seller key with \`/add-application\` command.` }]).setColor(Colors.Red).setFooter({ text: "AuthSys Discord Bot" }).setTimestamp()], ephemeral: ephemeral })
@@ -125,7 +125,7 @@ module.exports = {
 
 			let json = await config.api("/generate-key", { duration: parseInt(licenseAdd.days), level: licenseAdd.level, amount: licenseAdd.amount ? parseInt(licenseAdd.amount) : 1, mask: license_mask, character: licenseAdd.character, note: licenseAdd.note }, sellerkey)
 			if (json.status === "success") {
-				interaction.followUp({ content: `${json.message}`, ephemeral: ephemeral });
+				interaction.followUp({ content: `Key: \`${json.key}\``, ephemeral: ephemeral });
 			} else {
 				interaction.editReply({ embeds: [new EmbedBuilder().setTitle(json.detail || json.message).addFields([{ name: 'Note:', value: `Your seller key is most likely invalid. Change your seller key with \`/add-application\` command.` }]).setColor(Colors.Red).setFooter({ text: "AuthSys Discord Bot" }).setTimestamp()], ephemeral: ephemeral })
 			}

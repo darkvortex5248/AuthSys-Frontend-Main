@@ -531,6 +531,18 @@ async def seller_delete_all_variables(app_id: int, seller_key: str = Header(...)
     return {"status": "success", "message": "All variables deleted"}
 
 # ── Webhooks ──
+@router.post("/add-webhook")
+async def seller_add_webhook(app_id: int, url: str, description: str = "", seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
+    seller = await _verify_seller(seller_key, db)
+    app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
+    if not app_res.scalars().first():
+        raise HTTPException(status_code=403, detail="Unauthorized")
+    hook = WebhookEndpoint(app_id=app_id, url=url, description=description, is_active=True)
+    db.add(hook)
+    await db.commit()
+    await db.refresh(hook)
+    return {"status": "success", "message": "Webhook created", "id": hook.id}
+
 @router.post("/list-webhooks")
 async def seller_list_webhooks(app_id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
