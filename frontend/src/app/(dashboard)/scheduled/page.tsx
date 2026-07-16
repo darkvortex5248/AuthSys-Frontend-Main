@@ -17,8 +17,9 @@ export default function ScheduledPage() {
     try {
       const [aRes, appsRes] = await Promise.all([api.get('/developer/scheduled'), api.get('/developer/apps')]);
       setActions(aRes.data); setApps(appsRes.data);
-    } catch { /* ignore */ }
-    finally { setLoading(false); }
+    } catch (err: any) {
+      toast.error(err?.response?.data?.detail || err?.message || 'Failed to load');
+    } finally { setLoading(false); }
   };
   useEffect(() => { fetch(); }, []);
 

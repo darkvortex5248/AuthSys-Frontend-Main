@@ -24,8 +24,9 @@ export default function SecurityPage() {
         api.get('/developer/apps'),
       ]);
       setRules(rulesRes.data); setKeys(keysRes.data); setApps(appsRes.data);
-    } catch { /* ignore */ }
-    finally { setLoading(false); }
+    } catch (err: any) {
+      toast.error(err?.response?.data?.detail || err?.message || 'Failed to load');
+    } finally { setLoading(false); }
   };
   useEffect(() => {
     fetch();

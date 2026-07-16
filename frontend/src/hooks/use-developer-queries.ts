@@ -26,7 +26,6 @@ export function useDeveloperMe(enabled?: boolean) {
     enabled: run,
     staleTime: 30_000,
     refetchOnWindowFocus: false,
-    refetchInterval: 60_000,
     retry: (count, err: any) => err?.response?.status !== 401 && count < 1,
   });
 }

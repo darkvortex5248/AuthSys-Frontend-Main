@@ -147,7 +147,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       {/* Lock body scroll when mobile sidebar is open */}
       {sidebarOpen && <style>{`body { overflow: hidden; }`}</style>}
 
-      <aside className={`fixed left-0 top-0 max-h-screen h-dvh border-r border-[var(--border)] bg-[var(--glass-bg)] backdrop-blur-xl flex flex-col shadow-2xl z-[60] transition-all duration-300 lg:translate-x-0 ${sidebarIcons ? 'w-[72px]' : 'w-[260px]'} ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed left-0 top-0 h-screen max-h-screen border-r border-[var(--border)] bg-[var(--glass-bg)] backdrop-blur-xl flex flex-col shadow-2xl z-[60] transition-all duration-300 lg:translate-x-0 ${sidebarIcons ? 'w-[72px]' : 'w-[260px]'} ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className={`pt-8 pb-4 flex justify-between items-center shrink-0 ${sbCompact ? 'px-2' : 'px-5'}`}>
           <div className={sbCompact ? 'w-full flex justify-center' : ''}>
             <div className="flex items-center gap-2.5">
@@ -228,7 +228,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <header className={`fixed top-0 right-0 top-navbar flex justify-between items-center px-3 lg:px-8 z-50 transition-all duration-300 ${sidebarIcons ? 'lg:w-[calc(100%-72px)]' : 'lg:w-[calc(100%-260px)]'}`}>
+      <header className={`fixed inset-x-0 top-0 top-navbar flex justify-between items-center px-3 lg:px-8 z-50 transition-all duration-300 ${sidebarIcons ? 'lg:w-[calc(100%-72px)]' : 'lg:w-[calc(100%-260px)]'}`}>
         <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
           <button
             className="lg:hidden w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center shrink-0 rounded-xl bg-[var(--glass-bg)] border border-[var(--border)] text-[var(--muted-foreground)]"
@@ -237,7 +237,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <span className="material-symbols-outlined text-lg">menu</span>
           </button>
           
-          <div className="relative hidden sm:block shrink-0">
+          <div className="relative shrink-0 max-w-[140px] sm:max-w-none">
              <select
               value={selectedAppId || ''}
               onChange={(e) => setSelectedAppId(parseInt(e.target.value))}

@@ -32,6 +32,7 @@ function isProtectedAdminRoute(url: string): boolean {
 
 const api = axios.create({
   baseURL: getApiBaseUrl(),
+  timeout: 15000,
 });
 
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {

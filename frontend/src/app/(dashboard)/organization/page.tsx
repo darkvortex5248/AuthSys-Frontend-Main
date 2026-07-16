@@ -18,8 +18,10 @@ export default function OrganizationPage() {
       setOrg(oRes.data);
       const mRes = await api.get('/developer/organization/members');
       setMembers(mRes.data);
-    } catch { /* no org yet */ }
-    finally { setLoading(false); }
+    } catch (err: any) {
+      const detail = err?.response?.data?.detail || err?.message;
+      if (err?.response?.status !== 404) toast.error(detail);
+    } finally { setLoading(false); }
   };
   useEffect(() => { fetch(); }, []);
 
