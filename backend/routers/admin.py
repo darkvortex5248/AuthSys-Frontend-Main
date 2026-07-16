@@ -9,7 +9,7 @@ from core.deps import oauth2_scheme
 from jose import jwt, JWTError
 from core.config import settings
 from core.security import ALGORITHM, verify_password, create_access_token, get_password_hash
-from models.domain import AdminUser, DeveloperAccount, Application, EndUser, SubscriptionPlan, SystemSetting, Payment, SDKDownload, PaymentMethod, Announcement, LicenseKey, AIProviderConfig, SystemBackup
+from models.domain import AdminUser, DeveloperAccount, Application, EndUser, SubscriptionPlan, SystemSetting, Payment, SDKDownload, PaymentMethod, Announcement, LicenseKey, AIProviderConfig, SystemBackup, ActivityLog
 from schemas.admin import (
     AdminLogin, PlanCreate, PlanUpdate, PlanResponse, 
     SystemSettingCreate, SystemSettingUpdate, SystemSettingResponse, PlatformStats,
