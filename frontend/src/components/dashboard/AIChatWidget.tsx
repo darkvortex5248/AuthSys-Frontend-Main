@@ -179,7 +179,7 @@ export default function AIChatWidget() {
   useEffect(() => {
     if (!isOpen) return;
     api
-      .get('/api/v1/ai/config')
+      .get('/ai/config')
       .then((res) => setModelLabel(res.data?.provider || res.data?.model || 'AI'))
       .catch(() => {});
   }, [isOpen]);
@@ -202,7 +202,7 @@ export default function AIChatWidget() {
     setLoading(true);
 
     try {
-      const res = await api.post('/api/v1/ai/chat', {
+      const res = await api.post('/ai/chat', {
         messages: [...messages, userMsg].map(({ role, content }) => ({ role, content })),
         context: {},
         execute_actions: true,
