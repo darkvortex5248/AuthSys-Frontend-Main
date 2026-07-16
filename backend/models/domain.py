@@ -162,6 +162,7 @@ class EndUser(Base):
     is_shadow = Column(Boolean, default=False)
     expires_at = Column(DateTime(timezone=True), nullable=True)
     max_uses = Column(Integer, default=0)
+    user_category = Column(String, default='active')
     
     app = relationship("Application", back_populates="users")
 

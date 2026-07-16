@@ -140,7 +140,7 @@ export default function SuperAdminLayout({ children }: { children: ReactNode }) 
         </div>
       </aside>
 
-      <header className="fixed top-0 right-0 lg:w-[calc(100%-260px)] w-full h-16 bg-[var(--background)]/95 backdrop-blur-xl border-b border-white/5 flex justify-between items-center px-4 lg:px-8 z-50">
+      <header className="fixed top-0 left-[260px] right-0 max-lg:left-0 h-16 bg-[var(--background)]/95 backdrop-blur-xl border-b border-white/5 flex justify-between items-center px-4 lg:px-8 z-50">
         <div className="flex items-center gap-4">
           <button 
             className="lg:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/5 text-[var(--muted-foreground)]"

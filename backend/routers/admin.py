@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse, FileResponse
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import func
+from sqlalchemy import func, or_, or_
 from core.database import get_db, Base
 from core.deps import oauth2_scheme
 from jose import jwt, JWTError
@@ -111,9 +111,26 @@ async def admin_logout(request: Request):
     return response
 
 @router.get("/developers")
-async def get_developers(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
-    res = await db.execute(select(DeveloperAccount))
-    return res.scalars().all()
+async def get_developers(
+    page: int = Query(1, ge=1),
+    per_page: int = Query(50, ge=1, le=200),
+    search: Optional[str] = Query(None),
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    stmt = select(DeveloperAccount)
+    if search:
+        like = f'%{search}%'
+        stmt = stmt.where(or_(
+            DeveloperAccount.username.ilike(like),
+            DeveloperAccount.email.ilike(like),
+        ))
+    total_q = select(func.count()).select_from(stmt.subquery())
+    total = (await db.execute(total_q)).scalar() or 0
+    stmt = stmt.order_by(DeveloperAccount.id.desc()).offset((page - 1) * per_page).limit(per_page)
+    res = await db.execute(stmt)
+    items = res.scalars().all()
+    return {"items": items, "total": total, "page": page, "per_page": per_page}
 
 @router.post("/developers/{id}/ban")
 async def ban_developer(id: int, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
@@ -178,6 +195,16 @@ async def clear_developer_plan(
 
 @router.get("/platform-stats", response_model=PlatformStats)
 async def get_platform_stats(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    try:
+        from core.redis import get_redis
+        redis = await get_redis()
+        cached = await redis.get("admin:platform-stats")
+        if cached:
+            import json
+            return json.loads(cached)
+    except Exception:
+        redis = None
+
     devs_count = await db.execute(select(func.count(DeveloperAccount.id)))
     apps_count = await db.execute(select(func.count(Application.id)))
     users_count = await db.execute(select(func.count(EndUser.id)))
@@ -185,13 +212,22 @@ async def get_platform_stats(admin: AdminUser = Depends(get_current_admin), db: 
     
     total_devs = devs_count.scalar() or 0
     
-    return {
+    result = {
         "total_developers": total_devs,
         "total_apps": apps_count.scalar() or 0,
         "total_end_users": users_count.scalar() or 0,
         "total_revenue_cents": payments_sum.scalar() or 0,
-        "active_subscriptions": total_devs  # Placeholder
+        "active_subscriptions": total_devs,
     }
+
+    if redis:
+        try:
+            import json
+            await redis.set("admin:platform-stats", json.dumps(result), ex=60)
+        except Exception:
+            pass
+
+    return result
 
 # Plan Management
 @router.get("/plans", response_model=List[PlanResponse])
@@ -556,12 +592,27 @@ async def get_plan(id: int, admin: AdminUser = Depends(get_current_admin), db: A
 
 
 @router.get("/applications")
-async def get_admin_applications(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
-    res = await db.execute(
-        select(Application, DeveloperAccount.username)
-        .outerjoin(DeveloperAccount, Application.developer_id == DeveloperAccount.id)
-        .order_by(Application.created_at.desc())
+async def get_admin_applications(
+    page: int = Query(1, ge=1),
+    per_page: int = Query(50, ge=1, le=200),
+    search: Optional[str] = Query(None),
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    stmt = select(Application, DeveloperAccount.username).outerjoin(
+        DeveloperAccount, Application.developer_id == DeveloperAccount.id
     )
+    if search:
+        like = f'%{search}%'
+        stmt = stmt.where(or_(
+            Application.name.ilike(like),
+            DeveloperAccount.username.ilike(like),
+            Application.owner_id.ilike(like),
+        ))
+    total_q = select(func.count()).select_from(stmt.subquery())
+    total = (await db.execute(total_q)).scalar() or 0
+    stmt = stmt.order_by(Application.created_at.desc()).offset((page - 1) * per_page).limit(per_page)
+    res = await db.execute(stmt)
     results = []
     for app, dev_name in res.all():
         user_count = await db.execute(select(func.count(EndUser.id)).where(EndUser.app_id == app.id))
@@ -578,17 +629,34 @@ async def get_admin_applications(admin: AdminUser = Depends(get_current_admin), 
             "created_at": app.created_at.isoformat() if app.created_at else None,
             "updated_at": app.updated_at.isoformat() if app.updated_at else None,
         })
-    return results
+    return {"items": results, "total": total, "page": page, "per_page": per_page}
 
 
 @router.get("/end-users")
-async def get_admin_end_users(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
-    res = await db.execute(
-        select(EndUser, Application.name)
-        .outerjoin(Application, EndUser.app_id == Application.id)
-        .order_by(EndUser.created_at.desc())
-        .limit(500)
+async def get_admin_end_users(
+    page: int = Query(1, ge=1),
+    per_page: int = Query(50, ge=1, le=200),
+    search: Optional[str] = Query(None),
+    category: Optional[str] = Query(None),
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    stmt = select(EndUser, Application.name).outerjoin(
+        Application, EndUser.app_id == Application.id
     )
+    if search:
+        like = f'%{search}%'
+        stmt = stmt.where(or_(
+            EndUser.username.ilike(like),
+            EndUser.email.ilike(like),
+            EndUser.hwid.ilike(like),
+        ))
+    if category:
+        stmt = stmt.where(EndUser.user_category == category)
+    total_q = select(func.count()).select_from(stmt.subquery())
+    total = (await db.execute(total_q)).scalar() or 0
+    stmt = stmt.order_by(EndUser.created_at.desc()).offset((page - 1) * per_page).limit(per_page)
+    res = await db.execute(stmt)
     results = []
     for user, app_name in res.all():
         results.append({
@@ -601,10 +669,11 @@ async def get_admin_end_users(admin: AdminUser = Depends(get_current_admin), db:
             "ip_address": user.ip_address or user.last_ip,
             "is_banned": user.is_banned,
             "is_verified": not user.is_banned,
+            "user_category": user.user_category or 'active',
             "last_seen": user.last_login_at.isoformat() if user.last_login_at else None,
             "created_at": user.created_at.isoformat() if user.created_at else None,
         })
-    return results
+    return {"items": results, "total": total, "page": page, "per_page": per_page}
 
 
 @router.post("/end-users/{id}/ban")
@@ -627,6 +696,118 @@ async def unban_end_user(id: int, admin: AdminUser = Depends(get_current_admin),
     user.is_banned = False
     await db.commit()
     return {"status": "success", "is_banned": False}
+
+
+@router.post("/end-users/categorize")
+async def categorize_end_users(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    now = dt_now = datetime.now(timezone.utc)
+    thirty_days_ago = dt_now - timedelta(days=30)
+    ninety_days_ago = dt_now - timedelta(days=90)
+    res = await db.execute(select(EndUser))
+    users = res.scalars().all()
+    updated = 0
+    for u in users:
+        if u.is_banned:
+            new_cat = 'active'
+        elif u.is_shadow:
+            new_cat = 'shadow'
+        elif u.last_login_at is None and u.created_at < ninety_days_ago:
+            new_cat = 'orphaned'
+        elif u.last_login_at is None or u.last_login_at < ninety_days_ago:
+            new_cat = 'inactive_90d'
+        elif u.last_login_at < thirty_days_ago:
+            new_cat = 'inactive_30d'
+        else:
+            new_cat = 'active'
+        if u.user_category != new_cat:
+            u.user_category = new_cat
+            updated += 1
+    await db.commit()
+    return {"status": "success", "categorized": updated}
+
+
+@router.post("/end-users/purge")
+async def purge_end_users(
+    older_than_days: int = Query(365, ge=1),
+    category: Optional[str] = Query(None),
+    dry_run: bool = Query(True),
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    cutoff = datetime.now(timezone.utc) - timedelta(days=older_than_days)
+    stmt = select(EndUser).where(EndUser.created_at < cutoff)
+    if category:
+        stmt = stmt.where(EndUser.user_category == category)
+    stmt = stmt.where(EndUser.is_banned == False)
+    res = await db.execute(stmt)
+    users = res.scalars().all()
+    ids = [u.id for u in users]
+    if not dry_run and ids:
+        for u in users:
+            await db.delete(u)
+        await db.commit()
+    return {
+        "status": "success",
+        "dry_run": dry_run,
+        "purge_count": len(ids),
+        "user_ids": ids if dry_run else [],
+        "message": f"Would purge {len(ids)} users" if dry_run else f"Purged {len(ids)} users",
+    }
+
+
+@router.post("/end-users/bulk/ban")
+async def bulk_ban_end_users(
+    ids: List[int],
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    res = await db.execute(select(EndUser).where(EndUser.id.in_(ids)))
+    users = res.scalars().all()
+    for u in users:
+        u.is_banned = True
+    await db.commit()
+    return {"status": "success", "banned": len(users)}
+
+
+@router.post("/end-users/bulk/delete")
+async def bulk_delete_end_users(
+    ids: List[int],
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    res = await db.execute(select(EndUser).where(EndUser.id.in_(ids)))
+    users = res.scalars().all()
+    for u in users:
+        await db.delete(u)
+    await db.commit()
+    return {"status": "success", "deleted": len(users)}
+
+
+@router.get("/end-users/{id}/activity")
+async def get_end_user_activity(
+    id: int,
+    limit: int = Query(20, ge=1, le=100),
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    res = await db.execute(
+        select(ActivityLog)
+        .where(ActivityLog.user_id == id)
+        .order_by(ActivityLog.created_at.desc())
+        .limit(limit)
+    )
+    logs = res.scalars().all()
+    return [{
+        "id": log.id,
+        "action_type": log.action_type,
+        "details": log.details,
+        "ip_address": log.ip_address,
+        "country": log.country,
+        "hwid": log.hwid,
+        "is_suspicious": log.is_suspicious,
+        "risk_score": log.risk_score,
+        "created_at": log.created_at.isoformat() if log.created_at else None,
+    } for log in logs]
 
 
 @router.get("/admins")

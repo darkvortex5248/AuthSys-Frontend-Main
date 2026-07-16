@@ -606,8 +606,31 @@ async def ensure_database_schema(db: AsyncSession) -> None:
             "max_uses",
             "ALTER TABLE end_users ADD COLUMN IF NOT EXISTS max_uses INTEGER DEFAULT 0",
             "UPDATE end_users SET max_uses = 0 WHERE max_uses IS NULL"
+        ),
+        (
+            "end_users",
+            "user_category",
+            "ALTER TABLE end_users ADD COLUMN IF NOT EXISTS user_category VARCHAR DEFAULT 'active'",
+            "UPDATE end_users SET user_category = 'active' WHERE user_category IS NULL"
         )
     ]
+    
+    indexes_to_ensure = [
+        "CREATE INDEX IF NOT EXISTS ix_end_users_created_at ON end_users(created_at)",
+        "CREATE INDEX IF NOT EXISTS ix_end_users_last_login_at ON end_users(last_login_at)",
+        "CREATE INDEX IF NOT EXISTS ix_end_users_is_shadow ON end_users(is_shadow)",
+        "CREATE INDEX IF NOT EXISTS ix_end_users_user_category ON end_users(user_category)",
+        "CREATE INDEX IF NOT EXISTS ix_developer_accounts_created_at ON developer_accounts(created_at)",
+        "CREATE INDEX IF NOT EXISTS ix_applications_created_at ON applications(created_at)",
+    ]
+    
+    for idx_sql in indexes_to_ensure:
+        try:
+            await db.execute(text(idx_sql))
+            await db.commit()
+        except Exception as e:
+            await db.rollback()
+            logger.warning(f"Index creation failed: {e}")
     
     for table, col, alter_sql, update_sql in columns_to_ensure:
         try:

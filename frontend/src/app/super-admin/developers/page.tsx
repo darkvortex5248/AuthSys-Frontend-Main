@@ -8,18 +8,23 @@ export default function DeveloperManagementPage() {
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const perPage = 50;
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [page, search]);
 
   const fetchData = async () => {
     try {
+      const params = `?page=${page}&per_page=${perPage}${search ? `&search=${encodeURIComponent(search)}` : ''}`;
       const [devsRes, plansRes] = await Promise.all([
-        adminApi.get<any[]>('/admin/developers'),
+        adminApi.get<{ items: any[]; total: number }>(`/admin/developers${params}`),
         adminApi.get<any[]>('/admin/plans'),
       ]);
-      setDevelopers(devsRes.data);
+      setDevelopers(devsRes.data.items || []);
+      setTotal(devsRes.data.total || 0);
       setPlans(plansRes.data);
       if (plansRes.data.length === 0) {
         const seed = await adminApi.post<{ plans: any[] }>('/admin/plans/seed');
@@ -57,10 +62,7 @@ export default function DeveloperManagementPage() {
     }
   };
 
-  const filteredDevs = developers.filter(dev => 
-    dev.username.toLowerCase().includes(search.toLowerCase()) || 
-    dev.email.toLowerCase().includes(search.toLowerCase())
-  );
+  const totalPages = Math.ceil(total / perPage);
 
   if (loading) return (
     <div className="flex items-center justify-center h-[60vh]">
@@ -75,6 +77,17 @@ export default function DeveloperManagementPage() {
           <h1 className="text-3xl font-bold text-[var(--foreground)] tracking-tight">Developer Registry</h1>
           <p className="text-[var(--muted-foreground)] mt-1">Manage platform tiers and access levels</p>
         </div>
+        <div className="flex items-center gap-2">
+          <button onClick={() => {
+            const headers = ['ID','Username','Email','Tier','Plan','Banned','Joined'];
+            const rows = developers.map((d: any) => [d.id, d.username, d.email||'', d.subscription_tier||'', d.plan_id||'', d.is_banned?'Yes':'No', d.created_at?new Date(d.created_at).toLocaleString():'']);
+            const csv = [headers.join(','), ...rows.map(r => r.map(v => `"${v}"`).join(','))].join('\n');
+            const blob = new Blob([csv], {type:'text/csv'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'developers.csv';
+            a.click(); URL.revokeObjectURL(a.href);
+          }} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-[var(--muted-foreground)] hover:text-white hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+            <span className="material-symbols-outlined text-sm">download</span>CSV
+          </button>
         <div className="relative w-full sm:w-72">
            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] text-sm">search</span>
            <input 
@@ -83,7 +96,8 @@ export default function DeveloperManagementPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full bg-white/5 border border-white/5 rounded-full py-2.5 pl-12 pr-4 text-[var(--foreground)] text-sm focus:ring-2 focus:ring-blue-500/50 transition-all outline-none placeholder:text-[#424754]"
-           />
+            />
+        </div>
         </div>
       </div>
 
@@ -117,7 +131,7 @@ export default function DeveloperManagementPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
-            {filteredDevs.map((dev) => (
+            {developers.map((dev) => (
               <tr key={dev.id} className="hover:bg-white/5 transition-colors group">
                 <td className="px-8 py-6">
                   <div className="flex items-center gap-4">
@@ -174,6 +188,18 @@ export default function DeveloperManagementPage() {
           </tbody>
         </table>
         </div>
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-8 py-4 border-t border-white/5">
+            <span className="text-xs text-[var(--muted-foreground)]">{total} total developers</span>
+            <div className="flex gap-2">
+              <button disabled={page <= 1} onClick={() => setPage(p => p - 1)}
+                className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold disabled:opacity-30">Previous</button>
+              <span className="px-3 py-1.5 text-xs text-[var(--muted-foreground)]">{page} / {totalPages}</span>
+              <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}
+                className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold disabled:opacity-30">Next</button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
