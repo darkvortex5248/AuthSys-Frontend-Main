@@ -1092,6 +1092,39 @@ async def delete_ai_provider(
     return {"status": "success"}
 
 
+@router.post("/ai/providers/{provider_id}/test", response_model=AIConfigTestResponse)
+async def test_single_ai_provider(
+    provider_id: int,
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    res = await db.execute(select(AIProviderConfig).where(AIProviderConfig.id == provider_id))
+    config = res.scalars().first()
+    if not config:
+        raise HTTPException(404, "AI provider not found")
+    api_key = config.api_key_encrypted
+    if not api_key:
+        return AIConfigTestResponse(
+            success=False, message="No API key configured for this provider.", model=config.model_name
+        )
+    base_url = (config.settings or {}).get("api_endpoint", "")
+    try:
+        reply = await generate_chat_response(
+            provider=config.provider,
+            api_key=api_key,
+            model_name=config.model_name,
+            messages=[{"role": "user", "content": "Reply with exactly: AuthSys AI online"}],
+            base_url=base_url,
+        )
+        return AIConfigTestResponse(
+            success=True,
+            message=f"Connection OK. Model replied: {reply[:200]}",
+            model=config.model_name,
+        )
+    except Exception as e:
+        return AIConfigTestResponse(success=False, message=str(e), model=config.model_name)
+
+
 # ── Announcements ──────────────────────────────────────────
 
 @router.post("/announcements")
