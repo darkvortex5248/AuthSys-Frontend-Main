@@ -16,6 +16,7 @@ from routers import (
     developer_sessions, developer_security, developer_domains,
     developer_backups, developer_environments, developer_health,
     developer_organization, developer_usage, developer_scheduled,
+    developer_devices,
     admin_custom_plans, oauth,
 )
 import asyncio
@@ -183,6 +184,7 @@ app.include_router(developer_health.router)
 app.include_router(developer_organization.router)
 app.include_router(developer_usage.router)
 app.include_router(developer_scheduled.router)
+app.include_router(developer_devices.router)
 app.include_router(admin_custom_plans.router)
 app.include_router(oauth.router)
 

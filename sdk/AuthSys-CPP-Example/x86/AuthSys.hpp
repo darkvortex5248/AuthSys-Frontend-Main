@@ -40,6 +40,10 @@ namespace AuthSys {
         std::string var(std::string varName);
         void logout();
 
+        // Device activation (no login required)
+        bool deviceCheck();
+        bool deviceRegister(std::string device_name = "");
+
     private:
         std::string GetHWID();
         std::string PostRequest(std::string endpoint, std::string jsonData);

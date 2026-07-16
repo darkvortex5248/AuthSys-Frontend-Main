@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, JSON, Text, BigInteger, Float
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, JSON, Text, BigInteger, Float, UniqueConstraint
 from sqlalchemy.orm import relationship
 from core.database import Base
 from datetime import datetime, timezone
@@ -118,6 +118,7 @@ class Application(Base):
     keys = relationship("LicenseKey", back_populates="app")
     users = relationship("EndUser", back_populates="app")
     webhook_endpoints = relationship("WebhookEndpoint", back_populates="app")
+    device_activations = relationship("DeviceActivation", back_populates="app")
 
 class LicenseKey(Base):
     __tablename__ = "license_keys"
@@ -631,3 +632,21 @@ class SystemBackup(Base):
     size_bytes = Column(Integer, default=0)
     status = Column(String, default="completed")
     created_at = Column(DateTime(timezone=True), default=utc_now)
+
+
+class DeviceActivation(Base):
+    __tablename__ = "device_activations"
+    __table_args__ = (
+        UniqueConstraint("app_id", "hwid", name="uq_device_activations_app_hwid"),
+    )
+    id = Column(Integer, primary_key=True, index=True)
+    app_id = Column(Integer, ForeignKey("applications.id", ondelete="CASCADE"), nullable=False)
+    hwid = Column(String, nullable=False, index=True)
+    device_name = Column(String, nullable=True)
+    is_active = Column(Boolean, default=True)
+    last_checkin_at = Column(DateTime(timezone=True), nullable=True)
+    notes = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+    updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
+
+    app = relationship("Application", back_populates="device_activations")

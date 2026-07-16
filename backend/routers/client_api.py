@@ -7,7 +7,7 @@ import uuid
 import hashlib
 
 from core.database import get_db
-from models.domain import Application, EndUser, LicenseKey, Session, Variable, ActivityLog, Blacklist, ChatRoom, ChatMessage, DeveloperAccount, SubscriptionPlan
+from models.domain import Application, EndUser, LicenseKey, Session, Variable, ActivityLog, Blacklist, ChatRoom, ChatMessage, DeveloperAccount, SubscriptionPlan, DeviceActivation
 from services.webhooks import trigger_webhook
 from services.plan_enforcer import check_limit
 from schemas.client import (
@@ -392,3 +392,86 @@ async def send_chat_message(
     db.add(new_msg)
     await db.commit()
     return {"status": "sent"}
+
+
+@router.post("/device/register")
+async def register_device(
+    data: dict,
+    db: AsyncSession = Depends(get_db),
+):
+    app_secret = (data.get("app_secret") or "").strip()
+    hwid = (data.get("hwid") or "").strip()
+    device_name = (data.get("device_name") or "").strip()
+    if not app_secret or not hwid:
+        raise HTTPException(400, "app_secret and hwid are required")
+    app = await get_app_by_secret(app_secret, db)
+    if not app:
+        raise HTTPException(400, "Invalid app_secret")
+
+    res = await db.execute(
+        select(DeviceActivation).where(
+            DeviceActivation.app_id == app.id,
+            DeviceActivation.hwid == hwid,
+        )
+    )
+    device = res.scalars().first()
+    now = datetime.now(timezone.utc)
+
+    if device:
+        device.last_checkin_at = now
+        if device_name and not device.device_name:
+            device.device_name = device_name
+    else:
+        device = DeviceActivation(
+            app_id=app.id,
+            hwid=hwid,
+            device_name=device_name or None,
+            is_active=True,
+            last_checkin_at=now,
+        )
+        db.add(device)
+
+    await db.commit()
+    return {"active": device.is_active, "device_id": device.id}
+
+
+@router.post("/device/check")
+async def check_device(
+    data: dict,
+    db: AsyncSession = Depends(get_db),
+):
+    app_secret = (data.get("app_secret") or "").strip()
+    hwid = (data.get("hwid") or "").strip()
+    if not app_secret or not hwid:
+        raise HTTPException(400, "app_secret and hwid are required")
+    app = await get_app_by_secret(app_secret, db)
+    if not app:
+        raise HTTPException(400, "Invalid app_secret")
+
+    res = await db.execute(
+        select(DeviceActivation).where(
+            DeviceActivation.app_id == app.id,
+            DeviceActivation.hwid == hwid,
+        )
+    )
+    device = res.scalars().first()
+    now = datetime.now(timezone.utc)
+
+    if not device:
+        device = DeviceActivation(
+            app_id=app.id,
+            hwid=hwid,
+            is_active=True,
+            last_checkin_at=now,
+        )
+        db.add(device)
+        await db.commit()
+        return {"active": True, "message": "Device registered and active"}
+
+    device.last_checkin_at = now
+    await db.commit()
+
+    if device.is_active:
+        return {"active": True, "message": "Device active"}
+    else:
+        return {"active": False, "message": "Device deactivated by admin"}

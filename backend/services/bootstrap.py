@@ -622,6 +622,8 @@ async def ensure_database_schema(db: AsyncSession) -> None:
         "CREATE INDEX IF NOT EXISTS ix_end_users_user_category ON end_users(user_category)",
         "CREATE INDEX IF NOT EXISTS ix_developer_accounts_created_at ON developer_accounts(created_at)",
         "CREATE INDEX IF NOT EXISTS ix_applications_created_at ON applications(created_at)",
+        "CREATE INDEX IF NOT EXISTS ix_device_activations_hwid ON device_activations(hwid)",
+        "CREATE INDEX IF NOT EXISTS ix_device_activations_app_id ON device_activations(app_id)",
     ]
     
     for idx_sql in indexes_to_ensure:
