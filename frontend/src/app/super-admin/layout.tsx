@@ -167,7 +167,7 @@ export default function SuperAdminLayout({ children }: { children: ReactNode }) 
         </div>
       </header>
 
-      <main className="lg:ml-[260px] pt-16 px-4 lg:px-8 py-4 lg:py-6 min-h-screen">
+      <main className="lg:ml-[260px] pt-16 px-4 lg:px-8 pb-4 lg:pb-6 min-h-screen relative">
         <ConfirmProvider>
           {children}
         </ConfirmProvider>

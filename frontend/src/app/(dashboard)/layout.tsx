@@ -353,7 +353,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <main className={`transition-all duration-300 mt-[56px] pt-10 p-4 lg:p-10 min-h-screen relative z-10 overflow-visible ${sidebarOpen ? 'blur-md lg:blur-none' : ''} ${sidebarIcons ? 'lg:ml-[72px]' : 'lg:ml-[260px]'}`}>
+      <main className={`transition-all duration-300 mt-[56px] pt-10 px-4 lg:px-10 pb-4 lg:pb-10 min-h-screen relative z-10 overflow-visible ${sidebarOpen ? 'blur-md lg:blur-none' : ''} ${sidebarIcons ? 'lg:ml-[72px]' : 'lg:ml-[260px]'}`}>
         <div className="max-w-[1600px] mx-auto overflow-visible">
           {children}
         </div>
