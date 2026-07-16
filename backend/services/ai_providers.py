@@ -122,31 +122,25 @@ async def list_live_models(*, provider: str, api_key: str, base_url: str = "") -
             return sorted(names)[:60] or default_models_for(provider)
 
         if provider == "openai":
+            models_url = (base_url.rstrip("/") + "/models") if base_url else "https://api.openai.com/v1/models"
             async with httpx.AsyncClient(timeout=30) as client:
-                r = await client.get(
-                    "https://api.openai.com/v1/models",
-                    headers={"Authorization": f"Bearer {api_key}"},
-                )
+                r = await client.get(models_url, headers={"Authorization": f"Bearer {api_key}"})
                 r.raise_for_status()
                 ids = [m["id"] for m in r.json().get("data", []) if "gpt" in m.get("id", "") or "o1" in m.get("id", "")]
                 return sorted(set(ids))[:60] or default_models_for(provider)
 
         if provider == "groq":
+            models_url = (base_url.rstrip("/") + "/models") if base_url else "https://api.groq.com/openai/v1/models"
             async with httpx.AsyncClient(timeout=30) as client:
-                r = await client.get(
-                    "https://api.groq.com/openai/v1/models",
-                    headers={"Authorization": f"Bearer {api_key}"},
-                )
+                r = await client.get(models_url, headers={"Authorization": f"Bearer {api_key}"})
                 r.raise_for_status()
                 ids = [m["id"] for m in r.json().get("data", [])]
                 return sorted(ids)[:60] or default_models_for(provider)
 
         if provider == "openrouter":
+            models_url = (base_url.rstrip("/") + "/models") if base_url else "https://openrouter.ai/api/v1/models"
             async with httpx.AsyncClient(timeout=30) as client:
-                r = await client.get(
-                    "https://openrouter.ai/api/v1/models",
-                    headers={"Authorization": f"Bearer {api_key}"},
-                )
+                r = await client.get(models_url, headers={"Authorization": f"Bearer {api_key}"})
                 r.raise_for_status()
                 ids = [m["id"] for m in r.json().get("data", [])][:80]
                 return sorted(set(ids)) or default_models_for(provider)
@@ -154,7 +148,9 @@ async def list_live_models(*, provider: str, api_key: str, base_url: str = "") -
         if provider == "anthropic":
             return default_models_for(provider)
 
-        if provider == "custom" and base_url:
+        if provider == "custom":
+            if not base_url:
+                return default_models_for(provider)
             url = base_url.rstrip("/") + "/models"
             async with httpx.AsyncClient(timeout=30) as client:
                 r = await client.get(url, headers={"Authorization": f"Bearer {api_key}"})
@@ -223,11 +219,11 @@ async def generate_chat_response(
         "openrouter": "https://openrouter.ai/api/v1/chat/completions",
     }
     url = endpoints.get(provider)
-    if provider == "custom":
-        base = (base_url or "").rstrip("/")
-        if not base:
-            raise ValueError("Custom provider requires Base URL (e.g. https://api.example.com/v1)")
+    if base_url:
+        base = base_url.rstrip("/")
         url = base if base.endswith("/chat/completions") else f"{base}/chat/completions"
+    elif provider == "custom":
+        raise ValueError("Custom provider requires Base URL (e.g. https://api.example.com/v1)")
 
     if not url:
         raise ValueError(f"Unsupported provider: {provider}")
