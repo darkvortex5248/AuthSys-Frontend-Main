@@ -115,3 +115,40 @@ class WebhookEndpointResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class DeviceAppCreate(BaseModel):
+    name: str
+    max_devices: int = 50
+
+
+class DeviceAppUpdate(BaseModel):
+    name: Optional[str] = None
+    is_active: Optional[bool] = None
+    max_devices: Optional[int] = None
+
+
+class DeviceAppResponse(BaseModel):
+    id: int
+    name: str
+    device_secret: str
+    is_active: bool
+    max_devices: int
+    device_count: int = 0
+    created_at: Any
+
+    class Config:
+        from_attributes = True
+
+
+class DeviceResponse(BaseModel):
+    id: int
+    hwid: str
+    device_name: Optional[str] = None
+    status: str
+    ban_reason: Optional[str] = None
+    last_checkin_at: Optional[str] = None
+    created_at: Optional[str] = None
+
+    class Config:
+        from_attributes = True

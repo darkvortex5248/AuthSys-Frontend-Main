@@ -4,115 +4,115 @@ from sqlalchemy.future import select
 from sqlalchemy import func
 from datetime import datetime, timezone
 from core.database import get_db
-from models.domain import EndUser, DeveloperAccount, SubscriptionPlan
-from services.plan_enforcer import check_limit
+from models.domain import DeviceApp, Device
 
 router = APIRouter(prefix="/device", tags=["Device Activation"])
 
 
-async def get_dev_by_device_key(device_key: str, db: AsyncSession) -> DeveloperAccount:
-    key = (device_key or "").strip()
+async def get_device_app_by_secret(device_secret: str, db: AsyncSession) -> DeviceApp:
+    key = (device_secret or "").strip()
     if not key:
-        raise HTTPException(status_code=400, detail="device_key is required")
+        raise HTTPException(status_code=400, detail="device_secret is required")
     res = await db.execute(
-        select(DeveloperAccount).where(DeveloperAccount.device_api_key == key)
+        select(DeviceApp).where(DeviceApp.device_secret == key)
     )
-    dev = res.scalars().first()
-    if not dev:
-        raise HTTPException(status_code=404, detail="Invalid device key")
-    if dev.is_banned:
-        raise HTTPException(status_code=403, detail="Developer account is banned")
-    return dev
+    app = res.scalars().first()
+    if not app:
+        raise HTTPException(status_code=404, detail="Invalid device secret")
+    if not app.is_active:
+        raise HTTPException(status_code=403, detail="Device app is disabled")
+    return app
 
 
 @router.post("/register")
 async def register_device(data: dict, db: AsyncSession = Depends(get_db)):
-    device_key = (data.get("device_key") or "").strip()
+    device_secret = (data.get("device_secret") or "").strip()
     hwid = (data.get("hwid") or "").strip()
     device_name = (data.get("device_name") or "").strip()
-    if not device_key or not hwid:
-        raise HTTPException(400, "device_key and hwid are required")
-    dev = await get_dev_by_device_key(device_key, db)
+    if not device_secret or not hwid:
+        raise HTTPException(400, "device_secret and hwid are required")
+    app = await get_device_app_by_secret(device_secret, db)
     now = datetime.now(timezone.utc)
 
     res = await db.execute(
-        select(EndUser).where(
-            EndUser.developer_id == dev.id,
-            EndUser.hwid == hwid,
-            EndUser.is_device_only == True,
+        select(Device).where(
+            Device.device_app_id == app.id,
+            Device.hwid == hwid,
         )
     )
     device = res.scalars().first()
 
     if device:
-        device.last_login_at = now
+        device.last_checkin_at = now
         if device_name and not device.device_name:
             device.device_name = device_name
     else:
         current_count = (
             await db.execute(
-                select(func.count(EndUser.id)).where(
-                    EndUser.developer_id == dev.id,
-                    EndUser.is_device_only == True,
-                )
+                select(func.count(Device.id)).where(Device.device_app_id == app.id)
             )
         ).scalar() or 0
-        await check_limit(dev, "max_devices", current_count, db)
+        if current_count >= app.max_devices:
+            raise HTTPException(403, f"Device limit reached ({app.max_devices}). Contact developer.")
 
-        device = EndUser(
-            developer_id=dev.id,
-            username=f"device_{hwid[:16]}",
-            password_hash="device_only_auth",
+        device = Device(
+            device_app_id=app.id,
             hwid=hwid,
             device_name=device_name or None,
-            is_shadow=True,
-            is_device_only=True,
-            is_banned=False,
-            last_login_at=now,
+            status="active",
+            last_checkin_at=now,
         )
         db.add(device)
 
     await db.commit()
-    return {"active": not device.is_banned, "device_id": device.id}
+    active = device.status == "active" or device.status == "whitelisted"
+    return {"active": active, "device_id": device.id}
 
 
 @router.post("/check")
 async def check_device(data: dict, db: AsyncSession = Depends(get_db)):
-    device_key = (data.get("device_key") or "").strip()
+    device_secret = (data.get("device_secret") or "").strip()
     hwid = (data.get("hwid") or "").strip()
-    if not device_key or not hwid:
-        raise HTTPException(400, "device_key and hwid are required")
-    dev = await get_dev_by_device_key(device_key, db)
+    if not device_secret or not hwid:
+        raise HTTPException(400, "device_secret and hwid are required")
+    app = await get_device_app_by_secret(device_secret, db)
     now = datetime.now(timezone.utc)
 
     res = await db.execute(
-        select(EndUser).where(
-            EndUser.developer_id == dev.id,
-            EndUser.hwid == hwid,
-            EndUser.is_device_only == True,
+        select(Device).where(
+            Device.device_app_id == app.id,
+            Device.hwid == hwid,
         )
     )
     device = res.scalars().first()
 
     if not device:
-        device = EndUser(
-            developer_id=dev.id,
-            username=f"device_{hwid[:16]}",
-            password_hash="device_only_auth",
+        current_count = (
+            await db.execute(
+                select(func.count(Device.id)).where(Device.device_app_id == app.id)
+            )
+        ).scalar() or 0
+        if current_count >= app.max_devices:
+            raise HTTPException(403, f"Device limit reached ({app.max_devices}). Contact developer.")
+
+        device = Device(
+            device_app_id=app.id,
             hwid=hwid,
-            is_shadow=True,
-            is_device_only=True,
-            is_banned=False,
-            last_login_at=now,
+            status="active",
+            last_checkin_at=now,
         )
         db.add(device)
         await db.commit()
         return {"active": True, "message": "Device registered and active"}
 
-    device.last_login_at = now
+    device.last_checkin_at = now
     await db.commit()
 
-    if not device.is_banned:
+    if device.status == "active" or device.status == "whitelisted":
         return {"active": True, "message": "Device active"}
+    elif device.status == "paused":
+        return {"active": False, "message": "Device is paused"}
+    elif device.status == "perma_banned":
+        return {"active": False, "message": "Device is permanently banned"}
     else:
         return {"active": False, "message": device.ban_reason or "Device deactivated by admin"}

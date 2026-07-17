@@ -657,6 +657,40 @@ async def ensure_database_schema(db: AsyncSession) -> None:
         "CREATE UNIQUE INDEX IF NOT EXISTS uq_developer_accounts_device_api_key ON developer_accounts(device_api_key) WHERE device_api_key IS NOT NULL",
     ]
     
+    tables_to_ensure = [
+        """
+        CREATE TABLE IF NOT EXISTS device_apps (
+            id SERIAL PRIMARY KEY,
+            developer_id INTEGER REFERENCES developer_accounts(id) ON DELETE CASCADE NOT NULL,
+            name VARCHAR NOT NULL,
+            device_secret VARCHAR UNIQUE NOT NULL,
+            is_active BOOLEAN DEFAULT TRUE,
+            max_devices INTEGER DEFAULT 50,
+            created_at TIMESTAMPTZ DEFAULT NOW(),
+            updated_at TIMESTAMPTZ DEFAULT NOW()
+        )
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS devices (
+            id SERIAL PRIMARY KEY,
+            device_app_id INTEGER REFERENCES device_apps(id) ON DELETE CASCADE NOT NULL,
+            hwid VARCHAR NOT NULL,
+            device_name VARCHAR,
+            status VARCHAR DEFAULT 'active',
+            ban_reason VARCHAR,
+            last_checkin_at TIMESTAMPTZ,
+            created_at TIMESTAMPTZ DEFAULT NOW()
+        )
+        """,
+    ]
+    for tbl_sql in tables_to_ensure:
+        try:
+            await db.execute(text(tbl_sql))
+            await db.commit()
+        except Exception as e:
+            await db.rollback()
+            logger.warning(f"Table creation failed: {e}")
+
     for idx_sql in indexes_to_ensure:
         try:
             await db.execute(text(idx_sql))
@@ -771,13 +805,42 @@ async def run_bootstrap(db: AsyncSession) -> dict:
         await db.commit()
 
     import secrets
-    devs_res = await db.execute(
-        select(DeveloperAccount).where(DeveloperAccount.device_api_key.is_(None))
-    )
-    devs = devs_res.scalars().all()
-    for dev in devs:
-        dev.device_api_key = f"dv_{secrets.token_urlsafe(32)}"
-    if devs:
-        await db.commit()
+
+    # Migrate legacy device_api_key to DeviceApp
+    devs_res = await db.execute(select(DeveloperAccount))
+    all_devs = devs_res.scalars().all()
+    for dev in all_devs:
+        has_app = await db.execute(
+            select(DeviceApp).where(DeviceApp.developer_id == dev.id).limit(1)
+        )
+        if not has_app.scalars().first():
+            legacy_key = dev.device_api_key
+            app = DeviceApp(
+                developer_id=dev.id,
+                name="Default Device App",
+                device_secret=legacy_key or f"dv_{secrets.token_urlsafe(32)}",
+                max_devices=50,
+            )
+            db.add(app)
+            await db.flush()
+
+            old_devices = await db.execute(
+                select(EndUser).where(
+                    EndUser.developer_id == dev.id,
+                    EndUser.is_device_only == True,
+                )
+            )
+            for old in old_devices.scalars().all():
+                device = Device(
+                    device_app_id=app.id,
+                    hwid=old.hwid or "unknown",
+                    device_name=old.device_name,
+                    status="active" if not old.is_banned else "banned",
+                    ban_reason=old.ban_reason,
+                    last_checkin_at=old.last_login_at,
+                )
+                db.add(device)
+                db.delete(old)
+    await db.commit()
 
     return {"plans_created": plans, "settings_created": settings_count, "admin_created": admin_created}
