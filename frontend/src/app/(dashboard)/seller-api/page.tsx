@@ -279,18 +279,19 @@ export default function SellerAPIPage() {
                   {/* API Key */}
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <code className="text-[10px] font-mono text-[var(--primary)] bg-[var(--primary)]/8 px-2.5 py-1 rounded-lg border border-[var(--primary)]/15">
+                      <code className="text-[11px] font-mono text-[var(--primary)] bg-[var(--primary)]/8 px-3 py-1.5 rounded-xl border border-[var(--primary)]/15 tracking-wide">
                         sk_{'•'.repeat(16)}
                       </code>
                       <button
                         onClick={() => handleCopy(seller.id, seller.api_key)}
-                        className={`action-btn opacity-0 group-hover:opacity-100 p-1 rounded-lg transition-all ${
+                        className={`w-9 h-9 flex items-center justify-center rounded-xl border transition-all duration-200 ${
                           copiedId === seller.id
-                            ? 'bg-emerald-500/15 text-emerald-400'
-                            : 'hover:bg-white/8 text-white/30 hover:text-[var(--primary)]'
+                            ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400 shadow-sm shadow-emerald-500/20'
+                            : 'bg-white/5 border-white/10 text-white/40 hover:bg-[var(--primary)]/10 hover:border-[var(--primary)]/30 hover:text-[var(--primary)] hover:shadow-sm hover:shadow-[var(--primary)]/10'
                         }`}
+                        title="Copy API Key"
                       >
-                        <span className="material-symbols-outlined text-[15px]">
+                        <span className="material-symbols-outlined text-[18px]">
                           {copiedId === seller.id ? 'check' : 'content_copy'}
                         </span>
                       </button>
@@ -316,19 +317,12 @@ export default function SellerAPIPage() {
                   <td className="px-6 py-4">
                     <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200">
                       <button
-                        onClick={() => handleCopy(seller.id, seller.api_key)}
-                        className="action-btn w-8 h-8 flex items-center justify-center rounded-xl bg-white/5 hover:bg-[var(--primary)]/15 text-white/30 hover:text-[var(--primary)]"
-                        title="Copy API Key"
-                      >
-                        <span className="material-symbols-outlined text-[16px]">content_copy</span>
-                      </button>
-                      <button
                         onClick={() => handleDeleteSeller(seller.id)}
                         disabled={deletingId === seller.id}
-                        className="action-btn w-8 h-8 flex items-center justify-center rounded-xl bg-white/5 hover:bg-red-500/15 text-white/30 hover:text-red-400 disabled:opacity-40"
+                        className="action-btn w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-red-500/15 hover:border-red-500/30 text-white/30 hover:text-red-400 disabled:opacity-40 transition-all duration-200"
                         title="Delete Seller"
                       >
-                        <span className="material-symbols-outlined text-[16px]">{deletingId === seller.id ? 'hourglass_empty' : 'delete'}</span>
+                        <span className="material-symbols-outlined text-[18px]">{deletingId === seller.id ? 'hourglass_empty' : 'delete'}</span>
                       </button>
                     </div>
                   </td>
