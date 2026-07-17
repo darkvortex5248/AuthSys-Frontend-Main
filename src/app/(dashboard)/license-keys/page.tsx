@@ -52,8 +52,8 @@ export default function LicenseKeysPage() {
   const [showEditModal, setShowEditModal] = useState<any>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [bulkMode, setBulkMode] = useState(false);
-  const [singleData, setSingleData] = useState({ type: 'time', duration: 30, max_uses: 0, expires_at: '', note: '', custom_key: '', use_custom_expiry: false });
-  const [editData, setEditData] = useState({ type: 'time', duration: 30, max_uses: 0, expires_at: '', note: '', seller_tag: '' });
+  const [singleData, setSingleData] = useState({ type: 'time', duration: 30, max_uses: -1, expires_at: '', note: '', custom_key: '', use_custom_expiry: false });
+  const [editData, setEditData] = useState({ type: 'time', duration: 30, max_uses: -1, expires_at: '', note: '', seller_tag: '' });
   const [generating, setGenerating] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [bulkResult, setBulkResult] = useState<any>(null);
@@ -142,7 +142,7 @@ export default function LicenseKeysPage() {
         custom_key: singleData.custom_key || null,
       });
       setShowCreateModal(false);
-      setSingleData({ type: 'time', duration: 30, max_uses: 0, expires_at: '', note: '', custom_key: '', use_custom_expiry: false });
+      setSingleData({ type: 'time', duration: 30, max_uses: -1, expires_at: '', note: '', custom_key: '', use_custom_expiry: false });
       toast.success('License key created');
     } catch (err: any) {
       toast.error(err.response?.data?.detail || 'Failed to create key');
@@ -319,14 +319,14 @@ export default function LicenseKeysPage() {
   };
 
   const handleExportCSV = useCallback(() => {
-    const rows = [['License Key', 'Type', 'Status', 'Uses', 'Max Uses', 'Created', 'Expires', 'Note', 'Seller Tag']];
+    const rows = [['License Key', 'Type', 'Status', 'Uses', 'Max Devices', 'Created', 'Expires', 'Note', 'Seller Tag']];
     filteredKeys.forEach((k: any) => {
       rows.push([
         k.key_value,
         k.key_type,
         k.is_paused ? 'Paused' : 'Active',
         String(k.current_uses || 0),
-        String(k.max_uses || '∞'),
+        String(k.max_uses < 0 ? '∞' : k.max_uses),
         k.created_at ? new Date(k.created_at).toISOString() : '',
         k.expires_at ? new Date(k.expires_at).toISOString() : (k.duration_days ? new Date(new Date(k.created_at).getTime() + k.duration_days * 86400000).toISOString() : 'Lifetime'),
         k.note || '',
@@ -646,7 +646,7 @@ export default function LicenseKeysPage() {
                   <td className="px-6 py-4">
                     <div className="space-y-1">
                       <p className="text-xs font-bold text-[var(--foreground)]/70 tabular-nums">
-                        {k.current_uses} <span className="text-[var(--muted-foreground)]">/ {k.max_uses || '∞'}</span>
+                        {k.current_uses} <span className="text-[var(--muted-foreground)]">/ {k.max_uses < 0 ? '∞' : k.max_uses}</span>
                       </p>
                       {k.max_uses > 0 && (
                         <div className="w-16 h-1 bg-[var(--accent-opacity-8)] rounded-full overflow-hidden">
@@ -679,7 +679,7 @@ export default function LicenseKeysPage() {
                           setEditData({
                             type: k.key_type,
                             duration: k.duration_days || 0,
-                            max_uses: k.max_uses || 0,
+                            max_uses: k.max_uses ?? -1,
                             expires_at: k.expires_at ? new Date(k.expires_at).toISOString().slice(0, 16) : '',
                             note: k.note || '',
                             seller_tag: k.seller_tag || '',
@@ -791,7 +791,7 @@ export default function LicenseKeysPage() {
                   <div className="grid grid-cols-2 gap-3">
                     {hwidEnabled && (
                       <div>
-                        <FieldLabel>Max Devices (0=∞)</FieldLabel>
+                        <FieldLabel>Max Devices (-1=∞)</FieldLabel>
                         <GlassInput
                           type="number"
                           value={singleData.max_uses}
@@ -1039,7 +1039,7 @@ export default function LicenseKeysPage() {
               <div className="grid grid-cols-2 gap-3">
                 {hwidEnabled && (
                   <div>
-                    <FieldLabel>Max Devices (0=∞)</FieldLabel>
+                    <FieldLabel>Max Devices (-1=∞)</FieldLabel>
                     <GlassInput
                       type="number"
                       value={editData.max_uses}

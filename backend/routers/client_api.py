@@ -190,7 +190,7 @@ async def login_user(request: Request, req: ClientLoginRequest, db: AsyncSession
             # First login, bind HWID
             user.hwid = req.hwid
 
-    if user.max_uses > 0 and req.hwid:
+    if req.hwid and user.max_uses >= 0:
         active_hwids = await db.execute(
             select(Session.hwid).where(
                 Session.user_id == user.id,
@@ -271,12 +271,14 @@ async def license_login(request: Request, req: ClientLicenseLoginRequest, db: As
     if not user:
         # Auto-create a shadow user for this license key to track sessions and HWID.
         # This is required for 'Key Only' authentication flows.
+        device_limit = license_key.max_uses if license_key.max_uses is not None else -1
         user = EndUser(
             app_id=app.id,
             username=license_key.key_value, 
             password_hash="license_only_login",
             license_key_id=license_key.id,
             hwid=req.hwid,
+            max_uses=device_limit,
             subscription_expires_at=license_key.expires_at or (utc_now() + timedelta(days=license_key.duration_days)) if license_key.key_type == "time" else (utc_now() + timedelta(days=36500)),
             last_ip=client_ip,
             is_shadow=True
@@ -291,7 +293,7 @@ async def license_login(request: Request, req: ClientLicenseLoginRequest, db: As
             elif not user.hwid:
                 user.hwid = req.hwid
 
-    if user.max_uses > 0 and req.hwid:
+    if req.hwid and user.max_uses >= 0:
         active_hwids = await db.execute(
             select(Session.hwid).where(
                 Session.user_id == user.id,
