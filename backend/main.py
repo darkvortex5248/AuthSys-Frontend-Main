@@ -16,8 +16,8 @@ from routers import (
     developer_sessions, developer_security, developer_domains,
     developer_backups, developer_environments, developer_health,
     developer_organization, developer_usage, developer_scheduled,
-    developer_devices,
-    admin_custom_plans, oauth,
+    developer_devices, developer_subscription,
+    admin_custom_plans, oauth, device_client,
 )
 import asyncio
 import logging
@@ -187,6 +187,8 @@ app.include_router(developer_scheduled.router)
 app.include_router(developer_devices.router)
 app.include_router(admin_custom_plans.router)
 app.include_router(oauth.router)
+app.include_router(device_client.router)
+app.include_router(developer_subscription.router)
 
 # Background scheduler loop
 import asyncio

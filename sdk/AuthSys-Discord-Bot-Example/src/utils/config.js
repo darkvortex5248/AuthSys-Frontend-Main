@@ -124,6 +124,11 @@ const ENDPOINT_MAP = {
   '/delete-user-subscription': '/delete-user',
   '/count-subscriptions': '/list-users',
 
+  // ── Subscription Activation Codes ──
+  '/subscription-plan': '/subscription-plan',
+  '/subscription-redeem': '/subscription-redeem',
+  '/subscription-codes': '/subscription-codes',
+
   // ── Reseller / Manager ──
   '/create-account': '/add-user',
   '/delete-account': '/delete-user',

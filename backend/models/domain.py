@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, JSON, Text, BigInteger, Float, UniqueConstraint
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, JSON, Text, BigInteger, Float
 from sqlalchemy.orm import relationship
 from core.database import Base
 from datetime import datetime, timezone
@@ -43,6 +43,7 @@ class SubscriptionPlan(Base):
     max_hashes = Column(Integer, default=2)
     max_staff = Column(Integer, default=0)
     max_chatrooms = Column(Integer, default=0)
+    max_devices = Column(Integer, default=3)
     features_json = Column(JSON, nullable=True)
     ai_agent_access = Column(Boolean, default=False)
     audit_log_limit = Column(Integer, default=1000)
@@ -118,7 +119,6 @@ class Application(Base):
     keys = relationship("LicenseKey", back_populates="app")
     users = relationship("EndUser", back_populates="app")
     webhook_endpoints = relationship("WebhookEndpoint", back_populates="app")
-    device_activations = relationship("DeviceActivation", back_populates="app")
 
 class LicenseKey(Base):
     __tablename__ = "license_keys"
@@ -161,6 +161,7 @@ class EndUser(Base):
     created_at = Column(DateTime(timezone=True), default=utc_now)
     variable_data = Column(JSON, nullable=True)
     is_shadow = Column(Boolean, default=False)
+    is_device_only = Column(Boolean, default=False)
     expires_at = Column(DateTime(timezone=True), nullable=True)
     max_uses = Column(Integer, default=0)
     user_category = Column(String, default='active')
@@ -634,19 +635,24 @@ class SystemBackup(Base):
     created_at = Column(DateTime(timezone=True), default=utc_now)
 
 
-class DeviceActivation(Base):
-    __tablename__ = "device_activations"
-    __table_args__ = (
-        UniqueConstraint("app_id", "hwid", name="uq_device_activations_app_hwid"),
-    )
+class ActivationCode(Base):
+    __tablename__ = "activation_codes"
     id = Column(Integer, primary_key=True, index=True)
-    app_id = Column(Integer, ForeignKey("applications.id", ondelete="CASCADE"), nullable=False)
-    hwid = Column(String, nullable=False, index=True)
-    device_name = Column(String, nullable=True)
+    code = Column(String, unique=True, index=True, nullable=False)
+    plan_id = Column(Integer, ForeignKey("subscription_plans.id"), nullable=False)
+    target_developer_id = Column(Integer, ForeignKey("developer_accounts.id", ondelete="SET NULL"), nullable=True)
+    is_used = Column(Boolean, default=False)
+    used_by_developer_id = Column(Integer, ForeignKey("developer_accounts.id", ondelete="SET NULL"), nullable=True)
+    used_at = Column(DateTime(timezone=True), nullable=True)
+    source = Column(String, default="admin")
+    stripe_session_id = Column(String, nullable=True)
+    payment_id = Column(Integer, ForeignKey("payments.id", ondelete="SET NULL"), nullable=True)
     is_active = Column(Boolean, default=True)
-    last_checkin_at = Column(DateTime(timezone=True), nullable=True)
-    notes = Column(String, nullable=True)
+    expires_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), default=utc_now)
-    updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
 
-    app = relationship("Application", back_populates="device_activations")
+    plan = relationship("SubscriptionPlan")
+    used_by = relationship("DeveloperAccount", foreign_keys=[used_by_developer_id])
+
+
+

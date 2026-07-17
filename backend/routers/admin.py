@@ -9,7 +9,7 @@ from core.deps import oauth2_scheme
 from jose import jwt, JWTError
 from core.config import settings
 from core.security import ALGORITHM, verify_password, create_access_token, get_password_hash
-from models.domain import AdminUser, DeveloperAccount, Application, EndUser, SubscriptionPlan, SystemSetting, Payment, SDKDownload, PaymentMethod, Announcement, LicenseKey, AIProviderConfig, SystemBackup, ActivityLog
+from models.domain import AdminUser, DeveloperAccount, Application, EndUser, SubscriptionPlan, SystemSetting, Payment, SDKDownload, PaymentMethod, Announcement, LicenseKey, AIProviderConfig, SystemBackup, ActivityLog, ActivationCode
 from schemas.admin import (
     AdminLogin, PlanCreate, PlanUpdate, PlanResponse, 
     SystemSettingCreate, SystemSettingUpdate, SystemSettingResponse, PlatformStats,
@@ -1280,3 +1280,111 @@ def _format_size(bytes_val: int) -> str:
         return f"{bytes_val / 1024:.1f}KB"
     else:
         return f"{bytes_val / 1024 / 1024:.1f}MB"
+
+# ═══════════════════════════════════════════════════════════
+# Activation Codes (Admin)
+# ═══════════════════════════════════════════════════════════
+
+@router.get("/activation-codes")
+async def list_activation_codes(
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    res = await db.execute(
+        select(ActivationCode).order_by(ActivationCode.created_at.desc())
+    )
+    codes = res.scalars().all()
+    return {
+        "codes": [
+            {
+                "id": c.id,
+                "code": c.code,
+                "plan_id": c.plan_id,
+                "target_developer_id": c.target_developer_id,
+                "is_used": c.is_used,
+                "used_by_developer_id": c.used_by_developer_id,
+                "used_at": c.used_at.isoformat() if c.used_at else None,
+                "source": c.source,
+                "stripe_session_id": c.stripe_session_id,
+                "is_active": c.is_active,
+                "expires_at": c.expires_at.isoformat() if c.expires_at else None,
+                "created_at": c.created_at.isoformat() if c.created_at else None,
+            }
+            for c in codes
+        ]
+    }
+
+
+@router.post("/activation-codes")
+async def create_activation_code(
+    data: dict,
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    code = (data.get("code") or "").strip()
+    plan_id = data.get("plan_id")
+    target_developer_id = data.get("target_developer_id")
+    source = data.get("source", "admin")
+    expires_at_str = data.get("expires_at")
+
+    if not code or not plan_id:
+        raise HTTPException(400, "code and plan_id are required")
+
+    plan_res = await db.execute(select(SubscriptionPlan).where(SubscriptionPlan.id == plan_id))
+    if not plan_res.scalars().first():
+        raise HTTPException(404, "Plan not found")
+
+    existing = await db.execute(select(ActivationCode).where(ActivationCode.code == code))
+    if existing.scalars().first():
+        raise HTTPException(400, "Code already exists")
+
+    expires_at = None
+    if expires_at_str:
+        try:
+            expires_at = datetime.fromisoformat(expires_at_str)
+        except ValueError:
+            raise HTTPException(400, "Invalid expires_at format")
+
+    activation = ActivationCode(
+        code=code,
+        plan_id=plan_id,
+        target_developer_id=target_developer_id,
+        source=source,
+        expires_at=expires_at,
+        is_active=True,
+    )
+    db.add(activation)
+    await db.commit()
+    await db.refresh(activation)
+
+    return {"status": "success", "id": activation.id, "code": activation.code}
+
+
+@router.put("/activation-codes/{code_id}/toggle")
+async def toggle_activation_code(
+    code_id: int,
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    res = await db.execute(select(ActivationCode).where(ActivationCode.id == code_id))
+    code = res.scalars().first()
+    if not code:
+        raise HTTPException(404, "Activation code not found")
+    code.is_active = not code.is_active
+    await db.commit()
+    return {"status": "success", "is_active": code.is_active}
+
+
+@router.delete("/activation-codes/{code_id}")
+async def delete_activation_code(
+    code_id: int,
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    res = await db.execute(select(ActivationCode).where(ActivationCode.id == code_id))
+    code = res.scalars().first()
+    if not code:
+        raise HTTPException(404, "Activation code not found")
+    await db.delete(code)
+    await db.commit()
+    return {"status": "success"}

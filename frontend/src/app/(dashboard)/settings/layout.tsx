@@ -7,6 +7,7 @@ const GROUPS: { id: string; label: string; icon: string }[] = [
   { id: 'account',   label: 'Account',   icon: 'person'          },
   { id: 'billing',   label: 'Billing',    icon: 'credit_card'     },
   { id: 'system',    label: 'System',     icon: 'settings'        },
+  { id: 'workspace', label: 'Workspace',  icon: 'corporate_fare'  },
   { id: 'developer', label: 'Developer',  icon: 'code'            },
 ];
 

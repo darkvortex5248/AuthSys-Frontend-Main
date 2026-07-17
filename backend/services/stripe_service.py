@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import stripe
+import secrets
+import string
 import logging
+from datetime import datetime, timezone
 from core.config import settings
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from models.domain import Payment, DeveloperAccount, SubscriptionPlan
+from models.domain import Payment, DeveloperAccount, SubscriptionPlan, ActivationCode
 
 logger = logging.getLogger(__name__)
 
@@ -140,6 +143,27 @@ async def _process_completed_checkout(session: dict, db: AsyncSession) -> None:
     if dev and plan:
         dev.plan_id = plan_id
         dev.subscription_tier = plan.name.lower()
+
+        prefix = plan.name[:3].upper()
+        code_str = prefix + "-" + "".join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(8))
+        activation = ActivationCode(
+            code=code_str,
+            plan_id=plan_id,
+            target_developer_id=dev.id,
+            used_by_developer_id=dev.id,
+            is_used=True,
+            used_at=datetime.now(timezone.utc),
+            source="stripe",
+            stripe_session_id=session_id,
+            payment_id=payment.id,
+            is_active=True,
+        )
+        db.add(activation)
+        logger.info(
+            "Activation code %s generated for developer %s (plan: %s)",
+            code_str, developer_id, plan.name,
+        )
+
         await db.commit()
         logger.info(
             "Developer %s upgraded to %s via Stripe session %s",

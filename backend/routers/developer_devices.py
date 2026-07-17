@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy import func
 from datetime import datetime, timezone
 from core.database import get_db
 from core.deps import get_current_developer
-from models.domain import DeveloperAccount, DeviceActivation
+from models.domain import DeveloperAccount, EndUser, SubscriptionPlan
 from routers.developer_keys import verify_app_owner
+from services.plan_enforcer import check_limit
 
 router = APIRouter(prefix="/api/v1/developer/devices", tags=["Devices"])
 
@@ -18,24 +20,39 @@ async def list_devices(
 ):
     await verify_app_owner(app_id, dev.id, db)
     res = await db.execute(
-        select(DeviceActivation)
-        .where(DeviceActivation.app_id == app_id)
-        .order_by(DeviceActivation.last_checkin_at.desc().nullslast())
+        select(EndUser)
+        .where(
+            EndUser.app_id == app_id,
+            EndUser.is_device_only == True,
+        )
+        .order_by(EndUser.last_login_at.desc().nullslast())
     )
     devices = res.scalars().all()
+
+    limit = 3
+    remaining = 0
+    if dev.plan_id:
+        plan_res = await db.execute(select(SubscriptionPlan).where(SubscriptionPlan.id == dev.plan_id))
+        plan = plan_res.scalars().first()
+        if plan:
+            limit = getattr(plan, "max_devices", 3)
+            remaining = max(0, limit - len(devices))
+
     return {
         "devices": [
             {
                 "id": d.id,
                 "hwid": d.hwid,
                 "device_name": d.device_name,
-                "is_active": d.is_active,
-                "last_checkin_at": d.last_checkin_at.isoformat() if d.last_checkin_at else None,
-                "notes": d.notes,
+                "is_active": not d.is_banned,
+                "ban_reason": d.ban_reason,
+                "last_checkin_at": d.last_login_at.isoformat() if d.last_login_at else None,
                 "created_at": d.created_at.isoformat() if d.created_at else None,
             }
             for d in devices
-        ]
+        ],
+        "limit": limit,
+        "remaining": remaining,
     }
 
 
@@ -48,19 +65,21 @@ async def toggle_device(
 ):
     await verify_app_owner(app_id, dev.id, db)
     res = await db.execute(
-        select(DeviceActivation).where(
-            DeviceActivation.id == device_id,
-            DeviceActivation.app_id == app_id,
+        select(EndUser).where(
+            EndUser.id == device_id,
+            EndUser.app_id == app_id,
+            EndUser.is_device_only == True,
         )
     )
     device = res.scalars().first()
     if not device:
         raise HTTPException(404, "Device not found")
-    device.is_active = not device.is_active
+    device.is_banned = not device.is_banned
+    device.ban_reason = "Device deactivated by admin" if device.is_banned else None
     await db.commit()
     return {
         "status": "success",
-        "is_active": device.is_active,
+        "is_active": not device.is_banned,
         "device_id": device.id,
     }
 
@@ -74,9 +93,10 @@ async def delete_device(
 ):
     await verify_app_owner(app_id, dev.id, db)
     res = await db.execute(
-        select(DeviceActivation).where(
-            DeviceActivation.id == device_id,
-            DeviceActivation.app_id == app_id,
+        select(EndUser).where(
+            EndUser.id == device_id,
+            EndUser.app_id == app_id,
+            EndUser.is_device_only == True,
         )
     )
     device = res.scalars().first()

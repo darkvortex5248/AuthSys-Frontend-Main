@@ -36,7 +36,8 @@ DEFAULT_PLANS = [
         "max_hashes": 2,
         "max_staff": 0,
         "max_chatrooms": 0,
-        "features_json": ["Basic Auth", "HWID Lock", "License Keys"],
+        "max_devices": 3,
+        "features_json": ["Basic Auth", "HWID Lock", "License Keys", "Device Activation"],
         "ai_agent_access": False,
         "audit_log_limit": 50,
         "has_ip_tracking": False,
@@ -81,7 +82,8 @@ DEFAULT_PLANS = [
         "max_hashes": 20,
         "max_staff": 10,
         "max_chatrooms": 0,
-        "features_json": ["Team Management", "Customer Panel", "Functions", "Webhooks"],
+        "max_devices": 10,
+        "features_json": ["Team Management", "Customer Panel", "Functions", "Webhooks", "Device Activation"],
         "ai_agent_access": True,
         "audit_log_limit": 150,
         "has_ip_tracking": True,
@@ -126,7 +128,8 @@ DEFAULT_PLANS = [
         "max_hashes": 999999,
         "max_staff": 999999,
         "max_chatrooms": 999999,
-        "features_json": ["Chatrooms", "Discord Bot", "Telegram Bot", "Seller API"],
+        "max_devices": 50,
+        "features_json": ["Chatrooms", "Discord Bot", "Telegram Bot", "Seller API", "Device Activation"],
         "ai_agent_access": True,
         "audit_log_limit": 250,
         "has_ip_tracking": True,
@@ -171,6 +174,7 @@ DEFAULT_PLANS = [
         "max_hashes": 999999,
         "max_staff": 999999,
         "max_chatrooms": 999999,
+        "max_devices": 999999,
         "features_json": [
             "Team Management",
             "Customer Panel",
@@ -612,7 +616,19 @@ async def ensure_database_schema(db: AsyncSession) -> None:
             "user_category",
             "ALTER TABLE end_users ADD COLUMN IF NOT EXISTS user_category VARCHAR DEFAULT 'active'",
             "UPDATE end_users SET user_category = 'active' WHERE user_category IS NULL"
-        )
+        ),
+        (
+            "subscription_plans",
+            "max_devices",
+            "ALTER TABLE subscription_plans ADD COLUMN IF NOT EXISTS max_devices INTEGER DEFAULT 3",
+            "UPDATE subscription_plans SET max_devices = 3 WHERE max_devices IS NULL"
+        ),
+        (
+            "end_users",
+            "is_device_only",
+            "ALTER TABLE end_users ADD COLUMN IF NOT EXISTS is_device_only BOOLEAN DEFAULT FALSE",
+            "UPDATE end_users SET is_device_only = FALSE WHERE is_device_only IS NULL"
+        ),
     ]
     
     indexes_to_ensure = [
@@ -620,10 +636,11 @@ async def ensure_database_schema(db: AsyncSession) -> None:
         "CREATE INDEX IF NOT EXISTS ix_end_users_last_login_at ON end_users(last_login_at)",
         "CREATE INDEX IF NOT EXISTS ix_end_users_is_shadow ON end_users(is_shadow)",
         "CREATE INDEX IF NOT EXISTS ix_end_users_user_category ON end_users(user_category)",
+        "CREATE INDEX IF NOT EXISTS ix_end_users_is_device_only ON end_users(is_device_only)",
         "CREATE INDEX IF NOT EXISTS ix_developer_accounts_created_at ON developer_accounts(created_at)",
         "CREATE INDEX IF NOT EXISTS ix_applications_created_at ON applications(created_at)",
-        "CREATE INDEX IF NOT EXISTS ix_device_activations_hwid ON device_activations(hwid)",
-        "CREATE INDEX IF NOT EXISTS ix_device_activations_app_id ON device_activations(app_id)",
+        "CREATE INDEX IF NOT EXISTS ix_activation_codes_code ON activation_codes(code)",
+        "CREATE INDEX IF NOT EXISTS ix_activation_codes_is_used ON activation_codes(is_used)",
     ]
     
     for idx_sql in indexes_to_ensure:

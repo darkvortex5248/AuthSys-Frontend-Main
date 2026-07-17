@@ -71,6 +71,7 @@ export default function SellerAPIPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
 
   const fetchSellers = async () => {
@@ -116,6 +117,20 @@ export default function SellerAPIPage() {
     toast.success('API Key copied!');
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 1500);
+  };
+
+  const handleDeleteSeller = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this seller? This action cannot be undone.')) return;
+    try {
+      setDeletingId(id);
+      await api.delete(`/developer/sellers/${id}`);
+      toast.success('Seller deleted');
+      fetchSellers();
+    } catch {
+      toast.error('Failed to delete seller');
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   if (!mounted) return null;
@@ -306,6 +321,14 @@ export default function SellerAPIPage() {
                         title="Copy API Key"
                       >
                         <span className="material-symbols-outlined text-[16px]">content_copy</span>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteSeller(seller.id)}
+                        disabled={deletingId === seller.id}
+                        className="action-btn w-8 h-8 flex items-center justify-center rounded-xl bg-white/5 hover:bg-red-500/15 text-white/30 hover:text-red-400 disabled:opacity-40"
+                        title="Delete Seller"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">{deletingId === seller.id ? 'hourglass_empty' : 'delete'}</span>
                       </button>
                     </div>
                   </td>

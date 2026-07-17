@@ -26,7 +26,6 @@ const navItems = [
   { name: 'Variables', icon: 'code', href: '/variables', tier: 'tester' },
   // Developer Tier Features
   { name: 'Team', icon: 'groups', href: '/team', tier: 'developer' },
-  { name: 'Organization', icon: 'corporate_fare', href: '/organization', tier: 'developer' },
   
   // Seller Tier Features
   { name: 'Chatrooms', icon: 'forum', href: '/chatrooms', tier: 'seller' },
@@ -36,7 +35,6 @@ const navItems = [
 
   // Premium Features
   { name: 'Security', icon: 'security', href: '/security', tier: 'developer' },
-  { name: 'Scheduled', icon: 'schedule', href: '/scheduled', tier: 'seller' },
 
   { name: 'Audit Logs', icon: 'history', href: '/audit-logs', tier: 'tester' },
   { name: 'Settings', icon: 'settings', href: '/settings', tier: 'tester' },

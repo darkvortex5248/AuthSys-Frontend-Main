@@ -442,42 +442,4 @@ namespace AuthSys {
         last_response = "";
         last_error = "";
     }
-
-    bool api::deviceCheck() {
-        last_error = "";
-
-        std::string hwid = GetHWID();
-        std::string json = "{\"app_secret\":\"" + escape_json(secret) +
-            "\",\"hwid\":\"" + escape_json(hwid) + "\"}";
-
-        last_response = PostRequest("device/check", json);
-        std::string active = json_get_string(last_response, "active");
-
-        if (active == "true") {
-            return true;
-        }
-
-        last_error = json_get_string(last_response, "message");
-        if (last_error.empty()) last_error = "Device deactivated by admin";
-        return false;
-    }
-
-    bool api::deviceRegister(std::string device_name) {
-        last_error = "";
-
-        std::string hwid = GetHWID();
-        std::string json = "{\"app_secret\":\"" + escape_json(secret) +
-            "\",\"hwid\":\"" + escape_json(hwid) + "\"";
-
-        if (!device_name.empty()) {
-            json += ",\"device_name\":\"" + escape_json(device_name) + "\"";
-        }
-
-        json += "}";
-
-        last_response = PostRequest("device/register", json);
-        std::string active = json_get_string(last_response, "active");
-
-        return active == "true";
-    }
 }

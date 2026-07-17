@@ -32,6 +32,10 @@ export default function SDKOverview() {
                   <Link href="/docs/sdk/cpp" className="text-[var(--primary)] hover:underline font-medium">C++</Link>
                   <span className="ml-2 text-[var(--muted-foreground)]">— CMake-based library for Windows, macOS, and Linux.</span>
                 </li>
+                <li>
+                  <Link href="/docs/sdk/device-activation" className="text-[var(--primary)] hover:underline font-medium">Device Activation</Link>
+                  <span className="ml-2 text-[var(--muted-foreground)]">— No-login kill-switch SDK for desktop EXEs (15 languages).</span>
+                </li>
               </ul>
             </>
           ),

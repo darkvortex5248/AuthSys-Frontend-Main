@@ -7,9 +7,10 @@ import uuid
 import hashlib
 
 from core.database import get_db
-from models.domain import Application, EndUser, LicenseKey, Session, Variable, ActivityLog, Blacklist, ChatRoom, ChatMessage, DeveloperAccount, SubscriptionPlan, DeviceActivation
+from models.domain import Application, EndUser, LicenseKey, Session, Variable, ActivityLog, Blacklist, ChatRoom, ChatMessage, DeveloperAccount, SubscriptionPlan
 from services.webhooks import trigger_webhook
 from services.plan_enforcer import check_limit
+from sqlalchemy import func
 from schemas.client import (
     ClientInitRequest, ClientInitResponse, ClientRegisterRequest, 
     ClientLoginRequest, ClientLicenseCheckRequest, ClientLicenseLoginRequest
@@ -409,30 +410,50 @@ async def register_device(
         raise HTTPException(400, "Invalid app_secret")
 
     res = await db.execute(
-        select(DeviceActivation).where(
-            DeviceActivation.app_id == app.id,
-            DeviceActivation.hwid == hwid,
+        select(EndUser).where(
+            EndUser.app_id == app.id,
+            EndUser.hwid == hwid,
+            EndUser.is_device_only == True,
         )
     )
     device = res.scalars().first()
     now = datetime.now(timezone.utc)
 
     if device:
-        device.last_checkin_at = now
+        device.last_login_at = now
         if device_name and not device.device_name:
             device.device_name = device_name
     else:
-        device = DeviceActivation(
+        dev_res = await db.execute(
+            select(DeveloperAccount).where(DeveloperAccount.id == app.developer_id)
+        )
+        owner_dev = dev_res.scalars().first()
+        if owner_dev:
+            current_count = (
+                await db.execute(
+                    select(func.count(EndUser.id)).where(
+                        EndUser.app_id == app.id,
+                        EndUser.is_device_only == True,
+                    )
+                )
+            ).scalar() or 0
+            await check_limit(owner_dev, "max_devices", current_count, db)
+
+        device = EndUser(
             app_id=app.id,
+            username=f"device_{hwid[:16]}",
+            password_hash="device_only_auth",
             hwid=hwid,
             device_name=device_name or None,
-            is_active=True,
-            last_checkin_at=now,
+            is_shadow=True,
+            is_device_only=True,
+            is_banned=False,
+            last_login_at=now,
         )
         db.add(device)
 
     await db.commit()
-    return {"active": device.is_active, "device_id": device.id}
+    return {"active": not device.is_banned, "device_id": device.id}
 
 
 @router.post("/device/check")
@@ -449,29 +470,34 @@ async def check_device(
         raise HTTPException(400, "Invalid app_secret")
 
     res = await db.execute(
-        select(DeviceActivation).where(
-            DeviceActivation.app_id == app.id,
-            DeviceActivation.hwid == hwid,
+        select(EndUser).where(
+            EndUser.app_id == app.id,
+            EndUser.hwid == hwid,
+            EndUser.is_device_only == True,
         )
     )
     device = res.scalars().first()
     now = datetime.now(timezone.utc)
 
     if not device:
-        device = DeviceActivation(
+        device = EndUser(
             app_id=app.id,
+            username=f"device_{hwid[:16]}",
+            password_hash="device_only_auth",
             hwid=hwid,
-            is_active=True,
-            last_checkin_at=now,
+            is_shadow=True,
+            is_device_only=True,
+            is_banned=False,
+            last_login_at=now,
         )
         db.add(device)
         await db.commit()
         return {"active": True, "message": "Device registered and active"}
 
-    device.last_checkin_at = now
+    device.last_login_at = now
     await db.commit()
 
-    if device.is_active:
+    if not device.is_banned:
         return {"active": True, "message": "Device active"}
     else:
-        return {"active": False, "message": "Device deactivated by admin"}
+        return {"active": False, "message": device.ban_reason or "Device deactivated by admin"}
