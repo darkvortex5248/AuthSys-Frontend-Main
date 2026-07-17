@@ -36,7 +36,7 @@ namespace AuthSysDevice
         {
             LastError = "";
             string hwid = GetHWID();
-            string json = $"{{\"app_secret\":\"{_appSecret}\",\"hwid\":\"{hwid}\"}}";
+            string json = $"{{\"device_key\":\"{_appSecret}\",\"hwid\":\"{hwid}\"}}";
 
             using (UnityWebRequest req = new UnityWebRequest(
                 $"{_baseUrl}/check", "POST"))
@@ -77,7 +77,7 @@ namespace AuthSysDevice
         {
             LastError = "";
             string hwid = GetHWID();
-            string json = $"{{\"app_secret\":\"{_appSecret}\",\"hwid\":\"{hwid}\"";
+            string json = $"{{\"device_key\":\"{_appSecret}\",\"hwid\":\"{hwid}\"";
             if (!string.IsNullOrEmpty(deviceName))
                 json += $",\"device_name\":\"{deviceName}\"";
             json += "}";

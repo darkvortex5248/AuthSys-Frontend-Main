@@ -4,42 +4,40 @@ from sqlalchemy.future import select
 from sqlalchemy import func
 from datetime import datetime, timezone
 from core.database import get_db
-from models.domain import Application, EndUser, DeveloperAccount, SubscriptionPlan
+from models.domain import EndUser, DeveloperAccount, SubscriptionPlan
 from services.plan_enforcer import check_limit
 
 router = APIRouter(prefix="/device", tags=["Device Activation"])
 
-async def get_app_by_secret(app_secret: str, db: AsyncSession) -> Application:
-    secret = (app_secret or "").strip()
-    result = await db.execute(
-        select(Application).where(
-            (Application.app_secret == secret) | (Application.owner_id == secret)
-        )
+
+async def get_dev_by_device_key(device_key: str, db: AsyncSession) -> DeveloperAccount:
+    key = (device_key or "").strip()
+    if not key:
+        raise HTTPException(status_code=400, detail="device_key is required")
+    res = await db.execute(
+        select(DeveloperAccount).where(DeveloperAccount.device_api_key == key)
     )
-    app = result.scalars().first()
-    if not app:
-        raise HTTPException(status_code=404, detail="Application not found or invalid secret")
-    if app.status != "active":
-        raise HTTPException(status_code=403, detail="Application is suspended or inactive")
-    if app.developer_lock:
-        raise HTTPException(status_code=403, detail="Application is under lockdown")
-    if app.maintenance_mode:
-        raise HTTPException(status_code=503, detail="Application is under maintenance")
-    return app
+    dev = res.scalars().first()
+    if not dev:
+        raise HTTPException(status_code=404, detail="Invalid device key")
+    if dev.is_banned:
+        raise HTTPException(status_code=403, detail="Developer account is banned")
+    return dev
+
 
 @router.post("/register")
 async def register_device(data: dict, db: AsyncSession = Depends(get_db)):
-    app_secret = (data.get("app_secret") or "").strip()
+    device_key = (data.get("device_key") or "").strip()
     hwid = (data.get("hwid") or "").strip()
     device_name = (data.get("device_name") or "").strip()
-    if not app_secret or not hwid:
-        raise HTTPException(400, "app_secret and hwid are required")
-    app = await get_app_by_secret(app_secret, db)
+    if not device_key or not hwid:
+        raise HTTPException(400, "device_key and hwid are required")
+    dev = await get_dev_by_device_key(device_key, db)
     now = datetime.now(timezone.utc)
 
     res = await db.execute(
         select(EndUser).where(
-            EndUser.app_id == app.id,
+            EndUser.developer_id == dev.id,
             EndUser.hwid == hwid,
             EndUser.is_device_only == True,
         )
@@ -51,23 +49,18 @@ async def register_device(data: dict, db: AsyncSession = Depends(get_db)):
         if device_name and not device.device_name:
             device.device_name = device_name
     else:
-        dev_res = await db.execute(
-            select(DeveloperAccount).where(DeveloperAccount.id == app.developer_id)
-        )
-        owner_dev = dev_res.scalars().first()
-        if owner_dev:
-            current_count = (
-                await db.execute(
-                    select(func.count(EndUser.id)).where(
-                        EndUser.app_id == app.id,
-                        EndUser.is_device_only == True,
-                    )
+        current_count = (
+            await db.execute(
+                select(func.count(EndUser.id)).where(
+                    EndUser.developer_id == dev.id,
+                    EndUser.is_device_only == True,
                 )
-            ).scalar() or 0
-            await check_limit(owner_dev, "max_devices", current_count, db)
+            )
+        ).scalar() or 0
+        await check_limit(dev, "max_devices", current_count, db)
 
         device = EndUser(
-            app_id=app.id,
+            developer_id=dev.id,
             username=f"device_{hwid[:16]}",
             password_hash="device_only_auth",
             hwid=hwid,
@@ -82,18 +75,19 @@ async def register_device(data: dict, db: AsyncSession = Depends(get_db)):
     await db.commit()
     return {"active": not device.is_banned, "device_id": device.id}
 
+
 @router.post("/check")
 async def check_device(data: dict, db: AsyncSession = Depends(get_db)):
-    app_secret = (data.get("app_secret") or "").strip()
+    device_key = (data.get("device_key") or "").strip()
     hwid = (data.get("hwid") or "").strip()
-    if not app_secret or not hwid:
-        raise HTTPException(400, "app_secret and hwid are required")
-    app = await get_app_by_secret(app_secret, db)
+    if not device_key or not hwid:
+        raise HTTPException(400, "device_key and hwid are required")
+    dev = await get_dev_by_device_key(device_key, db)
     now = datetime.now(timezone.utc)
 
     res = await db.execute(
         select(EndUser).where(
-            EndUser.app_id == app.id,
+            EndUser.developer_id == dev.id,
             EndUser.hwid == hwid,
             EndUser.is_device_only == True,
         )
@@ -102,7 +96,7 @@ async def check_device(data: dict, db: AsyncSession = Depends(get_db)):
 
     if not device:
         device = EndUser(
-            app_id=app.id,
+            developer_id=dev.id,
             username=f"device_{hwid[:16]}",
             password_hash="device_only_auth",
             hwid=hwid,

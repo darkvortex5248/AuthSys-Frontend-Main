@@ -79,7 +79,7 @@ public class AuthSysDevice {
     public boolean check() {
         lastError = "";
         try {
-            String json = "{\"app_secret\":\"" + appSecret + "\",\"hwid\":\"" + getHWID() + "\"}";
+            String json = "{\"device_key\":\"" + appSecret + "\",\"hwid\":\"" + getHWID() + "\"}";
             lastResponse = postRequest("check", json);
             String active = jsonGet(lastResponse, "active");
             if ("true".equals(active)) return true;
@@ -95,7 +95,7 @@ public class AuthSysDevice {
     public boolean register(String deviceName) {
         lastError = "";
         try {
-            String json = "{\"app_secret\":\"" + appSecret + "\",\"hwid\":\"" + getHWID() + "\"";
+            String json = "{\"device_key\":\"" + appSecret + "\",\"hwid\":\"" + getHWID() + "\"";
             if (deviceName != null && !deviceName.isEmpty()) {
                 json += ",\"device_name\":\"" + deviceName + "\"";
             }

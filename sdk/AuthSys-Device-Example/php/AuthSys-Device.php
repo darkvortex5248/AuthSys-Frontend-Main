@@ -55,7 +55,7 @@ class AuthSysDevice
     {
         $this->lastError = '';
         $data = $this->request('check', [
-            'app_secret' => $this->appSecret,
+            'device_key' => $this->appSecret,
             'hwid' => self::getHWID(),
         ]);
 
@@ -68,7 +68,7 @@ class AuthSysDevice
     {
         $this->lastError = '';
         $payload = [
-            'app_secret' => $this->appSecret,
+            'device_key' => $this->appSecret,
             'hwid' => self::getHWID(),
         ];
         if ($deviceName) $payload['device_name'] = $deviceName;

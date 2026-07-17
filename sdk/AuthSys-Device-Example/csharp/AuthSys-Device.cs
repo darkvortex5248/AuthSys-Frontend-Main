@@ -29,7 +29,7 @@ namespace AuthSysDevice
             try
             {
                 string hwid = GetHWID();
-                string json = $"{{\"app_secret\":\"{_appSecret}\",\"hwid\":\"{hwid}\"}}";
+                string json = $"{{\"device_key\":\"{_appSecret}\",\"hwid\":\"{hwid}\"}}";
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var response = _client.PostAsync($"{_baseUrl}/check", content).Result;
                 LastResponse = response.Content.ReadAsStringAsync().Result;
@@ -51,7 +51,7 @@ namespace AuthSysDevice
             try
             {
                 string hwid = GetHWID();
-                string json = $"{{\"app_secret\":\"{_appSecret}\",\"hwid\":\"{hwid}\"";
+                string json = $"{{\"device_key\":\"{_appSecret}\",\"hwid\":\"{hwid}\"";
                 if (!string.IsNullOrEmpty(deviceName))
                     json += $",\"device_name\":\"{deviceName}\"";
                 json += "}";

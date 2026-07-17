@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import api from '@/lib/api';
-import { useAuthStore } from '@/store/auth';
 import { toast } from 'sonner';
 import { useConfirm } from '@/components/ui/confirm-dialog';
 
@@ -17,31 +16,55 @@ type Device = {
 
 export default function DevicesPage() {
   const confirm = useConfirm();
-  const { selectedAppId } = useAuthStore();
   const [devices, setDevices] = useState<Device[]>([]);
   const [loading, setLoading] = useState(true);
   const [togglingIds, setTogglingIds] = useState<Set<number>>(new Set());
+  const [deviceKey, setDeviceKey] = useState('');
+  const [keyLoading, setKeyLoading] = useState(false);
 
   const fetchDevices = useCallback(async () => {
-    if (!selectedAppId) { setLoading(false); return; }
     try {
-      const res = await api.get<{ devices: Device[] }>(`/developer/devices/${selectedAppId}`);
+      const res = await api.get<{ devices: Device[] }>('/developer/devices');
       setDevices(res.data.devices || []);
     } catch (err: any) {
       toast.error(err.response?.data?.detail || 'Failed to load devices');
     } finally {
       setLoading(false);
     }
-  }, [selectedAppId]);
+  }, []);
 
-  useEffect(() => { fetchDevices(); }, [fetchDevices]);
+  const fetchDeviceKey = useCallback(async () => {
+    try {
+      const res = await api.get<{ device_key: string }>('/developer/devices/key');
+      setDeviceKey(res.data.device_key || '');
+    } catch {}
+  }, []);
+
+  useEffect(() => { fetchDevices(); fetchDeviceKey(); }, [fetchDevices, fetchDeviceKey]);
+
+  const handleRegenerateKey = async () => {
+    if (!await confirm({ title: 'Regenerate device key?', message: 'Existing devices using the old key will stop working until updated.', confirmLabel: 'Regenerate', cancelLabel: 'Cancel', variant: 'danger' })) return;
+    try {
+      setKeyLoading(true);
+      const res = await api.post<{ device_key: string }>('/developer/devices/key/regenerate');
+      setDeviceKey(res.data.device_key);
+      toast.success('Device key regenerated');
+    } catch {
+      toast.error('Failed to regenerate key');
+    } finally {
+      setKeyLoading(false);
+    }
+  };
+
+  const handleCopyKey = () => {
+    navigator.clipboard.writeText(deviceKey);
+    toast.success('Device key copied');
+  };
 
   const handleToggle = async (device: Device) => {
     setTogglingIds((prev) => new Set(prev).add(device.id));
     try {
-      const res = await api.post<{ is_active: boolean }>(
-        `/developer/devices/${selectedAppId}/${device.id}/toggle`
-      );
+      const res = await api.post<{ is_active: boolean }>(`/developer/devices/${device.id}/toggle`);
       setDevices((prev) =>
         prev.map((d) => (d.id === device.id ? { ...d, is_active: res.data.is_active } : d))
       );
@@ -56,14 +79,14 @@ export default function DevicesPage() {
   const handleDelete = async (device: Device) => {
     const ok = await confirm({
       title: 'Remove device?',
-      message: `This will permanently remove ${device.device_name || device.hwid} from your app.`,
+      message: `This will permanently remove ${device.device_name || device.hwid}.`,
       confirmLabel: 'Delete',
       cancelLabel: 'Cancel',
       variant: 'danger',
     });
     if (!ok) return;
     try {
-      await api.delete(`/developer/devices/${selectedAppId}/${device.id}`);
+      await api.delete(`/developer/devices/${device.id}`);
       setDevices((prev) => prev.filter((d) => d.id !== device.id));
       toast.success('Device removed');
     } catch (err: any) {
@@ -88,8 +111,33 @@ export default function DevicesPage() {
         <div>
           <h1 className="text-3xl font-bold text-[var(--foreground)] tracking-tight">Devices</h1>
           <p className="text-[var(--muted-foreground)] mt-1">
-            Remote activation control for desktop applications
+            Remote activation control — no app required
           </p>
+        </div>
+      </div>
+
+      {/* Device API Key Card */}
+      <div className="glass-card rounded-2xl p-5 border border-white/5">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-2">Device API Key</p>
+            <p className="text-[12px] text-white/50 mb-3">Use this key in your EXE instead of an app_secret. No application required.</p>
+            <div className="flex items-center gap-2">
+              <code className="text-sm font-mono text-[var(--primary)] bg-[var(--primary)]/8 px-3 py-2 rounded-xl border border-[var(--primary)]/15 truncate max-w-full">
+                {deviceKey || 'Loading...'}
+              </code>
+              <button onClick={handleCopyKey} className="shrink-0 w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-[var(--primary)]/15 text-white/30 hover:text-[var(--primary)] transition-all">
+                <span className="material-symbols-outlined text-[18px]">content_copy</span>
+              </button>
+            </div>
+          </div>
+          <button
+            onClick={handleRegenerateKey}
+            disabled={keyLoading}
+            className="shrink-0 px-4 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-black uppercase tracking-widest hover:bg-red-500/20 disabled:opacity-50 transition-all"
+          >
+            {keyLoading ? 'Regenerating...' : 'Regenerate'}
+          </button>
         </div>
       </div>
 
@@ -124,7 +172,7 @@ export default function DevicesPage() {
               {devices.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center text-sm text-[var(--muted-foreground)]">
-                    No devices registered yet. Launch your EXE to register the first device.
+                    No devices registered yet. Launch your EXE with your device key to register the first device.
                   </td>
                 </tr>
               ) : (

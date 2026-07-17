@@ -52,7 +52,7 @@ end
 function Device:check()
     self.lastError = ""
     local hwid = getHWID()
-    local body = '{"app_secret":"' .. self.appSecret .. '","hwid":"' .. hwid .. '"}'
+    local body = '{"device_key":"' .. self.appSecret .. '","hwid":"' .. hwid .. '"}'
     self.lastResponse = postRequest(self, "check", body)
     local ok, data = pcall(json.decode, self.lastResponse)
     if ok and data then
@@ -67,7 +67,7 @@ end
 function Device:register(deviceName)
     self.lastError = ""
     local hwid = getHWID()
-    local body = '{"app_secret":"' .. self.appSecret .. '","hwid":"' .. hwid .. '"'
+    local body = '{"device_key":"' .. self.appSecret .. '","hwid":"' .. hwid .. '"'
     if deviceName and deviceName ~= "" then
         body = body .. ',"device_name":"' .. deviceName .. '"'
     end

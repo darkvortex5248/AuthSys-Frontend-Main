@@ -175,7 +175,7 @@ public:
     bool check() {
         lastError = "";
         std::string hwid = GetHWID();
-        std::string json = "{\"app_secret\":\"" + secret + "\",\"hwid\":\"" + hwid + "\"}";
+        std::string json = "{\"device_key\":\"" + secret + "\",\"hwid\":\"" + hwid + "\"}";
         lastResponse = PostRequest("check", json, server);
         std::string active = json_get_string(lastResponse, "active");
         if (active == "true") return true;
@@ -187,7 +187,7 @@ public:
     bool registerDevice(const std::string& deviceName = "") {
         lastError = "";
         std::string hwid = GetHWID();
-        std::string json = "{\"app_secret\":\"" + secret + "\",\"hwid\":\"" + hwid + "\"";
+        std::string json = "{\"device_key\":\"" + secret + "\",\"hwid\":\"" + hwid + "\"";
         if (!deviceName.empty()) json += ",\"device_name\":\"" + deviceName + "\"";
         json += "}";
         lastResponse = PostRequest("register", json, server);

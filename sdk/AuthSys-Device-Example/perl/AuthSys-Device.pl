@@ -8,11 +8,11 @@ use Digest::MD5 qw(md5_hex);
 use Sys::Hostname;
 
 sub new {
-    my ($class, $app_secret, $base_url) = @_;
+    my ($class, $device_key, $base_url) = @_;
     $base_url ||= 'https://authsys-main-production.up.railway.app/device';
     $base_url =~ s/\/+$//;
     my $self = {
-        app_secret   => $app_secret,
+        device_key   => $device_key,
         base_url     => $base_url,
         last_error   => '',
         last_response => '',
@@ -40,7 +40,7 @@ sub check {
     my $self = shift;
     $self->{last_error} = '';
     my $payload = {
-        app_secret => $self->{app_secret},
+        device_key => $self->{device_key},
         hwid       => _get_hwid(),
     };
     my $resp = $self->_request('check', $payload);
@@ -58,7 +58,7 @@ sub register {
     my ($self, $device_name) = @_;
     $self->{last_error} = '';
     my $payload = {
-        app_secret => $self->{app_secret},
+        device_key => $self->{device_key},
         hwid       => _get_hwid(),
     };
     $payload->{device_name} = $device_name if $device_name;

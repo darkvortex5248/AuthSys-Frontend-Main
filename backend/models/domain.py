@@ -92,6 +92,7 @@ class DeveloperAccount(Base):
     discord_id = Column(String, unique=True, index=True, nullable=True)
     github_id = Column(String, unique=True, index=True, nullable=True)
     azure_id = Column(String, unique=True, index=True, nullable=True)
+    device_api_key = Column(String, unique=True, index=True, nullable=True)
 
     apps = relationship("Application", back_populates="developer")
     plan = relationship("SubscriptionPlan")
@@ -141,7 +142,8 @@ class LicenseKey(Base):
 class EndUser(Base):
     __tablename__ = "end_users"
     id = Column(Integer, primary_key=True, index=True)
-    app_id = Column(Integer, ForeignKey("applications.id", ondelete="CASCADE"))
+    app_id = Column(Integer, ForeignKey("applications.id", ondelete="CASCADE"), nullable=True)
+    developer_id = Column(Integer, ForeignKey("developer_accounts.id", ondelete="CASCADE"), nullable=True)
     username = Column(String, index=True)
     password_hash = Column(String)
     email = Column(String, nullable=True)

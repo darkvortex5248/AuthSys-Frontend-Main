@@ -6,23 +6,19 @@ from datetime import datetime, timezone
 from core.database import get_db
 from core.deps import get_current_developer
 from models.domain import DeveloperAccount, EndUser, SubscriptionPlan
-from routers.developer_keys import verify_app_owner
-from services.plan_enforcer import check_limit
 
 router = APIRouter(prefix="/api/v1/developer/devices", tags=["Devices"])
 
 
-@router.get("/{app_id}")
+@router.get("")
 async def list_devices(
-    app_id: int,
     dev: DeveloperAccount = Depends(get_current_developer),
     db: AsyncSession = Depends(get_db),
 ):
-    await verify_app_owner(app_id, dev.id, db)
     res = await db.execute(
         select(EndUser)
         .where(
-            EndUser.app_id == app_id,
+            EndUser.developer_id == dev.id,
             EndUser.is_device_only == True,
         )
         .order_by(EndUser.last_login_at.desc().nullslast())
@@ -56,18 +52,16 @@ async def list_devices(
     }
 
 
-@router.post("/{app_id}/{device_id}/toggle")
+@router.post("/{device_id}/toggle")
 async def toggle_device(
-    app_id: int,
     device_id: int,
     dev: DeveloperAccount = Depends(get_current_developer),
     db: AsyncSession = Depends(get_db),
 ):
-    await verify_app_owner(app_id, dev.id, db)
     res = await db.execute(
         select(EndUser).where(
             EndUser.id == device_id,
-            EndUser.app_id == app_id,
+            EndUser.developer_id == dev.id,
             EndUser.is_device_only == True,
         )
     )
@@ -84,18 +78,16 @@ async def toggle_device(
     }
 
 
-@router.delete("/{app_id}/{device_id}")
+@router.delete("/{device_id}")
 async def delete_device(
-    app_id: int,
     device_id: int,
     dev: DeveloperAccount = Depends(get_current_developer),
     db: AsyncSession = Depends(get_db),
 ):
-    await verify_app_owner(app_id, dev.id, db)
     res = await db.execute(
         select(EndUser).where(
             EndUser.id == device_id,
-            EndUser.app_id == app_id,
+            EndUser.developer_id == dev.id,
             EndUser.is_device_only == True,
         )
     )
@@ -105,3 +97,21 @@ async def delete_device(
     await db.delete(device)
     await db.commit()
     return {"status": "success", "device_id": device.id}
+
+
+@router.get("/key")
+async def get_device_key(
+    dev: DeveloperAccount = Depends(get_current_developer),
+):
+    return {"device_key": dev.device_api_key}
+
+
+@router.post("/key/regenerate")
+async def regenerate_device_key(
+    dev: DeveloperAccount = Depends(get_current_developer),
+    db: AsyncSession = Depends(get_db),
+):
+    import secrets
+    dev.device_api_key = f"dv_{secrets.token_urlsafe(32)}"
+    await db.commit()
+    return {"device_key": dev.device_api_key}

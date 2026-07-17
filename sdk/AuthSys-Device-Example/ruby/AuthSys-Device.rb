@@ -6,8 +6,8 @@ require 'socket'
 class AuthSysDevice
   attr_reader :last_error, :last_response
 
-  def initialize(app_secret, base_url = 'https://authsys-main-production.up.railway.app/device')
-    @app_secret = app_secret
+  def initialize(device_key, base_url = 'https://authsys-main-production.up.railway.app/device')
+    @device_key = device_key
     @base_url = base_url.sub(/\/+$/, '')
     @last_error = ''
     @last_response = ''
@@ -47,7 +47,7 @@ class AuthSysDevice
   def check
     @last_error = ''
     data = request('check', {
-      app_secret: @app_secret,
+      device_key: @device_key,
       hwid: self.class.get_hwid
     })
     return false unless data
@@ -62,7 +62,7 @@ class AuthSysDevice
 
   def register(device_name = '')
     @last_error = ''
-    payload = { app_secret: @app_secret, hwid: self.class.get_hwid }
+    payload = { device_key: @device_key, hwid: self.class.get_hwid }
     payload[:device_name] = device_name unless device_name.empty?
 
     data = request('register', payload)

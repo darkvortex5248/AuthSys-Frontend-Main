@@ -64,7 +64,7 @@ func (d *Device) request(endpoint string, payload map[string]string) (map[string
 func (d *Device) Check() bool {
 	d.LastError = ""
 	payload := map[string]string{
-		"app_secret": d.AppSecret,
+		"device_key": d.AppSecret,
 		"hwid":       getHWID(),
 	}
 	result, err := d.request("check", payload)
@@ -86,7 +86,7 @@ func (d *Device) Check() bool {
 func (d *Device) Register(deviceName string) bool {
 	d.LastError = ""
 	payload := map[string]string{
-		"app_secret": d.AppSecret,
+		"device_key": d.AppSecret,
 		"hwid":       getHWID(),
 	}
 	if deviceName != "" {

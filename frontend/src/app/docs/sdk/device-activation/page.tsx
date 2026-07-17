@@ -8,7 +8,7 @@ export default function DeviceActivationPage() {
   return (
     <DocPageLayout
       title="Device Activation (No-Login)"
-      subtitle="Remote kill-switch for desktop EXEs without requiring user authentication. Just app_secret + HWID."
+      subtitle="Remote kill-switch for desktop EXEs without requiring user authentication. Just device_key + HWID."
       sections={[
         {
           title: 'How It Works',
@@ -16,7 +16,7 @@ export default function DeviceActivationPage() {
             <>
               <p>The Device Activation system lets you control which machines can run your application — without requiring a login screen. Perfect for closed-source EXEs where you want a silent kill-switch.</p>
               <ol className="list-decimal pl-5 space-y-2">
-                <li>Your EXE calls <code>deviceCheck()</code> on startup with <code>app_secret</code> + <code>HWID</code></li>
+                <li>Your EXE calls <code>deviceCheck()</code> on startup with <code>device_key</code> + <code>HWID</code></li>
                 <li>The server auto-creates a device record if it doesn't exist (or returns existing status)</li>
                 <li>If the device is <strong>active</strong> → your app runs normally</li>
                 <li>If the device is <strong>disabled</strong> → your app should exit immediately</li>
@@ -34,7 +34,7 @@ export default function DeviceActivationPage() {
                   <h4 className="font-bold mb-2">POST /device/check</h4>
                   <CodeBlock code={`// Request
 {
-  "app_secret": "your-app-secret",
+  "device_key": "your-app-secret",
   "hwid": "ABC123-DEF456"
 }
 
@@ -49,7 +49,7 @@ export default function DeviceActivationPage() {
                   <h4 className="font-bold mb-2">POST /device/register</h4>
                   <CodeBlock code={`// Request
 {
-  "app_secret": "your-app-secret",
+  "device_key": "your-app-secret",
   "hwid": "ABC123-DEF456",
   "device_name": "PC-1"
 }

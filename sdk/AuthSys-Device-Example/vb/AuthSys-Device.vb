@@ -36,7 +36,7 @@ Namespace AuthSysDevice
             LastError = ""
             Try
                 Dim hwid As String = GetHWID()
-                Dim json As String = $"{{\"app_secret\":\"{_appSecret}\",\"hwid\":\"{hwid}\"}}"
+                Dim json As String = $"{{\"device_key\":\"{_appSecret}\",\"hwid\":\"{hwid}\"}}"
                 Dim content As New StringContent(json, Encoding.UTF8, "application/json")
                 Dim response = _client.PostAsync($"{_baseUrl}/check", content).Result
                 LastResponse = response.Content.ReadAsStringAsync().Result
@@ -54,7 +54,7 @@ Namespace AuthSysDevice
             LastError = ""
             Try
                 Dim hwid As String = GetHWID()
-                Dim json As String = $"{{\"app_secret\":\"{_appSecret}\",\"hwid\":\"{hwid}\""
+                Dim json As String = $"{{\"device_key\":\"{_appSecret}\",\"hwid\":\"{hwid}\""
                 If Not String.IsNullOrEmpty(deviceName) Then
                     json += $",\"device_name\":\"{deviceName}\""
                 End If

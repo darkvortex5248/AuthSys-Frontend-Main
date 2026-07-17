@@ -46,7 +46,7 @@ export class Device {
   async check(): Promise<boolean> {
     this.lastError = '';
     const data = await this.request<DeviceResponse>('check', {
-      app_secret: this.appSecret,
+      device_key: this.appSecret,
       hwid: Device.getHWID(),
     });
     if (!data) return false;
@@ -58,7 +58,7 @@ export class Device {
   async register(deviceName = ''): Promise<boolean> {
     this.lastError = '';
     const payload: Record<string, string> = {
-      app_secret: this.appSecret,
+      device_key: this.appSecret,
       hwid: Device.getHWID(),
     };
     if (deviceName) payload.device_name = deviceName;

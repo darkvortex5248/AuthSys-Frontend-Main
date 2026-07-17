@@ -25,7 +25,7 @@ export function useDevice(appSecret, baseUrl = 'https://authsys-main-production.
       const res = await fetch(`${server}/check`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ app_secret: appSecret, hwid: getHWID() }),
+        body: JSON.stringify({ device_key: appSecret, hwid: getHWID() }),
       });
       const data = await res.json();
       setLastResponse(data);
@@ -44,7 +44,7 @@ export function useDevice(appSecret, baseUrl = 'https://authsys-main-production.
     setLoading(true);
     setError(null);
     try {
-      const payload = { app_secret: appSecret, hwid: getHWID() };
+      const payload = { device_key: appSecret, hwid: getHWID() };
       if (deviceName) payload.device_name = deviceName;
       const res = await fetch(`${server}/register`, {
         method: 'POST',

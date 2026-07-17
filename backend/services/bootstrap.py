@@ -629,6 +629,18 @@ async def ensure_database_schema(db: AsyncSession) -> None:
             "ALTER TABLE end_users ADD COLUMN IF NOT EXISTS is_device_only BOOLEAN DEFAULT FALSE",
             "UPDATE end_users SET is_device_only = FALSE WHERE is_device_only IS NULL"
         ),
+        (
+            "end_users",
+            "developer_id",
+            "ALTER TABLE end_users ADD COLUMN IF NOT EXISTS developer_id INTEGER REFERENCES developer_accounts(id) ON DELETE CASCADE",
+            None
+        ),
+        (
+            "developer_accounts",
+            "device_api_key",
+            "ALTER TABLE developer_accounts ADD COLUMN IF NOT EXISTS device_api_key VARCHAR",
+            None
+        ),
     ]
     
     indexes_to_ensure = [
@@ -641,6 +653,8 @@ async def ensure_database_schema(db: AsyncSession) -> None:
         "CREATE INDEX IF NOT EXISTS ix_applications_created_at ON applications(created_at)",
         "CREATE INDEX IF NOT EXISTS ix_activation_codes_code ON activation_codes(code)",
         "CREATE INDEX IF NOT EXISTS ix_activation_codes_is_used ON activation_codes(is_used)",
+        "CREATE INDEX IF NOT EXISTS ix_end_users_developer_id ON end_users(developer_id)",
+        "CREATE UNIQUE INDEX IF NOT EXISTS uq_developer_accounts_device_api_key ON developer_accounts(device_api_key) WHERE device_api_key IS NOT NULL",
     ]
     
     for idx_sql in indexes_to_ensure:
@@ -754,6 +768,16 @@ async def run_bootstrap(db: AsyncSession) -> dict:
             icon_name="credit_card",
             is_active=True,
         ))
+        await db.commit()
+
+    import secrets
+    devs_res = await db.execute(
+        select(DeveloperAccount).where(DeveloperAccount.device_api_key.is_(None))
+    )
+    devs = devs_res.scalars().all()
+    for dev in devs:
+        dev.device_api_key = f"dv_{secrets.token_urlsafe(32)}"
+    if devs:
         await db.commit()
 
     return {"plans_created": plans, "settings_created": settings_count, "admin_created": admin_created}

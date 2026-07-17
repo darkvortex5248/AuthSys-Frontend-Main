@@ -1,11 +1,11 @@
 # AuthSys Device Activation SDK
 
 A **standalone** Device Activation system for apps that want a **no-login kill-switch**.  
-No user authentication required — just `app_secret` + HWID.
+No user authentication required — just `device_key` + HWID.
 
 ## Architecture
 
-- The EXE calls `device/check` on startup (with `app_secret` + HWID)  
+- The EXE calls `device/check` on startup (with `device_key` + HWID)  
 - Server auto-creates a device record if it doesn't exist  
 - Developer toggles Active/Inactive from the Dashboard → next check fails  
 - If inactive, the EXE receives `{"active": false}` and should exit
@@ -17,7 +17,7 @@ No user authentication required — just `app_secret` + HWID.
 ### `POST /device/check`
 
 ```json
-{"app_secret": "...", "hwid": "..."}
+{"device_key": "...", "hwid": "..."}
 ```
 
 Response:
@@ -31,7 +31,7 @@ Auto-creates a device record if it doesn't already exist.
 ### `POST /device/register`
 
 ```json
-{"app_secret": "...", "hwid": "...", "device_name": "PC-1"}
+{"device_key": "...", "hwid": "...", "device_name": "PC-1"}
 ```
 
 Optional `device_name`. Returns `{"active": true, "device_id": 1}`.  
