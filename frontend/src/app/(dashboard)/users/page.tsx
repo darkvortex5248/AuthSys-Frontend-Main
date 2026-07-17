@@ -835,7 +835,7 @@ export default function UsersPage() {
               <div className="grid grid-cols-2 gap-3">
                 {hwidEnabled && !bulkMode && (
                   <div>
-                    <FieldLabel>Max Uses (0=∞)</FieldLabel>
+                    <FieldLabel>Max Devices (0=∞)</FieldLabel>
                     <GlassInput
                       type="number"
                       value={newUser.max_uses}

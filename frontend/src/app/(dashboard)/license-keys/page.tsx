@@ -791,7 +791,7 @@ export default function LicenseKeysPage() {
                   <div className="grid grid-cols-2 gap-3">
                     {hwidEnabled && (
                       <div>
-                        <FieldLabel>Max Uses (0=∞)</FieldLabel>
+                        <FieldLabel>Max Devices (0=∞)</FieldLabel>
                         <GlassInput
                           type="number"
                           value={singleData.max_uses}
@@ -1039,7 +1039,7 @@ export default function LicenseKeysPage() {
               <div className="grid grid-cols-2 gap-3">
                 {hwidEnabled && (
                   <div>
-                    <FieldLabel>Max Uses (0=∞)</FieldLabel>
+                    <FieldLabel>Max Devices (0=∞)</FieldLabel>
                     <GlassInput
                       type="number"
                       value={editData.max_uses}
