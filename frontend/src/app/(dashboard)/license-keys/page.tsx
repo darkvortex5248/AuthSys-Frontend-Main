@@ -52,7 +52,7 @@ export default function LicenseKeysPage() {
   const [showEditModal, setShowEditModal] = useState<any>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [bulkMode, setBulkMode] = useState(false);
-  const [singleData, setSingleData] = useState({ type: 'time', duration: 30, max_uses: 1, expires_at: '', note: '', custom_key: '', use_custom_expiry: false });
+  const [singleData, setSingleData] = useState({ type: 'time', duration: 30, max_uses: 0, expires_at: '', note: '', custom_key: '', use_custom_expiry: false });
   const [editData, setEditData] = useState({ type: 'time', duration: 30, max_uses: 0, expires_at: '', note: '', seller_tag: '' });
   const [generating, setGenerating] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -142,7 +142,7 @@ export default function LicenseKeysPage() {
         custom_key: singleData.custom_key || null,
       });
       setShowCreateModal(false);
-      setSingleData({ type: 'time', duration: 30, max_uses: 1, expires_at: '', note: '', custom_key: '', use_custom_expiry: false });
+      setSingleData({ type: 'time', duration: 30, max_uses: 0, expires_at: '', note: '', custom_key: '', use_custom_expiry: false });
       toast.success('License key created');
     } catch (err: any) {
       toast.error(err.response?.data?.detail || 'Failed to create key');
