@@ -659,11 +659,11 @@ async def ensure_database_schema(db: AsyncSession) -> None:
     
     tables_to_ensure = [
         """
-        CREATE TABLE IF NOT EXISTS device_apps (
+        CREATE TABLE IF NOT EXISTS device_groups (
             id SERIAL PRIMARY KEY,
             developer_id INTEGER REFERENCES developer_accounts(id) ON DELETE CASCADE NOT NULL,
             name VARCHAR NOT NULL,
-            device_secret VARCHAR UNIQUE NOT NULL,
+            group_secret VARCHAR UNIQUE NOT NULL,
             is_active BOOLEAN DEFAULT TRUE,
             max_devices INTEGER DEFAULT 50,
             created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -673,7 +673,7 @@ async def ensure_database_schema(db: AsyncSession) -> None:
         """
         CREATE TABLE IF NOT EXISTS devices (
             id SERIAL PRIMARY KEY,
-            device_app_id INTEGER REFERENCES device_apps(id) ON DELETE CASCADE NOT NULL,
+            group_id INTEGER REFERENCES device_groups(id) ON DELETE CASCADE NOT NULL,
             hwid VARCHAR NOT NULL,
             device_name VARCHAR,
             status VARCHAR DEFAULT 'active',
@@ -806,22 +806,22 @@ async def run_bootstrap(db: AsyncSession) -> dict:
 
     import secrets
 
-    # Migrate legacy device_api_key to DeviceApp
+    # Migrate legacy device_api_key to DeviceGroup
     devs_res = await db.execute(select(DeveloperAccount))
     all_devs = devs_res.scalars().all()
     for dev in all_devs:
-        has_app = await db.execute(
-            select(DeviceApp).where(DeviceApp.developer_id == dev.id).limit(1)
+        has_group = await db.execute(
+            select(DeviceGroup).where(DeviceGroup.developer_id == dev.id).limit(1)
         )
-        if not has_app.scalars().first():
+        if not has_group.scalars().first():
             legacy_key = dev.device_api_key
-            app = DeviceApp(
+            group = DeviceGroup(
                 developer_id=dev.id,
-                name="Default Device App",
-                device_secret=legacy_key or f"dv_{secrets.token_urlsafe(32)}",
+                name="Default Device Group",
+                group_secret=legacy_key or f"dv_{secrets.token_urlsafe(32)}",
                 max_devices=50,
             )
-            db.add(app)
+            db.add(group)
             await db.flush()
 
             old_devices = await db.execute(
@@ -832,7 +832,7 @@ async def run_bootstrap(db: AsyncSession) -> dict:
             )
             for old in old_devices.scalars().all():
                 device = Device(
-                    device_app_id=app.id,
+                    group_id=group.id,
                     hwid=old.hwid or "unknown",
                     device_name=old.device_name,
                     status="active" if not old.is_banned else "banned",

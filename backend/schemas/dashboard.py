@@ -117,21 +117,21 @@ class WebhookEndpointResponse(BaseModel):
         from_attributes = True
 
 
-class DeviceAppCreate(BaseModel):
+class DeviceGroupCreate(BaseModel):
     name: str
     max_devices: int = 50
 
 
-class DeviceAppUpdate(BaseModel):
+class DeviceGroupUpdate(BaseModel):
     name: Optional[str] = None
     is_active: Optional[bool] = None
     max_devices: Optional[int] = None
 
 
-class DeviceAppResponse(BaseModel):
+class DeviceGroupResponse(BaseModel):
     id: int
     name: str
-    device_secret: str
+    group_secret: str
     is_active: bool
     max_devices: int
     device_count: int = 0

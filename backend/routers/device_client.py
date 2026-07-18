@@ -4,39 +4,39 @@ from sqlalchemy.future import select
 from sqlalchemy import func
 from datetime import datetime, timezone
 from core.database import get_db
-from models.domain import DeviceApp, Device
+from models.domain import DeviceGroup, Device
 
 router = APIRouter(prefix="/device", tags=["Device Activation"])
 
 
-async def get_device_app_by_secret(device_secret: str, db: AsyncSession) -> DeviceApp:
-    key = (device_secret or "").strip()
+async def get_device_group_by_secret(group_secret: str, db: AsyncSession) -> DeviceGroup:
+    key = (group_secret or "").strip()
     if not key:
-        raise HTTPException(status_code=400, detail="device_secret is required")
+        raise HTTPException(status_code=400, detail="group_secret is required")
     res = await db.execute(
-        select(DeviceApp).where(DeviceApp.device_secret == key)
+        select(DeviceGroup).where(DeviceGroup.group_secret == key)
     )
-    app = res.scalars().first()
-    if not app:
-        raise HTTPException(status_code=404, detail="Invalid device secret")
-    if not app.is_active:
-        raise HTTPException(status_code=403, detail="Device app is disabled")
-    return app
+    group = res.scalars().first()
+    if not group:
+        raise HTTPException(status_code=404, detail="Invalid group secret")
+    if not group.is_active:
+        raise HTTPException(status_code=403, detail="Device group is disabled")
+    return group
 
 
 @router.post("/register")
 async def register_device(data: dict, db: AsyncSession = Depends(get_db)):
-    device_secret = (data.get("device_secret") or "").strip()
+    group_secret = (data.get("group_secret") or "").strip()
     hwid = (data.get("hwid") or "").strip()
     device_name = (data.get("device_name") or "").strip()
-    if not device_secret or not hwid:
-        raise HTTPException(400, "device_secret and hwid are required")
-    app = await get_device_app_by_secret(device_secret, db)
+    if not group_secret or not hwid:
+        raise HTTPException(400, "group_secret and hwid are required")
+    group = await get_device_group_by_secret(group_secret, db)
     now = datetime.now(timezone.utc)
 
     res = await db.execute(
         select(Device).where(
-            Device.device_app_id == app.id,
+            Device.group_id == group.id,
             Device.hwid == hwid,
         )
     )
@@ -49,14 +49,14 @@ async def register_device(data: dict, db: AsyncSession = Depends(get_db)):
     else:
         current_count = (
             await db.execute(
-                select(func.count(Device.id)).where(Device.device_app_id == app.id)
+                select(func.count(Device.id)).where(Device.group_id == group.id)
             )
         ).scalar() or 0
-        if current_count >= app.max_devices:
-            raise HTTPException(403, f"Device limit reached ({app.max_devices}). Contact developer.")
+        if current_count >= group.max_devices:
+            raise HTTPException(403, f"Device limit reached ({group.max_devices}). Contact developer.")
 
         device = Device(
-            device_app_id=app.id,
+            group_id=group.id,
             hwid=hwid,
             device_name=device_name or None,
             status="active",
@@ -71,16 +71,16 @@ async def register_device(data: dict, db: AsyncSession = Depends(get_db)):
 
 @router.post("/check")
 async def check_device(data: dict, db: AsyncSession = Depends(get_db)):
-    device_secret = (data.get("device_secret") or "").strip()
+    group_secret = (data.get("group_secret") or "").strip()
     hwid = (data.get("hwid") or "").strip()
-    if not device_secret or not hwid:
-        raise HTTPException(400, "device_secret and hwid are required")
-    app = await get_device_app_by_secret(device_secret, db)
+    if not group_secret or not hwid:
+        raise HTTPException(400, "group_secret and hwid are required")
+    group = await get_device_group_by_secret(group_secret, db)
     now = datetime.now(timezone.utc)
 
     res = await db.execute(
         select(Device).where(
-            Device.device_app_id == app.id,
+            Device.group_id == group.id,
             Device.hwid == hwid,
         )
     )
@@ -89,14 +89,14 @@ async def check_device(data: dict, db: AsyncSession = Depends(get_db)):
     if not device:
         current_count = (
             await db.execute(
-                select(func.count(Device.id)).where(Device.device_app_id == app.id)
+                select(func.count(Device.id)).where(Device.group_id == group.id)
             )
         ).scalar() or 0
-        if current_count >= app.max_devices:
-            raise HTTPException(403, f"Device limit reached ({app.max_devices}). Contact developer.")
+        if current_count >= group.max_devices:
+            raise HTTPException(403, f"Device limit reached ({group.max_devices}). Contact developer.")
 
         device = Device(
-            device_app_id=app.id,
+            group_id=group.id,
             hwid=hwid,
             status="active",
             last_checkin_at=now,

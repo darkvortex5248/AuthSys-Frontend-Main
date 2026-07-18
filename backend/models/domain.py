@@ -95,7 +95,7 @@ class DeveloperAccount(Base):
     device_api_key = Column(String, unique=True, index=True, nullable=True)
 
     apps = relationship("Application", back_populates="developer")
-    device_apps = relationship("DeviceApp", back_populates="developer", cascade="all, delete-orphan")
+    device_groups = relationship("DeviceGroup", back_populates="developer", cascade="all, delete-orphan")
     plan = relationship("SubscriptionPlan")
 
 class Application(Base):
@@ -658,25 +658,25 @@ class ActivationCode(Base):
     used_by = relationship("DeveloperAccount", foreign_keys=[used_by_developer_id])
 
 
-class DeviceApp(Base):
-    __tablename__ = "device_apps"
+class DeviceGroup(Base):
+    __tablename__ = "device_groups"
     id = Column(Integer, primary_key=True, index=True)
     developer_id = Column(Integer, ForeignKey("developer_accounts.id", ondelete="CASCADE"), nullable=False)
     name = Column(String, nullable=False)
-    device_secret = Column(String, unique=True, index=True, nullable=False)
+    group_secret = Column(String, unique=True, index=True, nullable=False)
     is_active = Column(Boolean, default=True)
     max_devices = Column(Integer, default=50)
     created_at = Column(DateTime(timezone=True), default=utc_now)
     updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
 
     developer = relationship("DeveloperAccount", foreign_keys=[developer_id])
-    devices = relationship("Device", back_populates="device_app", cascade="all, delete-orphan")
+    devices = relationship("Device", back_populates="device_group", cascade="all, delete-orphan")
 
 
 class Device(Base):
     __tablename__ = "devices"
     id = Column(Integer, primary_key=True, index=True)
-    device_app_id = Column(Integer, ForeignKey("device_apps.id", ondelete="CASCADE"), nullable=False)
+    group_id = Column(Integer, ForeignKey("device_groups.id", ondelete="CASCADE"), nullable=False)
     hwid = Column(String, nullable=False, index=True)
     device_name = Column(String, nullable=True)
     status = Column(String, default="active")
@@ -684,7 +684,7 @@ class Device(Base):
     last_checkin_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), default=utc_now)
 
-    device_app = relationship("DeviceApp", back_populates="devices")
+    device_group = relationship("DeviceGroup", back_populates="devices")
 
 
 
