@@ -65,6 +65,7 @@ class SubscriptionPlan(Base):
     has_custom_bot = Column(Boolean, default=False)
     has_behavioral_threat_intel = Column(Boolean, default=False)
     has_version_whitelist = Column(Boolean, default=False)
+    has_device_panel = Column(Boolean, default=False)
 
 class DeveloperAccount(Base):
     __tablename__ = "developer_accounts"

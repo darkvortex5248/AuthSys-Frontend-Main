@@ -7,6 +7,7 @@ from core.database import get_db
 from core.deps import get_current_developer
 from models.domain import DeveloperAccount, DeviceGroup, Device
 from schemas.dashboard import DeviceGroupCreate, DeviceGroupUpdate, DeviceGroupResponse, DeviceResponse
+from services.plan_enforcer import require_feature
 
 router = APIRouter(prefix="/api/v1/developer/device-groups", tags=["Device Groups"])
 
@@ -16,6 +17,7 @@ async def list_device_groups(
     dev: DeveloperAccount = Depends(get_current_developer),
     db: AsyncSession = Depends(get_db),
 ):
+    plan = await require_feature(dev, "has_device_panel", db)
     res = await db.execute(
         select(DeviceGroup).where(DeviceGroup.developer_id == dev.id).order_by(DeviceGroup.created_at.desc())
     )
@@ -43,6 +45,7 @@ async def create_device_group(
     dev: DeveloperAccount = Depends(get_current_developer),
     db: AsyncSession = Depends(get_db),
 ):
+    await require_feature(dev, "has_device_panel", db)
     group = DeviceGroup(
         developer_id=dev.id,
         name=req.name,

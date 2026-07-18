@@ -58,6 +58,7 @@ DEFAULT_PLANS = [
         "has_custom_bot": False,
         "has_behavioral_threat_intel": False,
         "has_version_whitelist": True,
+        "has_device_panel": True,
     },
     {
         "name": "Developer",
@@ -104,6 +105,7 @@ DEFAULT_PLANS = [
         "has_custom_bot": False,
         "has_behavioral_threat_intel": False,
         "has_version_whitelist": True,
+        "has_device_panel": True,
     },
     {
         "name": "Seller",
@@ -150,6 +152,7 @@ DEFAULT_PLANS = [
         "has_custom_bot": False,
         "has_behavioral_threat_intel": False,
         "has_version_whitelist": True,
+        "has_device_panel": True,
     },
     {
         "name": "Enterprise",
@@ -207,6 +210,7 @@ DEFAULT_PLANS = [
         "has_custom_bot": True,
         "has_behavioral_threat_intel": True,
         "has_version_whitelist": True,
+        "has_device_panel": True,
     },
 ]
 
@@ -511,6 +515,12 @@ async def ensure_database_schema(db: AsyncSession) -> None:
         ),
         (
             "subscription_plans",
+            "has_device_panel",
+            "ALTER TABLE subscription_plans ADD COLUMN IF NOT EXISTS has_device_panel BOOLEAN DEFAULT FALSE",
+            "UPDATE subscription_plans SET has_device_panel = FALSE WHERE has_device_panel IS NULL"
+        ),
+        (
+            "subscription_plans",
             "max_apps",
             "ALTER TABLE subscription_plans ADD COLUMN IF NOT EXISTS max_apps INTEGER DEFAULT 2",
             "UPDATE subscription_plans SET max_apps = 2 WHERE max_apps IS NULL"
@@ -698,7 +708,23 @@ async def ensure_database_schema(db: AsyncSession) -> None:
         except Exception as e:
             await db.rollback()
             logger.warning(f"Index creation failed: {e}")
-    
+
+    # Migrate device_apps → device_groups (legacy schema rename)
+    for stmt in [
+        # Rename column in devices table if it still uses old FK name
+        "DO $$ BEGIN IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='devices' AND column_name='device_app_id') THEN ALTER TABLE devices RENAME COLUMN device_app_id TO group_id; END IF; END $$",
+        # Migrate data from old device_apps table to device_groups if old table exists (column device_secret→group_secret)
+        "DO $$ BEGIN IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name='device_apps') THEN INSERT INTO device_groups (id, developer_id, name, group_secret, is_active, max_devices, created_at, updated_at) SELECT id, developer_id, name, device_secret, is_active, max_devices, created_at, updated_at FROM device_apps ON CONFLICT (id) DO NOTHING; END IF; END $$",
+        # Drop old device_apps table
+        "DROP TABLE IF EXISTS device_apps CASCADE",
+    ]:
+        try:
+            await db.execute(text(stmt))
+            await db.commit()
+        except Exception as e:
+            await db.rollback()
+            logger.warning(f"Device group migration step failed: {e}")
+
     for table, col, alter_sql, update_sql in columns_to_ensure:
         try:
             res = await db.execute(text(

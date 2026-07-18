@@ -96,8 +96,8 @@ export default function DeviceGroupsPage() {
           <p className="text-sm text-[var(--muted-foreground)] mt-0.5">Create device groups for your EXEs — no login required</p>
         </div>
         <button onClick={() => setShowCreate(true)}
-          className="px-4 py-2 rounded-xl bg-[var(--primary)] text-[#131313] text-xs font-black uppercase tracking-widest hover:opacity-90 transition-all">
-          <span className="material-symbols-outlined text-[16px] mr-1">add</span>
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[var(--primary)] text-[#131313] text-xs font-black uppercase tracking-widest hover:opacity-90 transition-all">
+          <span className="material-symbols-outlined text-[18px]">add</span>
           New Group
         </button>
       </div>
