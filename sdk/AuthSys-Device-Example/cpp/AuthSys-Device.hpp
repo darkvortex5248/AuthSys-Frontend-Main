@@ -5,6 +5,7 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include <winhttp.h>
 #include <iphlpapi.h>
 #include <comdef.h>
 #include <Wbemidl.h>
@@ -99,35 +100,43 @@ static std::string PostRequest(const std::string& endpoint, const std::string& j
 #ifdef _WIN32
     HINTERNET hSession = WinHttpOpen(L"AuthSys-Device/1.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, NULL, NULL, 0);
     if (hSession) {
-        HINTERNET hConnect = WinHttpConnect(hSession, L"localhost", INTERNET_DEFAULT_HTTPS_PORT, 0);
-        if (hConnect) {
-            HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"POST", NULL, NULL, NULL, NULL, WINHTTP_FLAG_SECURE);
-            if (hRequest) {
-                std::wstring wurl = std::wstring(url.begin(), url.end());
-                std::string headers = "Content-Type: application/json\r\n";
-                LPCWSTR acceptTypes[] = { L"*/*", NULL };
-                WinHttpAddRequestHeaders(hRequest, std::wstring(headers.begin(), headers.end()).c_str(), -1, WINHTTP_ADDREQ_FLAG_ADD);
-                if (WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0,
-                    (LPVOID)jsonData.c_str(), jsonData.length(), jsonData.length(), 0))
-                {
-                    if (WinHttpReceiveResponse(hRequest, NULL)) {
-                        DWORD dwSize = 0;
-                        DWORD dwDownloaded = 0;
-                        do {
-                            dwSize = 0;
-                            if (!WinHttpQueryDataAvailable(hRequest, &dwSize)) break;
-                            if (dwSize == 0) break;
-                            char* pszOutBuffer = new char[dwSize + 1];
-                            ZeroMemory(pszOutBuffer, dwSize + 1);
-                            if (WinHttpReadData(hRequest, pszOutBuffer, dwSize, &dwDownloaded))
-                                response.append(pszOutBuffer, dwDownloaded);
-                            delete[] pszOutBuffer;
-                        } while (dwSize > 0);
+        std::wstring wurl = std::wstring(url.begin(), url.end());
+        URL_COMPONENTS urlComp = { sizeof(URL_COMPONENTS) };
+        WCHAR hostName[256] = {0};
+        WCHAR urlPath[1024] = {0};
+        urlComp.lpszHostName = hostName;
+        urlComp.dwHostNameLength = 256;
+        urlComp.lpszUrlPath = urlPath;
+        urlComp.dwUrlPathLength = 1024;
+        if (WinHttpCrackUrl(wurl.c_str(), wurl.length(), 0, &urlComp)) {
+            HINTERNET hConnect = WinHttpConnect(hSession, hostName, urlComp.nPort, 0);
+            if (hConnect) {
+                HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"POST", urlPath, NULL, NULL, NULL, WINHTTP_FLAG_SECURE);
+                if (hRequest) {
+                    std::string headers = "Content-Type: application/json\r\n";
+                    WinHttpAddRequestHeaders(hRequest, std::wstring(headers.begin(), headers.end()).c_str(), -1, WINHTTP_ADDREQ_FLAG_ADD);
+                    if (WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0,
+                        (LPVOID)jsonData.c_str(), jsonData.length(), jsonData.length(), 0))
+                    {
+                        if (WinHttpReceiveResponse(hRequest, NULL)) {
+                            DWORD dwSize = 0;
+                            DWORD dwDownloaded = 0;
+                            do {
+                                dwSize = 0;
+                                if (!WinHttpQueryDataAvailable(hRequest, &dwSize)) break;
+                                if (dwSize == 0) break;
+                                char* pszOutBuffer = new char[dwSize + 1];
+                                ZeroMemory(pszOutBuffer, dwSize + 1);
+                                if (WinHttpReadData(hRequest, pszOutBuffer, dwSize, &dwDownloaded))
+                                    response.append(pszOutBuffer, dwDownloaded);
+                                delete[] pszOutBuffer;
+                            } while (dwSize > 0);
+                        }
                     }
+                    WinHttpCloseHandle(hRequest);
                 }
-                WinHttpCloseHandle(hRequest);
+                WinHttpCloseHandle(hConnect);
             }
-            WinHttpCloseHandle(hConnect);
         }
         WinHttpCloseHandle(hSession);
     }
@@ -175,7 +184,7 @@ public:
     bool check() {
         lastError = "";
         std::string hwid = GetHWID();
-        std::string json = "{\"device_key\":\"" + secret + "\",\"hwid\":\"" + hwid + "\"}";
+        std::string json = "{\"group_secret\":\"" + secret + "\",\"hwid\":\"" + hwid + "\"}";
         lastResponse = PostRequest("check", json, server);
         std::string active = json_get_string(lastResponse, "active");
         if (active == "true") return true;
@@ -187,7 +196,7 @@ public:
     bool registerDevice(const std::string& deviceName = "") {
         lastError = "";
         std::string hwid = GetHWID();
-        std::string json = "{\"device_key\":\"" + secret + "\",\"hwid\":\"" + hwid + "\"";
+        std::string json = "{\"group_secret\":\"" + secret + "\",\"hwid\":\"" + hwid + "\"";
         if (!deviceName.empty()) json += ",\"device_name\":\"" + deviceName + "\"";
         json += "}";
         lastResponse = PostRequest("register", json, server);

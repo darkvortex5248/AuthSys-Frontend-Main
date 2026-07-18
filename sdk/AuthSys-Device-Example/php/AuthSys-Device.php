@@ -16,9 +16,8 @@ class AuthSysDevice
     private static function getHWID(): string
     {
         if (PHP_OS_FAMILY === 'Windows') {
-            $output = shell_exec('wmic bios get serialnumber 2>nul');
-            if ($output) {
-                $lines = explode("\n", trim($output));
+            $output = exec('wmic bios get serialnumber 2>nul', $lines, $code);
+            if ($code === 0 && !empty($lines)) {
                 return isset($lines[1]) ? trim($lines[1]) : 'unknown';
             }
         } else {
@@ -40,7 +39,7 @@ class AuthSysDevice
             CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => 15,
-            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYPEER => true,
         ]);
 
         $this->lastResponse = curl_exec($ch) ?: '';
@@ -55,7 +54,7 @@ class AuthSysDevice
     {
         $this->lastError = '';
         $data = $this->request('check', [
-            'device_key' => $this->appSecret,
+            'group_secret' => $this->appSecret,
             'hwid' => self::getHWID(),
         ]);
 
@@ -68,7 +67,7 @@ class AuthSysDevice
     {
         $this->lastError = '';
         $payload = [
-            'device_key' => $this->appSecret,
+            'group_secret' => $this->appSecret,
             'hwid' => self::getHWID(),
         ];
         if ($deviceName) $payload['device_name'] = $deviceName;

@@ -8,11 +8,11 @@ use Digest::MD5 qw(md5_hex);
 use Sys::Hostname;
 
 sub new {
-    my ($class, $device_key, $base_url) = @_;
+    my ($class, $group_secret, $base_url) = @_;
     $base_url ||= 'https://authsys-main-production.up.railway.app/device';
     $base_url =~ s/\/+$//;
     my $self = {
-        device_key   => $device_key,
+        group_secret   => $group_secret,
         base_url     => $base_url,
         last_error   => '',
         last_response => '',
@@ -23,8 +23,15 @@ sub new {
 }
 
 sub _get_hwid {
-    my $hostname = hostname();
-    return uc(md5_hex($hostname));
+    my $raw = hostname();
+    if ( $^O eq 'MSWin32' ) {
+        my @mac = `getmac /nh /fo csv 2>nul`;
+        for (@mac) { chomp; $raw .= $_ }
+    } else {
+        my @mac = `ifconfig 2>/dev/null | grep -i hwaddr`;
+        for (@mac) { chomp; $raw .= $_ }
+    }
+    return uc(md5_hex($raw));
 }
 
 sub _request {
@@ -40,7 +47,7 @@ sub check {
     my $self = shift;
     $self->{last_error} = '';
     my $payload = {
-        device_key => $self->{device_key},
+        group_secret => $self->{group_secret},
         hwid       => _get_hwid(),
     };
     my $resp = $self->_request('check', $payload);
@@ -58,7 +65,7 @@ sub register {
     my ($self, $device_name) = @_;
     $self->{last_error} = '';
     my $payload = {
-        device_key => $self->{device_key},
+        group_secret => $self->{group_secret},
         hwid       => _get_hwid(),
     };
     $payload->{device_name} = $device_name if $device_name;

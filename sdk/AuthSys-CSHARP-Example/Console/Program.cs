@@ -52,7 +52,7 @@ namespace AuthSys.Example
                 case 3:
                     Console.Write("\n\n Enter license: ");
                     key = Console.ReadLine();
-                    AuthSysApp.license(key);
+                    AuthSysApp.licenseLogin(key);
                     break;
                 default:
                     Console.WriteLine("\n Invalid option");
@@ -60,7 +60,7 @@ namespace AuthSys.Example
                     break;
             }
 
-            if (!string.IsNullOrEmpty(AuthSysApp.sessionid) || AuthSysApp.response.message == "User registered successfully")
+            if (!string.IsNullOrEmpty(AuthSysApp.sessionToken) || AuthSysApp.response.message == "User registered successfully")
             {
                 Console.WriteLine("\n Success! " + (AuthSysApp.response.message ?? "Logged in successfully."));
                 

@@ -23,9 +23,23 @@ public class AuthSysDevice {
 
     private static String getHWID() {
         try {
-            String hostname = java.net.InetAddress.getLocalHost().getHostName();
+            StringBuilder raw = new StringBuilder();
+            raw.append(java.net.InetAddress.getLocalHost().getHostName());
+            raw.append(System.getProperty("os.name"));
+            raw.append(System.getProperty("os.version"));
+            raw.append(System.getProperty("os.arch"));
+            try {
+                java.net.NetworkInterface ni = java.net.NetworkInterface.getByInetAddress(
+                    java.net.InetAddress.getLocalHost());
+                if (ni != null) {
+                    byte[] mac = ni.getHardwareAddress();
+                    if (mac != null) {
+                        for (byte b : mac) raw.append(String.format("%02X", b));
+                    }
+                }
+            } catch (Exception ignored) {}
             MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] hash = md.digest(hostname.getBytes());
+            byte[] hash = md.digest(raw.toString().getBytes());
             StringBuilder sb = new StringBuilder();
             for (byte b : hash) sb.append(String.format("%02X", b));
             return sb.toString();
@@ -79,7 +93,7 @@ public class AuthSysDevice {
     public boolean check() {
         lastError = "";
         try {
-            String json = "{\"device_key\":\"" + appSecret + "\",\"hwid\":\"" + getHWID() + "\"}";
+            String json = "{\"group_secret\":\"" + appSecret + "\",\"hwid\":\"" + getHWID() + "\"}";
             lastResponse = postRequest("check", json);
             String active = jsonGet(lastResponse, "active");
             if ("true".equals(active)) return true;
@@ -95,7 +109,7 @@ public class AuthSysDevice {
     public boolean register(String deviceName) {
         lastError = "";
         try {
-            String json = "{\"device_key\":\"" + appSecret + "\",\"hwid\":\"" + getHWID() + "\"";
+            String json = "{\"group_secret\":\"" + appSecret + "\",\"hwid\":\"" + getHWID() + "\"";
             if (deviceName != null && !deviceName.isEmpty()) {
                 json += ",\"device_name\":\"" + deviceName + "\"";
             }

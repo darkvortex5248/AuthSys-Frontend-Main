@@ -30,11 +30,15 @@ export class Device {
 
   private async request<T>(endpoint: string, payload: Record<string, string>): Promise<T | null> {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
       const res = await fetch(`${this.server}/${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
       this.lastResponse = await res.text();
       return JSON.parse(this.lastResponse) as T;
     } catch (err: any) {
@@ -46,7 +50,7 @@ export class Device {
   async check(): Promise<boolean> {
     this.lastError = '';
     const data = await this.request<DeviceResponse>('check', {
-      device_key: this.appSecret,
+      group_secret: this.appSecret,
       hwid: Device.getHWID(),
     });
     if (!data) return false;
@@ -58,7 +62,7 @@ export class Device {
   async register(deviceName = ''): Promise<boolean> {
     this.lastError = '';
     const payload: Record<string, string> = {
-      device_key: this.appSecret,
+      group_secret: this.appSecret,
       hwid: Device.getHWID(),
     };
     if (deviceName) payload.device_name = deviceName;

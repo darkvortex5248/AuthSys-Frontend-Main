@@ -14,6 +14,7 @@ pub struct AuthSysClient {
     pub initialized: bool,
     pub username: String,
     pub email: String,
+    variables: String,
 }
 
 impl AuthSysClient {
@@ -29,6 +30,7 @@ impl AuthSysClient {
             initialized: false,
             username: String::new(),
             email: String::new(),
+            variables: String::new(),
         }
     }
 
@@ -95,6 +97,7 @@ impl AuthSysClient {
         let status = self.get_json("status");
         if status == "success" || status == "update_available" {
             self.initialized = true;
+            self.variables = self.get_json("variables");
         } else {
             self.last_error = self.get_json("detail");
             if self.last_error.is_empty() { self.last_error = "Init failed".to_string(); }
@@ -164,7 +167,7 @@ impl AuthSysClient {
             "hwid": Self::get_hwid(),
             "session_length": session_length.unwrap_or(86400),
         });
-        self.last_response = self.post("license_login", body, None);
+        self.last_response = self.post("license-login", body, None);
 
         let detail = self.get_json("detail");
         if !detail.is_empty() { self.last_error = detail; return; }
@@ -204,8 +207,18 @@ impl AuthSysClient {
         self.last_response = self.post(&endpoint, body, self.session_token.as_deref());
     }
 
+    fn get_json_from(&self, json_str: &str, key: &str) -> String {
+        if let Ok(v) = serde_json::from_str::<Value>(json_str) {
+            if let Some(val) = v.get(key) {
+                if val.is_string() { return val.as_str().unwrap_or("").to_string(); }
+                return val.to_string();
+            }
+        }
+        String::new()
+    }
+
     pub fn var(&self, name: &str) -> String {
-        self.get_json(name)
+        self.get_json_from(&self.variables, name)
     }
 
     pub fn logout(&mut self) {

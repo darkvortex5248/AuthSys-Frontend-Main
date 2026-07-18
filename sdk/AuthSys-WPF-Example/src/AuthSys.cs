@@ -22,6 +22,7 @@ namespace AuthSys
         public bool Initialized { get; private set; }
         public string Username { get; private set; }
         public string Email { get; private set; }
+        private string _variables = "{}";
 
         public AuthSysClient(string appSecret, string version, string apiUrl = "https://authsys-main-production.up.railway.app/api/v1")
         {
@@ -87,7 +88,8 @@ namespace AuthSys
             }
             catch (Exception ex)
             {
-                return $"{{\"success\":false,\"detail\":\"{ex.Message}\"}}";
+                var safe = ex.Message.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
+                return $"{{\"success\":false,\"detail\":\"{safe}\"}}";
             }
         }
 
@@ -104,6 +106,8 @@ namespace AuthSys
             if (status == "success" || status == "update_available")
             {
                 Initialized = true;
+                var v = GetJson("variables", LastResponse);
+                if (!string.IsNullOrEmpty(v)) _variables = v;
             }
             else
             {
@@ -162,7 +166,7 @@ namespace AuthSys
             LastResponse = "";
 
             var json = $"{{\"app_secret\":\"{_appSecret}\",\"license_key\":\"{licenseKey}\",\"hwid\":\"{GetHWID()}\",\"session_length\":{sessionLength}}}";
-            LastResponse = await PostAsync("license_login", json);
+            LastResponse = await PostAsync("license-login", json);
 
             var detail = GetJson("detail", LastResponse);
             if (!string.IsNullOrEmpty(detail)) { LastError = detail; return; }
@@ -193,6 +197,12 @@ namespace AuthSys
             LastResponse = "";
             if (string.IsNullOrEmpty(SessionToken)) { LastError = "No active session"; return; }
             LastResponse = await PostAsync("verify", "{}", SessionToken);
+            var valid = GetJson("valid", LastResponse);
+            if (valid != "true")
+            {
+                LastError = GetJson("detail", LastResponse);
+                if (string.IsNullOrEmpty(LastError)) LastError = "Session verification failed";
+            }
         }
 
         public async Task ChatSendAsync(int roomId, string message)
@@ -205,7 +215,7 @@ namespace AuthSys
 
         public string Var(string name)
         {
-            return GetJson(name, LastResponse);
+            return GetJson(name, _variables);
         }
 
         public void Logout()

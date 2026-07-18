@@ -25,6 +25,7 @@ type AuthSysClient struct {
 	Initialized  bool
 	Username     string
 	Email        string
+	variables    string
 }
 
 func NewAuthSysClient(appSecret, version string, apiURL string) *AuthSysClient {
@@ -67,9 +68,15 @@ func (a *AuthSysClient) getHWID() string {
 	if runtime.GOOS == "darwin" {
 		out, err := exec.Command("ioreg", "-rd1", "-c", "IOPlatformExpertDevice").Output()
 		if err == nil {
-			return fmt.Sprintf("%x", time.Now().UnixNano())
+			for _, line := range strings.Split(string(out), "\n") {
+				if strings.Contains(line, "IOPlatformUUID") {
+					parts := strings.Split(line, "\"")
+					if len(parts) >= 4 {
+						return parts[3]
+					}
+				}
+			}
 		}
-		_ = out
 	}
 
 	return fmt.Sprintf("%x", time.Now().UnixNano())
@@ -131,6 +138,10 @@ func (a *AuthSysClient) Init(appName string) {
 	status := a.getJSON("status", a.LastResponse)
 	if status == "success" || status == "update_available" {
 		a.Initialized = true
+		v := a.getJSON("variables", a.LastResponse)
+		if v != "" {
+			a.variables = v
+		}
 	} else {
 		a.LastError = a.getJSON("detail", a.LastResponse)
 		if a.LastError == "" {
@@ -216,7 +227,7 @@ func (a *AuthSysClient) LicenseLogin(licenseKey string, sessionLength int) {
 		"hwid":          a.getHWID(),
 		"session_length": sessionLength,
 	}
-	a.LastResponse = a.post("license_login", body, "")
+	a.LastResponse = a.post("license-login", body, "")
 
 	detail := a.getJSON("detail", a.LastResponse)
 	if detail != "" {
@@ -263,7 +274,10 @@ func (a *AuthSysClient) ChatSend(roomID int, message string) {
 }
 
 func (a *AuthSysClient) Var(name string) string {
-	return a.getJSON(name, a.LastResponse)
+	if a.variables != "" {
+		return a.getJSON(name, a.variables)
+	}
+	return ""
 }
 
 func (a *AuthSysClient) Logout() {

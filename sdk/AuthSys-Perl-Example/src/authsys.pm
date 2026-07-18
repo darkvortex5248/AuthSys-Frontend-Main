@@ -21,9 +21,10 @@ sub new {
         initialized => 0,
         username => "",
         email => "",
+        variables => {},
     };
 
-    $self->{ua}->ssl_opts(verify_hostname => 0);
+    $self->{ua}->ssl_opts(verify_hostname => 1);
     bless $self, $class;
     return $self;
 }
@@ -61,7 +62,7 @@ sub post {
 
     if ($token) {
         $req->header('Authorization' => "Bearer $token");
-        $req->header('X-HWID' => get_hwid());
+        $req->header('X-HWID' => $self->get_hwid());
     }
 
     my $res = $self->{ua}->request($req);
@@ -82,7 +83,7 @@ sub init {
     $self->{last_response} = $self->post("init", {
         app_secret => $self->{app_secret},
         version => $self->{version},
-        hwid => get_hwid(),
+        hwid => $self->get_hwid(),
         app_name => $app_name,
     });
 
@@ -90,6 +91,7 @@ sub init {
     my $status = $data->{status} || "";
     if ($status eq "success" || $status eq "update_available") {
         $self->{initialized} = 1;
+        $self->{variables} = $data->{variables} || {};
     } else {
         $self->{last_error} = $data->{detail} || "Init failed";
     }
@@ -106,7 +108,7 @@ sub login {
         app_secret => $self->{app_secret},
         username => $username,
         password => $password,
-        hwid => get_hwid(),
+        hwid => $self->get_hwid(),
         session_length => $session_length,
     });
 
@@ -133,7 +135,7 @@ sub register {
         username => $username,
         password => $password,
         license_key => $license_key,
-        hwid => get_hwid(),
+        hwid => $self->get_hwid(),
     );
     $body{email} = $email if $email ne "";
 
@@ -154,10 +156,10 @@ sub license_login {
     $self->{last_error} = "";
     $self->{last_response} = "";
 
-    $self->{last_response} = $self->post("license_login", {
+    $self->{last_response} = $self->post("license-login", {
         app_secret => $self->{app_secret},
         license_key => $license_key,
-        hwid => get_hwid(),
+        hwid => $self->get_hwid(),
         session_length => $session_length,
     });
 
@@ -200,8 +202,7 @@ sub chat_send {
 
 sub var {
     my ($self, $name) = @_;
-    my $data = decode_json($self->{last_response});
-    return $data->{$name} || "";
+    return $self->{variables}->{$name} // "";
 }
 
 sub logout {

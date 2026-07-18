@@ -11,6 +11,7 @@ class AuthSysClient {
     public $initialized = false;
     public $username = "";
     public $email = "";
+    private $variables = "{}";
 
     public function __construct($appSecret, $version, $apiUrl = "https://authsys-main-production.up.railway.app/api/v1") {
         $this->appSecret = $appSecret;
@@ -52,7 +53,7 @@ class AuthSysClient {
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
             CURLOPT_TIMEOUT => 30,
-            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYPEER => true,
         ]);
         if ($token) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -86,6 +87,8 @@ class AuthSysClient {
         $status = $this->getJson("status", $this->lastResponse);
         if ($status === "success" || $status === "update_available") {
             $this->initialized = true;
+            $vars = $this->getJson("variables", $this->lastResponse);
+            if ($vars !== "") $this->variables = $vars;
         } else {
             $this->lastError = $this->getJson("detail", $this->lastResponse);
             if (!$this->lastError) $this->lastError = "Init failed";
@@ -154,7 +157,7 @@ class AuthSysClient {
             "hwid" => $this->getHWID(),
             "session_length" => $sessionLength,
         ]);
-        $this->lastResponse = $this->post("license_login", $json);
+        $this->lastResponse = $this->post("license-login", $json);
 
         $detail = $this->getJson("detail", $this->lastResponse);
         if ($detail) { $this->lastError = $detail; return; }
@@ -193,7 +196,7 @@ class AuthSysClient {
     }
 
     public function var($name) {
-        return $this->getJson($name, $this->lastResponse);
+        return $this->getJson($name, $this->variables);
     }
 
     public function logout() {

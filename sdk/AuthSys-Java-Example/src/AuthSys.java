@@ -17,6 +17,7 @@ public class AuthSys {
     public String sessionToken = null;
     public String lastError = "";
     public String lastResponse = "";
+    public java.util.Map<String, String> appData = new java.util.HashMap<>();
 
     public AuthSys(String name, String ownerid, String secret, String version) {
         this(name, ownerid, secret, version, "https://authsys-main-production.up.railway.app/api/v1");
@@ -161,6 +162,20 @@ public class AuthSys {
 
         if (status.equals("success") || status.equals("update_available")) {
             this.initialized = true;
+            String varsRaw = jsonGet(res, "variables");
+            if (!varsRaw.isEmpty()) {
+                try {
+                    String varsStr = res.replaceAll(".*\"variables\":\\{?", "").replaceAll("\\}.*", "");
+                    for (String pair : varsStr.split(",")) {
+                        String[] kv = pair.split(":");
+                        if (kv.length == 2) {
+                            String k = kv[0].replaceAll("[\"{} ]", "");
+                            String v = kv[1].replaceAll("[\" ]", "");
+                            appData.put(k, v);
+                        }
+                    }
+                } catch (Exception e) { }
+            }
         } else {
             String detail = jsonGet(res, "detail");
             lastError = detail.isEmpty() ? "Init failed" : detail;
@@ -311,6 +326,10 @@ public class AuthSys {
         if (hasKey(lastResponse, "detail")) {
             lastError = jsonGet(lastResponse, "detail");
         }
+    }
+
+    public String var(String name) {
+        return appData.getOrDefault(name, null);
     }
 
     public void logout() {

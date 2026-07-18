@@ -2,6 +2,7 @@ import requests
 import platform
 import subprocess
 import json
+import urllib.parse
 
 class AuthSys:
     def __init__(self, name, ownerid, secret, version, api_url="https://authsys-main-production.up.railway.app/api/v1"):
@@ -21,14 +22,14 @@ class AuthSys:
     def get_hwid(self):
         try:
             if platform.system() == "Windows":
-                cmd = subprocess.Popen("wmic csproduct get uuid", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                cmd = subprocess.Popen(["wmic", "csproduct", "get", "uuid"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 hwid = cmd.stdout.read().decode('utf-8').split('\n')[1].strip()
                 return hwid
             elif platform.system() == "Linux":
                 with open("/etc/machine-id", "r") as f:
                     return f.read().strip()
             elif platform.system() == "Darwin":
-                cmd = subprocess.Popen("ioreg -rd1 -c IOPlatformExpertDevice | grep IOPlatformUUID", shell=True, stdout=subprocess.PIPE)
+                cmd = subprocess.Popen(["ioreg", "-rd1", "-c", "IOPlatformExpertDevice"], stdout=subprocess.PIPE)
                 return cmd.stdout.read().decode('utf-8').split('"')[3]
         except Exception:
             pass
@@ -190,7 +191,7 @@ class AuthSys:
             return {"success": False, "detail": self.last_error}
 
         headers = {"Authorization": f"Bearer {self.session_token}"}
-        res = self._post(f"chat/send?room_id={room_id}&message={message}", headers=headers)
+        res = self._post(f"chat/send?room_id={room_id}&message={urllib.parse.quote(message)}", headers=headers)
         if "detail" in res:
             self.last_error = res["detail"]
         return res

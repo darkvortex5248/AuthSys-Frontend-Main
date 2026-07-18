@@ -36,10 +36,10 @@ Namespace AuthSysDevice
             LastError = ""
             Try
                 Dim hwid As String = GetHWID()
-                Dim json As String = $"{{\"device_key\":\"{_appSecret}\",\"hwid\":\"{hwid}\"}}"
+                Dim json As String = $"{{\"group_secret\":\"{_appSecret}\",\"hwid\":\"{hwid}\"}}"
                 Dim content As New StringContent(json, Encoding.UTF8, "application/json")
-                Dim response = _client.PostAsync($"{_baseUrl}/check", content).Result
-                LastResponse = response.Content.ReadAsStringAsync().Result
+                Dim response = _client.PostAsync($"{_baseUrl}/check", content).GetAwaiter().GetResult()
+                LastResponse = response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
                 Dim obj = Newtonsoft.Json.Linq.JObject.Parse(LastResponse)
                 If obj("active")?.Value(Of Boolean)() = True Then Return True
                 LastError = If(obj("message")?.Value(Of String)(), "Device deactivated by admin")
@@ -54,14 +54,14 @@ Namespace AuthSysDevice
             LastError = ""
             Try
                 Dim hwid As String = GetHWID()
-                Dim json As String = $"{{\"device_key\":\"{_appSecret}\",\"hwid\":\"{hwid}\""
+                Dim json As String = $"{{\"group_secret\":\"{_appSecret}\",\"hwid\":\"{hwid}\""
                 If Not String.IsNullOrEmpty(deviceName) Then
                     json += $",\"device_name\":\"{deviceName}\""
                 End If
                 json += "}"
                 Dim content As New StringContent(json, Encoding.UTF8, "application/json")
-                Dim response = _client.PostAsync($"{_baseUrl}/register", content).Result
-                LastResponse = response.Content.ReadAsStringAsync().Result
+                Dim response = _client.PostAsync($"{_baseUrl}/register", content).GetAwaiter().GetResult()
+                LastResponse = response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
                 Dim obj = Newtonsoft.Json.Linq.JObject.Parse(LastResponse)
                 Return obj("active")?.Value(Of Boolean)() = True
             Catch ex As Exception

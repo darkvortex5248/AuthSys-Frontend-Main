@@ -4,8 +4,8 @@ import platform
 
 
 class Device:
-    def __init__(self, device_key: str, base_url: str = "https://authsys-main-production.up.railway.app/device"):
-        self.device_key = device_key
+    def __init__(self, group_secret: str, base_url: str = "https://authsys-main-production.up.railway.app/device"):
+        self.group_secret = group_secret
         self.base_url = base_url.rstrip("/")
         self.last_error = ""
         self.last_response = ""
@@ -15,7 +15,7 @@ class Device:
         try:
             if platform.system() == "Windows":
                 output = subprocess.check_output(
-                    "wmic bios get serialnumber", shell=True, timeout=5
+                    ["wmic", "bios", "get", "serialnumber"], timeout=5
                 ).decode().strip().split("\n")[1].strip()
                 return output if output else "unknown"
             else:
@@ -28,7 +28,7 @@ class Device:
         self.last_error = ""
         try:
             hwid = self._get_hwid()
-            payload = {"device_key": self.device_key, "hwid": hwid}
+            payload = {"group_secret": self.group_secret, "hwid": hwid}
             r = requests.post(
                 f"{self.base_url}/check",
                 json=payload,
@@ -48,7 +48,7 @@ class Device:
         self.last_error = ""
         try:
             hwid = self._get_hwid()
-            payload = {"device_key": self.device_key, "hwid": hwid}
+            payload = {"group_secret": self.group_secret, "hwid": hwid}
             if device_name:
                 payload["device_name"] = device_name
             r = requests.post(

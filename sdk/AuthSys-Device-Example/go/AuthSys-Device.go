@@ -32,11 +32,20 @@ func NewDevice(appSecret, baseURL string) *Device {
 }
 
 func getHWID() string {
+	raw := ""
 	hostname, err := os.Hostname()
-	if err != nil {
-		return "unknown"
+	if err == nil {
+		raw += hostname
 	}
-	hash := md5.Sum([]byte(hostname))
+	interfaces, err := net.Interfaces()
+	if err == nil {
+		for _, iface := range interfaces {
+			if len(iface.HardwareAddr) > 0 {
+				raw += iface.HardwareAddr.String()
+			}
+		}
+	}
+	hash := md5.Sum([]byte(raw))
 	return fmt.Sprintf("%X", hash)
 }
 
@@ -64,7 +73,7 @@ func (d *Device) request(endpoint string, payload map[string]string) (map[string
 func (d *Device) Check() bool {
 	d.LastError = ""
 	payload := map[string]string{
-		"device_key": d.AppSecret,
+		"group_secret": d.AppSecret,
 		"hwid":       getHWID(),
 	}
 	result, err := d.request("check", payload)
@@ -86,7 +95,7 @@ func (d *Device) Check() bool {
 func (d *Device) Register(deviceName string) bool {
 	d.LastError = ""
 	payload := map[string]string{
-		"device_key": d.AppSecret,
+		"group_secret": d.AppSecret,
 		"hwid":       getHWID(),
 	}
 	if deviceName != "" {

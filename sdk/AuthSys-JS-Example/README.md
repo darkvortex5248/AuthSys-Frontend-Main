@@ -30,7 +30,7 @@ main();
 
 ## Browser Usage (ES Module)
 ```javascript
-import AuthSys from './authsys.js';
+import AuthSys from './index.js';
 const auth = new AuthSys("app_secret", "owner_id", "1.0.0");
 ```
 

@@ -12,6 +12,7 @@ interface AuthContextType {
   licenseCheck: (key: string) => Promise<any>;
   verify: () => Promise<any>;
   chatSend: (roomId: number, message: string) => Promise<any>;
+  var: (name: string) => string | null;
   logout: () => void;
 }
 
@@ -37,8 +38,9 @@ function getHwid(): string {
   }
 }
 
-export const AuthProvider = ({ secret, apiUrl = "https://authsys-main-production.up.railway.app/api/v1", children }: {
+export const AuthProvider = ({ secret, version = "1.0.0", apiUrl = "https://authsys-main-production.up.railway.app/api/v1", children }: {
   secret: string;
+  version?: string;
   apiUrl?: string;
   children: ReactNode;
 }) => {
@@ -47,16 +49,21 @@ export const AuthProvider = ({ secret, apiUrl = "https://authsys-main-production
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [userData, setUserData] = useState<any | null>(null);
   const [lastError, setLastError] = useState('');
+  const [appData, setAppData] = useState<Record<string, string>>({});
 
   const hwid = getHwid();
 
   const _post = useCallback(async (endpoint: string, body?: any, headers?: Record<string, string>) => {
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
       const res = await fetch(`${baseUrl}/client/${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...headers },
         body: body ? JSON.stringify(body) : undefined,
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
       const data = await res.json();
       setLastError(data.detail || '');
       return data;
@@ -68,14 +75,15 @@ export const AuthProvider = ({ secret, apiUrl = "https://authsys-main-production
 
   const init = useCallback(async () => {
     setLastError('');
-    const data = await _post('init', { app_secret: secret, version: '1.0.0', hwid });
+    const data = await _post('init', { app_secret: secret, version, hwid });
     if (data.status === 'success' || data.status === 'update_available') {
       setInitialized(true);
+      if (data.variables) setAppData(data.variables);
     } else {
       setLastError(data.detail || data.message || 'Init failed');
     }
     return data;
-  }, [_post, secret, hwid]);
+  }, [_post, secret, version, hwid]);
 
   const login = useCallback(async (username: string, password: string, sessionLength = 86400) => {
     setLastError('');
@@ -152,13 +160,17 @@ export const AuthProvider = ({ secret, apiUrl = "https://authsys-main-production
     return data;
   }, [_post, sessionToken]);
 
+  const varFn = useCallback((name: string): string | null => {
+    return appData[name] ?? null;
+  }, [appData]);
+
   const logout = useCallback(() => {
     setSessionToken(null);
     setUserData(null);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ initialized, sessionToken, userData, lastError, init, login, register, licenseLogin, licenseCheck, verify, chatSend, logout }}>
+    <AuthContext.Provider value={{ initialized, sessionToken, userData, lastError, init, login, register, licenseLogin, licenseCheck, verify, chatSend, var: varFn, logout }}>
       {children}
     </AuthContext.Provider>
   );

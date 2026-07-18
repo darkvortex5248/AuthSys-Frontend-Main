@@ -45,10 +45,12 @@ async function main() {
             const username = await question("Username: ");
             const password = await question("Password: ");
             
-            const success = await auth.login(username, password);
-            if (success) {
+            const res = await auth.login(username, password);
+            if (res.success && res.token) {
                 console.log(`Welcome back!`);
                 break;
+            } else {
+                console.log("Login failed: " + (res.detail || "Unknown error"));
             }
         } else if (choice === "2") {
             const username = await question("Username: ");
@@ -59,9 +61,11 @@ async function main() {
         } else if (choice === "3") {
             const licenseKey = await question("License Key: ");
             
-            const success = await auth.license(licenseKey);
-            if (success) {
+            const res = await auth.licenseLogin(licenseKey);
+            if (res.success && res.token) {
                 break;
+            } else {
+                console.log("License login failed: " + (res.detail || "Unknown error"));
             }
         } else if (choice === "4") {
             console.log("Exiting...");
@@ -72,7 +76,7 @@ async function main() {
     }
 
     // Main Application Logic
-    if (auth.sessionid) {
+    if (auth.sessionToken) {
         console.log("\n--- Main Application ---");
         console.log("Your secure application code runs here.");
         setTimeout(() => {

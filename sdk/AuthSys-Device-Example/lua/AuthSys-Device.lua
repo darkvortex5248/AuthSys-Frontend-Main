@@ -17,11 +17,15 @@ function Device:new(appSecret, baseUrl)
 end
 
 local function getHWID()
-    local handle = io.popen("wmic bios get serialnumber 2>nul")
-    if handle then
-        local result = handle:read("*a"):gsub("SerialNumber", ""):gsub("%s+", "")
-        handle:close()
-        if result and result ~= "" then return result end
+    local tmp = os.tmpname()
+    os.execute('wmic bios get serialnumber > "' .. tmp .. '" 2>nul')
+    local f = io.open(tmp, "r")
+    if f then
+        local content = f:read("*a")
+        f:close()
+        os.remove(tmp)
+        local sn = content:gsub("SerialNumber", ""):gsub("%s+", "")
+        if sn and sn ~= "" then return sn end
     end
     local f = io.open("/etc/machine-id", "r")
     if f then
@@ -52,7 +56,7 @@ end
 function Device:check()
     self.lastError = ""
     local hwid = getHWID()
-    local body = '{"device_key":"' .. self.appSecret .. '","hwid":"' .. hwid .. '"}'
+    local body = '{"group_secret":"' .. self.appSecret .. '","hwid":"' .. hwid .. '"}'
     self.lastResponse = postRequest(self, "check", body)
     local ok, data = pcall(json.decode, self.lastResponse)
     if ok and data then
@@ -67,7 +71,7 @@ end
 function Device:register(deviceName)
     self.lastError = ""
     local hwid = getHWID()
-    local body = '{"device_key":"' .. self.appSecret .. '","hwid":"' .. hwid .. '"'
+    local body = '{"group_secret":"' .. self.appSecret .. '","hwid":"' .. hwid .. '"'
     if deviceName and deviceName ~= "" then
         body = body .. ',"device_name":"' .. deviceName .. '"'
     end

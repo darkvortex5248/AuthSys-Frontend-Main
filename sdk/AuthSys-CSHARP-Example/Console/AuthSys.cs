@@ -41,7 +41,7 @@ namespace AuthSys
         }
 
         public ResponseStructure response = new ResponseStructure();
-        private static readonly HttpClient client = new HttpClient();
+        private static readonly HttpClient client = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
 
         public api(string name, string ownerid, string secret, string version, string apiUrl = "https://authsys-main-production.up.railway.app/api/v1")
         {
@@ -87,8 +87,8 @@ namespace AuthSys
                         request.Headers.TryAddWithoutValidation(h.Key, h.Value);
                 }
 
-                var result = client.SendAsync(request).Result;
-                var resultString = result.Content.ReadAsStringAsync().Result;
+                var result = client.SendAsync(request).GetAwaiter().GetResult();
+                var resultString = result.Content.ReadAsStringAsync().GetAwaiter().GetResult();
 
                 var opts = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
                 var parsed = JsonSerializer.Deserialize<ResponseStructure>(resultString, opts);
@@ -269,13 +269,9 @@ namespace AuthSys
 
         public string var(string varName)
         {
-            if (!initialized) return null;
-            try
-            {
-                if (app_data.variables.ValueKind != JsonValueKind.Undefined && app_data.variables.TryGetProperty(varName, out JsonElement el))
-                    return el.GetString();
-            }
-            catch { }
+            if (!initialized || app_data.variables.ValueKind == JsonValueKind.Undefined) return null;
+            if (app_data.variables.TryGetProperty(varName, out JsonElement el))
+                return el.GetString();
             return null;
         }
 

@@ -33,7 +33,7 @@ class Device {
           "Content-Type": "application/json",
           "Content-Length": Buffer.byteLength(data),
         },
-        rejectUnauthorized: false,
+        rejectUnauthorized: true,
         timeout: 15000,
       };
       const mod = url.protocol === "https:" ? https : http;
@@ -56,7 +56,7 @@ class Device {
     this.lastError = "";
     try {
       this.lastResponse = await this._request("check", {
-        device_key: this.appSecret,
+        group_secret: this.appSecret,
         hwid: Device._getHWID(),
       });
       const data = JSON.parse(this.lastResponse);
@@ -72,7 +72,7 @@ class Device {
   async register(deviceName = "") {
     this.lastError = "";
     try {
-      const payload = { device_key: this.appSecret, hwid: Device._getHWID() };
+      const payload = { group_secret: this.appSecret, hwid: Device._getHWID() };
       if (deviceName) payload.device_name = deviceName;
       this.lastResponse = await this._request("register", payload);
       const data = JSON.parse(this.lastResponse);

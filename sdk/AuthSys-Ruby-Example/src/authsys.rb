@@ -139,7 +139,7 @@ class AuthSysClient
     @last_error = ""
     @last_response = ""
 
-    @last_response = post("license_login", {
+    @last_response = post("license-login", {
       app_secret: @app_secret,
       license_key: license_key,
       hwid: get_hwid,

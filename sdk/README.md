@@ -25,7 +25,7 @@ Both bots run **client-side** on your own infrastructure and communicate with th
 | 4 | [AuthSys-Unity-Example](./AuthSys-Unity-Example/) | C# Unity | `src/` |
 | 5 | [AuthSys-VB-Example](./AuthSys-VB-Example/) | VB.NET | `src/` |
 | 6 | [AuthSys-Python-Example](./AuthSys-Python-Example/) | Python | `src/` |
-| 7 | [AuthSys-JAVA-API](./AuthSys-JAVA-API/) | Java | `src/` |
+| 7 | [AuthSys-Java-Example](./AuthSys-Java-Example/) | Java | `src/` |
 | 8 | [AuthSys-JS-Example](./AuthSys-JS-Example/) | JavaScript | `src/` |
 | 9 | [AuthSys-TS-Example](./AuthSys-TS-Example/) | TypeScript | `src/` |
 | 10 | [AuthSys-React-Example](./AuthSys-React-Example/) | React | `src/` |

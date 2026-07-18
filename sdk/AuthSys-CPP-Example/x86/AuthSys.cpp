@@ -112,12 +112,16 @@ namespace AuthSys {
             return "{\"success\":false,\"detail\":\"InternetConnect failed\"}";
         }
 
+        {
+            DWORD timeoutMs = 30000;
+            InternetSetOptionA(hConnect, INTERNET_OPTION_CONNECT_TIMEOUT, &timeoutMs, sizeof(timeoutMs));
+            InternetSetOptionA(hConnect, INTERNET_OPTION_SEND_TIMEOUT, &timeoutMs, sizeof(timeoutMs));
+            InternetSetOptionA(hConnect, INTERNET_OPTION_RECEIVE_TIMEOUT, &timeoutMs, sizeof(timeoutMs));
+        }
+
         DWORD flags = INTERNET_FLAG_NO_AUTO_REDIRECT | INTERNET_FLAG_RELOAD | INTERNET_FLAG_NO_CACHE_WRITE;
         if (useSSL) {
             flags |= INTERNET_FLAG_SECURE;
-            #if defined(_M_IX86) || defined(_M_AMD64)
-            flags |= INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID;
-            #endif
         }
 
         HINTERNET hRequest = HttpOpenRequestA(hConnect, "POST", path.c_str(),
@@ -185,12 +189,16 @@ namespace AuthSys {
             return "{\"success\":false,\"detail\":\"InternetConnect failed\"}";
         }
 
+        {
+            DWORD timeoutMs = 30000;
+            InternetSetOptionA(hConnect, INTERNET_OPTION_CONNECT_TIMEOUT, &timeoutMs, sizeof(timeoutMs));
+            InternetSetOptionA(hConnect, INTERNET_OPTION_SEND_TIMEOUT, &timeoutMs, sizeof(timeoutMs));
+            InternetSetOptionA(hConnect, INTERNET_OPTION_RECEIVE_TIMEOUT, &timeoutMs, sizeof(timeoutMs));
+        }
+
         DWORD flags = INTERNET_FLAG_NO_AUTO_REDIRECT | INTERNET_FLAG_RELOAD | INTERNET_FLAG_NO_CACHE_WRITE;
         if (useSSL) {
             flags |= INTERNET_FLAG_SECURE;
-            #if defined(_M_IX86) || defined(_M_AMD64)
-            flags |= INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID;
-            #endif
         }
 
         HINTERNET hRequest = HttpOpenRequestA(hConnect, "POST", path.c_str(),
@@ -376,7 +384,7 @@ namespace AuthSys {
             "\",\"hwid\":\"" + escape_json(GetHWID()) +
             "\",\"session_length\":" + std::to_string(session_length) + "}";
 
-        last_response = PostRequest("license_login", json);
+        last_response = PostRequest("license-login", json);
 
         if (json_has_key(last_response, "detail")) {
             last_error = json_get_string(last_response, "detail");

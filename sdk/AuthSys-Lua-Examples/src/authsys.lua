@@ -8,6 +8,7 @@ function AuthSysClient:new(app_secret, version, api_url)
         version = version,
         api_url = api_url:gsub("/+$", ""),
         session_token = nil,
+        variables = {},
         last_error = "",
         last_response = "",
         initialized = false,
@@ -54,18 +55,33 @@ end
 
 function AuthSysClient:post(endpoint, json_body, token)
     local url = self.api_url .. "/client/" .. endpoint
-    local header = "Content-Type: application/json\r\n"
+    local http = require("socket.http")
+    local ltn12 = require("ltn12")
+
+    local headers = {
+        ["Content-Type"] = "application/json",
+        ["Content-Length"] = #json_body,
+    }
     if token then
-        header = header .. "Authorization: Bearer " .. token .. "\r\n"
-        header = header .. "X-HWID: " .. self:get_hwid() .. "\r\n"
+        headers["Authorization"] = "Bearer " .. token
+        headers["X-HWID"] = self:get_hwid()
     end
 
-    local cmd = 'curl -s -X POST "' .. url .. '" -d \'' .. json_body:gsub("'", "'\\''") .. "' -H '" .. header:gsub("'", "'\\''") .. "'"
-    local handle = io.popen(cmd)
-    if not handle then return '{"success":false,"detail":"curl failed"}' end
-    local result = handle:read("*a")
-    handle:close()
-    return result
+    local response_body = {}
+    local res, code, response_headers = http.request{
+        url = url,
+        method = "POST",
+        headers = headers,
+        source = ltn12.source.string(json_body),
+        sink = ltn12.sink.table(response_body),
+        timeout = 30,
+    }
+
+    if res then
+        return table.concat(response_body)
+    else
+        return '{"success":false,"detail":"' .. tostring(code) .. '"}'
+    end
 end
 
 function AuthSysClient:init(app_name)
@@ -80,6 +96,12 @@ function AuthSysClient:init(app_name)
     local status = self:get_json("status", self.last_response)
     if status == "success" or status == "update_available" then
         self.initialized = true
+        local ok, data = pcall(function() return require("json").decode(self.last_response) end)
+        if ok and data and data.variables then
+            self.variables = data.variables
+        else
+            self.variables = {}
+        end
     else
         self.last_error = self:get_json("detail", self.last_response)
         if self.last_error == "" then self.last_error = "Init failed" end
@@ -133,7 +155,7 @@ function AuthSysClient:license_login(license_key, session_length)
     self.last_response = ""
 
     local json = '{"app_secret":"' .. self.app_secret .. '","license_key":"' .. license_key .. '","hwid":"' .. self:get_hwid() .. '","session_length":' .. session_length .. '}'
-    self.last_response = self:post("license_login", json)
+    self.last_response = self:post("license-login", json)
 
     local detail = self:get_json("detail", self.last_response)
     if detail ~= "" then self.last_error = detail return end
@@ -164,12 +186,20 @@ end
 function AuthSysClient:chat_send(room_id, message)
     self.last_error = ""
     self.last_response = ""
-    local endpoint = "chat/send?room_id=" .. room_id .. "&message=" .. message
+    local function urlencode(s)
+        return (s:gsub("([^%w%.%-_~])", function(c)
+            return string.format("%%%02X", string.byte(c))
+        end))
+    end
+    local endpoint = "chat/send?room_id=" .. tostring(room_id) .. "&message=" .. urlencode(message)
     self.last_response = self:post(endpoint, "{}", self.session_token)
 end
 
 function AuthSysClient:var(name)
-    return self:get_json(name, self.last_response)
+    if self.variables and self.variables[name] then
+        return tostring(self.variables[name])
+    end
+    return ""
 end
 
 function AuthSysClient:logout()

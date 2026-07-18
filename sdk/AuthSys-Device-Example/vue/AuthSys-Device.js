@@ -2,10 +2,21 @@ import { ref } from 'vue';
 
 function getHWID() {
   try {
-    const crypto = require('crypto');
-    const os = require('os');
-    const serial = os.hostname() + '-' + os.platform() + '-' + os.arch();
-    return crypto.createHash('md5').update(serial).digest('hex').toUpperCase();
+    const parts = [
+      navigator.userAgent,
+      navigator.language,
+      navigator.platform,
+      screen ? screen.width + 'x' + screen.height + 'x' + screen.colorDepth : '',
+      new Date().getTimezoneOffset(),
+    ];
+    const str = parts.join('|');
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const chr = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + chr;
+      hash |= 0;
+    }
+    return Math.abs(hash).toString(16).toUpperCase().padStart(8, '0');
   } catch {
     return 'unknown';
   }
@@ -21,11 +32,15 @@ export function useDevice(appSecret, baseUrl = 'https://authsys-main-production.
     loading.value = true;
     error.value = null;
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
       const res = await fetch(`${server}/check`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ device_key: appSecret, hwid: getHWID() }),
+        body: JSON.stringify({ group_secret: appSecret, hwid: getHWID() }),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
       const data = await res.json();
       lastResponse.value = data;
       if (data.active === true) return true;
@@ -43,13 +58,17 @@ export function useDevice(appSecret, baseUrl = 'https://authsys-main-production.
     loading.value = true;
     error.value = null;
     try {
-      const payload = { device_key: appSecret, hwid: getHWID() };
+      const payload = { group_secret: appSecret, hwid: getHWID() };
       if (deviceName) payload.device_name = deviceName;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
       const res = await fetch(`${server}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
       const data = await res.json();
       lastResponse.value = data;
       return data.active === true;

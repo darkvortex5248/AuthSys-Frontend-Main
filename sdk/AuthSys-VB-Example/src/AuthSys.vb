@@ -17,6 +17,7 @@ Namespace AuthSys
         Public Property Initialized As Boolean
         Public Property Username As String
         Public Property Email As String
+        Private _variables As String = "{}"
 
         Public Sub New(appSecret As String, version As String, Optional apiUrl As String = "https://authsys-main-production.up.railway.app/api/v1")
             _appSecret = appSecret
@@ -77,7 +78,8 @@ Namespace AuthSys
                 Dim res = Await _http.SendAsync(req)
                 Return Await res.Content.ReadAsStringAsync()
             Catch ex As Exception
-                Return $"{{\"success\":false,\"detail\":\"{ex.Message}\"}}"
+                Dim safe = ex.Message.Replace("\", "\\").Replace("""", "\""").Replace(vbLf, "\n").Replace(vbCr, "\r").Replace(vbTab, "\t")
+                Return $"{{\"success\":false,\"detail\":\"{safe}\"}}"
             End Try
         End Function
 
@@ -92,6 +94,8 @@ Namespace AuthSys
             Dim status = GetJson("status", LastResponse)
             If status = "success" OrElse status = "update_available" Then
                 Initialized = True
+                Dim v = GetJson("variables", LastResponse)
+                If Not String.IsNullOrEmpty(v) Then _variables = v
             Else
                 LastError = GetJson("detail", LastResponse)
                 If String.IsNullOrEmpty(LastError) Then LastError = "Init failed"
@@ -142,7 +146,7 @@ Namespace AuthSys
             LastResponse = ""
 
             Dim json = $"{{\"app_secret\":\"{_appSecret}\",\"license_key\":\"{licenseKey}\",\"hwid\":\"{GetHWID()}\",\"session_length\":{sessionLength}}}"
-            LastResponse = Await PostAsync("license_login", json)
+            LastResponse = Await PostAsync("license-login", json)
 
             Dim detail = GetJson("detail", LastResponse)
             If Not String.IsNullOrEmpty(detail) Then LastError = detail : Return
@@ -168,6 +172,11 @@ Namespace AuthSys
             LastResponse = ""
             If String.IsNullOrEmpty(SessionToken) Then LastError = "No active session" : Return
             LastResponse = Await PostAsync("verify", "{}", SessionToken)
+            Dim valid = GetJson("valid", LastResponse)
+            If valid <> "true" Then
+                LastError = GetJson("detail", LastResponse)
+                If String.IsNullOrEmpty(LastError) Then LastError = "Session verification failed"
+            End If
         End Function
 
         Public Async Function ChatSendAsync(roomId As Integer, message As String) As Task
@@ -178,7 +187,7 @@ Namespace AuthSys
         End Function
 
         Public Function Var(name As String) As String
-            Return GetJson(name, LastResponse)
+            Return GetJson(name, _variables)
         End Function
 
         Public Sub Logout()

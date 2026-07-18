@@ -20,22 +20,27 @@ function getHwid(): string {
   }
 }
 
-export function useAuthSys(secret: string, apiUrl = "https://authsys-main-production.up.railway.app/api/v1") {
+export function useAuthSys(secret: string, version = "1.0.0", apiUrl = "https://authsys-main-production.up.railway.app/api/v1") {
   const baseUrl = apiUrl.replace(/\/+$/, '');
   const initialized = ref(false);
   const sessionToken = ref<string | null>(null);
   const userData = ref<any | null>(null);
   const lastError = ref<string>('');
+  const appData = ref<Record<string, string>>({});
 
   const hwid = getHwid();
 
   async function _post(endpoint: string, body?: any, headers?: Record<string, string>) {
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
       const res = await fetch(`${baseUrl}/client/${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...headers },
         body: body ? JSON.stringify(body) : undefined,
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
       const data = await res.json();
       lastError.value = data.detail || '';
       return data;
@@ -47,9 +52,10 @@ export function useAuthSys(secret: string, apiUrl = "https://authsys-main-produc
 
   async function init() {
     lastError.value = '';
-    const data = await _post('init', { app_secret: secret, version: '1.0.0', hwid });
+    const data = await _post('init', { app_secret: secret, version, hwid });
     if (data.status === 'success' || data.status === 'update_available') {
       initialized.value = true;
+      if (data.variables) appData.value = data.variables;
     } else {
       lastError.value = data.detail || data.message || 'Init failed';
     }
@@ -136,6 +142,10 @@ export function useAuthSys(secret: string, apiUrl = "https://authsys-main-produc
     userData.value = null;
   }
 
+  function varFn(name: string): string | null {
+    return appData.value[name] ?? null;
+  }
+
   return {
     initialized: readonly(initialized),
     sessionToken: readonly(sessionToken),
@@ -148,6 +158,7 @@ export function useAuthSys(secret: string, apiUrl = "https://authsys-main-produc
     licenseCheck,
     verify,
     chatSend,
+    var: varFn,
     logout
   };
 }

@@ -29,10 +29,10 @@ namespace AuthSysDevice
             try
             {
                 string hwid = GetHWID();
-                string json = $"{{\"device_key\":\"{_appSecret}\",\"hwid\":\"{hwid}\"}}";
+                string json = $"{{\"group_secret\":\"{_appSecret}\",\"hwid\":\"{hwid}\"}}";
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = _client.PostAsync($"{_baseUrl}/check", content).Result;
-                LastResponse = response.Content.ReadAsStringAsync().Result;
+                var response = _client.PostAsync($"{_baseUrl}/check", content).GetAwaiter().GetResult();
+                LastResponse = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 var obj = Newtonsoft.Json.Linq.JObject.Parse(LastResponse);
                 if (obj["active"]?.Value<bool>() == true) return true;
                 LastError = obj["message"]?.Value<string>() ?? "Device deactivated by admin";
@@ -51,13 +51,13 @@ namespace AuthSysDevice
             try
             {
                 string hwid = GetHWID();
-                string json = $"{{\"device_key\":\"{_appSecret}\",\"hwid\":\"{hwid}\"";
+                string json = $"{{\"group_secret\":\"{_appSecret}\",\"hwid\":\"{hwid}\"";
                 if (!string.IsNullOrEmpty(deviceName))
                     json += $",\"device_name\":\"{deviceName}\"";
                 json += "}";
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = _client.PostAsync($"{_baseUrl}/register", content).Result;
-                LastResponse = response.Content.ReadAsStringAsync().Result;
+                var response = _client.PostAsync($"{_baseUrl}/register", content).GetAwaiter().GetResult();
+                LastResponse = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 var obj = Newtonsoft.Json.Linq.JObject.Parse(LastResponse);
                 return obj["active"]?.Value<bool>() == true;
             }

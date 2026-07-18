@@ -18,6 +18,7 @@ namespace AuthSys
         public bool Initialized { get; private set; }
         public string Username { get; private set; }
         public string Email { get; private set; }
+        private string _variables = "{}";
 
         public AuthSysClient(string appSecret, string version, string apiUrl = "https://authsys-main-production.up.railway.app/api/v1")
         {
@@ -68,6 +69,8 @@ namespace AuthSys
                 if (status == "success" || status == "update_available")
                 {
                     Initialized = true;
+                    var v = GetJson("variables", response);
+                    if (!string.IsNullOrEmpty(v)) _variables = v;
                     callback(true);
                 }
                 else
@@ -136,7 +139,7 @@ namespace AuthSys
             LastResponse = "";
 
             var json = $"{{\"app_secret\":\"{_appSecret}\",\"license_key\":\"{licenseKey}\",\"hwid\":\"{GetHWID()}\",\"session_length\":{sessionLength}}}";
-            yield return PostAsync("license_login", json, null, (response) =>
+            yield return PostAsync("license-login", json, null, (response) =>
             {
                 LastResponse = response;
                 var detail = GetJson("detail", response);
@@ -165,7 +168,9 @@ namespace AuthSys
             yield return PostAsync("license/check", json, null, (response) =>
             {
                 LastResponse = response;
-                callback(true);
+                var valid = GetJson("valid", response);
+                if (valid == "true") callback(true);
+                else { LastError = GetJson("detail", response); if (string.IsNullOrEmpty(LastError)) LastError = "License check failed"; callback(false); }
             });
         }
 
@@ -177,7 +182,9 @@ namespace AuthSys
             yield return PostAsync("verify", "{}", SessionToken, (response) =>
             {
                 LastResponse = response;
-                callback(true);
+                var valid = GetJson("valid", response);
+                if (valid == "true") callback(true);
+                else { LastError = GetJson("detail", response); if (string.IsNullOrEmpty(LastError)) LastError = "Session verification failed"; callback(false); }
             });
         }
 
@@ -218,14 +225,15 @@ namespace AuthSys
                 }
                 else
                 {
-                    callback($"{{\"success\":false,\"detail\":\"{req.error}\"}}");
+                    var safe = req.error.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
+                    callback($"{{\"success\":false,\"detail\":\"{safe}\"}}");
                 }
             }
         }
 
         public string Var(string name)
         {
-            return GetJson(name, LastResponse);
+            return GetJson(name, _variables);
         }
 
         public void Logout()

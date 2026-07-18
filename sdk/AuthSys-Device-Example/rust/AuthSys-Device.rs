@@ -3,7 +3,7 @@ use std::time::Duration;
 use reqwest::blocking::Client;
 
 pub struct Device {
-    device_key: String,
+    group_secret: String,
     base_url: String,
     client: Client,
     pub last_error: String,
@@ -11,7 +11,7 @@ pub struct Device {
 }
 
 impl Device {
-    pub fn new(device_key: &str, base_url: &str) -> Self {
+    pub fn new(group_secret: &str, base_url: &str) -> Self {
         let url = if base_url.is_empty() {
             "https://authsys-main-production.up.railway.app/device".to_string()
         } else {
@@ -19,11 +19,10 @@ impl Device {
         };
         let client = Client::builder()
             .timeout(Duration::from_secs(15))
-            .danger_accept_invalid_certs(true)
             .build()
             .unwrap();
         Device {
-            device_key: device_key.to_string(),
+            group_secret: group_secret.to_string(),
             base_url: url,
             client,
             last_error: String::new(),
@@ -56,7 +55,7 @@ impl Device {
     pub fn check(&mut self) -> bool {
         self.last_error.clear();
         let mut payload = HashMap::new();
-        payload.insert("device_key", &self.device_key[..]);
+        payload.insert("group_secret", &self.group_secret[..]);
         payload.insert("hwid", &Self::get_hwid()[..]);
 
         match self.request("check", &payload) {
@@ -78,7 +77,7 @@ impl Device {
     pub fn register(&mut self, device_name: &str) -> bool {
         self.last_error.clear();
         let mut payload = HashMap::new();
-        payload.insert("device_key", &self.device_key[..]);
+        payload.insert("group_secret", &self.group_secret[..]);
         payload.insert("hwid", &Self::get_hwid()[..]);
         if !device_name.is_empty() {
             payload.insert("device_name", device_name);
