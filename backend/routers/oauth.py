@@ -6,6 +6,7 @@ from core.database import get_db
 from core.config import settings
 from core.security import get_password_hash, create_access_token
 from models.domain import DeveloperAccount, SubscriptionPlan
+from routers.developer_sessions import record_session
 import httpx
 import uuid
 from datetime import timedelta
@@ -89,10 +90,16 @@ async def _find_or_create_oauth_user(
     return user, None
 
 
-async def _issue_jwt(user: DeveloperAccount, request: Request):
+async def _issue_jwt(user: DeveloperAccount, request: Request, db: AsyncSession):
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         subject=user.id, expires_delta=access_token_expires
+    )
+    await record_session(
+        user.id, access_token,
+        request.client.host if request.client else "unknown",
+        request.headers.get("user-agent", ""),
+        db,
     )
     secure = request.url.scheme == "https"
     response = JSONResponse(content={"access_token": access_token, "token_type": "bearer"})
@@ -293,7 +300,7 @@ async def oauth_callback(
     if error:
         raise HTTPException(status_code=403, detail=error)
 
-    return await _issue_jwt(user, request)
+    return await _issue_jwt(user, request, db)
 
 
 @router.post("/google-login")
@@ -332,4 +339,4 @@ async def google_login(
     if error:
         raise HTTPException(status_code=403, detail=error)
 
-    return await _issue_jwt(user, request)
+    return await _issue_jwt(user, request, db)
