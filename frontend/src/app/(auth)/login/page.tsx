@@ -15,17 +15,31 @@ function LoginBanner() {
   const [showBanner, setShowBanner] = useState(true);
 
   useEffect(() => {
-    if (searchParams.get('registered') === 'true') {
+    const authError = searchParams.get('auth_error');
+    const apiUrl = searchParams.get('url');
+    const detail = searchParams.get('detail');
+
+    if (authError === 'api_401') {
+      const msg = detail ? `API 401 on ${apiUrl} — ${detail}` : `Session expired (401 on ${apiUrl})`;
+      setBanner({ type: 'info', message: msg });
+    } else if (authError === 'token_cleared') {
+      setBanner({ type: 'info', message: 'Session lost after login — token was cleared' });
+    } else if (authError === 'no_token') {
+      setBanner({ type: 'info', message: 'No session token found — please login' });
+    } else if (searchParams.get('registered') === 'true') {
       setBanner({ type: 'success', message: 'Account created successfully! Please sign in.' });
-      const url = new URL(window.location.href);
-      url.searchParams.delete('registered');
-      window.history.replaceState({}, '', url.toString());
     } else if (searchParams.get('exists') === 'true') {
       setBanner({ type: 'info', message: 'Account already exists. Please sign in.' });
+    }
+
+    if (authError || searchParams.get('registered') || searchParams.get('exists')) {
       const url = new URL(window.location.href);
-      url.searchParams.delete('exists');
+      url.searchParams.delete('auth_error'); url.searchParams.delete('url'); url.searchParams.delete('detail');
+      url.searchParams.delete('http'); url.searchParams.delete('user');
+      url.searchParams.delete('registered'); url.searchParams.delete('exists');
       window.history.replaceState({}, '', url.toString());
     }
+
     const t = setTimeout(() => setShowBanner(false), 6000);
     return () => clearTimeout(t);
   }, [searchParams]);
