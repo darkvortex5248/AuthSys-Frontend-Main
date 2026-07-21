@@ -85,6 +85,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
+    setAuthToken(null);
+    set({ token: null, user: null, selectedAppId: null });
     try {
       await fetch(`${getApiBaseUrl()}/developer/auth/logout`, {
         method: 'POST',
@@ -92,7 +94,5 @@ export const useAuthStore = create<AuthState>((set) => ({
         headers: { 'Content-Type': 'application/json' },
       });
     } catch { /* ignore */ }
-    setAuthToken(null);
-    set({ token: null, user: null, selectedAppId: null });
   },
 }));
