@@ -68,7 +68,7 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.code === 'ERR_NETWORK' || !error.response) {
-      console.warn('Network error detected. Backend may be unreachable.');
+      console.warn(`[api] Network error — backend unreachable at ${getApiBaseUrl()}`);
       return Promise.reject(error);
     }
 
@@ -108,8 +108,9 @@ api.interceptors.response.use(
 
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return api(originalRequest);
-      } catch {
+      } catch (refreshErr) {
         processQueue(error, null);
+        console.error(`[api] 401 on ${url} → session refresh failed:`, refreshErr, error?.response?.data);
         useAuthStore.getState().logout();
         if (typeof window !== 'undefined') window.location.href = '/login';
         return Promise.reject(error);

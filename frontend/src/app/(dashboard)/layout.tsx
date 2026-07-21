@@ -76,6 +76,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!mounted || isLoggingOut) return;
     if (!token) {
+      console.warn('[DashboardLayout] token is null — redirecting to /login');
       router.replace('/login');
     }
   }, [mounted, token, router, isLoggingOut]);
