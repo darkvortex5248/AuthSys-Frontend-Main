@@ -11,7 +11,6 @@ import { useApps, useDeveloperMe } from '@/hooks/use-developer-queries';
 import { isFeatureLocked, tierDisplayName, getTierLevel } from '@/lib/plan-access';
 import { getAvatarPalette, getInitials } from '@/lib/avatar';
 import { PlanBadge } from '@/components/ui/plan-badge';
-import { toast } from 'sonner';
 const AIChatWidget = dynamic(() => import('@/components/dashboard/AIChatWidget'), { ssr: false });
 const CommandPalette = dynamic(() => import('@/components/dashboard/CommandPalette'), { ssr: false });
 const NotificationBell = dynamic(() => import('@/components/notifications/NotificationBell'), { ssr: false });
@@ -77,10 +76,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!mounted || isLoggingOut) return;
     if (!token) {
-      toast.error('Session lost — check console (F12) for details', { id: 'session-lost', duration: 5_000 });
-      console.warn('[DashboardLayout] token is null — store:', useAuthStore.getState());
-      const t = setTimeout(() => router.replace('/login'), 1_500);
-      return () => clearTimeout(t);
+      const state = useAuthStore.getState();
+      const reason = state.user ? 'token_cleared' : 'no_token';
+      router.replace(`/login?auth_error=${reason}&user=${state.user ? 1 : 0}`);
     }
   }, [mounted, token, router, isLoggingOut]);
 

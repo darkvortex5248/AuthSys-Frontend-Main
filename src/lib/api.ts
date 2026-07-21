@@ -110,9 +110,12 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshErr) {
         processQueue(error, null);
-        console.error(`[api] 401 on ${url} → session refresh failed:`, refreshErr, error?.response?.data);
         useAuthStore.getState().logout();
-        if (typeof window !== 'undefined') window.location.href = '/login';
+        if (typeof window !== 'undefined') {
+          const status = error?.response?.status || 'unknown';
+          const detail = error?.response?.data?.detail || error.message || '';
+          window.location.href = `/login?auth_error=api_401&http=${status}&url=${encodeURIComponent(url)}&detail=${encodeURIComponent(detail)}`;
+        }
         return Promise.reject(error);
       } finally {
         isRefreshing = false;
