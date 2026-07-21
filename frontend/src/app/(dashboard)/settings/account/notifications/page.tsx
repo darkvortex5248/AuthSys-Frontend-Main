@@ -26,7 +26,10 @@ export default function NotificationsPage() {
   const { selectedAppId } = useAuthStore();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => { setMounted(true); }, []);
 
   const [notifSecurity, setNotifSecurity] = useState(true);
   const [notifUsage, setNotifUsage] = useState(true);
@@ -74,9 +77,29 @@ export default function NotificationsPage() {
     </div>
   );
 
+  if (!mounted) {
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="premium-card p-8 md:p-10 space-y-6">
+          <div className="sk h-6 w-44 rounded-lg" />
+          <div className="sk h-4 w-64 rounded" />
+          <div className="space-y-3 mt-4">
+            {[1,2,3].map(i => <div key={i} className="sk h-12 w-full rounded-xl" />)}
+          </div>
+        </div>
+        <div className="premium-card p-8 md:p-10 space-y-6">
+          <div className="sk h-5 w-28 rounded-lg" />
+          <div className="space-y-3">
+            {[1,2,3,4].map(i => <div key={i} className="sk h-12 w-full rounded-xl" />)}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
-      <div className="card-wrapper p-8 md:p-10">
+      <div className="premium-card p-8 md:p-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-5">
           <div>
             <h3 className="text-2xl font-bold text-[var(--foreground)] mb-1">Notifications</h3>
@@ -159,7 +182,7 @@ export default function NotificationsPage() {
         </div>
       </div>
 
-      <div className="card-wrapper p-8 md:p-10">
+      <div className="premium-card p-8 md:p-10">
         <SectionLabel>Email alerts</SectionLabel>
         <div className="space-y-3 mb-8">
           {[

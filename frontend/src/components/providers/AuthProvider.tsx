@@ -25,29 +25,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const setToken = useAuthStore((s) => s.setToken);
 
   useEffect(() => {
+    let mounted = true;
     let token = useAuthStore.getState().token;
 
     if (!token) {
-      // No token in store — try restoring from httpOnly cookie
       tryRestoreSession().then((restored) => {
-        if (restored) {
+        if (mounted && restored) {
           token = restored;
           fetchUser(restored);
         }
       });
-      return;
-    }
-
-    // Migrate OAuth cookie → localStorage (one-time)
-    if (!localStorage.getItem('auth_token')) {
-      const match = document.cookie.match(/(?:^|;\s*)auth_token=([^;]*)/);
-      if (match) {
-        const cookieToken = decodeURIComponent(match[1]);
-        localStorage.setItem('auth_token', cookieToken);
-        document.cookie = 'auth_token=; path=/; max-age=0';
-        setToken(cookieToken);
-        token = cookieToken;
-      }
+      return () => { mounted = false; };
     }
 
     fetchUser(token);

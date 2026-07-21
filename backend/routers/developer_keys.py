@@ -63,9 +63,13 @@ async def generate_key(req: KeyGenerate, dev: DeveloperAccount = Depends(get_cur
     if req.key_type == "time" and expires_at is None and req.duration_days:
         expires_at = datetime.now(timezone.utc) + timedelta(days=req.duration_days)
 
+    max_devices = req.max_uses
+    if max_devices is None and req.key_type != "uses_based":
+        max_devices = 1
+
     new_key = LicenseKey(
         app_id=req.app_id, key_value=key_val, key_type=req.key_type, 
-        duration_days=req.duration_days, max_uses=req.max_uses, 
+        duration_days=req.duration_days, max_uses=max_devices, 
         note=req.note, seller_tag=req.seller_tag,
         expires_at=expires_at
     )
@@ -91,17 +95,21 @@ async def bulk_generate(req: BulkKeyGenerate, dev: DeveloperAccount = Depends(ge
         expires_at = datetime.now(timezone.utc) + timedelta(days=req.duration_days)
 
     keys = []
+    skipped = []
     key_values = req.custom_keys if req.custom_keys else []
+    max_devices = req.max_uses
+    if max_devices is None and req.key_type != "uses_based":
+        max_devices = 1
     for i in range(req.count):
         key_val = key_values[i] if i < len(key_values) else generate_key_string()
-        # Check for duplicates
         existing = await db.execute(select(LicenseKey).where(LicenseKey.key_value == key_val))
         if existing.scalars().first():
+            skipped.append(key_val)
             continue
         k = LicenseKey(
             app_id=req.app_id, key_value=key_val,
             key_type=req.key_type, duration_days=req.duration_days, 
-            max_uses=req.max_uses, note=req.note, seller_tag=req.seller_tag,
+            max_uses=max_devices, note=req.note, seller_tag=req.seller_tag,
             expires_at=expires_at
         )
         keys.append(k)
@@ -117,7 +125,10 @@ async def bulk_generate(req: BulkKeyGenerate, dev: DeveloperAccount = Depends(ge
         "timestamp": datetime.utcnow().isoformat()
     }, db)
 
-    return {"count": len(keys), "keys": [k.key_value for k in keys], "items": keys}
+    result = {"count": len(keys), "keys": [k.key_value for k in keys], "items": keys}
+    if skipped:
+        result["skipped_duplicates"] = skipped
+    return result
 
 @router.post("/{key_id}/pause")
 async def pause_key(key_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):

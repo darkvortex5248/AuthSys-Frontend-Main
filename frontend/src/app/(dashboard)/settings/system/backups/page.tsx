@@ -29,11 +29,11 @@ function timeAgo(dateStr: string): string {
 export default function BackupsPage() {
   const { data: profile } = useDeveloperMe(true);
   const locked = isFeatureLocked('developer', profile?.subscription_tier);
-  if (locked) return <PremiumLocked feature="Backups" tier="Developer" />;
 
   const [bups, setBups] = useState<any[]>([]);
   const [apps, setApps] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [form, setForm] = useState({ app_id: 0, name: '' });
   const [creating, setCreating] = useState(false);
   const [restoringId, setRestoringId] = useState<number | null>(null);
@@ -41,12 +41,16 @@ export default function BackupsPage() {
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
   const [confirmRestore, setConfirmRestore] = useState<number | null>(null);
 
+  useEffect(() => { setMounted(true); }, []);
+
   useEffect(() => {
     Promise.all([api.get('/developer/backups'), api.get('/developer/apps')])
       .then(([b, a]) => { setBups(b.data); setApps(a.data); })
       .catch(() => toast.error('Failed to load backups'))
       .finally(() => setLoading(false));
   }, []);
+
+  if (locked) return <PremiumLocked feature="Backups" tier="Developer" />;
 
   const handleCreate = async () => {
     if (!form.app_id || !form.name.trim()) return;
@@ -110,6 +114,24 @@ export default function BackupsPage() {
 
   const totalSize = bups.reduce((sum, b) => sum + (b.size_bytes || 0), 0);
 
+  if (!mounted) {
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="premium-card p-8 md:p-10 space-y-6">
+          <div className="sk h-6 w-32 rounded-lg" />
+          <div className="sk h-4 w-56 rounded" />
+          <div className="flex gap-4 mt-4">
+            <div className="sk h-10 flex-1 rounded-xl" />
+            <div className="sk h-10 w-32 rounded-xl" />
+          </div>
+          <div className="space-y-3">
+            {[1,2,3].map(i => <div key={i} className="sk h-16 w-full rounded-xl" />)}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -119,7 +141,7 @@ export default function BackupsPage() {
   }
 
   return (
-    <section className="card-wrapper p-8 md:p-10 space-y-8">
+    <section className="premium-card p-8 md:p-10 space-y-8">
 
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">

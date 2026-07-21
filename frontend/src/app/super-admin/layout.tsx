@@ -21,7 +21,6 @@ const navGroups: NavGroup[] = [
     items: [
       { name: 'Developers', icon: 'engineering', href: '/super-admin/developers' },
       { name: 'Applications', icon: 'apps', href: '/super-admin/applications' },
-      { name: 'End Users', icon: 'group', href: '/super-admin/end-users' },
       { name: 'Admins', icon: 'admin_panel_settings', href: '/super-admin/admins' },
     ],
   },

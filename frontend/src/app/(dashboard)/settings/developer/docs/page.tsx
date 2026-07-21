@@ -13,7 +13,7 @@ export default function DocsPage() {
   ];
 
   return (
-    <section className="card-wrapper p-8 md:p-10">
+    <section className="premium-card p-8 md:p-10">
       <div className="mb-8">
         <h3 className="text-2xl font-bold text-[var(--foreground)] mb-1">Documentation</h3>
         <p className="text-sm text-[var(--muted-foreground)]">Explore guides, references, and FAQs to get the most out of the platform.</p>

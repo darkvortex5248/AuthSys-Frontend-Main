@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, JSON, Text, BigInteger, Float
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, JSON, Text, BigInteger, Float, UniqueConstraint
 from sqlalchemy.orm import relationship
 from core.database import Base
 from datetime import datetime, timezone
@@ -143,6 +143,9 @@ class LicenseKey(Base):
 
 class EndUser(Base):
     __tablename__ = "end_users"
+    __table_args__ = (
+        UniqueConstraint('app_id', 'username', name='uq_end_users_app_id_username'),
+    )
     id = Column(Integer, primary_key=True, index=True)
     app_id = Column(Integer, ForeignKey("applications.id", ondelete="CASCADE"), nullable=True)
     developer_id = Column(Integer, ForeignKey("developer_accounts.id", ondelete="CASCADE"), nullable=True)
@@ -167,7 +170,7 @@ class EndUser(Base):
     is_shadow = Column(Boolean, default=False)
     is_device_only = Column(Boolean, default=False)
     expires_at = Column(DateTime(timezone=True), nullable=True)
-    max_uses = Column(Integer, default=-1)
+    max_uses = Column(Integer, default=1)
     user_category = Column(String, default='active')
     
     app = relationship("Application", back_populates="users")

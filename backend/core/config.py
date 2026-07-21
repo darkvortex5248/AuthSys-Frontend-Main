@@ -7,11 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     PROJECT_NAME: str = "AuthSys"
     API_V1_STR: str = "/api/v1"
-    # WARNING: this in-code default is for local development only. A real,
-    # strong SECRET_KEY MUST be provided via the SECRET_KEY env var in any
-    # staging/production deployment — tokens signed with the dev key are not
-    # trustworthy and are regenerated on every boot (invalidating sessions).
-    SECRET_KEY: str = "dev-only-insecure-secret-key-change-me-in-production"
+    SECRET_KEY: str = ""
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 180  # 3 hours default
     ACCESS_TOKEN_REMEMBER_DAYS: int = 1  # 24 hours with remember-me
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
@@ -91,11 +87,11 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-if settings.SECRET_KEY == "dev-only-insecure-secret-key-change-me-in-production":
+if not settings.SECRET_KEY:
+    import sys as _sys
     import logging as _logging
-    _logging.getLogger(__name__).warning(
-        "SECRET_KEY is using the insecure built-in default. Set a strong "
-        "SECRET_KEY environment variable — the dev default must never be used "
-        "in staging/production (signed tokens are untrustworthy and rotate "
-        "across restarts)."
+    _logging.getLogger(__name__).critical(
+        "SECRET_KEY is not set! Generate a strong key and set it via "
+        "the SECRET_KEY environment variable or .env file."
     )
+    _sys.exit(1)

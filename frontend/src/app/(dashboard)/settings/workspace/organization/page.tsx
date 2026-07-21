@@ -7,6 +7,7 @@ export default function WorkspaceOrganizationPage() {
   const [org, setOrg] = useState<any>(null);
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
   const [orgForm, setOrgForm] = useState({ name: '', slug: '', logo_url: '' });
@@ -23,6 +24,7 @@ export default function WorkspaceOrganizationPage() {
       if (err?.response?.status !== 404) toast.error(detail);
     } finally { setLoading(false); }
   };
+  useEffect(() => { setMounted(true); }, []);
   useEffect(() => { fetch(); }, []);
 
   const createOrg = async () => {
@@ -59,6 +61,21 @@ export default function WorkspaceOrganizationPage() {
     catch { toast.error('Failed'); }
   };
 
+  if (!mounted) {
+    return (
+      <div className="max-w-4xl space-y-6 animate-pulse">
+        <div className="sk h-7 w-36 rounded-lg" />
+        <div className="sk h-4 w-64 rounded" />
+        <div className="premium-card p-8 space-y-4 text-center">
+          <div className="sk h-16 w-16 rounded-2xl mx-auto" />
+          <div className="sk h-5 w-40 rounded-lg mx-auto" />
+          <div className="sk h-4 w-64 rounded mx-auto" />
+          <div className="sk h-10 w-40 rounded-xl mx-auto" />
+        </div>
+      </div>
+    );
+  }
+
   if (loading) return <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" /></div>;
 
   return (
@@ -66,7 +83,7 @@ export default function WorkspaceOrganizationPage() {
       <div><h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Organization</h1><p className="text-sm text-[var(--muted-foreground)] mt-1">Manage your team and organization</p></div>
 
       {!org && !showCreate && (
-        <div className="glass-card rounded-xl p-8 text-center space-y-4">
+        <div className="premium-card p-8 text-center space-y-4">
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto"><span className="material-symbols-outlined text-3xl text-primary">groups</span></div>
           <h2 className="text-lg font-bold text-[var(--foreground)]">No Organization Yet</h2>
           <p className="text-sm text-[var(--muted-foreground)] max-w-md mx-auto">Create an organization to manage your team, invite members, and collaborate on apps.</p>
@@ -75,7 +92,7 @@ export default function WorkspaceOrganizationPage() {
       )}
 
       {showCreate && (
-        <div className="glass-card rounded-xl p-5 space-y-4 border border-primary/20">
+        <div className="premium-card p-5 space-y-4">
           <h3 className="text-sm font-bold text-[var(--foreground)]">New Organization</h3>
           <input value={orgForm.name} onChange={e => setOrgForm({...orgForm, name: e.target.value})} placeholder="Organization name" className="w-full bg-[var(--card)]/50 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-[var(--foreground)]" />
           <input value={orgForm.slug} onChange={e => setOrgForm({...orgForm, slug: e.target.value})} placeholder="slug (e.g. mycompany)" className="w-full bg-[var(--card)]/50 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-[var(--foreground)]" />
@@ -89,7 +106,7 @@ export default function WorkspaceOrganizationPage() {
 
       {org && (
         <>
-          <div className="glass-card rounded-xl p-5 flex items-center justify-between">
+          <div className="premium-card p-5 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
                 {org.logo_url ? <img src={org.logo_url} className="w-14 h-14 rounded-2xl object-cover" /> : <span className="material-symbols-outlined text-2xl text-primary">groups</span>}
@@ -103,7 +120,7 @@ export default function WorkspaceOrganizationPage() {
           </div>
 
           {showInvite && (
-            <div className="glass-card rounded-xl p-5 space-y-4 border border-primary/20">
+            <div className="premium-card p-5 space-y-4">
               <h3 className="text-sm font-bold text-[var(--foreground)]">Invite Member</h3>
               <input value={inviteForm.developer_email} onChange={e => setInviteForm({...inviteForm, developer_email: e.target.value})} placeholder="developer@email.com" className="w-full bg-[var(--card)]/50 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-[var(--foreground)]" />
               <select value={inviteForm.role} onChange={e => setInviteForm({...inviteForm, role: e.target.value})} className="w-full bg-[var(--card)]/50 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-[var(--foreground)]">
@@ -122,7 +139,7 @@ export default function WorkspaceOrganizationPage() {
           <div className="space-y-2">
             <h3 className="text-sm font-bold text-[var(--foreground)] uppercase tracking-wider">Members ({members.length})</h3>
             {members.map(m => (
-              <div key={m.id} className="glass-card rounded-xl p-4 flex items-center justify-between">
+              <div key={m.id} className="premium-card p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center text-xs font-bold text-primary">#{m.developer_id}</div>
                   <div>

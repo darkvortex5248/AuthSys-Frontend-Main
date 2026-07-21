@@ -79,7 +79,9 @@ CREATE TABLE IF NOT EXISTS subscription_plans (
     has_global_chat BOOLEAN DEFAULT FALSE,
     has_custom_bot BOOLEAN DEFAULT FALSE,
     has_behavioral_threat_intel BOOLEAN DEFAULT FALSE,
-    has_version_whitelist BOOLEAN DEFAULT FALSE
+    has_version_whitelist BOOLEAN DEFAULT FALSE,
+    max_devices INTEGER DEFAULT 3,
+    has_device_panel BOOLEAN DEFAULT FALSE
 );
 
 -- ── ai_provider_config ──────────────────────────────────────────────
@@ -277,8 +279,13 @@ CREATE TABLE IF NOT EXISTS end_users (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     variable_data JSONB,
     is_shadow BOOLEAN DEFAULT FALSE,
-    expires_at TIMESTAMPTZ
+    expires_at TIMESTAMPTZ,
+    max_uses INTEGER DEFAULT 1,
+    is_device_only BOOLEAN DEFAULT FALSE,
+    user_category VARCHAR DEFAULT 'active',
+    developer_id INTEGER REFERENCES developer_accounts (id) ON DELETE CASCADE
 );
+CREATE UNIQUE INDEX IF NOT EXISTS uq_end_users_app_id_username ON end_users (app_id, username);
 CREATE INDEX IF NOT EXISTS ix_end_users_username ON end_users (username);
 
 -- ── sessions (FK → end_users, applications) ─────────────────────────
@@ -720,6 +727,51 @@ CREATE TRIGGER on_auth_user_created
     EXECUTE FUNCTION public.handle_new_auth_user();
 
 GRANT EXECUTE ON FUNCTION public.handle_new_auth_user() TO anon, authenticated, service_role;
+
+
+-- ── activation_codes (FK → subscription_plans, developer_accounts) ──
+CREATE TABLE IF NOT EXISTS activation_codes (
+    id SERIAL PRIMARY KEY,
+    code VARCHAR UNIQUE NOT NULL,
+    plan_id INTEGER REFERENCES subscription_plans(id) ON DELETE CASCADE NOT NULL,
+    target_developer_id INTEGER REFERENCES developer_accounts(id) ON DELETE SET NULL,
+    is_used BOOLEAN DEFAULT FALSE,
+    used_by_developer_id INTEGER REFERENCES developer_accounts(id) ON DELETE SET NULL,
+    used_at TIMESTAMPTZ,
+    source VARCHAR DEFAULT 'admin',
+    stripe_session_id VARCHAR,
+    payment_id INTEGER REFERENCES payments(id) ON DELETE SET NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    expires_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS ix_activation_codes_code ON activation_codes (code);
+CREATE INDEX IF NOT EXISTS ix_activation_codes_is_used ON activation_codes (is_used);
+
+-- ── device_groups (FK → developer_accounts) ─────────────────────────
+CREATE TABLE IF NOT EXISTS device_groups (
+    id SERIAL PRIMARY KEY,
+    developer_id INTEGER REFERENCES developer_accounts(id) ON DELETE CASCADE NOT NULL,
+    name VARCHAR NOT NULL,
+    group_secret VARCHAR UNIQUE NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    max_devices INTEGER DEFAULT 50,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ── devices (FK → device_groups) ────────────────────────────────────
+CREATE TABLE IF NOT EXISTS devices (
+    id SERIAL PRIMARY KEY,
+    group_id INTEGER REFERENCES device_groups(id) ON DELETE CASCADE NOT NULL,
+    hwid VARCHAR NOT NULL,
+    device_name VARCHAR,
+    status VARCHAR DEFAULT 'active',
+    ban_reason VARCHAR,
+    last_checkin_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS ix_devices_hwid ON devices (hwid);
 
 
 -- ════════════════════════════════════════════════════════════════════

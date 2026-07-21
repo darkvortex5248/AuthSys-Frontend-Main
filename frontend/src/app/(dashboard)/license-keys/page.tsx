@@ -52,8 +52,8 @@ export default function LicenseKeysPage() {
   const [showEditModal, setShowEditModal] = useState<any>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [bulkMode, setBulkMode] = useState(false);
-  const [singleData, setSingleData] = useState({ type: 'time', duration: 30, max_uses: -1, expires_at: '', note: '', custom_key: '', use_custom_expiry: false });
-  const [editData, setEditData] = useState({ type: 'time', duration: 30, max_uses: -1, expires_at: '', note: '', seller_tag: '' });
+  const [singleData, setSingleData] = useState({ type: 'time', duration: 30, max_uses: 1, expires_at: '', note: '', custom_key: '', use_custom_expiry: false });
+  const [editData, setEditData] = useState({ type: 'time', duration: 30, max_uses: 1, expires_at: '', note: '', seller_tag: '' });
   const [generating, setGenerating] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [bulkResult, setBulkResult] = useState<any>(null);

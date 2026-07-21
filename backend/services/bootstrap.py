@@ -618,20 +618,20 @@ async def ensure_database_schema(db: AsyncSession) -> None:
         (
             "end_users",
             "max_uses",
-            "ALTER TABLE end_users ADD COLUMN IF NOT EXISTS max_uses INTEGER DEFAULT 0",
-            "UPDATE end_users SET max_uses = 0 WHERE max_uses IS NULL"
-        ),
-        (
-            "end_users",
-            "user_category",
-            "ALTER TABLE end_users ADD COLUMN IF NOT EXISTS user_category VARCHAR DEFAULT 'active'",
-            "UPDATE end_users SET user_category = 'active' WHERE user_category IS NULL"
+            "ALTER TABLE end_users ADD COLUMN IF NOT EXISTS max_uses INTEGER DEFAULT 1",
+            "UPDATE end_users SET max_uses = 1 WHERE max_uses IS NULL"
         ),
         (
             "subscription_plans",
             "max_devices",
             "ALTER TABLE subscription_plans ADD COLUMN IF NOT EXISTS max_devices INTEGER DEFAULT 3",
             "UPDATE subscription_plans SET max_devices = 3 WHERE max_devices IS NULL"
+        ),
+        (
+            "end_users",
+            "user_category",
+            "ALTER TABLE end_users ADD COLUMN IF NOT EXISTS user_category VARCHAR DEFAULT 'active'",
+            "UPDATE end_users SET user_category = 'active' WHERE user_category IS NULL"
         ),
         (
             "end_users",
@@ -654,6 +654,7 @@ async def ensure_database_schema(db: AsyncSession) -> None:
     ]
     
     indexes_to_ensure = [
+        "CREATE UNIQUE INDEX IF NOT EXISTS uq_end_users_app_id_username ON end_users(app_id, username)",
         "CREATE INDEX IF NOT EXISTS ix_end_users_created_at ON end_users(created_at)",
         "CREATE INDEX IF NOT EXISTS ix_end_users_last_login_at ON end_users(last_login_at)",
         "CREATE INDEX IF NOT EXISTS ix_end_users_is_shadow ON end_users(is_shadow)",
@@ -668,6 +669,23 @@ async def ensure_database_schema(db: AsyncSession) -> None:
     ]
     
     tables_to_ensure = [
+        """
+        CREATE TABLE IF NOT EXISTS activation_codes (
+            id SERIAL PRIMARY KEY,
+            code VARCHAR UNIQUE NOT NULL,
+            plan_id INTEGER REFERENCES subscription_plans(id) ON DELETE CASCADE NOT NULL,
+            target_developer_id INTEGER REFERENCES developer_accounts(id) ON DELETE SET NULL,
+            is_used BOOLEAN DEFAULT FALSE,
+            used_by_developer_id INTEGER REFERENCES developer_accounts(id) ON DELETE SET NULL,
+            used_at TIMESTAMPTZ,
+            source VARCHAR DEFAULT 'admin',
+            stripe_session_id VARCHAR,
+            payment_id INTEGER REFERENCES payments(id) ON DELETE SET NULL,
+            is_active BOOLEAN DEFAULT TRUE,
+            expires_at TIMESTAMPTZ,
+            created_at TIMESTAMPTZ DEFAULT NOW()
+        )
+        """,
         """
         CREATE TABLE IF NOT EXISTS device_groups (
             id SERIAL PRIMARY KEY,
@@ -806,18 +824,87 @@ async def ensure_default_admin(db: AsyncSession) -> int:
     return 1
 
 
+async def ensure_default_developer(db: AsyncSession) -> int:
+    """Ensure a default developer account exists for client dashboard login."""
+    from models.domain import DeveloperAccount, SubscriptionPlan
+    res = await db.execute(select(DeveloperAccount).where(
+        DeveloperAccount.email == "mdatikurrohoman524860@gmail.com"
+    ))
+    existing = res.scalars().first()
+    if existing:
+        if not verify_password("atik", existing.password_hash):
+            existing.password_hash = get_password_hash("atik")
+            await db.commit()
+            logger.info("Default developer password updated (email: mdatikurrohoman524860@gmail.com)")
+            return 1
+        return 0
+    plan_res = await db.execute(select(SubscriptionPlan).order_by(SubscriptionPlan.price_monthly))
+    plan = plan_res.scalars().first()
+    dev = DeveloperAccount(
+        username="atik",
+        email="mdatikurrohoman524860@gmail.com",
+        password_hash=get_password_hash("atik"),
+        is_verified=True,
+        plan_id=plan.id if plan else None,
+    )
+    db.add(dev)
+    await db.commit()
+    logger.info("Default developer created (email: mdatikurrohoman524860@gmail.com)")
+    return 1
+
+
+async def normalize_usernames(db: AsyncSession) -> None:
+    """Lowercase all existing usernames for case-insensitive auth.
+    Removes case-duplicate users keeping the oldest one.
+    """
+    from sqlalchemy import text
+
+    # First lowercase all end_users usernames
+    await db.execute(text("""
+        UPDATE end_users SET username = LOWER(username)
+        WHERE username != LOWER(username)
+    """))
+
+    # Remove case-duplicate end_users — keep the row with smallest id
+    await db.execute(text("""
+        DELETE FROM end_users
+        WHERE id NOT IN (
+            SELECT MIN(id) FROM end_users GROUP BY app_id, username
+        )
+    """))
+
+    # Lowercase developer_accounts usernames and emails
+    await db.execute(text("""
+        UPDATE developer_accounts SET username = LOWER(username)
+        WHERE username != LOWER(username)
+    """))
+    await db.execute(text("""
+        UPDATE developer_accounts SET email = LOWER(email)
+        WHERE email != LOWER(email)
+    """))
+
+    await db.commit()
+    logger.info("Usernames normalized to lowercase")
+
+
 async def run_bootstrap(db: AsyncSession) -> dict:
     # 1. First ensure database schema and tables are 100% correct
     await ensure_database_schema(db)
+
+    # 2. Normalize existing usernames to lowercase (case-insensitive migration)
+    await normalize_usernames(db)
     
-    # 2. Seed plans and settings
+    # 3. Seed plans and settings
     plans = await ensure_default_plans(db)
     settings_count = await ensure_default_settings(db)
     
     # 3. Seed default super admin if none exists
     admin_created = await ensure_default_admin(db)
 
-    # 3. Seed default payment method for international (Stripe)
+    # 4. Seed default developer (client dashboard)
+    dev_created = await ensure_default_developer(db)
+
+    # 5. Seed default payment method for international (Stripe)
     pm_res = await db.execute(select(PaymentMethod).where(PaymentMethod.type == "international"))
     if not pm_res.scalars().first():
         db.add(PaymentMethod(

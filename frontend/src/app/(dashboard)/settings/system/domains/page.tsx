@@ -9,14 +9,17 @@ import PremiumLocked from '@/components/PremiumLocked';
 
 export default function DomainsPage() {
   const { data: profile } = useDeveloperMe(true);
+  const locked = isFeatureLocked('developer', profile?.subscription_tier);
+
   const [doms, setDoms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [newDom, setNewDom] = useState('');
   const [adding, setAdding] = useState(false);
   const [verifying, setVerifying] = useState<string | null>(null);
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
 
-  const locked = isFeatureLocked('developer', profile?.subscription_tier);
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     if (locked) return;
@@ -25,6 +28,8 @@ export default function DomainsPage() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  if (locked) return <PremiumLocked feature="Custom Domains" tier="Developer" />;
 
   const handleAdd = async () => {
     if (!newDom.trim()) return;
@@ -80,7 +85,23 @@ export default function DomainsPage() {
     setTimeout(() => setCopiedToken(null), 2000);
   };
 
-  if (locked) return <PremiumLocked feature="Custom Domains" tier="Developer" />;
+  if (!mounted) {
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="premium-card p-8 md:p-10 space-y-6">
+          <div className="sk h-6 w-36 rounded-lg" />
+          <div className="sk h-4 w-60 rounded" />
+          <div className="flex gap-3 mt-4">
+            <div className="sk h-10 flex-1 rounded-xl" />
+            <div className="sk h-10 w-24 rounded-xl" />
+          </div>
+          <div className="space-y-3">
+            {[1,2].map(i => <div key={i} className="sk h-20 w-full rounded-xl" />)}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -91,7 +112,7 @@ export default function DomainsPage() {
   }
 
   return (
-    <section className="card-wrapper p-8 md:p-10 space-y-8">
+    <section className="premium-card p-8 md:p-10 space-y-8">
 
       {/* Header */}
       <div className="flex items-start justify-between gap-4">

@@ -902,6 +902,12 @@ a, button, input, select, textarea, [role="button"] {
     border: 1px solid var(--border);
   }
 
+  /* Skeleton loader */
+  .sk {
+    background: var(--accent-opacity-8);
+    border-radius: var(--radius);
+  }
+
   /* Search input */
   .search-icon {
     position: absolute;

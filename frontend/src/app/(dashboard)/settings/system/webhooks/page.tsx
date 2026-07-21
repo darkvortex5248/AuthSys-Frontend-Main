@@ -43,13 +43,13 @@ const EVENT_OPTIONS = [
 export default function WebhooksPage() {
   const { data: profile } = useDeveloperMe(true);
   const locked = isFeatureLocked('developer', profile?.subscription_tier);
-  if (locked) return <PremiumLocked feature="Webhooks" tier="Developer" />;
 
   const router = useRouter();
   const confirm = useConfirm();
   const selectedAppId = useAuthStore((s) => s.selectedAppId);
   const [webhooks, setWebhooks] = useState<WebhookEndpoint[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<WebhookEndpoint | null>(null);
   const [formUrl, setFormUrl] = useState('');
@@ -59,6 +59,10 @@ export default function WebhooksPage() {
   const [testing, setTesting] = useState<number | null>(null);
   const [deliveryLog, setDeliveryLog] = useState<any[]>([]);
   const [showLog, setShowLog] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  if (locked) return <PremiumLocked feature="Webhooks" tier="Developer" />;
 
   const fetchWebhooks = async () => {
     try {
@@ -156,6 +160,27 @@ export default function WebhooksPage() {
       toast.error('Failed to load delivery log');
     }
   };
+
+  if (!mounted) {
+    return (
+      <div className="space-y-8 animate-pulse pb-20">
+        <div className="flex items-center gap-4">
+          <div className="sk h-9 w-9 rounded-xl" />
+          <div className="space-y-2">
+            <div className="sk h-7 w-32 rounded-lg" />
+            <div className="sk h-4 w-56 rounded" />
+          </div>
+        </div>
+        <div className="flex justify-between">
+          <div className="sk h-10 w-64 rounded-xl" />
+          <div className="sk h-10 w-28 rounded-xl" />
+        </div>
+        <div className="space-y-3">
+          {[1,2,3].map(i => <div key={i} className="premium-card p-5 space-y-3"><div className="sk h-5 w-48 rounded" /><div className="sk h-4 w-full rounded" /><div className="flex gap-2"><div className="sk h-6 w-20 rounded-full" /><div className="sk h-6 w-24 rounded-full" /></div></div>)}
+        </div>
+      </div>
+    );
+  }
 
   if (loading) return (
     <div className="flex items-center justify-center h-[60vh]">

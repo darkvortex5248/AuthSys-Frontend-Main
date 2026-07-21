@@ -36,6 +36,9 @@ export default function PlanPage() {
   const activeUser = profile ?? user;
   const [usage, setUsage] = useState<any>(null);
   const [usageLoading, setUsageLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     api.get('/developer/usage/current').then(r => setUsage(r.data)).catch(() => {}).finally(() => setUsageLoading(false));
@@ -43,8 +46,22 @@ export default function PlanPage() {
 
   const limitPct = (cur: number, lim: number) => lim > 0 ? Math.min(100, Math.round((cur / lim) * 100)) : 0;
 
+  if (!mounted) {
+    return (
+      <div className="animate-pulse">
+        <div className="premium-card p-8 md:p-10 space-y-6">
+          <div className="sk h-6 w-44 rounded-lg" />
+          <div className="sk h-4 w-64 rounded" />
+          <div className="space-y-4 mt-6">
+            {[1,2,3].map(i => <div key={i} className="space-y-2 p-4 border border-white/5 rounded-xl"><div className="sk h-4 w-32 rounded" /><div className="sk h-2.5 w-full rounded" /></div>)}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <section className="card-wrapper p-8 md:p-10 space-y-10">
+    <section className="premium-card p-8 md:p-10 space-y-10">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h3 className="text-2xl font-bold text-[var(--foreground)] mb-1">Plan & Usage</h3>

@@ -7,7 +7,7 @@ import uuid
 import hashlib
 
 from core.database import get_db
-from models.domain import Application, EndUser, LicenseKey, Session, Variable, ActivityLog, Blacklist, ChatRoom, ChatMessage, DeveloperAccount, SubscriptionPlan
+from models.domain import Application, EndUser, LicenseKey, Session, Variable, ActivityLog, Blacklist, ChatRoom, ChatMessage, DeveloperAccount, SubscriptionPlan, utc_now
 from services.webhooks import trigger_webhook
 from services.plan_enforcer import check_limit
 from sqlalchemy import func
@@ -38,9 +38,6 @@ async def get_app_by_secret(app_secret: str, db: AsyncSession) -> Application:
     if app.maintenance_mode:
         raise HTTPException(status_code=503, detail="Application is currently under maintenance. Please try again later.")
     return app
-
-def utc_now():
-    return datetime.now(timezone.utc)
 
 async def check_blacklist(app_id: int, ip: str, hwid: str, db: AsyncSession):
     res = await db.execute(
@@ -84,8 +81,12 @@ async def register_user(request: Request, req: ClientRegisterRequest, db: AsyncS
     client_ip = request.client.host if request.client else "N/A"
     
     await check_blacklist(app.id, client_ip, req.hwid, db)
-    
-    user_res = await db.execute(select(EndUser).where(EndUser.app_id == app.id, EndUser.username == req.username))
+
+    if len(req.password) < 1:
+        raise HTTPException(400, "Password must be at least 1 character long")
+
+    username_normalized = req.username.strip().lower()
+    user_res = await db.execute(select(EndUser).where(EndUser.app_id == app.id, EndUser.username == username_normalized))
     if user_res.scalars().first():
         raise HTTPException(status_code=400, detail="Username already taken")
     
@@ -130,13 +131,14 @@ async def register_user(request: Request, req: ClientRegisterRequest, db: AsyncS
 
     new_user = EndUser(
         app_id=app.id,
-        username=req.username,
+        username=req.username.strip().lower(),
         password_hash=get_password_hash(req.password),
         email=req.email,
         license_key_id=license_key.id,
         hwid=req.hwid,
         subscription_expires_at=sub_expires_at,
-        last_ip=client_ip
+        last_ip=client_ip,
+        max_uses=license_key.max_uses if license_key.max_uses is not None else 1
     )
     
     # Mark key as used
@@ -166,7 +168,7 @@ async def login_user(request: Request, req: ClientLoginRequest, db: AsyncSession
     
     await check_blacklist(app.id, client_ip, req.hwid, db)
     
-    user_res = await db.execute(select(EndUser).where(EndUser.app_id == app.id, EndUser.username == req.username))
+    user_res = await db.execute(select(EndUser).where(EndUser.app_id == app.id, EndUser.username == req.username.strip().lower()))
     user = user_res.scalars().first()
     
     if not user or not verify_password(req.password, user.password_hash):

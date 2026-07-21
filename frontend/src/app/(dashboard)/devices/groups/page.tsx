@@ -22,6 +22,9 @@ export default function DeviceGroupsPage() {
   const [newName, setNewName] = useState('');
   const [newMaxDevices, setNewMaxDevices] = useState(50);
   const [creating, setCreating] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   const fetchGroups = useCallback(async () => {
     try {
@@ -80,10 +83,17 @@ export default function DeviceGroupsPage() {
     toast.success('Copied');
   };
 
-  if (loading) {
+  if (loading || !mounted) {
     return (
-      <div className="flex items-center justify-center h-[40vh]">
-        <div className="w-8 h-8 border-2 border-[var(--primary)]/20 border-t-[var(--primary)] rounded-full animate-spin" />
+      <div className="space-y-6 animate-pulse">
+        <div className="flex justify-between items-end">
+          <div className="space-y-3">
+            <div className="h-10 w-52 bg-[var(--accent-opacity-8)] rounded-xl" />
+            <div className="h-4 w-72 bg-[var(--accent-opacity-8)] rounded-xl" />
+          </div>
+          <div className="h-10 w-36 bg-[var(--accent-opacity-8)] rounded-xl" />
+        </div>
+        <div className="h-80 bg-[var(--accent-opacity-8)] rounded-2xl" />
       </div>
     );
   }
@@ -140,6 +150,10 @@ export default function DeviceGroupsPage() {
         </div>
       ) : (
         <div className="glass-card rounded-2xl overflow-hidden border border-white/5">
+          <style>{`
+            @keyframes rowIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+            .grp-row { animation:rowIn 0.3s ease-out both; }
+          `}</style>
           <table className="w-full text-left border-collapse min-w-[700px]">
             <thead>
               <tr className="border-b border-white/5 bg-white/5">
@@ -152,8 +166,8 @@ export default function DeviceGroupsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {groups.map(group => (
-                <tr key={group.id} className="hover:bg-white/[0.02] transition-colors">
+              {groups.map((group, i) => (
+                <tr key={group.id} className="grp-row hover:bg-white/[0.02] transition-colors" style={{ animationDelay: `${i * 40}ms` }}>
                   <td className="px-6 py-4">
                     <div>
                       <p className="text-sm font-bold text-[var(--foreground)]">{group.name}</p>

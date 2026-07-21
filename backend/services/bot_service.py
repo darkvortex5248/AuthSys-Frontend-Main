@@ -50,6 +50,7 @@ class BotService:
             key_value=key_val,
             key_type=key_type,
             duration_days=duration if key_type == "time" else None,
+            max_uses=1 if key_type != "uses_based" else None,
             note=note or None,
         )
         db.add(new_key)

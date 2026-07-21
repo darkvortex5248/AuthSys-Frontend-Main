@@ -33,6 +33,9 @@ export default function ChatroomsPage() {
   const [loading, setLoading] = useState(true);
   const [newRoomName, setNewRoomName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   const fetchRooms = async () => {
     if (locked) return;
@@ -52,6 +55,7 @@ export default function ChatroomsPage() {
   }, [selectedAppId, locked]);
 
   if (locked) return <PremiumLocked feature="Chatrooms" />;
+  if (!mounted) return null;
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,7 +94,7 @@ export default function ChatroomsPage() {
           variants={fadeUp} initial="hidden" animate="show"
           className="lg:col-span-1"
         >
-          <div className="card-wrapper overflow-hidden">
+          <div className="premium-card overflow-hidden">
             <div className="px-6 pt-6 pb-4 border-b border-white/6">
               <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--muted-foreground)] flex items-center gap-2">
                 <Plus className="w-3.5 h-3.5 text-[var(--primary)]" />
@@ -129,17 +133,15 @@ export default function ChatroomsPage() {
 
         <div className="lg:col-span-3">
           {loading ? (
-            <div className="flex items-center justify-center h-48">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                className="w-8 h-8 border-2 border-[var(--primary)] border-t-transparent rounded-full"
-              />
+            <div className="space-y-4 animate-pulse">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[1,2,3,4].map(i => <div key={i} className="h-40 bg-[var(--accent-opacity-8)] rounded-2xl" />)}
+              </div>
             </div>
           ) : rooms.length === 0 ? (
             <motion.div
               variants={fadeUp} initial="hidden" animate="show"
-              className="glass-card rounded-xl flex flex-col items-center justify-center py-20 text-center"
+              className="premium-card flex flex-col items-center justify-center py-20 text-center"
             >
               <div className="w-16 h-16 rounded-xl bg-white/4 border border-white/8 flex items-center justify-center mb-5">
                 <MessageSquare className="w-7 h-7 text-white/20" />
@@ -174,7 +176,7 @@ function RoomCard({ room, index }: { room: any; index: number }) {
       custom={index}
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
-      className={`relative card-wrapper overflow-hidden cursor-default group transition-all duration-300 ${
+      className={`relative premium-card cursor-default group ${
         hovered ? 'border-[var(--primary)]/35 shadow-lg shadow-[var(--primary)]/8' : ''
       }`}
     >

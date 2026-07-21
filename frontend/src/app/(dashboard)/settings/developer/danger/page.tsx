@@ -134,7 +134,7 @@ export default function DangerPage() {
   const phraseMatch = deleteInput === CONFIRM_PHRASE;
 
   return (
-    <section className="card-wrapper p-8 md:p-10 space-y-8">
+    <section className="premium-card p-8 md:p-10 space-y-8">
 
       {/* Header */}
       <div className="flex items-start gap-4">

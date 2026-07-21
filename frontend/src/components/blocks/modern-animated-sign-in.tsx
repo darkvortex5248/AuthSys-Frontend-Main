@@ -377,10 +377,10 @@ const AnimatedForm = memo(function AnimatedForm({
         currentErrors[field.label] = 'Invalid email address';
       }
 
-      if (field.type === 'password' && value && value.length < 6) {
-        currentErrors[field.label] =
-          'Password must be at least 6 characters long';
-      }
+if (field.type === 'password' && value && value.length < 1) {
+    currentErrors[field.label] =
+        'Password must be at least 1 character long';
+}
     });
     return currentErrors;
   };

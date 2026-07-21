@@ -4,7 +4,7 @@ from sqlalchemy.future import select
 from datetime import datetime, timedelta, timezone
 from core.database import get_db
 from core.deps import get_current_developer
-from models.domain import EndUser, DeveloperAccount
+from models.domain import EndUser, DeveloperAccount, utc_now
 from routers.developer_keys import verify_app_owner
 from schemas.dashboard import BanRequest, UserCreateManual, BulkUserCreate
 from core.security import get_password_hash
@@ -15,17 +15,14 @@ from services.webhooks import trigger_webhook
 
 router = APIRouter(prefix="/api/v1/developer/users", tags=["Users"])
 
-def utc_now():
-    return datetime.now(timezone.utc)
-
 @router.get("/{app_id}")
-async def get_users(app_id: int, show_shadow: bool = False, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
+async def get_users(app_id: int, show_shadow: bool = False, skip: int = 0, limit: int = 50, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     await verify_app_owner(app_id, dev.id, db)
     query = select(EndUser).where(EndUser.app_id == app_id)
     if not show_shadow:
         query = query.where(EndUser.is_shadow == False)
     
-    res = await db.execute(query.order_by(EndUser.created_at.desc()))
+    res = await db.execute(query.order_by(EndUser.created_at.desc()).offset(skip).limit(limit))
     return res.scalars().all()
 
 @router.post("/create")
@@ -35,10 +32,14 @@ async def create_user_manual(req: UserCreateManual, dev: DeveloperAccount = Depe
     # Check user limit
     user_count = await db.execute(select(EndUser).where(EndUser.app_id == req.app_id))
     current_users = len(user_count.scalars().all())
-    await check_limit(dev, "max_licenses", current_users, db, plan)
-    
-    # Check if username exists for this app
-    res = await db.execute(select(EndUser).where(EndUser.app_id == req.app_id, EndUser.username == req.username))
+    await check_limit(dev, "max_users_per_app", current_users, db, plan)
+
+    if len(req.password) < 1:
+        raise HTTPException(400, "Password must be at least 1 character long")
+
+    username_normalized = req.username.strip().lower()
+    # Check if username exists for this app (case-insensitive)
+    res = await db.execute(select(EndUser).where(EndUser.app_id == req.app_id, EndUser.username == username_normalized))
     if res.scalars().first():
         raise HTTPException(400, "Username already exists for this application")
         
@@ -49,11 +50,11 @@ async def create_user_manual(req: UserCreateManual, dev: DeveloperAccount = Depe
         expires_at = datetime.now(timezone.utc) + timedelta(days=req.duration_days)
     new_user = EndUser(
         app_id=req.app_id,
-        username=req.username,
+        username=username_normalized,
         password_hash=hashed_password,
         email=req.email,
         expires_at=expires_at,
-        max_uses=req.max_uses
+        max_uses=req.max_uses if req.max_uses is not None else 1
     )
     db.add(new_user)
     await db.commit()
@@ -69,13 +70,12 @@ async def bulk_create_users(req: BulkUserCreate, dev: DeveloperAccount = Depends
     # Check user limit
     user_count = await db.execute(select(EndUser).where(EndUser.app_id == req.app_id))
     current_users = len(user_count.scalars().all())
-    await check_limit(dev, "max_licenses", current_users, db, plan)
-    
+    await check_limit(dev, "max_users_per_app", current_users, db, plan)
+
     import secrets
     import string
     
     users = []
-    user_credentials = []
     
     if req.users_list:
         for item in req.users_list:
@@ -92,14 +92,10 @@ async def bulk_create_users(req: BulkUserCreate, dev: DeveloperAccount = Depends
                 max_uses=req.max_uses
             )
             users.append(new_user)
-            user_credentials.append({"username": username, "password": password})
             db.add(new_user)
     else:
         for i in range(req.count):
-            # Generate unique username
             username = f"user_{secrets.token_hex(4)}"
-            
-            # Generate password
             alphabet = string.ascii_letters + string.digits + string.punctuation
             password = ''.join(secrets.choice(alphabet) for _ in range(12))
             if req.password_prefix:
@@ -114,7 +110,6 @@ async def bulk_create_users(req: BulkUserCreate, dev: DeveloperAccount = Depends
                 max_uses=req.max_uses
             )
             users.append(new_user)
-            user_credentials.append({"username": username, "password": password})
             db.add(new_user)
     
     await db.commit()
@@ -130,7 +125,6 @@ async def bulk_create_users(req: BulkUserCreate, dev: DeveloperAccount = Depends
     return {
         "count": len(users), 
         "users": [{"username": u.username, "id": u.id} for u in users],
-        "credentials": user_credentials
     }
 
 @router.post("/{user_id}/ban")
@@ -177,6 +171,9 @@ async def hwid_reset(user_id: int, dev: DeveloperAccount = Depends(get_current_d
     user = res.scalars().first()
     if not user: raise HTTPException(404, "Not found")
     await verify_app_owner(user.app_id, dev.id, db)
+
+    if user.hwid_reset_count >= user.hwid_reset_allowed and user.hwid_reset_allowed >= 0:
+        raise HTTPException(403, f"HWID reset limit reached ({user.hwid_reset_allowed}). Contact developer to increase limit.")
     
     user.hwid = None
     user.hwid_reset_count += 1

@@ -49,7 +49,7 @@ export default function UsersPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState<any>(null);
   const [banData, setBanData] = useState({ reason: 'Violation of terms', days: 0 });
-  const [newUser, setNewUser] = useState({ username: '', password: '', email: '', expires_at: '', use_custom_expiry: false, duration: 30, type: 'time', max_uses: -1 });
+  const [newUser, setNewUser] = useState({ username: '', password: '', email: '', expires_at: '', use_custom_expiry: false, duration: 30, type: 'time', max_uses: 1 });
   const [bulkMode, setBulkMode] = useState(false);
   const [bulkCount, setBulkCount] = useState(10);
   const [bulkPasswordPrefix, setBulkPasswordPrefix] = useState('');
@@ -126,7 +126,7 @@ export default function UsersPage() {
           count: bulkCount,
           password_prefix: bulkPasswordPrefix || null,
           expires_at: formattedExpiresAt,
-          max_uses: -1,
+          max_uses: newUser.max_uses,
         });
         setBulkResult(res.data);
         toast.success(`Created ${res.data.count} users successfully!`);
@@ -138,11 +138,11 @@ export default function UsersPage() {
           email: newUser.email || null,
           expires_at: formattedExpiresAt,
           duration_days: durationDays,
-          max_uses: hwidEnabled ? newUser.max_uses : 0,
+          max_uses: newUser.max_uses,
         });
         toast.success('User created');
         setShowAddModal(false);
-        setNewUser({ username: '', password: '', email: '', expires_at: '', use_custom_expiry: false, duration: 30, type: 'time', max_uses: -1 });
+        setNewUser({ username: '', password: '', email: '', expires_at: '', use_custom_expiry: false, duration: 30, type: 'time', max_uses: 1 });
         setBulkMode(false);
         setBulkCount(10);
         setBulkPasswordPrefix('');
@@ -839,7 +839,7 @@ export default function UsersPage() {
                     <GlassInput
                       type="number"
                       value={newUser.max_uses}
-                      onChange={e => setNewUser({ ...newUser, max_uses: parseInt(e.target.value) || 0 })}
+                      onChange={e => setNewUser({ ...newUser, max_uses: parseInt(e.target.value) || 1 })}
                     />
                   </div>
                 )}
@@ -950,7 +950,7 @@ export default function UsersPage() {
                     setBulkResult(null);
                     setBulkCount(10);
                     setBulkPasswordPrefix('');
-        setNewUser({ username: '', password: '', email: '', expires_at: '', use_custom_expiry: false, duration: 30, type: 'time', max_uses: -1 });
+        setNewUser({ username: '', password: '', email: '', expires_at: '', use_custom_expiry: false, duration: 30, type: 'time', max_uses: 1 });
                     if (selectedAppId && bulkResult) invalidate.users(selectedAppId);
                   }}
                   className="flex-1 py-3 rounded-xl border border-white/8 text-white/40 hover:text-white/70 hover:bg-white/5 font-black text-[11px] uppercase tracking-widest transition-all"

@@ -7,6 +7,7 @@ export default function WorkspaceScheduledPage() {
   const [actions, setActions] = useState<any[]>([]);
   const [apps, setApps] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({
     app_id: 0, action_type: 'bulk_expire', target_type: 'license_key',
@@ -21,6 +22,7 @@ export default function WorkspaceScheduledPage() {
       toast.error(err?.response?.data?.detail || err?.message || 'Failed to load');
     } finally { setLoading(false); }
   };
+  useEffect(() => { setMounted(true); }, []);
   useEffect(() => { fetch(); }, []);
 
   const createAction = async () => {
@@ -52,6 +54,20 @@ export default function WorkspaceScheduledPage() {
     } catch { toast.error('Failed'); }
   };
 
+  if (!mounted) {
+    return (
+      <div className="max-w-4xl space-y-6 animate-pulse">
+        <div className="flex justify-between">
+          <div><div className="sk h-7 w-44 rounded-lg" /><div className="sk h-4 w-56 rounded mt-1" /></div>
+          <div className="sk h-10 w-36 rounded-xl" />
+        </div>
+        <div className="space-y-3">
+          {[1,2,3].map(i => <div key={i} className="premium-card p-4 space-y-3"><div className="sk h-5 w-32 rounded" /><div className="sk h-3 w-48 rounded" /></div>)}
+        </div>
+      </div>
+    );
+  }
+
   if (loading) return <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" /></div>;
 
   return (
@@ -62,7 +78,7 @@ export default function WorkspaceScheduledPage() {
       </div>
 
       {showCreate && (
-        <div className="glass-card rounded-xl p-5 space-y-4 border border-primary/20">
+        <div className="premium-card p-5 space-y-4">
           <h3 className="text-sm font-bold text-[var(--foreground)]">New Scheduled Action</h3>
           <div className="grid grid-cols-2 gap-4">
             <select value={form.action_type} onChange={e => setForm({...form, action_type: e.target.value})} className="bg-[var(--card)]/50 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-[var(--foreground)]">
@@ -90,7 +106,7 @@ export default function WorkspaceScheduledPage() {
 
       <div className="space-y-3">
         {actions.map(a => (
-          <div key={a.id} className="glass-card rounded-xl p-4 flex items-center justify-between">
+          <div key={a.id} className="premium-card p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                 a.status === 'completed' ? 'bg-green-500/10 text-green-400' :

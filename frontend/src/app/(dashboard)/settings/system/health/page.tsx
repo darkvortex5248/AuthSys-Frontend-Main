@@ -82,15 +82,19 @@ function UptimeBars({ checks }: { checks: any[] }) {
 export default function HealthPage() {
   const { data: profile } = useDeveloperMe(true);
   const locked = isFeatureLocked('developer', profile?.subscription_tier);
-  if (locked) return <PremiumLocked feature="Health Monitoring" tier="Developer" />;
 
   const [apps, setApps] = useState<any[]>([]);
   const [selApp, setSelApp] = useState<number | null>(null);
   const [dash, setDash] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [dashLoading, setDashLoading] = useState(false);
   const [retForm, setRetForm] = useState({ retention_days: 30, auto_cleanup: true });
   const [savingRet, setSavingRet] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  if (locked) return <PremiumLocked feature="Health Monitoring" tier="Developer" />;
 
   useEffect(() => {
     api.get('/developer/apps')
@@ -136,6 +140,28 @@ export default function HealthPage() {
     }
   };
 
+  if (!mounted) {
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="premium-card p-8 md:p-10 space-y-6">
+          <div className="sk h-6 w-36 rounded-lg" />
+          <div className="sk h-4 w-64 rounded" />
+          <div className="flex gap-3 mt-4">
+            <div className="sk h-10 w-48 rounded-xl" />
+            <div className="sk h-10 w-32 rounded-xl" />
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            {[1,2,3].map(i => <div key={i} className="premium-card p-5 space-y-3"><div className="sk h-4 w-20 rounded" /><div className="sk h-8 w-16 rounded" /><div className="sk h-3 w-24 rounded" /></div>)}
+          </div>
+          <div className="premium-card p-5 space-y-4">
+            <div className="sk h-5 w-28 rounded-lg" />
+            <div className="flex gap-1">{Array.from({length:30}).map((_,i) => <div key={i} className="flex-1 sk h-8 rounded-sm" />)}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -153,7 +179,7 @@ export default function HealthPage() {
     dash?.uptime_percentage >= 95 ? 'bg-yellow-500/10' : 'bg-red-500/10';
 
   return (
-    <section className="card-wrapper p-8 md:p-10 space-y-8">
+    <section className="premium-card p-8 md:p-10 space-y-8">
 
       {/* Header */}
       <div className="flex items-start justify-between gap-4">

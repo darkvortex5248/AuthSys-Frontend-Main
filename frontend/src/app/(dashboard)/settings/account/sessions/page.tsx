@@ -49,9 +49,12 @@ function timeAgo(dateStr: string): string {
 export default function SessionsPage() {
   const [sessions, setSessions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [loggingOut, setLoggingOut] = useState<string | null>(null);
   const [loggingOutAll, setLoggingOutAll] = useState(false);
   const [confirmLogoutAll, setConfirmLogoutAll] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     api.get('/developer/sessions')
@@ -95,6 +98,20 @@ export default function SessionsPage() {
   const otherSessions = sessions.filter(s => !s.is_current);
   const currentSession = sessions.find(s => s.is_current);
 
+  if (!mounted) {
+    return (
+      <div className="space-y-4 animate-pulse">
+        <div className="premium-card p-8 md:p-10 space-y-5">
+          <div className="sk h-6 w-44 rounded-lg" />
+          <div className="sk h-4 w-72 rounded" />
+          <div className="space-y-3 mt-6">
+            {[1,2,3].map(i => <div key={i} className="sk h-16 w-full rounded-xl" />)}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -104,7 +121,7 @@ export default function SessionsPage() {
   }
 
   return (
-    <section className="card-wrapper p-8 md:p-10 space-y-8">
+    <section className="premium-card p-8 md:p-10 space-y-8">
 
       {/* Header */}
       <div className="flex items-start justify-between gap-4">

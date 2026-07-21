@@ -8,7 +8,10 @@ export default function PaymentsPage() {
   const [plans, setPlans] = useState<any[]>([]);
   const [payments, setPayments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [isYearly, setIsYearly] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     (async () => {
@@ -30,9 +33,29 @@ export default function PaymentsPage() {
     pending: payments.filter(p => p.status === 'pending').length,
   };
 
+  if (!mounted) {
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="premium-card p-8 md:p-10 space-y-6">
+          <div className="sk h-6 w-32 rounded-lg" />
+          <div className="sk h-4 w-56 rounded" />
+          <div className="grid grid-cols-3 gap-4">
+            {[1,2,3].map(i => <div key={i} className="premium-card p-5 space-y-3"><div className="sk h-8 w-8 rounded-xl" /><div className="sk h-4 w-16 rounded" /><div className="sk h-7 w-20 rounded" /></div>)}
+          </div>
+        </div>
+        <div className="premium-card p-8 md:p-10">
+          <div className="sk h-5 w-36 rounded-lg mb-6" />
+          <div className="grid grid-cols-4 gap-4">
+            {[1,2,3,4].map(i => <div key={i} className="premium-card p-6 space-y-4"><div className="sk h-6 w-full rounded" /><div className="space-y-2"><div className="sk h-4 w-3/4 rounded" /><div className="sk h-4 w-1/2 rounded" /></div><div className="sk h-10 w-full rounded-xl" /></div>)}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <section className="space-y-8">
-      <div className="card-wrapper p-8 md:p-10">
+        <div className="premium-card p-8 md:p-10">
         <div className="mb-8">
           <h3 className="text-2xl font-bold text-[var(--foreground)] mb-1">Payments</h3>
           <p className="text-sm text-[var(--muted-foreground)]">View and manage your subscription and payment history.</p>
@@ -78,7 +101,7 @@ export default function PaymentsPage() {
       </div>
 
       {payments.length > 0 && (
-        <div className="card-wrapper p-8 md:p-10">
+      <div className="premium-card p-8 md:p-10">
           <SectionLabel>Payment history</SectionLabel>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

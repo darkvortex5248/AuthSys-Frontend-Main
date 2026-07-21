@@ -1,17 +1,16 @@
 import smtplib
+import logging
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from core.config import settings
+
+logger = logging.getLogger(__name__)
 
 class EmailService:
     @staticmethod
     def send_email(to_email: str, subject: str, body: str):
         if settings.MOCK_EMAIL:
-            print(f"\n--- MOCK EMAIL SENT ---")
-            print(f"To: {to_email}")
-            print(f"Subject: {subject}")
-            print(f"Body: {body}")
-            print(f"------------------------\n")
+            logger.info(f"\n--- MOCK EMAIL SENT ---\nTo: {to_email}\nSubject: {subject}\nBody: {body}\n------------------------\n")
             return True
 
         try:
@@ -29,7 +28,7 @@ class EmailService:
             server.quit()
             return True
         except Exception as e:
-            print(f"Error sending email: {e}")
+            logger.error(f"Error sending email to {to_email}: {e}")
             return False
 
     @staticmethod
@@ -44,7 +43,7 @@ class EmailService:
             </body>
         </html>
         """
-        return EmailService.send_email(email, subject, body)
+        EmailService.send_email(email, subject, body)
 
     @staticmethod
     def send_password_reset_code(email: str, code: str):
@@ -59,4 +58,4 @@ class EmailService:
             </body>
         </html>
         """
-        return EmailService.send_email(email, subject, body)
+        EmailService.send_email(email, subject, body)

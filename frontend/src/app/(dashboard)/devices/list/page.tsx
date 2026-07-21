@@ -26,6 +26,9 @@ export default function DevicesListPage() {
   const [devices, setDevices] = useState<Device[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<Set<number>>(new Set());
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   const fetchGroups = useCallback(async () => {
     try {
@@ -105,9 +108,16 @@ export default function DevicesListPage() {
         </select>
       </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center h-[40vh]">
-          <div className="w-8 h-8 border-2 border-[var(--primary)]/20 border-t-[var(--primary)] rounded-full animate-spin" />
+      {loading || !mounted ? (
+        <div className="space-y-6 animate-pulse">
+          <div className="flex justify-between items-end">
+            <div className="space-y-3">
+              <div className="h-10 w-52 bg-[var(--accent-opacity-8)] rounded-xl" />
+              <div className="h-4 w-64 bg-[var(--accent-opacity-8)] rounded-xl" />
+            </div>
+            <div className="h-10 w-44 bg-[var(--accent-opacity-8)] rounded-xl" />
+          </div>
+          <div className="h-80 bg-[var(--accent-opacity-8)] rounded-2xl" />
         </div>
       ) : devices.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -119,6 +129,10 @@ export default function DevicesListPage() {
         </div>
       ) : (
         <div className="glass-card rounded-2xl overflow-hidden border border-white/5">
+          <style>{`
+            @keyframes rowIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+            .dev-row { animation:rowIn 0.3s ease-out both; }
+          `}</style>
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
               <tr className="border-b border-white/5 bg-white/5">
@@ -131,8 +145,8 @@ export default function DevicesListPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {devices.map(device => (
-                <tr key={device.id} className="hover:bg-white/[0.02] transition-colors">
+              {devices.map((device, i) => (
+                <tr key={device.id} className="dev-row hover:bg-white/[0.02] transition-colors" style={{ animationDelay: `${i * 30}ms` }}>
                   <td className="px-6 py-4">
                     <span className="text-sm font-bold text-[var(--foreground)]">
                       {device.device_name || 'Unnamed Device'}

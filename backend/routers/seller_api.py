@@ -80,6 +80,7 @@ async def seller_generate_key(app_id: int, duration: int, seller_key: str = Head
         key_value=key_val, 
         key_type="time", 
         duration_days=duration,
+        max_uses=1,
         seller_tag=seller.name
     )
     db.add(new_key)

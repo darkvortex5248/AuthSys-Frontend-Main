@@ -21,13 +21,13 @@ function getAvatarPalette(name: string) {
   return AVATAR_PALETTES[name.charCodeAt(0) % AVATAR_PALETTES.length];
 }
 
-function MemberCard({ member, onRemove }: { member: any; onRemove: (id: number) => void; index: number }) {
+function MemberCard({ member, onRemove, index }: { member: any; onRemove: (id: number) => void; index: number }) {
   const role = roleConfig[member.role] || roleConfig.support;
   const [from, to] = getAvatarPalette(member.username);
   const initials = member.username.substring(0, 2).toUpperCase();
 
   return (
-    <div className="member-card">
+    <div className="member-card premium-card tm-member-card" style={{ animationDelay: `${index * 40}ms` }}>
       <div className="card-top-bar" style={{ background: `linear-gradient(90deg,${from},${to})` }} />
       <div className="card-inner">
         <div className="card-header">
@@ -72,7 +72,7 @@ function MemberCard({ member, onRemove }: { member: any; onRemove: (id: number) 
 
 function StatCard({ icon, value, label, color }: { icon: string; value: number; label: string; color: string }) {
   return (
-    <div className="stat-card">
+    <div className="stat-card premium-card">
       <div className="stat-icon-wrap" style={{ background: `${color}18`, color }}>
         <span className="material-symbols-outlined" style={{ fontSize: 19 }}>{icon}</span>
       </div>
@@ -89,6 +89,7 @@ export default function TeamManagementPage() {
   const { data: profile, isFetched: profileLoaded } = useDeveloperMe(true);
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteData, setInviteData] = useState({ email: '', role: 'support' });
   const [inviting, setInviting] = useState(false);
@@ -112,8 +113,10 @@ export default function TeamManagementPage() {
     }
   }, [locked, profileLoaded]);
   useEffect(() => { if (showInviteModal) setTimeout(() => inputRef.current?.focus(), 100); }, [showInviteModal]);
+  useEffect(() => { setMounted(true); }, []);
 
   if (locked) return <PremiumLocked feature="Team Management" tier="Developer" />;
+  if (!mounted) return null;
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -179,10 +182,16 @@ export default function TeamManagementPage() {
 
         {/* Stats */}
         <div className="tm-stats">
-          <StatCard icon="groups"          value={stats.total}      label="Total Members" color="#a78bfa" />
-          <StatCard icon="shield_person"   value={stats.admins}     label="Admins"        color="#f97316" />
-          <StatCard icon="manage_accounts" value={stats.moderators} label="Moderators"    color="#60a5fa" />
-          <StatCard icon="support_agent"   value={stats.support}    label="Support"       color="#34d399" />
+          {[
+            { icon: 'groups',          label: 'Total Members', color: 'var(--primary)', key: 'total' },
+            { icon: 'shield_person',   label: 'Admins',        color: '#f97316',        key: 'admins' },
+            { icon: 'manage_accounts', label: 'Moderators',    color: '#60a5fa',        key: 'moderators' },
+            { icon: 'support_agent',   label: 'Support',       color: '#34d399',        key: 'support' },
+          ].map((s, i) => (
+            <div key={s.key} className="tm-stat-card" style={{ animationDelay: `${i * 60}ms` }}>
+              <StatCard icon={s.icon} value={stats[s.key as keyof typeof stats]} label={s.label} color={s.color} />
+            </div>
+          ))}
         </div>
 
         {/* Toolbar */}
@@ -209,7 +218,7 @@ export default function TeamManagementPage() {
         {loading ? (
           <div className="tm-grid">
             {[1,2,3,4,5,6].map(i => (
-              <div key={i} className="member-card" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
+              <div key={i} className="member-card premium-card">
                 <div className="card-top-bar" style={{ background: 'rgba(255,255,255,0.04)' }} />
                 <div className="card-inner">
                   <div className="card-header">
@@ -256,7 +265,7 @@ export default function TeamManagementPage() {
         {/* Modal */}
         {showInviteModal && (
           <div className="tm-overlay" onClick={() => setShowInviteModal(false)}>
-            <div className="tm-modal" onClick={e => e.stopPropagation()}>
+            <div className="tm-modal premium-card" onClick={e => e.stopPropagation()}>
               <div className="tm-modal-header">
                 <div className="tm-modal-icon">
                   <span className="material-symbols-outlined" style={{ fontSize: 19, color: 'var(--primary)' }}>person_add</span>
@@ -318,7 +327,6 @@ export default function TeamManagementPage() {
 const CSS = `
 .tm-root {
   --bdr: rgba(255,255,255,0.07);
-  --sur: rgba(255,255,255,0.03);
   padding: 1.5rem 0;
 }
 
@@ -349,13 +357,13 @@ const CSS = `
 .tm-invite-btn {
   display: flex; align-items: center; gap: 8px;
   padding: 11px 22px; border-radius: 12px;
-  border: 1px solid rgba(167,139,250,0.35);
-  background: rgba(167,139,250,0.1);
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
   color: var(--primary); font-size: 13px; font-weight: 700;
   cursor: pointer; transition: all 0.2s; white-space: nowrap;
-  box-shadow: 0 0 28px rgba(167,139,250,0.08);
+  box-shadow: 0 0 28px color-mix(in srgb, var(--primary) 8%, transparent);
 }
-.tm-invite-btn:hover { background: rgba(167,139,250,0.18); transform: translateY(-1px); box-shadow: 0 0 36px rgba(167,139,250,0.18); }
+.tm-invite-btn:hover { background: color-mix(in srgb, var(--primary) 18%, transparent); transform: translateY(-1px); box-shadow: 0 0 36px color-mix(in srgb, var(--primary) 18%, transparent); }
 .tm-invite-btn:active { transform: scale(0.97); }
 
 /* STATS */
@@ -365,11 +373,8 @@ const CSS = `
 }
 .stat-card {
   display: flex; align-items: center; gap: 14px;
-  background: var(--sur); border: 1px solid var(--bdr);
-  border-radius: 16px; padding: 16px 18px;
-  transition: border-color 0.2s, transform 0.2s;
+  padding: 16px 18px;
 }
-.stat-card:hover { border-color: rgba(255,255,255,0.12); transform: translateY(-2px); }
 .stat-icon-wrap {
   width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
@@ -390,7 +395,7 @@ const CSS = `
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .tm-search::placeholder { color: var(--muted-foreground); opacity: 0.5; }
-.tm-search:focus { border-color: rgba(167,139,250,0.4); box-shadow: 0 0 0 3px rgba(167,139,250,0.08); }
+.tm-search:focus { border-color: color-mix(in srgb, var(--primary) 40%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 8%, transparent); }
 .tm-search-clear {
   position: absolute; right: 10px; background: none; border: none;
   cursor: pointer; color: var(--muted-foreground); display: flex; align-items: center;
@@ -404,21 +409,14 @@ const CSS = `
   color: var(--muted-foreground); cursor: pointer; transition: all 0.17s;
 }
 .tm-filter-pill:hover { color: var(--foreground); border-color: rgba(255,255,255,0.14); }
-.tm-filter-pill.active { background: rgba(167,139,250,0.1); border-color: rgba(167,139,250,0.35); color: var(--primary); }
+.tm-filter-pill.active { background: color-mix(in srgb, var(--primary) 10%, transparent); border-color: color-mix(in srgb, var(--primary) 35%, transparent); color: var(--primary); }
 
 /* GRID */
 .tm-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(290px,1fr)); gap: 16px;
 }
 .member-card {
-  position: relative; border-radius: 22px; overflow: hidden;
-  border: 1px solid var(--bdr); background: var(--sur);
-  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
-}
-.member-card:hover {
-  border-color: rgba(167,139,250,0.22);
-  transform: translateY(-3px);
-  box-shadow: 0 16px 48px -10px rgba(0,0,0,0.45);
+  position: relative; overflow: hidden;
 }
 .card-top-bar { height: 2.5px; }
 .card-inner { padding: 20px 20px 16px; position: relative; z-index: 1; }
@@ -480,10 +478,10 @@ const CSS = `
 .tm-invite-btn-sm {
   display: flex; align-items: center; gap: 6px; margin-top: 6px;
   padding: 9px 18px; border-radius: 10px;
-  border: 1px solid rgba(167,139,250,0.3); background: rgba(167,139,250,0.08);
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent); background: color-mix(in srgb, var(--primary) 8%, transparent);
   color: var(--primary); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;
 }
-.tm-invite-btn-sm:hover { background: rgba(167,139,250,0.15); transform: translateY(-1px); }
+.tm-invite-btn-sm:hover { background: color-mix(in srgb, var(--primary) 15%, transparent); transform: translateY(-1px); }
 
 /* MODAL */
 .tm-overlay {
@@ -494,21 +492,20 @@ const CSS = `
 }
 .tm-modal {
   width: 100%; max-width: 460px;
-  background: #0f0f17; border: 1px solid rgba(255,255,255,0.09);
-  border-radius: 26px; padding: 26px;
+  padding: 26px;
   animation: tmModalIn 0.28s cubic-bezier(0.34,1.56,0.64,1);
   box-shadow: 0 32px 80px rgba(0,0,0,0.55);
   position: relative; overflow: hidden;
 }
 .tm-modal::before {
   content:''; position:absolute; top:0; left:0; right:0; height:180px;
-  background: radial-gradient(ellipse at 50% -10%, rgba(167,139,250,0.1), transparent 70%);
+  background: radial-gradient(ellipse at 50% -10%, color-mix(in srgb, var(--primary) 10%, transparent), transparent 70%);
   pointer-events:none;
 }
 .tm-modal-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; position: relative; }
 .tm-modal-icon {
   width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
-  background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.2);
+  background: color-mix(in srgb, var(--primary) 10%, transparent); border: 1px solid color-mix(in srgb, var(--primary) 20%, transparent);
   display: flex; align-items: center; justify-content: center;
 }
 .tm-modal-title { font-size: 18px; font-weight: 700; color: var(--foreground); margin: 0 0 2px; }
@@ -534,7 +531,7 @@ const CSS = `
   transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box;
 }
 .tm-input::placeholder { color: var(--muted-foreground); opacity: 0.4; }
-.tm-input:focus { border-color: rgba(167,139,250,0.45); box-shadow: 0 0 0 3px rgba(167,139,250,0.09); }
+.tm-input:focus { border-color: color-mix(in srgb, var(--primary) 45%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 9%, transparent); }
 .tm-role-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
 .tm-role-opt {
   display: flex; flex-direction: column; align-items: center; gap: 6px;
@@ -556,12 +553,12 @@ const CSS = `
 .tm-btn-cancel:hover { background: rgba(255,255,255,0.07); color: var(--foreground); }
 .tm-btn-submit {
   flex: 1; padding: 12px; border-radius: 12px;
-  background: linear-gradient(135deg, #a78bfa, #818cf8); border: none;
+  background: var(--primary); border: none;
   color: #fff; font-size: 13px; font-weight: 700; cursor: pointer;
   display: flex; align-items: center; justify-content: center; gap: 7px;
-  transition: all 0.2s; box-shadow: 0 4px 18px rgba(167,139,250,0.28);
+  transition: all 0.2s; box-shadow: 0 4px 18px color-mix(in srgb, var(--primary) 28%, transparent);
 }
-.tm-btn-submit:hover { box-shadow: 0 6px 24px rgba(167,139,250,0.42); transform: translateY(-1px); }
+.tm-btn-submit:hover { box-shadow: 0 6px 24px color-mix(in srgb, var(--primary) 42%, transparent); transform: translateY(-1px); }
 .tm-btn-submit:active { transform: scale(0.97); }
 .tm-btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 .tm-spinner {
@@ -571,4 +568,8 @@ const CSS = `
 }
 @keyframes tmFadeIn { from { opacity:0; } to { opacity:1; } }
 @keyframes tmModalIn { from { opacity:0; transform:scale(0.93) translateY(14px); } to { opacity:1; transform:scale(1) translateY(0); } }
+@keyframes rowIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+@keyframes statPop { 0% { transform:scale(0.9); opacity:0; } 60% { transform:scale(1.04); } 100% { transform:scale(1); opacity:1; } }
+.tm-member-card { animation:rowIn 0.3s ease-out both; }
+.tm-stat-card { animation:statPop 0.4s ease-out both; }
 `;

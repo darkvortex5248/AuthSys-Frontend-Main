@@ -62,7 +62,7 @@ class UserCreateManual(BaseModel):
     email: Optional[str] = None
     expires_at: Optional[datetime] = None
     duration_days: Optional[int] = None
-    max_uses: int = 0
+    max_uses: int = 1
 
 class BulkUserCreate(BaseModel):
     app_id: int
@@ -70,7 +70,7 @@ class BulkUserCreate(BaseModel):
     password_prefix: Optional[str] = None
     expires_at: Optional[datetime] = None
     users_list: Optional[list[dict]] = None
-    max_uses: int = 0
+    max_uses: int = 1
 
 class VariableCreate(BaseModel):
     app_id: int

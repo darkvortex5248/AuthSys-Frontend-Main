@@ -31,22 +31,16 @@ interface AuthState {
   logout: () => void;
 }
 
+// Token stored in memory only (not localStorage) for XSS protection.
+// On page reload, it is restored from the httpOnly cookie via /session endpoint.
+let _inMemoryToken: string | null = null;
+
 function getAuthToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  try {
-    const ls = localStorage.getItem('auth_token');
-    if (ls) return ls;
-    const match = document.cookie.match(/(?:^|;\s*)auth_token=([^;]*)/);
-    return match ? decodeURIComponent(match[1]) : null;
-  } catch { return null; }
+  return _inMemoryToken;
 }
 
 function setAuthToken(token: string | null): void {
-  if (typeof window === 'undefined') return;
-  try {
-    if (token) localStorage.setItem('auth_token', token);
-    else localStorage.removeItem('auth_token');
-  } catch { /* ignore */ }
+  _inMemoryToken = token;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({

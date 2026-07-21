@@ -66,7 +66,10 @@ export default function ResponsesPage() {
   const confirm = useConfirm();
   const [respMsgs, setRespMsgs] = useState<Record<string, string>>({});
   const [respLoading, setRespLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     setRespLoading(true);
@@ -135,8 +138,22 @@ export default function ResponsesPage() {
 
   const customizedCount = ALL_EVENTS.filter(isCustomized).length;
 
+  if (!mounted) {
+    return (
+      <div className="animate-pulse">
+        <div className="premium-card p-8 md:p-10 space-y-6">
+          <div className="sk h-6 w-44 rounded-lg" />
+          <div className="sk h-4 w-72 rounded" />
+          <div className="space-y-4 mt-6">
+            {[1,2,3,4].map(i => <div key={i} className="space-y-3"><div className="sk h-5 w-28 rounded-lg" /><div className="grid grid-cols-2 gap-3">{[1,2,3,4].map(j => <div key={j} className="sk h-14 rounded-xl" />)}</div></div>)}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <section className="card-wrapper p-8 md:p-10">
+    <section className="premium-card p-8 md:p-10">
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
           <h3 className="text-2xl font-bold text-[var(--foreground)] mb-1">Response Messages</h3>

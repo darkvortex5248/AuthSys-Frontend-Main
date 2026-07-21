@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, BackgroundTasks
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
@@ -30,13 +30,15 @@ router = APIRouter(prefix="/api/v1/developer/auth", tags=["Developer Auth"])
 
 @router.post("/register", response_model=DeveloperResponse)
 @limiter.limit("5/minute")
-async def register_developer(request: Request, dev_in: DeveloperCreate, db: AsyncSession = Depends(get_db)):
+async def register_developer(request: Request, dev_in: DeveloperCreate, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
     if not await verify_turnstile(dev_in.turnstile_token, request.client.host if request.client else None):
         raise HTTPException(status_code=400, detail="Bot protection verification failed")
         
+    username_normalized = dev_in.username.strip().lower()
+    email_normalized = dev_in.email.strip().lower()
     result = await db.execute(select(DeveloperAccount).where(
-        (DeveloperAccount.username == dev_in.username) | 
-        (DeveloperAccount.email == dev_in.email)
+        (DeveloperAccount.username == username_normalized) | 
+        (DeveloperAccount.email == email_normalized)
     ))
     existing_user = result.scalars().first()
     if existing_user:
@@ -48,8 +50,8 @@ async def register_developer(request: Request, dev_in: DeveloperCreate, db: Asyn
     
     hashed_password = get_password_hash(dev_in.password)
     new_dev = DeveloperAccount(
-        username=dev_in.username,
-        email=dev_in.email,
+        username=username_normalized,
+        email=email_normalized,
         password_hash=hashed_password,
         is_verified=False,
         plan_id=free_plan.id if free_plan else None,
@@ -59,10 +61,10 @@ async def register_developer(request: Request, dev_in: DeveloperCreate, db: Asyn
     await db.commit()
     await db.refresh(new_dev)
     
-    # Send verification email
+    # Send verification email in background
     otp = OTPService.generate_otp()
     await OTPService.store_otp(dev_in.email, otp, "verification")
-    EmailService.send_verification_code(dev_in.email, otp)
+    background_tasks.add_task(EmailService.send_verification_code, dev_in.email, otp)
     
     return new_dev
 
@@ -76,10 +78,11 @@ async def login_developer(request: Request, form_data: OAuth2PasswordRequestForm
 
     remember_me = form_dict.get("remember_me", "false") == "true"
 
+    login_username = form_data.username.strip().lower()
     result = await db.execute(
         select(DeveloperAccount).where(
-            (DeveloperAccount.username == form_data.username) | 
-            (DeveloperAccount.email == form_data.username)
+            (DeveloperAccount.username == login_username) | 
+            (DeveloperAccount.email == login_username)
         )
     )
     user = result.scalars().first()
@@ -188,7 +191,22 @@ async def restore_session(request: Request, db: AsyncSession = Depends(get_db)):
     return response
 
 @router.post("/logout")
-async def logout(request: Request):
+async def logout(request: Request, db: AsyncSession = Depends(get_db)):
+    import hashlib
+    from sqlalchemy import update as sql_update
+    from models.domain import DeveloperSession
+
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        token = auth_header[7:]
+        token_hash = hashlib.sha256(token.encode()).hexdigest()
+        await db.execute(
+            sql_update(DeveloperSession)
+            .where(DeveloperSession.token_hash == token_hash)
+            .values(is_current=False, expires_at=datetime.now(timezone.utc))
+        )
+        await db.commit()
+
     secure = request.url.scheme == "https"
     response = JSONResponse(content={"success": True, "message": "Logged out"})
     response.delete_cookie(
@@ -279,7 +297,7 @@ async def verify_email(data: OTPVerify, db: AsyncSession = Depends(get_db)):
     raise HTTPException(status_code=400, detail="Invalid or expired verification code")
 
 @router.post("/resend-verification")
-async def resend_verification(data: PasswordResetRequest, db: AsyncSession = Depends(get_db)):
+async def resend_verification(data: PasswordResetRequest, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(DeveloperAccount).where(DeveloperAccount.email == data.email))
     user = result.scalars().first()
     if not user:
@@ -290,11 +308,11 @@ async def resend_verification(data: PasswordResetRequest, db: AsyncSession = Dep
     
     otp = OTPService.generate_otp()
     await OTPService.store_otp(data.email, otp, "verification")
-    EmailService.send_verification_code(data.email, otp)
+    background_tasks.add_task(EmailService.send_verification_code, data.email, otp)
     return {"success": True, "message": "Verification code sent"}
 
 @router.post("/forgot-password")
-async def forgot_password(data: PasswordResetRequest, db: AsyncSession = Depends(get_db)):
+async def forgot_password(data: PasswordResetRequest, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(DeveloperAccount).where(DeveloperAccount.email == data.email))
     user = result.scalars().first()
     if not user:
@@ -303,7 +321,7 @@ async def forgot_password(data: PasswordResetRequest, db: AsyncSession = Depends
     
     otp = OTPService.generate_otp()
     await OTPService.store_otp(data.email, otp, "password_reset")
-    EmailService.send_password_reset_code(data.email, otp)
+    background_tasks.add_task(EmailService.send_password_reset_code, data.email, otp)
     return {"success": True, "message": "Password reset code sent"}
 
 @router.post("/verify-otp")

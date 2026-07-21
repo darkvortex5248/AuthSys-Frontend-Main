@@ -22,7 +22,7 @@ function ModalOverlay({ children, onClose }: { children: React.ReactNode; onClos
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.93, opacity: 0, y: 24 }}
         transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-        className="glass-card w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border border-white/8"
+        className="premium-card w-full max-w-md overflow-hidden shadow-2xl"
       >
         {children}
       </motion.div>
@@ -213,7 +213,7 @@ export default function SellerAPIPage() {
         ].map((s, i) => (
           <div
             key={s.label}
-            className="stat-card glass-card p-5 rounded-2xl border border-white/5 flex flex-col gap-4 hover:border-white/10 transition-all duration-300 group cursor-default"
+            className="stat-card premium-card p-5 flex flex-col gap-4 group cursor-default"
             style={{ animationDelay: `${i * 60}ms` }}
           >
             <div
@@ -231,7 +231,7 @@ export default function SellerAPIPage() {
       </div>
 
       {/* ── Table Card ── */}
-      <div className="glass-card rounded-3xl overflow-hidden border border-white/5 shadow-2xl">
+      <div className="premium-card overflow-hidden shadow-2xl">
         <div className="px-7 py-5 border-b border-white/5 bg-white/[0.015] flex items-center gap-3">
           <span className="material-symbols-outlined text-[18px] text-[var(--primary)]/60">storefront</span>
           <h3 className="text-sm font-black text-white uppercase tracking-widest">Registered Sellers</h3>

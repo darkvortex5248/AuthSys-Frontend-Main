@@ -80,7 +80,7 @@ export function FieldLabel({ children }: { children: React.ReactNode }) {
 
 export function PasswordStrengthMeter({ password }: { password: string }) {
   const score = password.length === 0 ? 0 : (
-    password.length < 6 ? 1 :
+    password.length < 1 ? 1 :
     password.length < 10 ? 2 :
     /[A-Z]/.test(password) && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password) ? 4 :
     /[A-Z]/.test(password) || /[0-9]/.test(password) || /[^A-Za-z0-9]/.test(password) ? 3 : 2

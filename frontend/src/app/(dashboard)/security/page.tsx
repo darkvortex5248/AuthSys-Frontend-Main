@@ -15,6 +15,9 @@ export default function SecurityPage() {
   const [form, setForm] = useState({ app_id: 0, rule_type: 'ip', value: '', note: '', is_blocklist: false });
   const [keyForm, setKeyForm] = useState({ name: '', scopes: [] as string[] });
   const [scopes, setScopes] = useState<any[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   const fetch = async () => {
     try {
@@ -73,12 +76,32 @@ export default function SecurityPage() {
     catch { toast.error('Failed'); }
   };
 
-  if (loading) return <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" /></div>;
+  if (!mounted) return null;
+
+  if (loading) return (
+    <div className="space-y-6 animate-pulse">
+      <div className="space-y-3">
+        <div className="h-10 w-52 bg-[var(--accent-opacity-8)] rounded-xl" />
+        <div className="h-4 w-72 bg-[var(--accent-opacity-8)] rounded-xl" />
+      </div>
+      <div className="h-10 w-64 bg-[var(--accent-opacity-8)] rounded-xl" />
+      <div className="space-y-3">
+        {[1,2,3,4].map(i => <div key={i} className="h-20 bg-[var(--accent-opacity-8)] rounded-xl" />)}
+      </div>
+    </div>
+  );
 
   return (
-    <div className="max-w-5xl space-y-6">
-      <div><h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Security</h1><p className="text-sm text-[var(--muted-foreground)] mt-1">IP whitelist, geo-fencing, and API keys</p></div>
-      <div className="flex gap-2 p-1 bg-[var(--card)]/50 rounded-xl w-fit border border-white/5">
+    <div className="page-wrapper pt-6">
+      <style>{`
+        @keyframes rowIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+        .sec-item { animation:rowIn 0.3s ease-out both; }
+      `}</style>
+      <div className="mb-6">
+        <h1 className="page-title">Security</h1>
+        <p className="text-white/35 mt-1 text-sm font-medium">IP whitelist, geo-fencing, and API keys</p>
+      </div>
+      <div className="flex gap-2 p-1 bg-[var(--card)]/50 rounded-xl w-fit border border-white/5 mb-8">
         <button onClick={() => setTab('ipwhitelist')} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${tab === 'ipwhitelist' ? 'bg-primary/20 text-primary' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}>IP Whitelist</button>
         <button onClick={() => setTab('apikeys')} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${tab === 'apikeys' ? 'bg-primary/20 text-primary' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}>API Keys</button>
       </div>
@@ -115,8 +138,8 @@ export default function SecurityPage() {
             </div>
           )}
           <div className="space-y-2">
-            {rules.map(r => (
-              <div key={r.id} className="glass-card rounded-xl p-4 flex items-center justify-between">
+            {rules.map((r, i) => (
+              <div key={r.id} className="glass-card rounded-xl p-4 flex items-center justify-between sec-item" style={{ animationDelay: `${i * 40}ms` }}>
                 <div className="flex items-center gap-3">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${r.is_blocklist ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-400'}`}>
                     <span className="material-symbols-outlined text-sm">{r.is_blocklist ? 'block' : 'check_circle'}</span>
@@ -174,8 +197,8 @@ export default function SecurityPage() {
             </div>
           )}
           <div className="space-y-2">
-            {keys.map(k => (
-              <div key={k.id} className="glass-card rounded-xl p-4 flex items-center justify-between">
+            {keys.map((k, i) => (
+              <div key={k.id} className="glass-card rounded-xl p-4 flex items-center justify-between sec-item" style={{ animationDelay: `${i * 40}ms` }}>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center"><span className="material-symbols-outlined text-sm text-primary">key</span></div>
                   <div>

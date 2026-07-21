@@ -85,6 +85,10 @@ export default function ProfilePage() {
   const { data: profile } = useDeveloperMe(true);
   const activeUser = profile ?? user;
 
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
   const [profileData, setProfileData] = useState({
     username: '',
     email: '',
@@ -181,8 +185,30 @@ export default function ProfilePage() {
     setTimeout(() => avatarInputRef.current?.focus(), 100);
   };
 
+  if (!mounted) {
+    return (
+      <div className="animate-pulse">
+        <section className="premium-card p-8 md:p-12 relative overflow-hidden">
+          <div className="relative z-10 space-y-8">
+            <div className="flex items-start gap-6">
+              <div className="sk h-24 w-24 rounded-2xl" />
+              <div className="space-y-3 flex-1">
+                <div className="sk h-7 w-48 rounded-lg" />
+                <div className="sk h-4 w-32 rounded" />
+                <div className="sk h-4 w-64 rounded" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-6">
+              {[1,2,3,4].map(i => <div key={i} className="space-y-2"><div className="sk h-4 w-24 rounded" /><div className="sk h-10 w-full rounded-xl" /></div>)}
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   return (
-    <section className="card-wrapper p-8 md:p-12 relative overflow-hidden">
+    <section className="premium-card p-8 md:p-12 relative overflow-hidden">
 
       {/* Subtle background glyph */}
       <div className="absolute top-0 right-0 translate-x-8 -translate-y-4 pointer-events-none select-none opacity-[0.03]">
@@ -397,7 +423,7 @@ export default function ProfilePage() {
           onClick={() => setAvatarModal(false)}
         >
           <div
-            className="w-full max-w-md glass-card rounded-2xl p-8 border border-white/10 shadow-2xl"
+            className="w-full max-w-md premium-card p-8"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 mb-6">
