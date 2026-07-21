@@ -32,11 +32,25 @@ interface AuthState {
 }
 
 // Token stored in memory only (not localStorage) for XSS protection.
-// On page reload, it is restored from the httpOnly cookie via /session endpoint.
+// On page reload, it is restored from the JS-accessible auth_token cookie
+// (set by the OAuth callback), or failing that, from the httpOnly cookie
+// via the /session endpoint.
 let _inMemoryToken: string | null = null;
 
+function getCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
+  return match ? decodeURIComponent(match[2]) : null;
+}
+
 function getAuthToken(): string | null {
-  return _inMemoryToken;
+  if (_inMemoryToken) return _inMemoryToken;
+  const cookieToken = getCookie('auth_token');
+  if (cookieToken) {
+    _inMemoryToken = cookieToken;
+    return cookieToken;
+  }
+  return null;
 }
 
 function setAuthToken(token: string | null): void {
