@@ -53,8 +53,17 @@ function getAuthToken(): string | null {
   return null;
 }
 
+function deleteCookie(name: string): void {
+  if (typeof document === 'undefined') return;
+  const secure = location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `${name}=; Path=/; Max-Age=0; SameSite=Lax${secure}`;
+}
+
 function setAuthToken(token: string | null): void {
   _inMemoryToken = token;
+  if (token === null) {
+    deleteCookie('auth_token');
+  }
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
