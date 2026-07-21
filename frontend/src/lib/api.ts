@@ -68,7 +68,7 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.code === 'ERR_NETWORK' || !error.response) {
-      console.warn(`[api] Network error — backend unreachable at ${getApiBaseUrl()}`);
+      console.warn(`[api] Network error (${error.message}) — backend unreachable at ${getApiBaseUrl()}`);
       return Promise.reject(error);
     }
 
