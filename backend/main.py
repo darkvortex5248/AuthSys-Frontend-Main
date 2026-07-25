@@ -40,34 +40,30 @@ async def startup_event():
     import time
     start = time.time()
     logger.info("[STARTUP] Step 1: Beginning startup event...")
-
+    # Signal that the app is ready to accept traffic immediately.
+    # Heavy DB bootstrap runs in background so healthcheck isn't blocked.
     try:
-        logger.info("[STARTUP] Step 2: Importing database modules...")
         from core.database import AsyncSessionLocal, create_tables
         from services.bootstrap import run_bootstrap
-        logger.info("[STARTUP] Step 3: Imports done (%.1fs). Creating tables...", time.time() - start)
-
-        # Create all tables automatically (wrapped in timeout to prevent hang)
-        try:
-            await asyncio.wait_for(create_tables(), timeout=45)
-            logger.info("[STARTUP] Step 4: Database tables created successfully (%.1fs)", time.time() - start)
-        except asyncio.TimeoutError:
-            logger.error("[STARTUP] TIMEOUT: create_tables() took >45s. Check DATABASE_URL reachability & SSL.")
-            raise
-
-        logger.info("[STARTUP] Step 5: Starting bootstrap with DB session...")
-        async with AsyncSessionLocal() as db:
-            logger.info("[STARTUP] Step 6: DB session acquired. Running bootstrap...")
+        # Yield control so uvicorn can finish startup immediately
+        async def _background_bootstrap():
             try:
-                result = await asyncio.wait_for(run_bootstrap(db), timeout=90)
-                logger.info("[STARTUP] Step 7: Bootstrap complete (%.1fs): %s", time.time() - start, result)
+                logger.info("[BOOTSTRAP-BG] Starting background DB schema/migration...")
+                await asyncio.wait_for(create_tables(), timeout=120)
+                logger.info("[BOOTSTRAP-BG] Tables created (%.1fs)", time.time() - start)
+                async with AsyncSessionLocal() as db:
+                    result = await asyncio.wait_for(run_bootstrap(db), timeout=600)
+                    logger.info("[BOOTSTRAP-BG] Done (%.1fs): %s", time.time() - start, result)
             except asyncio.TimeoutError:
-                logger.error("[STARTUP] TIMEOUT: run_bootstrap() took >90s. Review bootstrap queries / DB perf.")
-                raise
-    except Exception as exc:
-        logger.exception("[STARTUP] Bootstrap failed or skipped: %s", exc)
+                logger.error("[BOOTSTRAP-BG] TIMEOUT (>600s). Will retry on next deploy.")
+            except Exception as exc:
+                logger.exception("[BOOTSTRAP-BG] Failed: %s", exc)
 
-    logger.info("[STARTUP] Done. Bot manager disabled — bots run client-side via AuthSys Seller API (%.1fs)", time.time() - start)
+        asyncio.create_task(_background_bootstrap())
+    except Exception as exc:
+        logger.exception("[STARTUP] Could not schedule background bootstrap: %s", exc)
+
+    logger.info("[STARTUP] Done. Background tasks running. App is live. (%.1fs)", time.time() - start)
 
 @app.on_event("shutdown")
 async def shutdown_event():
