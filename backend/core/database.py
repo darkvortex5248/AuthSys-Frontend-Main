@@ -59,6 +59,13 @@ def build_async_database_url(raw_url: str) -> tuple[str, dict]:
     connect_args: dict = {}
     if ssl_required:
         connect_args["ssl"] = ssl.create_default_context()
+    # Prevent hanging when DB is unreachable
+    connect_args["timeout"] = 15                    # connection timeout (sec)
+    connect_args["command_timeout"] = 30            # per-query timeout (sec)
+    connect_args["server_settings"] = {
+        "statement_timeout": "30000",              # 30s per SQL statement
+        "lock_timeout": "15000",                   # 15s lock wait
+    }
 
     return clean_url, connect_args
 

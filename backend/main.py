@@ -37,24 +37,37 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @app.on_event("startup")
 async def startup_event():
+    import time
+    start = time.time()
+    logger.info("[STARTUP] Step 1: Beginning startup event...")
+
     try:
+        logger.info("[STARTUP] Step 2: Importing database modules...")
         from core.database import AsyncSessionLocal, create_tables
         from services.bootstrap import run_bootstrap
+        logger.info("[STARTUP] Step 3: Imports done (%.1fs). Creating tables...", time.time() - start)
 
-        # Create all tables automatically
-        await create_tables()
-        logger.info("Database tables created successfully")
+        # Create all tables automatically (wrapped in timeout to prevent hang)
+        try:
+            await asyncio.wait_for(create_tables(), timeout=45)
+            logger.info("[STARTUP] Step 4: Database tables created successfully (%.1fs)", time.time() - start)
+        except asyncio.TimeoutError:
+            logger.error("[STARTUP] TIMEOUT: create_tables() took >45s. Check DATABASE_URL reachability & SSL.")
+            raise
 
+        logger.info("[STARTUP] Step 5: Starting bootstrap with DB session...")
         async with AsyncSessionLocal() as db:
-            result = await run_bootstrap(db)
-            if result.get("plans_created") or result.get("settings_created"):
-                logger.info("Bootstrap: %s", result)
+            logger.info("[STARTUP] Step 6: DB session acquired. Running bootstrap...")
+            try:
+                result = await asyncio.wait_for(run_bootstrap(db), timeout=90)
+                logger.info("[STARTUP] Step 7: Bootstrap complete (%.1fs): %s", time.time() - start, result)
+            except asyncio.TimeoutError:
+                logger.error("[STARTUP] TIMEOUT: run_bootstrap() took >90s. Review bootstrap queries / DB perf.")
+                raise
     except Exception as exc:
-        logger.warning("Bootstrap skipped: %s", exc)
+        logger.exception("[STARTUP] Bootstrap failed or skipped: %s", exc)
 
-    # Note: Bots run client-side (user's own machine). See SDK folders:
-    # sdk/AuthSys-Discord-Bot-Example/ and sdk/AuthSys-Telegram-Bot-Example/
-    logger.info("Bot manager disabled — bots run client-side via AuthSys Seller API")
+    logger.info("[STARTUP] Done. Bot manager disabled — bots run client-side via AuthSys Seller API (%.1fs)", time.time() - start)
 
 @app.on_event("shutdown")
 async def shutdown_event():
