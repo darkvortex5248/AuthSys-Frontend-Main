@@ -15,7 +15,7 @@ from schemas.client import (
     ClientInitRequest, ClientInitResponse, ClientRegisterRequest, 
     ClientLoginRequest, ClientLicenseCheckRequest, ClientLicenseLoginRequest
 )
-from core.security import verify_password, get_password_hash
+from core.security import verify_password, get_password_hash, validate_password, compare_versions
 from core.limiter import limiter
 
 router = APIRouter(prefix="/api/v1/client", tags=["Client SDK"])
@@ -54,10 +54,10 @@ async def check_blacklist(app_id: int, ip: str, hwid: str, db: AsyncSession):
 async def init_client(req: ClientInitRequest, db: AsyncSession = Depends(get_db)):
     app = await get_app_by_secret(req.app_secret, db)
     
-    if req.version < app.min_version:
+    if compare_versions(req.version, app.min_version) < 0:
         status_msg = "update_required"
         message = f"Please update to at least version {app.min_version}"
-    elif req.version != app.version:
+    elif compare_versions(req.version, app.version) != 0:
         status_msg = "update_available"
         message = "A new version is available"
     else:
@@ -82,7 +82,9 @@ async def register_user(request: Request, req: ClientRegisterRequest, db: AsyncS
     
     await check_blacklist(app.id, client_ip, req.hwid, db)
 
-    if len(req.password) < 1:
+    is_valid, msg = validate_password(req.password)
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=msg)
         raise HTTPException(400, "Password must be at least 1 character long")
 
     username_normalized = req.username.strip().lower()
@@ -97,7 +99,7 @@ async def register_user(request: Request, req: ClientRegisterRequest, db: AsyncS
         plan_res = await db.execute(select(SubscriptionPlan).where(SubscriptionPlan.id == dev.plan_id))
         plan = plan_res.scalars().first()
         if plan:
-            user_count = await db.execute(select(EndUser).where(EndUser.app_id == app.id))
+            user_count = await db.execute(select(EndUser).where(EndUser.app_id == app.id, EndUser.is_shadow == False))
             current_users = len(user_count.scalars().all())
             if current_users >= plan.max_users_per_app:
                 raise HTTPException(status_code=403, detail="Application has reached its maximum user limit. Contact the developer.")
@@ -117,7 +119,7 @@ async def register_user(request: Request, req: ClientRegisterRequest, db: AsyncS
 
     # Check if license key is already used (unless it's uses_based)
     if license_key.key_type != "uses_based":
-        user_with_key = await db.execute(select(EndUser).where(EndUser.license_key_id == license_key.id))
+        user_with_key = await db.execute(select(EndUser).where(EndUser.license_key_id == license_key.id, EndUser.is_shadow == False))
         if user_with_key.scalars().first():
             raise HTTPException(status_code=400, detail="License key already used")
 

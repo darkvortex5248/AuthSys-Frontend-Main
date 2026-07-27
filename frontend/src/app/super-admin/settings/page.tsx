@@ -3,8 +3,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import adminApi from '@/lib/admin-api';
 import { toast } from 'sonner';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 
 export default function SystemSettingsPage() {
+  const confirm = useConfirm();
   const [settings, setSettings] = useState<any[]>([]);
   const [form, setForm] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -42,8 +44,15 @@ export default function SystemSettingsPage() {
     }
   };
 
-  const toggleSetting = (key: string, currentValue: string) => {
+  const toggleSetting = async (key: string, currentValue: string) => {
     const newValue = currentValue === 'true' ? 'false' : 'true';
+    const ok = await confirm({
+      title: 'Toggle setting?',
+      message: `This will change "${key}" to ${newValue}.`,
+      confirmLabel: 'Yes, continue',
+      cancelLabel: 'Cancel',
+    });
+    if (!ok) return;
     updateSettingValue(key, newValue);
   };
 

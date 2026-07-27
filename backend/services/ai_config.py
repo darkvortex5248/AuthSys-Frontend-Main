@@ -76,6 +76,8 @@ async def _load_active_provider_config(db: AsyncSession):
     return res.scalar_one_or_none()
 
 
+from core.security import decrypt_field
+
 async def get_ai_runtime_config(db: AsyncSession) -> dict:
     stored = await _load_settings_map(db)
     enabled = (stored.get("ai_enabled") or "true").lower() == "true"
@@ -91,7 +93,7 @@ async def get_ai_runtime_config(db: AsyncSession) -> dict:
 
     pc = await _load_active_provider_config(db)
     if pc and pc.api_key_encrypted:
-        api_key = pc.api_key_encrypted
+        api_key = decrypt_field(pc.api_key_encrypted)
         provider = pc.provider or ""
         model = pc.model_name or ""
         if pc.settings and pc.settings.get("api_endpoint"):

@@ -13,6 +13,7 @@ export default function DomainsPage() {
 
   const [doms, setDoms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [newDom, setNewDom] = useState('');
   const [adding, setAdding] = useState(false);
@@ -23,16 +24,22 @@ export default function DomainsPage() {
 
   useEffect(() => {
     if (locked) return;
+    setError(null);
     api.get('/developer/domains')
       .then(r => setDoms(r.data))
-      .catch(() => {})
+      .catch((err) => setError(err.response?.data?.detail || 'Failed to load domains'))
       .finally(() => setLoading(false));
   }, []);
 
   if (locked) return <PremiumLocked feature="Custom Domains" tier="Developer" />;
 
   const handleAdd = async () => {
-    if (!newDom.trim()) return;
+    const domain = newDom.trim();
+    if (!domain) { toast.error('Domain is required'); return; }
+    if (!/^[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]$/.test(domain)) {
+      toast.error('Please enter a valid domain name');
+      return;
+    }
     setAdding(true);
     try {
       const res = await api.post('/developer/domains', { domain: newDom.trim() });
@@ -107,6 +114,27 @@ export default function DomainsPage() {
     return (
       <div className="flex items-center justify-center py-16">
         <div className="w-5 h-5 border-2 border-[var(--primary)]/20 border-t-[var(--primary)] rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-4">
+        <p className="text-red-400">{error}</p>
+        <button
+          onClick={() => {
+            setError(null);
+            setLoading(true);
+            api.get('/developer/domains')
+              .then(r => setDoms(r.data))
+              .catch((err) => setError(err.response?.data?.detail || 'Failed to load domains'))
+              .finally(() => setLoading(false));
+          }}
+          className="px-4 py-2 bg-[var(--primary)]/20 text-[var(--primary)] rounded-lg hover:bg-[var(--primary)]/30 transition-colors"
+        >
+          Retry
+        </button>
       </div>
     );
   }

@@ -1,8 +1,10 @@
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 
 export default function AdminLoginPage() {
+  const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -15,8 +17,12 @@ export default function AdminLoginPage() {
     
     try {
       const res = await api.post('/admin/login', { username, password });
-      localStorage.setItem('admin_token', res.data.access_token);
-      window.location.href = '/super-admin/dashboard';
+      // Backend sets HttpOnly cookie automatically — no need for localStorage
+      if (res.data.must_change_password) {
+        router.push('/super-admin/change-password');
+      } else {
+        window.location.href = '/super-admin/dashboard';
+      }
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Authentication failed');
     } finally {

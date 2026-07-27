@@ -43,7 +43,12 @@ export default function UsersPage() {
   const copy = useCopy();
   const createUser = useCreateAppUser();
   const deleteUser = useDeleteAppUser();
-  const { data: users = [], isLoading: loading, isError, error, refetch } = useAppUsers(selectedAppId);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize] = useState(50);
+  const { data: usersData, isLoading: loading, isError, error, refetch } = useAppUsers(selectedAppId, currentPage * pageSize, pageSize);
+  const users = usersData?.users || [];
+  const totalUsers = usersData?.total || 0;
+  const totalPages = Math.ceil(totalUsers / pageSize);
 
   const [showBanModal, setShowBanModal] = useState<any>(null);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -58,6 +63,7 @@ export default function UsersPage() {
   const [mounted, setMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({ key: 'created_at', direction: 'desc' });
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [showCSVModal, setShowCSVModal] = useState(false);
@@ -66,7 +72,7 @@ export default function UsersPage() {
   const [csvResult, setCSVResult] = useState<any>(null);
 
   const filteredUsers = useMemo(() => {
-    return (users || []).filter(u => {
+    const filtered = (users || []).filter(u => {
       const term = searchTerm.toLowerCase();
       const matchesSearch =
         u?.username?.toLowerCase().includes(term) ||
@@ -80,7 +86,16 @@ export default function UsersPage() {
         (statusFilter === 'hwid' && u.hwid);
       return matchesSearch && matchesStatus;
     });
-  }, [users, searchTerm, statusFilter]);
+    // Sort
+    filtered.sort((a, b) => {
+      const aVal = a[sortConfig.key];
+      const bVal = b[sortConfig.key];
+      if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return filtered;
+  }, [users, searchTerm, statusFilter, sortConfig]);
 
   const stats = useMemo(() => ({
     total:  (users || []).length,
@@ -166,7 +181,7 @@ export default function UsersPage() {
   const handleUnban = async (id: number) => {
     try {
       await api.post(`/developer/users/${id}/unban`);
-      if (selectedAppId) invalidate.users(selectedAppId);
+      if (selectedAppId) await invalidate.users(selectedAppId);
       toast.success('User unbanned');
     } catch {
       toast.error('Failed to unban user');
@@ -182,6 +197,7 @@ export default function UsersPage() {
     if (!ok) return;
     try {
       await api.post(`/developer/users/${id}/hwid-reset`);
+      if (selectedAppId) await invalidate.users(selectedAppId);
       toast.success('HWID reset successful');
       if (selectedAppId) invalidate.users(selectedAppId);
     } catch {
@@ -334,6 +350,7 @@ export default function UsersPage() {
     }
     toast.success(`Banned ${count} users`);
     setSelectedUsers(new Set());
+    if (selectedAppId) await invalidate.users(selectedAppId);
     if (selectedAppId) await invalidate.users(selectedAppId);
   };
 
@@ -572,14 +589,29 @@ export default function UsersPage() {
                   </button>
                 </th>
                 {[
-                  { label: 'User',        w: '' },
-                  { label: 'Status',      w: 'w-24' },
-                  { label: 'IP Address',  w: 'w-32' },
-                  { label: 'Last Login',  w: 'w-36' },
-                  { label: 'Actions',     w: 'w-44 text-right' },
+                  { label: 'User',        w: '',       key: 'username' },
+                  { label: 'Status',      w: 'w-24',   key: 'is_banned' },
+                  { label: 'IP Address',  w: 'w-32',   key: 'ip_address' },
+                  { label: 'Last Login',  w: 'w-36',   key: 'last_login' },
+                  { label: 'Actions',     w: 'w-44 text-right', key: null },
                 ].map(h => (
                   <th key={h.label} className={`px-6 py-4 stat-label border-b border-white/5 ${h.w}`}>
-                    {h.label}
+                    {h.key ? (
+                      <button
+                        onClick={() => setSortConfig({
+                          key: h.key,
+                          direction: sortConfig.key === h.key && sortConfig.direction === 'asc' ? 'desc' : 'asc'
+                        })}
+                        className="flex items-center gap-1 hover:text-[var(--primary)] transition-colors"
+                      >
+                        {h.label}
+                        {sortConfig.key === h.key && (
+                          <span className="material-symbols-outlined text-xs">
+                            {sortConfig.direction === 'asc' ? 'arrow_upward' : 'arrow_downward'}
+                          </span>
+                        )}
+                      </button>
+                    ) : h.label}
                   </th>
                 ))}
               </tr>
@@ -743,10 +775,69 @@ export default function UsersPage() {
                   </td>
                 </tr>
               )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+             </tbody>
+           </table>
+         </div>
+
+         {totalPages > 1 && (
+           <div className="flex items-center justify-between px-6 py-4 border-t border-white/5">
+             <p className="text-xs text-[var(--muted-foreground)]">
+               Showing {currentPage * pageSize + 1}-{Math.min((currentPage + 1) * pageSize, totalUsers)} of {totalUsers}
+             </p>
+             <div className="flex items-center gap-1">
+               <button
+                 onClick={() => setCurrentPage(0)}
+                 disabled={currentPage === 0}
+                 className="px-2 py-1 rounded text-xs disabled:opacity-30"
+               >
+                 First
+               </button>
+               <button
+                 onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
+                 disabled={currentPage === 0}
+                 className="px-2 py-1 rounded text-xs disabled:opacity-30"
+               >
+                 Prev
+               </button>
+               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                 let pageNum;
+                 if (totalPages <= 5) {
+                   pageNum = i;
+                 } else if (currentPage < 3) {
+                   pageNum = i;
+                 } else if (currentPage > totalPages - 3) {
+                   pageNum = totalPages - 5 + i;
+                 } else {
+                   pageNum = currentPage - 2 + i;
+                 }
+                 return (
+                   <button
+                     key={pageNum}
+                     onClick={() => setCurrentPage(pageNum)}
+                     className={`px-2 py-1 rounded text-xs ${pageNum === currentPage ? 'bg-[var(--primary)]/20 text-[var(--primary)]' : 'hover:bg-white/5'}`}
+                   >
+                     {pageNum + 1}
+                   </button>
+                 );
+               })}
+               <button
+                 onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
+                 disabled={currentPage === totalPages - 1}
+                 className="px-2 py-1 rounded text-xs disabled:opacity-30"
+               >
+                 Next
+               </button>
+               <button
+                 onClick={() => setCurrentPage(totalPages - 1)}
+                 disabled={currentPage === totalPages - 1}
+                 className="px-2 py-1 rounded text-xs disabled:opacity-30"
+               >
+                 Last
+               </button>
+             </div>
+           </div>
+         )}
+       </div>
 
       {/* ── Add / Bulk Create Modal ── */}
       <AnimatePresence>

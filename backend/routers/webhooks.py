@@ -20,6 +20,25 @@ router = APIRouter(prefix="/api/v1/developer/webhooks", tags=["Webhooks"])
 
 # ── Helpers ──────────────────────────────────────────────────────────────
 
+def is_safe_url(url: str) -> bool:
+    """Validate URL to prevent SSRF attacks."""
+    try:
+        from urllib.parse import urlparse
+        parsed = urlparse(url)
+        if parsed.scheme not in ("http", "https"):
+            return False
+        hostname = parsed.hostname or ""
+        # Block internal/private IPs and localhost
+        if hostname in ("localhost", "0.0.0.0", "127.0.0.1", "::1"):
+            return False
+        if hostname.startswith("192.168.") or hostname.startswith("10.") or hostname.startswith("172."):
+            return False
+        if hostname.startswith("169.254.") or hostname.startswith("0."):
+            return False
+        return True
+    except Exception:
+        return False
+
 async def get_endpoint_or_404(ep_id: int, dev_id: int, db: AsyncSession) -> WebhookEndpoint:
     res = await db.execute(select(WebhookEndpoint).where(WebhookEndpoint.id == ep_id))
     ep = res.scalars().first()
@@ -62,6 +81,8 @@ async def create_webhook(req: WebhookEndpointCreate, dev: DeveloperAccount = Dep
     """Create a new webhook endpoint."""
     await require_feature(dev, "has_webhooks", db)
     await verify_app_owner(req.app_id, dev.id, db)
+    if not is_safe_url(req.url):
+        raise HTTPException(status_code=400, detail="URL is not allowed (internal addresses are blocked)")
     new_ep = WebhookEndpoint(
         app_id=req.app_id,
         url=req.url,
@@ -86,7 +107,10 @@ async def update_webhook(ep_id: int, req: WebhookEndpointUpdate, dev: DeveloperA
     """Update a webhook endpoint (also used for toggle)."""
     await require_feature(dev, "has_webhooks", db)
     ep = await get_endpoint_or_404(ep_id, dev.id, db)
-    if req.url is not None: ep.url = req.url
+    if req.url is not None:
+        if not is_safe_url(req.url):
+            raise HTTPException(status_code=400, detail="URL is not allowed (internal addresses are blocked)")
+        ep.url = req.url
     if req.description is not None: ep.description = req.description
     if req.events is not None: ep.events = req.events
     if req.is_active is not None: ep.is_active = req.is_active
@@ -111,6 +135,8 @@ async def test_webhook(ep_id: int, dev: DeveloperAccount = Depends(get_current_d
     """Send a test event to a webhook endpoint."""
     await require_feature(dev, "has_webhooks", db)
     ep = await get_endpoint_or_404(ep_id, dev.id, db)
+    if not is_safe_url(ep.url):
+        raise HTTPException(status_code=400, detail="URL is not allowed (internal addresses are blocked)")
     import json as json_lib
     test_payload = {
         "event": "test",
@@ -172,26 +198,7 @@ async def get_webhook_endpoint_logs(ep_id: int, dev: DeveloperAccount = Depends(
         for d in deliveries
     ]
 
-# ── Legacy nested endpoints (kept for backward compat) ──────────────────
-
-@router.get("/{app_id}/logs", deprecated=True)
-async def get_webhook_logs_legacy(app_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
-    await require_feature(dev, "has_webhooks", db)
-    await verify_app_owner(app_id, dev.id, db)
-    res = await db.execute(select(WebhookLog).where(WebhookLog.app_id == app_id).order_by(WebhookLog.id.desc()).limit(100))
-    return res.scalars().all()
-
-@router.get("/{app_id}/deliveries", response_model=list[WebhookDeliveryResponse], deprecated=True)
-async def get_webhook_deliveries_legacy(app_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
-    await require_feature(dev, "has_webhooks", db)
-    await verify_app_owner(app_id, dev.id, db)
-    res = await db.execute(
-        select(WebhookDelivery)
-        .join(WebhookEndpoint, WebhookDelivery.endpoint_id == WebhookEndpoint.id)
-        .where(WebhookEndpoint.app_id == app_id)
-        .order_by(desc(WebhookDelivery.created_at)).limit(100)
-    )
-    return res.scalars().all()
+# ── Internal trigger helper ──────────────────────────────────────────────
 
 @router.post("/{ep_id}/retry")
 async def retry_delivery(ep_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
@@ -237,37 +244,6 @@ async def retry_delivery(ep_id: int, dev: DeveloperAccount = Depends(get_current
                 results.append({"event": d.event_type, "error": str(e)})
     await db.commit()
     return {"retried": len(results), "results": results}
-
-@router.get("/{app_id}/endpoints", deprecated=True)
-async def get_endpoints_legacy(app_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
-    await require_feature(dev, "has_webhooks", db)
-    await verify_app_owner(app_id, dev.id, db)
-    res = await db.execute(select(WebhookEndpoint).where(WebhookEndpoint.app_id == app_id))
-    return [format_endpoint(ep) for ep in res.scalars().all()]
-
-@router.post("/add", deprecated=True)
-async def add_endpoint_legacy(req: WebhookEndpointCreate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
-    await require_feature(dev, "has_webhooks", db)
-    await verify_app_owner(req.app_id, dev.id, db)
-    new_ep = WebhookEndpoint(
-        app_id=req.app_id,
-        url=req.url,
-        description=req.description,
-        events=req.events,
-        secret_token=secrets.token_hex(16),
-    )
-    db.add(new_ep)
-    await db.commit()
-    await db.refresh(new_ep)
-    return format_endpoint(new_ep)
-
-@router.put("/endpoint/{ep_id}", deprecated=True)
-async def update_endpoint_legacy(ep_id: int, req: WebhookEndpointUpdate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
-    return await update_webhook(ep_id, req, dev, db)
-
-@router.delete("/endpoint/{ep_id}", deprecated=True)
-async def delete_endpoint_legacy(ep_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
-    return await delete_webhook(ep_id, dev, db)
 
 # ── Internal trigger helper ──────────────────────────────────────────────
 

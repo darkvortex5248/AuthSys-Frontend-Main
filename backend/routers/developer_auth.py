@@ -6,9 +6,9 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
 from fastapi.security import OAuth2PasswordRequestForm
 from core.database import get_db
-from core.security import get_password_hash, verify_password, create_access_token, ALGORITHM
+from core.security import get_password_hash, verify_password, create_access_token, ALGORITHM, validate_password
 from core.config import settings
-from models.domain import DeveloperAccount, SubscriptionPlan, DeveloperSession, Application, EndUser, LicenseKey, Session, ActivityLog, Variable, ChatRoom, WebhookEndpoint, WebhookDelivery, WebhookLog, IPWhitelistRule, APIKey, TeamMember, Payment
+from models.domain import DeveloperAccount, SubscriptionPlan, DeveloperSession, Application, EndUser, LicenseKey, Session, ActivityLog, Variable, ChatRoom, ChatMessage, WebhookEndpoint, WebhookDelivery, WebhookLog, IPWhitelistRule, APIKey, TeamMember, Payment, AIAgentLog, BotConfig, CustomDomain, AppBackup, AppEnvironment, HealthCheckRecord, LogRetentionConfig, ScheduledAction, Organization, OrganizationMember, UsageRecord, CustomPlanOverride, SellerAccount, AIConversation, AIActionLog, AIKnowledgeBase, DeviceGroup, Device
 from routers.developer_sessions import record_session
 from jose import jwt, JWTError
 import uuid
@@ -196,9 +196,15 @@ async def logout(request: Request, db: AsyncSession = Depends(get_db)):
     from sqlalchemy import update as sql_update
     from models.domain import DeveloperSession
 
+    token = None
     auth_header = request.headers.get("Authorization", "")
     if auth_header.startswith("Bearer "):
         token = auth_header[7:]
+    else:
+        # Also check cookie for cookie-only auth
+        token = request.cookies.get(settings.COOKIE_NAME)
+    
+    if token:
         token_hash = hashlib.sha256(token.encode()).hexdigest()
         await db.execute(
             sql_update(DeveloperSession)
@@ -333,8 +339,9 @@ async def verify_otp(data: OTPVerify):
 @router.post("/reset-password")
 async def reset_password(data: NewPassword, db: AsyncSession = Depends(get_db)):
     # Validate new password strength
-    if len(data.new_password) < 8:
-        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+    is_valid, msg = validate_password(data.new_password)
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=msg)
     
     # Verify OTP and consume it
     if await OTPService.verify_otp(data.email, data.code, "password_reset"):
@@ -381,8 +388,9 @@ async def update_preferences(data: PreferencesUpdate, dev: DeveloperAccount = De
 @router.post("/change-password")
 async def change_password(data: ChangePassword, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     # Validate new password strength
-    if len(data.new_password) < 8:
-        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+    is_valid, msg = validate_password(data.new_password)
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=msg)
     
     # Check if new password is different from old password
     if data.old_password == data.new_password:
@@ -531,6 +539,11 @@ async def delete_account(
     await db.execute(sa_delete(TeamMember).where(
         (TeamMember.developer_id == dev_id) | (TeamMember.user_id == dev_id)
     ))
+    await db.execute(sa_delete(ChatMessage).where(ChatMessage.room_id.in_(
+        select(ChatRoom.id).where(ChatRoom.app_id.in_(
+            select(Application.id).where(Application.developer_id == dev_id)
+        ))
+    )))
     await db.execute(sa_delete(ChatRoom).where(ChatRoom.app_id.in_(
         select(Application.id).where(Application.developer_id == dev_id)
     )))
@@ -549,6 +562,55 @@ async def delete_account(
     await db.execute(sa_delete(EndUser).where(EndUser.app_id.in_(
         select(Application.id).where(Application.developer_id == dev_id)
     )))
+    await db.execute(sa_delete(AIAgentLog).where(AIAgentLog.app_id.in_(
+        select(Application.id).where(Application.developer_id == dev_id)
+    )))
+    await db.execute(sa_delete(BotConfig).where(BotConfig.app_id.in_(
+        select(Application.id).where(Application.developer_id == dev_id)
+    )))
+    await db.execute(sa_delete(CustomDomain).where(CustomDomain.app_id.in_(
+        select(Application.id).where(Application.developer_id == dev_id)
+    )))
+    await db.execute(sa_delete(AppBackup).where(AppBackup.app_id.in_(
+        select(Application.id).where(Application.developer_id == dev_id)
+    )))
+    await db.execute(sa_delete(AppEnvironment).where(AppEnvironment.app_id.in_(
+        select(Application.id).where(Application.developer_id == dev_id)
+    )))
+    await db.execute(sa_delete(HealthCheckRecord).where(HealthCheckRecord.app_id.in_(
+        select(Application.id).where(Application.developer_id == dev_id)
+    )))
+    await db.execute(sa_delete(LogRetentionConfig).where(LogRetentionConfig.app_id.in_(
+        select(Application.id).where(Application.developer_id == dev_id)
+    )))
+    await db.execute(sa_delete(ScheduledAction).where(ScheduledAction.app_id.in_(
+        select(Application.id).where(Application.developer_id == dev_id)
+    )))
+    await db.execute(sa_delete(OrganizationMember).where(OrganizationMember.org_id.in_(
+        select(Organization.id).where(Organization.developer_id == dev_id)
+    )))
+    await db.execute(sa_delete(Organization).where(Organization.developer_id == dev_id))
+    await db.execute(sa_delete(UsageRecord).where(UsageRecord.developer_id == dev_id))
+    await db.execute(sa_delete(CustomPlanOverride).where(CustomPlanOverride.developer_id == dev_id))
+    await db.execute(sa_delete(SellerAccount).where(SellerAccount.developer_id == dev_id))
+    await db.execute(sa_delete(AIConversation).where(AIConversation.app_id.in_(
+        select(Application.id).where(Application.developer_id == dev_id)
+    )))
+    await db.execute(sa_delete(AIActionLog).where(AIActionLog.app_id.in_(
+        select(Application.id).where(Application.developer_id == dev_id)
+    )))
+    await db.execute(sa_delete(AIKnowledgeBase).where(AIKnowledgeBase.app_id.in_(
+        select(Application.id).where(Application.developer_id == dev_id)
+    )))
+    await db.execute(sa_delete(DeviceGroup).where(DeviceGroup.app_id.in_(
+        select(Application.id).where(Application.developer_id == dev_id)
+    )))
+    await db.execute(sa_delete(Device).where(Device.group_id.in_(
+        select(DeviceGroup.id).where(DeviceGroup.app_id.in_(
+            select(Application.id).where(Application.developer_id == dev_id)
+        ))
+    )))
+    await db.execute(sa_delete(DeveloperSession).where(DeveloperSession.developer_id == dev_id))
     await db.execute(sa_delete(Application).where(Application.developer_id == dev_id))
     await db.execute(sa_delete(Payment).where(Payment.developer_id == dev_id))
     await db.execute(sa_delete(DeveloperAccount).where(DeveloperAccount.id == dev_id))

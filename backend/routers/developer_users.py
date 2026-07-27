@@ -7,7 +7,7 @@ from core.deps import get_current_developer
 from models.domain import EndUser, DeveloperAccount, utc_now
 from routers.developer_keys import verify_app_owner
 from schemas.dashboard import BanRequest, UserCreateManual, BulkUserCreate
-from core.security import get_password_hash
+from core.security import get_password_hash, validate_password
 from services.plan_enforcer import require_feature, check_limit
 from pydantic import BaseModel
 from typing import Optional
@@ -17,13 +17,20 @@ router = APIRouter(prefix="/api/v1/developer/users", tags=["Users"])
 
 @router.get("/{app_id}")
 async def get_users(app_id: int, show_shadow: bool = False, skip: int = 0, limit: int = 50, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
+    from sqlalchemy import func
     await verify_app_owner(app_id, dev.id, db)
     query = select(EndUser).where(EndUser.app_id == app_id)
     if not show_shadow:
         query = query.where(EndUser.is_shadow == False)
     
+    total_query = select(func.count(EndUser.id)).where(EndUser.app_id == app_id)
+    if not show_shadow:
+        total_query = total_query.where(EndUser.is_shadow == False)
+    total = (await db.execute(total_query)).scalar_one()
+    
     res = await db.execute(query.order_by(EndUser.created_at.desc()).offset(skip).limit(limit))
-    return res.scalars().all()
+    users = res.scalars().all()
+    return {"users": users, "total": total, "skip": skip, "limit": limit}
 
 @router.post("/create")
 async def create_user_manual(req: UserCreateManual, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
@@ -34,8 +41,9 @@ async def create_user_manual(req: UserCreateManual, dev: DeveloperAccount = Depe
     current_users = len(user_count.scalars().all())
     await check_limit(dev, "max_users_per_app", current_users, db, plan)
 
-    if len(req.password) < 1:
-        raise HTTPException(400, "Password must be at least 1 character long")
+    is_valid, msg = validate_password(req.password)
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=msg)
 
     username_normalized = req.username.strip().lower()
     # Check if username exists for this app (case-insensitive)
@@ -79,10 +87,17 @@ async def bulk_create_users(req: BulkUserCreate, dev: DeveloperAccount = Depends
     users = []
     
     if req.users_list:
+        seen_usernames = set()
         for item in req.users_list:
             username = item.get('username', f"user_{secrets.token_hex(4)}")
+            if username in seen_usernames:
+                raise HTTPException(400, f"Duplicate username in batch: {username}")
+            seen_usernames.add(username)
             password = item.get('password', 'Default123')
             email = item.get('email')
+            is_valid, msg = validate_password(password)
+            if not is_valid:
+                raise HTTPException(400, f"Invalid password for user '{username}': {msg}")
             hashed_password = get_password_hash(password)
             new_user = EndUser(
                 app_id=req.app_id,
@@ -98,8 +113,15 @@ async def bulk_create_users(req: BulkUserCreate, dev: DeveloperAccount = Depends
     else:
         for i in range(req.count):
             username = f"user_{secrets.token_hex(4)}"
-            alphabet = string.ascii_letters + string.digits + string.punctuation
-            password = ''.join(secrets.choice(alphabet) for _ in range(12))
+            alphabet = string.ascii_letters + string.digits
+            password = ''.join(secrets.choice(alphabet) for _ in range(16))
+            # Ensure password meets requirements
+            if not any(c.isupper() for c in password):
+                password = 'A' + password[1:]
+            if not any(c.islower() for c in password):
+                password = password[:-1] + 'a'
+            if not any(c.isdigit() for c in password):
+                password = password[:-1] + '1'
             if req.password_prefix:
                 password = req.password_prefix + password
             
@@ -203,20 +225,33 @@ async def update_user(user_id: int, req: UserUpdate, dev: DeveloperAccount = Dep
     if not user: raise HTTPException(404, "Not found")
     await verify_app_owner(user.app_id, dev.id, db)
     
-    if req.username: user.username = req.username
+    if req.username:
+        # Check for duplicate username within the same app
+        username_normalized = req.username.strip().lower()
+        dup = await db.execute(select(EndUser).where(EndUser.app_id == user.app_id, EndUser.username == username_normalized, EndUser.id != user_id))
+        if dup.scalars().first():
+            raise HTTPException(400, "Username already exists in this application")
+        user.username = username_normalized
     if req.email: user.email = req.email
-    if req.password: user.password_hash = get_password_hash(req.password)
+    if req.password:
+        is_valid, msg = validate_password(req.password)
+        if not is_valid:
+            raise HTTPException(status_code=400, detail=msg)
+        user.password_hash = get_password_hash(req.password)
     
     await db.commit()
     return user
 
 @router.delete("/{user_id}")
 async def delete_user(user_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
+    from sqlalchemy import delete as sa_delete
     res = await db.execute(select(EndUser).where(EndUser.id == user_id))
     user = res.scalars().first()
     if not user: raise HTTPException(404, "Not found")
     await verify_app_owner(user.app_id, dev.id, db)
     
+    # Cascade delete sessions for this user
+    await db.execute(sa_delete(Session).where(Session.user_id == user_id))
     await db.delete(user)
     await db.commit()
     return {"status": "deleted"}

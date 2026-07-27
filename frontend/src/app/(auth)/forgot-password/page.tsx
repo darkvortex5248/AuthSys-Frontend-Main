@@ -3,16 +3,22 @@ import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import api from '@/lib/api';
+import Turnstile from '@/components/Turnstile';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!turnstileToken) {
+      toast.error('Please complete the CAPTCHA');
+      return;
+    }
     setIsLoading(true);
     try {
-      await api.post('/developer/auth/forgot-password', { email });
+      await api.post('/developer/auth/forgot-password', { email, turnstile_token: turnstileToken });
       toast.success('Reset code sent to ' + email);
       window.location.href = `/verify-email?email=${encodeURIComponent(email)}&purpose=password_reset`;
     } catch (err: any) {
@@ -68,10 +74,14 @@ export default function ForgotPasswordPage() {
           ) : (
             <>Send reset code <span className="material-symbols-outlined text-[18px]">login</span></>
           )}
-        </button>
-      </form>
+         </button>
+       </form>
 
-      <div className="mt-8">
+       <div className="mt-6 flex justify-center">
+         <Turnstile onVerify={(token) => setTurnstileToken(token)} />
+       </div>
+
+       <div className="mt-8">
         <Link href="/login" className="text-[13.5px] text-[var(--primary)] hover:text-[var(--primary)] transition-colors flex items-center gap-1 group">
           <span className="material-symbols-outlined text-[16px] transition-transform group-hover:-translate-x-0.5">arrow_back</span>
           Back to sign in

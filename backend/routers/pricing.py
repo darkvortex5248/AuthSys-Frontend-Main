@@ -11,6 +11,12 @@ from datetime import datetime, timezone
 
 router = APIRouter(prefix="/api/v1/pricing", tags=["Pricing Management"])
 
+def require_admin(current_developer: DeveloperAccount = Depends(get_current_developer)):
+    """Restrict endpoint to admin users only."""
+    if not current_developer.is_verified:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return current_developer
+
 # Pydantic schemas
 class PricingItemCreate(BaseModel):
     name: str
@@ -54,7 +60,7 @@ class PricingItemResponse(BaseModel):
 @router.get("/items", response_model=List[PricingItemResponse])
 async def get_pricing_items(
     db: AsyncSession = Depends(get_db),
-    current_developer: DeveloperAccount = Depends(get_current_developer)
+    current_developer: DeveloperAccount = Depends(require_admin)
 ):
     """Get all pricing items for the current developer"""
     stmt = select(PricingItem).order_by(PricingItem.sort_order, PricingItem.created_at)
@@ -66,7 +72,7 @@ async def get_pricing_items(
 async def get_pricing_item(
     item_id: int,
     db: AsyncSession = Depends(get_db),
-    current_developer: DeveloperAccount = Depends(get_current_developer)
+    current_developer: DeveloperAccount = Depends(require_admin)
 ):
     """Get a specific pricing item by ID"""
     stmt = select(PricingItem).where(PricingItem.id == item_id)
@@ -80,7 +86,7 @@ async def get_pricing_item(
 async def create_pricing_item(
     item: PricingItemCreate,
     db: AsyncSession = Depends(get_db),
-    current_developer: DeveloperAccount = Depends(get_current_developer)
+    current_developer: DeveloperAccount = Depends(require_admin)
 ):
     """Create a new pricing item"""
     db_item = PricingItem(
@@ -104,7 +110,7 @@ async def update_pricing_item(
     item_id: int,
     item: PricingItemUpdate,
     db: AsyncSession = Depends(get_db),
-    current_developer: DeveloperAccount = Depends(get_current_developer)
+    current_developer: DeveloperAccount = Depends(require_admin)
 ):
     """Update an existing pricing item"""
     stmt = select(PricingItem).where(PricingItem.id == item_id)
@@ -126,7 +132,7 @@ async def update_pricing_item(
 async def delete_pricing_item(
     item_id: int,
     db: AsyncSession = Depends(get_db),
-    current_developer: DeveloperAccount = Depends(get_current_developer)
+    current_developer: DeveloperAccount = Depends(require_admin)
 ):
     """Delete a pricing item"""
     stmt = select(PricingItem).where(PricingItem.id == item_id)

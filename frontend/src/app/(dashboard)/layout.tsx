@@ -60,6 +60,18 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sessionExpiry, setSessionExpiry] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        setSessionExpiry(payload.exp ? payload.exp * 1000 : null);
+      } catch {
+        setSessionExpiry(null);
+      }
+    }
+  }, [token]);
 
   const sidebarIcons = sidebarPref === 'icons';
   const sbCompact = sidebarIcons;
@@ -353,6 +365,23 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
+
+      {sessionExpiry && (sessionExpiry - Date.now()) < 300000 && (sessionExpiry - Date.now()) > 0 && (
+        <div className="fixed top-16 left-0 right-0 z-40 px-4 lg:px-10">
+          <div className="bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs py-2 px-4 rounded-lg flex items-center justify-between max-w-[1600px] mx-auto">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-sm animate-pulse">warning</span>
+              Your session will expire in {Math.ceil((sessionExpiry - Date.now()) / 60000)} minute(s).
+            </div>
+            <button
+              onClick={() => window.location.reload()}
+              className="text-xs font-bold underline hover:no-underline"
+            >
+              Refresh session
+            </button>
+          </div>
+        </div>
+      )}
 
       <main className={`transition-all duration-300 mt-[56px] pt-10 px-4 lg:px-10 pb-4 lg:pb-10 min-h-screen relative z-10 overflow-visible ${sidebarOpen ? 'blur-md lg:blur-none' : ''} ${sidebarIcons ? 'lg:ml-[72px]' : 'lg:ml-[260px]'}`}>
         <div className="max-w-[1600px] mx-auto overflow-visible">

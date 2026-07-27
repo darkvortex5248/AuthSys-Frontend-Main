@@ -174,7 +174,7 @@ export default function SuperAdminDashboard() {
         {[
           { name: 'Developers', icon: 'engineering', path: '/super-admin/developers', color: 'var(--primary)' },
           { name: 'Applications', icon: 'apps', path: '/super-admin/applications', color: '#e8a87c' },
-          { name: 'End Users', icon: 'group', path: '/super-admin/end-users', color: '#34d399' },
+           { name: 'End Users', icon: 'group', path: '/super-admin/developers', color: '#34d399' },
           { name: 'Audit Logs', icon: 'history', path: '/super-admin/audit-logs', color: '#60a5fa' },
           { name: 'Payments', icon: 'payments', path: '/super-admin/payments', color: '#c084fc' },
           { name: 'AI Control', icon: 'smart_toy', path: '/super-admin/ai', color: '#f472b6' },

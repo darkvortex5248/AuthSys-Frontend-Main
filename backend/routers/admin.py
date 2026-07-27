@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request, Body
 from fastapi.responses import JSONResponse, FileResponse
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,9 +6,10 @@ from sqlalchemy.future import select
 from sqlalchemy import func, or_, or_
 from core.database import get_db, Base
 from core.deps import oauth2_scheme
+from core.limiter import limiter
 from jose import jwt, JWTError
 from core.config import settings
-from core.security import ALGORITHM, verify_password, create_access_token, get_password_hash
+from core.security import ALGORITHM, verify_password, create_access_token, get_password_hash, encrypt_field, decrypt_field, validate_password
 from models.domain import AdminUser, DeveloperAccount, Application, EndUser, SubscriptionPlan, SystemSetting, Payment, SDKDownload, PaymentMethod, Announcement, LicenseKey, AIProviderConfig, SystemBackup, ActivityLog, ActivationCode
 from schemas.admin import (
     AdminLogin, PlanCreate, PlanUpdate, PlanResponse, 
@@ -47,6 +48,7 @@ async def get_current_admin(token: str = Depends(oauth2_scheme), db: AsyncSessio
     return admin
 
 @router.post("/login", response_model=Token)
+@limiter.limit("5/minute")
 async def admin_login(request: Request, login_data: AdminLogin, db: AsyncSession = Depends(get_db)):
     stmt = select(AdminUser).where(
         (AdminUser.username == login_data.username) | (AdminUser.email == login_data.username)
@@ -64,13 +66,20 @@ async def admin_login(request: Request, login_data: AdminLogin, db: AsyncSession
     if not admin.is_active:
         raise HTTPException(status_code=403, detail="Admin account is deactivated")
 
+    admin.last_login = datetime.now(timezone.utc)
+    await db.commit()
+
     access_token = create_access_token(
         subject=str(admin.id), additional_claims={"role": admin.role}
     )
     
     secure = request.url.scheme == "https"
     max_age = 24 * 60 * 60  # 24 hours for admin
-    response = JSONResponse(content={"access_token": access_token, "token_type": "bearer"})
+    response = JSONResponse(content={
+        "access_token": access_token,
+        "token_type": "bearer",
+        "must_change_password": admin.must_change_password,
+    })
     response.set_cookie(
         key=settings.COOKIE_NAME,
         value=access_token,
@@ -109,6 +118,25 @@ async def admin_logout(request: Request):
         httponly=True,
     )
     return response
+
+@router.post("/change-password")
+async def admin_change_password(
+    request: Request,
+    body: dict = Body(...),
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    old_password = body.get("old_password", "")
+    new_password = body.get("new_password", "")
+    if not verify_password(old_password, admin.password_hash):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    is_valid, msg = validate_password(new_password)
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=msg)
+    admin.password_hash = get_password_hash(new_password)
+    admin.must_change_password = False
+    await db.commit()
+    return {"success": True, "message": "Password changed successfully"}
 
 @router.get("/developers", response_model=dict)
 async def get_developers(
@@ -924,7 +952,7 @@ async def update_rate_limit(
     import json
     stored = await db.execute(select(SystemSetting).where(SystemSetting.key == "rate_limits_config"))
     row = stored.scalars().first()
-    limits = _RATE_LIMIT_DEFAULTS
+    limits = json.loads(json.dumps(_RATE_LIMIT_DEFAULTS))
     if row and row.value:
         try:
             limits = json.loads(row.value)
@@ -996,6 +1024,13 @@ async def get_admin_audit_logs(
 
     # Sort by date desc
     logs.sort(key=lambda x: x.get("created_at", "") or "", reverse=True)
+    
+    # Filter by date range
+    if from_date:
+        logs = [l for l in logs if l.get("created_at", "") >= from_date]
+    if to_date:
+        logs = [l for l in logs if l.get("created_at", "") <= to_date]
+    
     total = len(logs)
     start = (page - 1) * per_page
     end = start + per_page
@@ -1003,6 +1038,7 @@ async def get_admin_audit_logs(
     # Filter by event type
     if event and event != "all":
         logs = [l for l in logs if event in l.get("event", "")]
+        total = len(logs)
 
     return {"logs": logs[start:end], "total": total, "page": page, "per_page": per_page}
 
@@ -1021,7 +1057,6 @@ async def get_ai_providers(admin: AdminUser = Depends(get_current_admin), db: As
         "priority": c.priority,
         "api_endpoint": c.settings.get("api_endpoint", "") if c.settings else "",
         "settings": c.settings or {},
-        "api_key": c.api_key_encrypted[:8] + "..." if len(c.api_key_encrypted) > 8 else "***",
         "created_at": c.created_at.isoformat() if c.created_at else None,
         "updated_at": c.updated_at.isoformat() if c.updated_at else None,
     } for c in configs]}
@@ -1035,7 +1070,7 @@ async def create_ai_provider(
 ):
     provider = AIProviderConfig(
         provider=data.get("provider", "openai"),
-        api_key_encrypted=data.get("api_key", ""),
+        api_key_encrypted=encrypt_field(data.get("api_key", "")),
         model_name=data.get("model_name", "gpt-4o"),
         is_active=data.get("is_active", True),
         priority=data.get("priority", 0),
@@ -1062,7 +1097,7 @@ async def update_ai_provider(
     if not config:
         raise HTTPException(404, "AI provider not found")
     if "api_key" in data and data["api_key"]:
-        config.api_key_encrypted = data["api_key"]
+        config.api_key_encrypted = encrypt_field(data["api_key"])
     if "model_name" in data:
         config.model_name = data["model_name"]
     if "is_active" in data:
@@ -1104,7 +1139,7 @@ async def test_single_ai_provider(
     config = res.scalars().first()
     if not config:
         raise HTTPException(404, "AI provider not found")
-    api_key = config.api_key_encrypted
+    api_key = decrypt_field(config.api_key_encrypted)
     if not api_key:
         return AIConfigTestResponse(
             success=False, message="No API key configured for this provider.", model=config.model_name
@@ -1248,6 +1283,11 @@ async def restore_backup(backup_id: int, admin: AdminUser = Depends(get_current_
     dump = json.loads(raw)
 
     tables = list(reversed([t.name for t in Base.metadata.sorted_tables]))
+    # Build a set of valid column names per table for validation
+    valid_columns = {
+        t.name: {c.name for c in t.columns}
+        for t in Base.metadata.sorted_tables
+    }
 
     for tname in tables:
         if tname not in dump:
@@ -1257,9 +1297,16 @@ async def restore_backup(backup_id: int, admin: AdminUser = Depends(get_current_
         for row in dump[tname]:
             if not row:
                 continue
-            cols = ", ".join(f'"{k}"' for k in row.keys())
-            placeholders = ", ".join(f":{k}" for k in row.keys())
-            await db.execute(text(f'INSERT INTO "{safe_table}" ({cols}) VALUES ({placeholders})'), row)
+            # Validate column names against the actual table schema to prevent SQL injection
+            row_cols = list(row.keys())
+            valid_cols = valid_columns.get(tname, set())
+            safe_cols = [c for c in row_cols if c in valid_cols]
+            if not safe_cols:
+                continue
+            cols = ", ".join(f'"{c}"' for c in safe_cols)
+            placeholders = ", ".join(f":{c}" for c in safe_cols)
+            safe_row = {c: row[c] for c in safe_cols}
+            await db.execute(text(f'INSERT INTO "{safe_table}" ({cols}) VALUES ({placeholders})'), safe_row)
 
     await db.commit()
     return {"status": "restored", "backup_id": backup_id}

@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Union
 from jose import jwt
 import bcrypt
+import base64
 from core.config import settings
 
 ALGORITHM = "HS256"
@@ -30,3 +31,77 @@ def generate_secure_id(length=12):
     import string
     alphabet = string.ascii_letters + string.digits
     return ''.join(secrets.choice(alphabet) for _ in range(length))
+
+# ── Field-level encryption helpers ──────────────────────────────────
+# Uses Fernet (AES-128-CBC + HMAC) derived from the app SECRET_KEY.
+# This protects sensitive fields like AI provider API keys at rest.
+
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
+_fernet: Fernet | None = None
+
+def _get_fernet() -> Fernet:
+    global _fernet
+    if _fernet is None:
+        # Derive a stable Fernet key from SECRET_KEY + a fixed salt.
+        # The salt is intentionally static so the same key is derived
+        # across restarts (required for decryption of existing data).
+        kdf = PBKDF2HMAC(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=b'RinoxAuth-field-encryption-v1',
+            iterations=100_000,
+        )
+        key = base64.urlsafe_b64encode(kdf.derive(settings.SECRET_KEY.encode()))
+        _fernet = Fernet(key)
+    return _fernet
+
+def encrypt_field(value: str) -> str:
+    """Encrypt a plaintext string for storage in the database."""
+    if not value:
+        return ""
+    return _get_fernet().encrypt(value.encode()).decode()
+
+def decrypt_field(encrypted_value: str) -> str:
+    """Decrypt a stored encrypted string. Returns the original plaintext."""
+    if not encrypted_value:
+        return ""
+    try:
+        return _get_fernet().decrypt(encrypted_value.encode()).decode()
+    except Exception:
+        # If decryption fails, the value was likely stored as plaintext
+        # before encryption was enabled. Return as-is for backward compat.
+        return encrypted_value
+
+def validate_password(password: str) -> tuple[bool, str]:
+    """Validate password meets minimum security requirements.
+    Returns (is_valid, error_message).
+    """
+    if not password or len(password) < 8:
+        return False, "Password must be at least 8 characters"
+    if len(password) > 128:
+        return False, "Password must be at most 128 characters"
+    if not any(c.isupper() for c in password):
+        return False, "Password must contain at least one uppercase letter"
+    if not any(c.islower() for c in password):
+        return False, "Password must contain at least one lowercase letter"
+    if not any(c.isdigit() for c in password):
+        return False, "Password must contain at least one digit"
+    return True, ""
+
+def compare_versions(v1: str, v2: str) -> int:
+    """Compare two semantic version strings.
+    Returns: -1 if v1 < v2, 0 if v1 == v2, 1 if v1 > v2.
+    """
+    def parse(v: str):
+        parts = v.split('.')
+        return tuple(int(p) if p.isdigit() else 0 for p in parts)
+    p1 = parse(v1)
+    p2 = parse(v2)
+    if p1 < p2:
+        return -1
+    if p1 > p2:
+        return 1
+    return 0

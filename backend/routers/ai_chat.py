@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from typing import List
 
 from core.database import get_db
 from core.deps import get_current_developer
+from core.limiter import limiter
 from models.domain import DeveloperAccount
 from services.ai_config import get_ai_runtime_config
 from services.ai_runtime import SYSTEM_PROMPT, generate_chat_response
@@ -33,7 +34,9 @@ async def get_public_ai_config(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/chat")
+@limiter.limit("20/minute")
 async def ai_chat(
+    request: Request,
     req: ChatRequest,
     dev: DeveloperAccount = Depends(get_current_developer),
     db: AsyncSession = Depends(get_db),

@@ -812,58 +812,86 @@ async def ensure_default_settings(db: AsyncSession) -> int:
 
 
 async def ensure_default_admin(db: AsyncSession) -> int:
-    """Ensure the default super admin exists with the correct password."""
+    """Ensure the default super admin exists with a securely generated password."""
     from models.domain import AdminUser
+    import secrets
     res = await db.execute(select(AdminUser).where(AdminUser.username == "atik"))
     existing = res.scalars().first()
     if existing:
-        if not verify_password("4G!PYJP*SvE2epy", existing.password_hash):
-            existing.password_hash = get_password_hash("4G!PYJP*SvE2epy")
+        if existing.must_change_password or not existing.password_hash:
+            # Password was never set or needs changing — generate a new one
+            new_password = secrets.token_urlsafe(24)
+            existing.password_hash = get_password_hash(new_password)
             existing.role = "super_admin"
             existing.is_active = True
+            existing.must_change_password = True
             await db.commit()
-            logger.info("Default super admin password updated (username: atik)")
+            logger.warning("=" * 60)
+            logger.warning(f"Default super admin created with NEW random password:")
+            logger.warning(f"  Username: atik")
+            logger.warning(f"  Password: {new_password}")
+            logger.warning(f"  Please change this password immediately after first login.")
+            logger.warning("=" * 60)
             return 1
         return 0
+    # First-time creation — generate random password
+    new_password = secrets.token_urlsafe(24)
     admin = AdminUser(
         username="atik",
-        email="mdatikurrohoman524860@gmail.com",
-        password_hash=get_password_hash("4G!PYJP*SvE2epy"),
+        email="admin@authsys.local",
+        password_hash=get_password_hash(new_password),
         role="super_admin",
         is_active=True,
+        must_change_password=True,
     )
     db.add(admin)
     await db.commit()
-    logger.info("Default super admin created (username: atik)")
+    logger.warning("=" * 60)
+    logger.warning(f"Default super admin created with random password:")
+    logger.warning(f"  Username: atik")
+    logger.warning(f"  Password: {new_password}")
+    logger.warning(f"  Please change this password immediately after first login.")
+    logger.warning("=" * 60)
     return 1
 
 
 async def ensure_default_developer(db: AsyncSession) -> int:
     """Ensure a default developer account exists for client dashboard login."""
     from models.domain import DeveloperAccount, SubscriptionPlan
+    import secrets
     res = await db.execute(select(DeveloperAccount).where(
-        DeveloperAccount.email == "mdatikurrohoman524860@gmail.com"
+        DeveloperAccount.email == "admin@authsys.local"
     ))
     existing = res.scalars().first()
     if existing:
-        if not verify_password("atik", existing.password_hash):
-            existing.password_hash = get_password_hash("atik")
+        if existing.password_hash == "license_only_login" or not existing.password_hash or existing.password_hash == "":
+            new_password = secrets.token_urlsafe(24)
+            existing.password_hash = get_password_hash(new_password)
             await db.commit()
-            logger.info("Default developer password updated (email: mdatikurrohoman524860@gmail.com)")
+            logger.warning("=" * 60)
+            logger.warning(f"Default developer account created with random password:")
+            logger.warning(f"  Email: admin@authsys.local")
+            logger.warning(f"  Password: {new_password}")
+            logger.warning("=" * 60)
             return 1
         return 0
     plan_res = await db.execute(select(SubscriptionPlan).order_by(SubscriptionPlan.price_monthly))
     plan = plan_res.scalars().first()
+    new_password = secrets.token_urlsafe(24)
     dev = DeveloperAccount(
-        username="atik",
-        email="mdatikurrohoman524860@gmail.com",
-        password_hash=get_password_hash("atik"),
+        username="admin",
+        email="admin@authsys.local",
+        password_hash=get_password_hash(new_password),
         is_verified=True,
         plan_id=plan.id if plan else None,
     )
     db.add(dev)
     await db.commit()
-    logger.info("Default developer created (email: mdatikurrohoman524860@gmail.com)")
+    logger.warning("=" * 60)
+    logger.warning(f"Default developer account created with random password:")
+    logger.warning(f"  Email: admin@authsys.local")
+    logger.warning(f"  Password: {new_password}")
+    logger.warning("=" * 60)
     return 1
 
 

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import update
+from sqlalchemy import update, func
 import uuid
 from typing import Optional
 from pydantic import BaseModel
@@ -40,10 +40,13 @@ async def verify_app_owner(app_id: int, dev_id: int, db: AsyncSession):
     return app
 
 @router.get("/{app_id}")
-async def get_keys(app_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
+async def get_keys(app_id: int, skip: int = 0, limit: int = 50, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     await verify_app_owner(app_id, dev.id, db)
-    res = await db.execute(select(LicenseKey).where(LicenseKey.app_id == app_id))
-    return res.scalars().all()
+    total = await db.execute(select(func.count(LicenseKey.id)).where(LicenseKey.app_id == app_id))
+    total_count = total.scalar_one()
+    res = await db.execute(select(LicenseKey).where(LicenseKey.app_id == app_id).offset(skip).limit(limit))
+    keys = res.scalars().all()
+    return {"keys": keys, "total": total_count, "skip": skip, "limit": limit}
 
 @router.post("/generate")
 async def generate_key(req: KeyGenerate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
@@ -86,7 +89,7 @@ async def generate_key(req: KeyGenerate, dev: DeveloperAccount = Depends(get_cur
         "key": key_val,
         "type": req.key_type,
         "note": req.note,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }, db)
 
     await db.refresh(new_key)
@@ -94,8 +97,15 @@ async def generate_key(req: KeyGenerate, dev: DeveloperAccount = Depends(get_cur
 
 @router.post("/bulk-generate")
 async def bulk_generate(req: BulkKeyGenerate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
-    await verify_app_owner(req.app_id, dev.id, db)
+    from services.plan_tiers import require_feature
+    app = await verify_app_owner(req.app_id, dev.id, db)
     if req.count > 1000: raise HTTPException(400, "Max 1000 keys at once")
+    plan = await require_feature(dev, "has_api_access", db)
+    # Check key limit
+    key_count = await db.execute(select(func.count(LicenseKey.id)).where(LicenseKey.app_id == req.app_id))
+    current_keys = key_count.scalar_one()
+    if current_keys + req.count > plan.max_keys_per_month:
+        raise HTTPException(status_code=403, detail=f"Bulk generation would exceed plan limit ({plan.max_keys_per_month} keys). Current: {current_keys}, Requested: {req.count}")
     expires_at = req.expires_at
     if expires_at is None and req.key_type == "time" and req.duration_days:
         expires_at = datetime.now(timezone.utc) + timedelta(days=req.duration_days)
@@ -131,7 +141,7 @@ async def bulk_generate(req: BulkKeyGenerate, dev: DeveloperAccount = Depends(ge
         "count": req.count,
         "type": req.key_type,
         "keys": [k.key_value for k in keys],
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }, db)
 
     result = {"count": len(keys), "keys": [k.key_value for k in keys], "items": keys}
@@ -205,7 +215,7 @@ async def reset_key_hwid(key_id: int, dev: DeveloperAccount = Depends(get_curren
     await trigger_webhook(key.app_id, "hwid_reset", {
         "license_key": key.key_value,
         "action": "bulk_reset_by_key",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }, db)
 
     return {"status": "hwid_reset"}

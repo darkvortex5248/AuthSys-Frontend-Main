@@ -49,6 +49,17 @@ async def create_order(
     if not plan:
         raise HTTPException(404, "Subscription plan not found")
     
+    # Check for existing active subscription
+    existing = await db.execute(
+        select(Payment).where(
+            Payment.developer_id == dev.id,
+            Payment.plan_id == plan.id,
+            Payment.status.in_(["completed", "active"])
+        )
+    )
+    if existing.scalars().first():
+        raise HTTPException(status_code=400, detail="You already have an active subscription to this plan")
+    
     new_payment = Payment(
         developer_id=dev.id,
         amount=plan.price_monthly,

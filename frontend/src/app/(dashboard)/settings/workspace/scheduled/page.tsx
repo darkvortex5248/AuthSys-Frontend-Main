@@ -27,11 +27,15 @@ export default function WorkspaceScheduledPage() {
 
   const createAction = async () => {
     try {
+      let targetFilter = {};
+      let payload = {};
+      try { targetFilter = JSON.parse(form.target_filter || '{}'); } catch { toast.error('Invalid target filter JSON'); return; }
+      try { payload = JSON.parse(form.payload || '{}'); } catch { toast.error('Invalid payload JSON'); return; }
       await api.post('/developer/scheduled', {
         ...form,
         app_id: form.app_id || undefined,
-        target_filter: JSON.parse(form.target_filter || '{}'),
-        payload: JSON.parse(form.payload || '{}'),
+        target_filter: targetFilter,
+        payload,
       });
       toast.success('Scheduled action created!');
       setShowCreate(false);

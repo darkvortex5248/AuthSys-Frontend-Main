@@ -46,7 +46,12 @@ export default function LicenseKeysPage() {
   const generateKeys = useGenerateKeys();
   const createKey = useCreateLicenseKey();
   const deleteKeyMutation = useDeleteLicenseKey();
-  const { data: keys = [], isLoading: loading, isError, error, refetch } = useLicenseKeys(selectedAppId);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize] = useState(50);
+  const { data: keysData, isLoading: loading, isError, error, refetch } = useLicenseKeys(selectedAppId, currentPage * pageSize, pageSize);
+  const keys = keysData?.keys || [];
+  const totalKeys = keysData?.total || 0;
+  const totalPages = Math.ceil(totalKeys / pageSize);
 
   const [genData, setGenData] = useState({ quantity: 10, type: 'time', duration: 30, expires_at: '', use_custom_expiry: false });
   const [showEditModal, setShowEditModal] = useState<any>(null);
@@ -62,11 +67,12 @@ export default function LicenseKeysPage() {
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [pausingId, setPausingId] = useState<number | null>(null);
   const [selectedKeys, setSelectedKeys] = useState<Set<number>>(new Set());
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({ key: 'created_at', direction: 'desc' });
   const [showCSVModal, setShowCSVModal] = useState(false);
   const [csvImporting, setCSVImporting] = useState(false);
 
   const filteredKeys = useMemo(() => {
-    return (keys || []).filter(k => {
+    const filtered = (keys || []).filter(k => {
       const term = searchTerm.toLowerCase();
       const matchesSearch =
         k?.key_value?.toLowerCase().includes(term) ||
@@ -78,7 +84,15 @@ export default function LicenseKeysPage() {
         (statusFilter === 'paused' && k.is_paused);
       return matchesSearch && matchesStatus;
     });
-  }, [keys, searchTerm, statusFilter]);
+    filtered.sort((a, b) => {
+      const aVal = a[sortConfig.key];
+      const bVal = b[sortConfig.key];
+      if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return filtered;
+  }, [keys, searchTerm, statusFilter, sortConfig]);
 
   const stats = useMemo(() => ({
     total: (keys || []).length,
@@ -211,9 +225,9 @@ export default function LicenseKeysPage() {
         note: editData.note,
         seller_tag: editData.seller_tag,
       });
-      setShowEditModal(null);
-      if (selectedAppId) invalidate.keys(selectedAppId);
-      toast.success('Key updated');
+       setShowEditModal(null);
+       if (selectedAppId) await invalidate.keys(selectedAppId);
+       toast.success('Key updated');
     } catch {
       toast.error('Failed to update key');
     }
@@ -559,15 +573,30 @@ export default function LicenseKeysPage() {
                   </button>
                 </th>
                 {[
-                  { label: 'License Key', w: '' },
-                  { label: 'Type', w: 'w-24' },
-                  { label: 'Status', w: 'w-24' },
-                  { label: 'Uses', w: 'w-24' },
-                  { label: 'Dates', w: 'w-36' },
-                  { label: 'Actions', w: 'w-36 text-right' },
+                  { label: 'License Key', w: '',       key: 'key_value' },
+                  { label: 'Type',        w: 'w-24',   key: 'key_type' },
+                  { label: 'Status',      w: 'w-24',   key: 'is_paused' },
+                  { label: 'Uses',        w: 'w-24',   key: 'current_uses' },
+                  { label: 'Dates',       w: 'w-36',   key: 'created_at' },
+                  { label: 'Actions',     w: 'w-36 text-right', key: null },
                 ].map(h => (
                   <th key={h.label} className={`px-6 py-4 stat-label border-b border-[var(--border)] ${h.w}`}>
-                    {h.label}
+                    {h.key ? (
+                      <button
+                        onClick={() => setSortConfig({
+                          key: h.key,
+                          direction: sortConfig.key === h.key && sortConfig.direction === 'asc' ? 'desc' : 'asc'
+                        })}
+                        className="flex items-center gap-1 hover:text-[var(--primary)] transition-colors"
+                      >
+                        {h.label}
+                        {sortConfig.key === h.key && (
+                          <span className="material-symbols-outlined text-xs">
+                            {sortConfig.direction === 'asc' ? 'arrow_upward' : 'arrow_downward'}
+                          </span>
+                        )}
+                      </button>
+                    ) : h.label}
                   </th>
                 ))}
               </tr>
@@ -745,10 +774,69 @@ export default function LicenseKeysPage() {
                   </td>
                 </tr>
               )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+             </tbody>
+           </table>
+         </div>
+
+         {totalPages > 1 && (
+           <div className="flex items-center justify-between px-6 py-4 border-t border-white/5">
+             <p className="text-xs text-[var(--muted-foreground)]">
+               Showing {currentPage * pageSize + 1}-{Math.min((currentPage + 1) * pageSize, totalKeys)} of {totalKeys}
+             </p>
+             <div className="flex items-center gap-1">
+               <button
+                 onClick={() => setCurrentPage(0)}
+                 disabled={currentPage === 0}
+                 className="px-2 py-1 rounded text-xs disabled:opacity-30"
+               >
+                 First
+               </button>
+               <button
+                 onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
+                 disabled={currentPage === 0}
+                 className="px-2 py-1 rounded text-xs disabled:opacity-30"
+               >
+                 Prev
+               </button>
+               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                 let pageNum;
+                 if (totalPages <= 5) {
+                   pageNum = i;
+                 } else if (currentPage < 3) {
+                   pageNum = i;
+                 } else if (currentPage > totalPages - 3) {
+                   pageNum = totalPages - 5 + i;
+                 } else {
+                   pageNum = currentPage - 2 + i;
+                 }
+                 return (
+                   <button
+                     key={pageNum}
+                     onClick={() => setCurrentPage(pageNum)}
+                     className={`px-2 py-1 rounded text-xs ${pageNum === currentPage ? 'bg-[var(--primary)]/20 text-[var(--primary)]' : 'hover:bg-white/5'}`}
+                   >
+                     {pageNum + 1}
+                   </button>
+                 );
+               })}
+               <button
+                 onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
+                 disabled={currentPage === totalPages - 1}
+                 className="px-2 py-1 rounded text-xs disabled:opacity-30"
+               >
+                 Next
+               </button>
+               <button
+                 onClick={() => setCurrentPage(totalPages - 1)}
+                 disabled={currentPage === totalPages - 1}
+                 className="px-2 py-1 rounded text-xs disabled:opacity-30"
+               >
+                 Last
+               </button>
+             </div>
+           </div>
+         )}
+       </div>
 
       {/* ── Create Modal ── */}
       <AnimatePresence>

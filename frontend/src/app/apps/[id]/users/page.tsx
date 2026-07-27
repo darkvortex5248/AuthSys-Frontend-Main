@@ -17,7 +17,8 @@ export default function UsersPage() {
   const appId = parseInt(params.id as string, 10);
   const confirm = useConfirm();
   const deleteUser = useDeleteAppUser();
-  const { data: users = [], refetch } = useAppUsers(appId);
+  const { data: usersData, refetch } = useAppUsers(appId);
+  const users = usersData?.users || [];
 
   useEffect(() => {
     if (appId) refetch();

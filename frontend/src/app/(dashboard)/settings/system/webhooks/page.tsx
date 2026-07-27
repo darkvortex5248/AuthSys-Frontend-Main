@@ -49,6 +49,7 @@ export default function WebhooksPage() {
   const selectedAppId = useAuthStore((s) => s.selectedAppId);
   const [webhooks, setWebhooks] = useState<WebhookEndpoint[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<WebhookEndpoint | null>(null);
@@ -66,10 +67,11 @@ export default function WebhooksPage() {
 
   const fetchWebhooks = async () => {
     try {
+      setError(null);
       const res = await api.get<WebhookEndpoint[]>('/developer/webhooks');
       setWebhooks(res.data || []);
     } catch (err: any) {
-      toast.error(err.response?.data?.detail || 'Failed to load webhooks');
+      setError(err.response?.data?.detail || 'Failed to load webhooks');
     } finally {
       setLoading(false);
     }
@@ -80,6 +82,16 @@ export default function WebhooksPage() {
   const handleSave = async () => {
     if (!formUrl.trim()) { toast.error('Webhook URL is required'); return; }
     if (!selectedAppId) { toast.error('Please select an application first'); return; }
+    try {
+      new URL(formUrl);
+    } catch {
+      toast.error('Please enter a valid URL (include http:// or https://)');
+      return;
+    }
+    if (formEvents.length === 0) {
+      toast.error('Please select at least one event');
+      return;
+    }
     setSaving(true);
     try {
       const payload = { app_id: selectedAppId, url: formUrl, description: formDesc, events: formEvents, is_active: true };
@@ -185,6 +197,20 @@ export default function WebhooksPage() {
   if (loading) return (
     <div className="flex items-center justify-center h-[60vh]">
       <div className="w-12 h-12 border-4 border-[var(--primary)]/20 border-t-[var(--primary)] rounded-full animate-spin" />
+    </div>
+  );
+
+  if (error) return (
+    <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
+      <div className="text-center">
+        <p className="text-red-400 mb-2">{error}</p>
+        <button
+          onClick={fetchWebhooks}
+          className="px-4 py-2 bg-[var(--primary)]/20 text-[var(--primary)] rounded-lg hover:bg-[var(--primary)]/30 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
     </div>
   );
 

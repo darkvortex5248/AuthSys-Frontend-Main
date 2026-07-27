@@ -2,8 +2,10 @@
 import { useState, useEffect } from 'react';
 import adminApi from '@/lib/admin-api';
 import { toast } from 'sonner';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 
 export default function CustomPlansPage() {
+  const confirm = useConfirm();
   const [overrides, setOverrides] = useState<any[]>([]);
   const [developers, setDevelopers] = useState<any[]>([]);
   const [availableFeatures, setAvailableFeatures] = useState<any[]>([]);
@@ -61,12 +63,26 @@ export default function CustomPlansPage() {
   };
 
   const deleteOverride = async (id: number) => {
-    if (!confirm('Delete this override?')) return;
+    const ok = await confirm({
+      title: 'Delete override?',
+      message: 'This custom plan override will be permanently removed.',
+      confirmLabel: 'Yes, delete',
+      cancelLabel: 'Cancel',
+      variant: 'danger',
+    });
+    if (!ok) return;
     try { await adminApi.delete(`/admin/custom-plans/overrides/${id}`); toast.success('Deleted'); fetch(); }
     catch { toast.error('Failed'); }
   };
 
   const toggleOverride = async (id: number) => {
+    const ok = await confirm({
+      title: 'Toggle override?',
+      message: 'This will activate/deactivate the custom plan override.',
+      confirmLabel: 'Yes, continue',
+      cancelLabel: 'Cancel',
+    });
+    if (!ok) return;
     try { await adminApi.put(`/admin/custom-plans/overrides/${id}/toggle`); fetch(); }
     catch { toast.error('Failed'); }
   };

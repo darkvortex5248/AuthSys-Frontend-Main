@@ -6,10 +6,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import select
 
 from core.database import get_db
+from core.security import encrypt_field, decrypt_field
 from services.ai_service import ai_service, AIMessage, AIProvider
 from services.action_registry import action_registry, ActionResult
 from models.domain import DeveloperAccount, AIProviderConfig
@@ -224,8 +225,8 @@ async def create_conversation(
             "role": request.role,
             "messages": [],
             "context": None,
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow()
+            "created_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc)
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create conversation: {str(e)}")
@@ -264,8 +265,8 @@ async def get_conversation(
             "role": "user",
             "messages": [],
             "context": None,
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow()
+            "created_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc)
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get conversation: {str(e)}")
@@ -318,7 +319,7 @@ async def get_provider_configs(
                     "settings": config.settings,
                     "created_at": config.created_at,
                     "updated_at": config.updated_at,
-                    "api_key": config.api_key_encrypted[:8] + "..." if config.api_key_encrypted else None  # Partially masked
+                    "api_key": None  # Never expose API keys
                 }
                 for config in configs
             ],
@@ -350,7 +351,7 @@ async def create_provider_config(
     try:
         new_config = AIProviderConfig(
             provider=config.provider,
-            api_key_encrypted=config.api_key,
+            api_key_encrypted=encrypt_field(config.api_key),
             model_name=config.model_name,
             is_active=config.is_active,
             priority=config.priority,
@@ -407,7 +408,7 @@ async def update_provider_config(
         
         # Update fields
         if config.api_key is not None:
-            existing_config.api_key_encrypted = config.api_key
+            existing_config.api_key_encrypted = encrypt_field(config.api_key)
         if config.model_name is not None:
             existing_config.model_name = config.model_name
         if config.is_active is not None:

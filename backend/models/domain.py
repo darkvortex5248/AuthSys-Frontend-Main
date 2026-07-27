@@ -15,6 +15,7 @@ class AdminUser(Base):
     role = Column(String, default="admin")
     two_factor_secret = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
+    must_change_password = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), default=utc_now)
     last_login = Column(DateTime(timezone=True), nullable=True)
 

@@ -219,13 +219,9 @@ export default function AIControlPage() {
                       Endpoint: {config.api_endpoint}
                     </p>
                   )}
-                  {config.api_key && (
-                    <p className="text-xs text-[var(--muted-foreground)] font-mono mt-1">
-                      Key: {config.api_key.length > 8
-                        ? `${config.api_key.slice(0, 4)}...${config.api_key.slice(-4)}`
-                        : '••••••••'}
-                    </p>
-                  )}
+                  <p className="text-xs text-[var(--muted-foreground)] font-mono mt-1">
+                    Key: •••••••• (encrypted)
+                  </p>
                   {config.settings && Object.keys(config.settings).length > 0 && (
                     <p className="text-xs text-[var(--muted-foreground)] mt-1">
                       Settings: {JSON.stringify(config.settings)}

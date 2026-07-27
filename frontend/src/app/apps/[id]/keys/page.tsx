@@ -19,7 +19,8 @@ export default function KeysPage() {
   const confirm = useConfirm();
   const copy = useCopy();
   const deleteKey = useDeleteLicenseKey();
-  const { data: keys = [], isLoading: loading, refetch } = useLicenseKeys(appId);
+  const { data: keysData, isLoading: loading, refetch } = useLicenseKeys(appId);
+  const keys = keysData?.keys || [];
 
   useEffect(() => {
     if (appId) refetch();

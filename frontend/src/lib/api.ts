@@ -20,6 +20,7 @@ function processQueue(error: unknown, token: string | null = null) {
 function isPublicAdminRoute(url: string): boolean {
   return (
     url.includes('/admin/login') ||
+    url.includes('/admin/change-password') ||
     url.includes('/admin/settings/public') ||
     url.includes('/admin/sdks/public')
   );
@@ -76,6 +77,9 @@ api.interceptors.response.use(
     const url = originalRequest?.url || '';
 
     if (isProtectedAdminRoute(url)) {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/super-admin/login';
+      }
       return Promise.reject(error);
     }
 

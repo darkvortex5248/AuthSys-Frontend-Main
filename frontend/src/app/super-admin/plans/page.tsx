@@ -4,9 +4,11 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import adminApi from '@/lib/admin-api';
 import { toast } from 'sonner';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 
 export default function PlansManagementPage() {
   const router = useRouter();
+  const confirm = useConfirm();
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,6 +31,13 @@ export default function PlansManagementPage() {
   useEffect(() => { fetchPlans() }, [fetchPlans]);
 
   const toggleActive = async (plan: any) => {
+    const ok = await confirm({
+      title: 'Toggle plan status?',
+      message: `This will ${plan.is_active ? 'disable' : 'enable'} the "${plan.name}" plan.`,
+      confirmLabel: 'Yes, continue',
+      cancelLabel: 'Cancel',
+    });
+    if (!ok) return;
     try {
       await adminApi.put(`/admin/plans/${plan.id}`, { ...plan, is_active: !plan.is_active });
       setPlans(prev => prev.map(p => p.id === plan.id ? { ...p, is_active: !p.is_active } : p));
@@ -46,7 +55,14 @@ export default function PlansManagementPage() {
   };
 
   const deletePlan = async (plan: any) => {
-    if (!confirm(`Delete "${plan.name}"? This cannot be undone.`)) return;
+    const ok = await confirm({
+      title: 'Delete plan?',
+      message: `Delete "${plan.name}"? This cannot be undone.`,
+      confirmLabel: 'Yes, delete',
+      cancelLabel: 'Cancel',
+      variant: 'danger',
+    });
+    if (!ok) return;
     try {
       await adminApi.delete(`/admin/plans/${plan.id}`);
       setPlans(prev => prev.filter(p => p.id !== plan.id));

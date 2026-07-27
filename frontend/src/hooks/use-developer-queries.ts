@@ -85,13 +85,13 @@ export function useOverview(days: number) {
   });
 }
 
-export function useLicenseKeys(appId: number | null) {
+export function useLicenseKeys(appId: number | null, skip: number = 0, limit: number = 50) {
   const authed = useIsAuthenticated();
   return useQuery({
-    queryKey: queryKeys.keys(appId ?? 0),
+    queryKey: queryKeys.keys(appId ?? 0, skip, limit),
     queryFn: async () => {
-      const res = await api.get(`/developer/keys/${appId}`);
-      return res.data as any[];
+      const res = await api.get(`/developer/keys/${appId}?skip=${skip}&limit=${limit}`);
+      return res.data as { keys: any[]; total: number; skip: number; limit: number };
     },
     enabled: authed && !!appId,
     staleTime: 60_000,
@@ -99,13 +99,13 @@ export function useLicenseKeys(appId: number | null) {
   });
 }
 
-export function useAppUsers(appId: number | null) {
+export function useAppUsers(appId: number | null, skip: number = 0, limit: number = 50) {
   const authed = useIsAuthenticated();
   return useQuery({
-    queryKey: queryKeys.users(appId ?? 0),
+    queryKey: queryKeys.users(appId ?? 0, skip, limit),
     queryFn: async () => {
-      const res = await api.get(`/developer/users/${appId}`);
-      return res.data as any[];
+      const res = await api.get(`/developer/users/${appId}?skip=${skip}&limit=${limit}`);
+      return res.data as { users: any[]; total: number; skip: number; limit: number };
     },
     enabled: authed && !!appId,
     staleTime: 60_000,
@@ -263,9 +263,9 @@ export function useCreateAppUser() {
     },
     onSuccess: async (data, vars) => {
       if (data?.id) {
-        queryClient.setQueryData<any[]>(queryKeys.users(vars.app_id), (old) => {
+        queryClient.setQueryData<any>(queryKeys.users(vars.app_id), (old: any) => {
           const list = old ?? [];
-          if (list.some((u) => u.id === data.id)) return list;
+          if (list.some((u: any) => u.id === data.id)) return list;
           return [data, ...list];
         });
       }
