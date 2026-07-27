@@ -1,53 +1,92 @@
 # AuthSys JavaScript SDK
 
-## Installation (Node.js)
+Professional authentication SDK for Node.js applications.
+
+## Installation
+
 ```bash
+npm install authsys
+# or
 npm install axios
 ```
 
-## Usage (Node.js)
+Add `authsys.js` and `helpers.js` to your project.
+
+## Quick Start
+
 ```javascript
-const AuthSys = require('./index');
+const { AuthSys } = require('./authsys');
 
-const auth = new AuthSys("AppName", "owner_id", "app_secret", "1.0.0");
+const auth = new AuthSys({
+    appSecret: 'YOUR_APP_SECRET',
+    appName: 'MyApplication',
+    version: '1.0.0'
+});
 
-async function main() {
-    await auth.init();
-    if (!auth.initialized) {
-        console.log("Init failed:", auth.lastError);
-        return;
-    }
+// Initialize
+await auth.init();
 
-    const res = await auth.login("username", "password");
-    if (auth.sessionToken) {
-        console.log("Welcome!");
-    } else {
-        console.log("Login failed:", auth.lastError);
-    }
-}
-main();
+// Register
+await auth.register('username', 'password', 'LICENSE_KEY');
+
+// Login
+await auth.login('username', 'password');
+
+// Verify session
+await auth.verify();
+
+// License login
+await auth.licenseLogin('LICENSE_KEY');
+
+// License check
+await auth.licenseCheck('LICENSE_KEY');
+
+// Send chat message
+await auth.sendChatMessage(1, 'Hello World!');
+
+// Device registration
+await auth.registerDevice('HWID123', 'My Device');
+
+// Logout
+auth.logout();
 ```
 
-## Browser Usage (ES Module)
-```javascript
-import AuthSys from './index.js';
-const auth = new AuthSys("app_secret", "owner_id", "1.0.0");
-```
+## API Reference
 
-## API
-- `init()`
-- `login(username, password, sessionLength?)`
-- `register(username, password, licenseKey, email?)`
-- `licenseLogin(licenseKey, sessionLength?)`
-- `licenseCheck(licenseKey)`
-- `verify()`
-- `chatSend(roomId, message)`
-- `var(name)`
-- `logout()`
-- `startHeartbeat(intervalMs?)`
+### Options
+- `appSecret` - Your application secret
+- `appName` - Application name
+- `version` - Application version
+- `apiUrl` - API endpoint (default: `https://api.authsys.dpdns.org/api/v1`)
+- `timeout` - Request timeout in milliseconds
+- `maxRetries` - Maximum retry attempts
+- `skipCertificateValidation` - Skip SSL certificate validation
+- `enableLogging` - Enable debug logging
 
-## Error Handling
-```javascript
-if (auth.lastError) console.log("Error:", auth.lastError);
-console.log("Raw response:", auth.lastResponse);
-```
+### Methods
+- `init()` - Initialize the SDK
+- `register(username, password, licenseKey, email)` - Register a new user
+- `login(username, password, sessionLength)` - Login with credentials
+- `licenseLogin(licenseKey, sessionLength)` - Login with license key only
+- `licenseCheck(licenseKey)` - Check license validity
+- `verify()` - Verify current session
+- `sendChatMessage(roomId, message)` - Send a chat message
+- `registerDevice(hwid, deviceName)` - Register a device
+- `checkDevice(hwid)` - Check device status
+- `getVariable(key)` - Get an application variable
+- `getAllVariables()` - Get all application variables
+- `logout()` - Clear session
+- `startHeartbeat(intervalMs)` - Start automatic session verification
+
+### Properties
+- `isAuthenticated` - Whether a valid session exists
+- `isInitialized` - Whether the SDK is initialized
+- `username` - Current username
+
+## Examples
+
+- **Console**: `example/main.js`
+
+## License
+
+MIT License

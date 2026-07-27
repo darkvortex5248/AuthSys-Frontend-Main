@@ -1,42 +1,83 @@
 # AuthSys Java SDK
 
-## Requirements
-- Java 8+
+Professional authentication SDK for Java applications.
 
-## Usage
+## Installation
+
+Add `AuthSys.java` and `AuthSysHelper.java` to your project.
+
+## Quick Start
+
 ```java
-AuthSys auth = new AuthSys("AppName", "owner_id", "app_secret", "1.0.0");
+import AuthSys;
+
+AuthSys auth = new AuthSys("YOUR_APP_SECRET");
+auth._options.appName = "MyApplication";
+auth._options.version = "1.0.0";
+
+// Initialize
 auth.init();
 
-if (!auth.initialized) {
-    System.out.println("Init failed: " + auth.lastError);
-    return;
-}
+// Register
+auth.register("username", "password", "LICENSE_KEY");
 
+// Login
 auth.login("username", "password");
-if (auth.sessionToken != null) {
-    System.out.println("Welcome!");
-} else {
-    System.out.println("Login failed: " + auth.lastError);
-}
+
+// Verify session
+auth.verify();
+
+// License login
+auth.licenseLogin("LICENSE_KEY");
+
+// License check
+auth.licenseCheck("LICENSE_KEY");
+
+// Send chat message
+auth.sendChatMessage(1, "Hello World!");
+
+// Device registration
+auth.registerDevice("HWID123", "My Device");
+
+// Logout
+auth.logout();
 ```
 
-## Methods
-- `init()`
-- `login(username, password)`
-- `login(username, password, sessionLength)`
-- `register(username, password, licenseKey)`
-- `register(username, password, licenseKey, email)`
-- `licenseLogin(licenseKey)`
-- `licenseLogin(licenseKey, sessionLength)`
-- `licenseCheck(licenseKey)`
-- `verify()`
-- `chatSend(roomId, message)`
-- `logout()`
+## API Reference
 
-## Error Handling
-```java
-if (!auth.lastError.isEmpty()) {
-    System.out.println("Error: " + auth.lastError);
-}
-```
+### Options
+- `appSecret` - Your application secret
+- `appName` - Application name
+- `version` - Application version
+- `apiUrl` - API endpoint (default: `https://api.authsys.dpdns.org/api/v1`)
+- `timeout` - Request timeout in milliseconds
+- `maxRetries` - Maximum retry attempts
+- `skipCertificateValidation` - Skip SSL certificate validation
+- `enableLogging` - Enable debug logging
+
+### Methods
+- `init()` - Initialize the SDK
+- `register(username, password, licenseKey, email)` - Register a new user
+- `login(username, password, sessionLength)` - Login with credentials
+- `licenseLogin(licenseKey, sessionLength)` - Login with license key only
+- `licenseCheck(licenseKey)` - Check license validity
+- `verify()` - Verify current session
+- `sendChatMessage(roomId, message)` - Send a chat message
+- `registerDevice(hwid, deviceName)` - Register a device
+- `checkDevice(hwid)` - Check device status
+- `getVariable(key)` - Get an application variable
+- `getAllVariables()` - Get all application variables
+- `logout()` - Clear session
+
+### Properties
+- `isAuthenticated()` - Whether a valid session exists
+- `isInitialized()` - Whether the SDK is initialized
+- `getUsername()` - Current username
+
+## Examples
+
+- **Console**: `example/Main.java`
+
+## License
+
+MIT License

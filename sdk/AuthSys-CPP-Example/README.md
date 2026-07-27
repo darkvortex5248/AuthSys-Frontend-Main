@@ -1,81 +1,93 @@
 # AuthSys C++ SDK
 
-## Architecture Support
-- **x86 (32-bit)** — Build with Win32 platform target ✅
-- **x64 (64-bit)** — Build with x64 platform target ✅
-- **ARM64** — Build with ARM64 platform target ✅
+Professional authentication SDK for C++ applications.
 
-No external libraries required. Uses only Windows SDK (WinINet, IP Helper API).
+## Installation
 
-## Project Structure
-```
-AuthSys-CPP-Example/
-├── LICENSE
-├── README.md
-├── x86/           ← Source for 32-bit builds
-│   ├── AuthSys.hpp
-│   ├── AuthSys.cpp
-│   └── main.cpp
-└── x64/           ← Source for 64-bit builds
-    ├── AuthSys.hpp
-    ├── AuthSys.cpp
-    └── main.cpp
+Add `AuthSys.hpp` and `AuthSys.cpp` to your project. Requires libcurl.
+
+```bash
+# Ubuntu/Debian
+sudo apt-get install libcurl4-openssl-dev
+
+# macOS
+brew install curl
 ```
 
-## Visual Studio Setup
+## Quick Start
 
-### For x86 (32-bit):
-1. Open **x86/AuthSys-x86.sln** (or create new project, add x86/*.cpp + *.hpp)
-2. Set platform to **Win32** / **x86**
-3. Build → **F7**
-
-### For x64 (64-bit):
-1. Open **x64/AuthSys-x64.sln** (or create new project, add x64/*.cpp + *.hpp)
-2. Set platform to **x64**
-3. Build → **F7**
-
-## Usage
 ```cpp
 #include "AuthSys.hpp"
 
-AuthSys::api AuthSysApp("AppName", "owner_id", "app_secret", "1.0.0");
-AuthSysApp.init();
+AuthSysOptions options("YOUR_APP_SECRET");
+options.appName = "MyApplication";
+options.version = "1.0.0";
 
-if (!AuthSysApp.initialized) {
-    MessageBoxA(NULL, AuthSysApp.last_error.c_str(), "Init Failed", MB_ICONERROR);
-    return 1;
-}
+AuthSys auth(options);
 
-AuthSysApp.login("username", "password");
-if (AuthSysApp.session_token.empty()) {
-    MessageBoxA(NULL, AuthSysApp.last_error.c_str(), "Login Failed", MB_ICONERROR);
-} else {
-    MessageBoxA(NULL, "Welcome!", "Success", MB_OK);
-}
+// Initialize
+auth.init();
+
+// Register
+auth.registerUser("username", "password", "LICENSE_KEY");
+
+// Login
+auth.login("username", "password");
+
+// Verify session
+auth.verify();
+
+// License login
+auth.licenseLogin("LICENSE_KEY");
+
+// License check
+auth.licenseCheck("LICENSE_KEY");
+
+// Send chat message
+auth.sendChatMessage(1, "Hello World!");
+
+// Device registration
+auth.registerDevice("HWID123", "My Device");
+
+// Logout
+auth.logout();
 ```
 
-## Methods
-- `init()` — Initialize & fetch app variables
-- `login(username, password, session_length=86400)`
-- `register_user(username, password, license_key, email="")`
-- `license(key, session_length=86400)` — License login
-- `license_check(key)`
-- `verify()` — Verify current session token
-- `chat_send(room_id, message)`
-- `var(name)` — Retrieve app variable
-- `logout()` — Clear session
+## API Reference
 
-## Error Handling
-```cpp
-if (!AuthSysApp.last_error.empty()) {
-    MessageBoxA(NULL, AuthSysApp.last_error.c_str(), "Error", MB_ICONERROR);
-}
-```
+### AuthSysOptions
+- `appSecret` - Your application secret
+- `appName` - Application name
+- `version` - Application version
+- `apiUrl` - API endpoint (default: `https://api.authsys.dpdns.org/api/v1`)
+- `timeout` - Request timeout in seconds
+- `maxRetries` - Maximum retry attempts
+- `skipCertificateValidation` - Skip SSL certificate validation
+- `enableLogging` - Enable debug logging
 
-## Properties
-- `session_token` / `sessionid` — Current session token
-- `initialized` — Bool
-- `user_data.username` / `user_data.email`
-- `last_error` — Last error message (server's `detail` field)
-- `last_response` — Raw server JSON response
-- `app_data.variables` — Variables JSON string
+### Methods
+- `init()` - Initialize the SDK
+- `registerUser(username, password, licenseKey, email)` - Register a new user
+- `login(username, password, sessionLength)` - Login with credentials
+- `licenseLogin(licenseKey, sessionLength)` - Login with license key only
+- `licenseCheck(licenseKey)` - Check license validity
+- `verify()` - Verify current session
+- `sendChatMessage(roomId, message)` - Send a chat message
+- `registerDevice(hwid, deviceName)` - Register a device
+- `checkDevice(hwid)` - Check device status
+- `getVariable(key)` - Get an application variable
+- `getAllVariables()` - Get all application variables
+- `logout()` - Clear session
+
+### Properties
+- `isAuthenticated()` - Whether a valid session exists
+- `isInitialized()` - Whether the SDK is initialized
+- `getUsername()` - Current username
+
+## Examples
+
+- **Console**: `example/main.cpp`
+
+## License
+
+MIT License
