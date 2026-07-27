@@ -20,7 +20,9 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: list[str] = [
         "http://localhost:3000", 
         "http://127.0.0.1:3000",
-        "http://0.0.0.0:3000"
+        "http://0.0.0.0:3000",
+        "https://authsys.dpdns.org",
+        "https://authsys-00-production.up.railway.app",
     ]
 
     # OAuth provider credentials

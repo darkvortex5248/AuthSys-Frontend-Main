@@ -238,7 +238,7 @@ export default function ApplicationsPage() {
 
   const handleToggle = async (id: number) => {
     try { await toggleApp.mutateAsync(id); toast.success('Status updated'); }
-    catch { toast.error('Failed to update status'); }
+    catch (err: any) { toast.error(err?.response?.data?.detail || 'Failed to update status'); }
   };
 
   const handleDelete = async (id: number) => {
@@ -251,7 +251,7 @@ export default function ApplicationsPage() {
     });
     if (!ok) return;
     try { await deleteApp.mutateAsync(id); toast.success('Application deleted'); }
-    catch { toast.error('Failed to delete application'); }
+    catch (err: any) { toast.error(err?.response?.data?.detail || 'Failed to delete application'); }
   };
 
   const handleRegenSecret = async (id: number) => {
