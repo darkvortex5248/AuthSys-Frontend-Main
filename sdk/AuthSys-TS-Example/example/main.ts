@@ -4,7 +4,7 @@
  * Demonstrates all SDK features: init, register, login, license login, verify, etc.
  */
 
-import { AuthSys, AuthSysException, AuthSysOptions } from '../authsys';
+import { AuthSys, AuthSysException, AuthSysOptions } from '../src/authsys';
 
 async function main(): Promise<void> {
     const auth = new AuthSys({

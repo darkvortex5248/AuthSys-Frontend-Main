@@ -1,241 +1,324 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:http/http.dart' as http;
 
-class AuthSysClient {
+class AuthSysException implements Exception {
+  final String message;
+  final int statusCode;
+  final String errorCode;
+
+  AuthSysException(this.message, {this.statusCode = 0, this.errorCode = ''});
+
+  @override
+  String toString() => '[$errorCode] $message';
+}
+
+class AuthSysOptions {
   final String appSecret;
+  final String appName;
   final String version;
   final String apiUrl;
-  String? sessionToken;
-  String lastError = '';
-  Map<String, dynamic> lastResponse = {};
-  bool initialized = false;
-  String username = '';
-  String email = '';
-  Map<String, dynamic> appData = {};
+  final int timeout;
+  final int maxRetries;
+  final bool skipCertificateValidation;
+  final bool enableLogging;
 
-  AuthSysClient({
+  AuthSysOptions({
     required this.appSecret,
-    required this.version,
-    this.apiUrl = 'https://authsys-main-production.up.railway.app/api/v1',
-  }) : _baseUrl = apiUrl.replaceAll(RegExp(r'/+$'), '');
+    this.appName = '',
+    this.version = '',
+    this.apiUrl = 'https://api.authsys.dpdns.org/api/v1',
+    this.timeout = 30,
+    this.maxRetries = 3,
+    this.skipCertificateValidation = false,
+    this.enableLogging = false,
+  });
+}
 
-  final String _baseUrl;
+class AuthSys {
+  final AuthSysOptions _options;
+  String _sessionToken = '';
+  bool _initialized = false;
+  Map<String, dynamic> _appVariables = {};
+  String _username = '';
 
-  String getHWID() {
-    try {
-      if (Platform.isWindows) {
-        final result = Process.runSync('wmic', ['csproduct', 'get', 'uuid']);
-        if (result.exitCode == 0) {
-          final lines = result.stdout.toString().split('\n');
-          for (final line in lines) {
-            final trimmed = line.trim();
-            if (trimmed.isNotEmpty && !trimmed.contains('UUID')) {
-              return trimmed;
+  AuthSys(this._options);
+
+  AuthSys.fromSecret(String appSecret)
+      : _options = AuthSysOptions(appSecret: appSecret);
+
+  void _log(String message) {
+    if (_options.enableLogging) {
+      print('[AuthSys] $message');
+    }
+  }
+
+  Future<Map<String, dynamic>> _sendRequest(
+    String endpoint, {
+    Map<String, dynamic>? data,
+    Map<String, String>? headers,
+  }) async {
+    final url = '${_options.apiUrl}/client/$endpoint';
+    var lastError;
+
+    for (var attempt = 0; attempt <= _options.maxRetries; attempt++) {
+      _log('POST $url (attempt ${attempt + 1})');
+      try {
+        final response = await http
+            .post(
+              Uri.parse(url),
+              body: data != null ? jsonEncode(data) : null,
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                ...?headers,
+              },
+            )
+            .timeout(Duration(seconds: _options.timeout));
+
+        final responseBody = response.body;
+        _log('Response: ${response.statusCode} - $responseBody');
+
+        if (response.statusCode < 200 || response.statusCode >= 300) {
+          var detail = responseBody;
+          try {
+            final errorData = jsonDecode(responseBody);
+            if (errorData is Map && errorData.containsKey('detail')) {
+              detail = errorData['detail'];
             }
+          } catch (e) {}
+
+          String errorCode = 'api_error';
+          switch (response.statusCode) {
+            case 401:
+              errorCode = 'unauthorized';
+              break;
+            case 403:
+              errorCode = 'forbidden';
+              break;
+            case 404:
+              errorCode = 'not_found';
+              break;
+            case 429:
+              errorCode = 'rate_limited';
+              break;
+            case 503:
+              errorCode = 'maintenance';
+              break;
           }
+          throw AuthSysException(
+            detail,
+            statusCode: response.statusCode,
+            errorCode: errorCode,
+          );
         }
-      } else if (Platform.isLinux) {
-        final file = File('/etc/machine-id');
-        if (file.existsSync()) {
-          return file.readAsStringSync().trim();
+
+        try {
+          return jsonDecode(responseBody) as Map<String, dynamic>;
+        } catch (e) {
+          return {};
         }
-      } else if (Platform.isMacOS) {
-        final result = Process.runSync('ioreg', ['-rd1', '-c', 'IOPlatformExpertDevice']);
-        if (result.exitCode == 0) {
-          for (final line in result.stdout.toString().split('\n')) {
-            if (line.contains('IOPlatformUUID')) {
-              final parts = line.split('"');
-              if (parts.length >= 4) return parts[3];
-            }
-          }
+      } catch (e) {
+        if (e is AuthSysException) throw e;
+        lastError = e.toString();
+        _log('Request error (attempt ${attempt + 1}): $lastError');
+        if (attempt < _options.maxRetries) {
+          await Future.delayed(Duration(seconds: 1 << attempt));
         }
       }
-    } catch (_) {}
-    return 'UNKNOWN_HWID';
+    }
+
+    throw AuthSysException(
+      lastError ?? 'Request failed after all retries',
+      errorCode: 'network_error',
+    );
   }
 
-  Future<Map<String, dynamic>> _post(String endpoint, {Map<String, dynamic>? body, Map<String, String>? headers}) async {
-    final url = Uri.parse('$_baseUrl/client/$endpoint');
-    final reqHeaders = <String, String>{
-      'Content-Type': 'application/json',
-      if (headers != null) ...headers,
+  Future<void> init() async {
+    _log('Initializing...');
+    final data = {
+      'app_secret': _options.appSecret,
+      'version': _options.version,
+      'app_name': _options.appName,
+      'hwid': getHwid(),
     };
 
-    try {
-      final response = await http
-          .post(url, headers: reqHeaders, body: body != null ? jsonEncode(body) : null)
-          .timeout(const Duration(seconds: 30));
-      lastResponse = jsonDecode(response.body) as Map<String, dynamic>;
-      return lastResponse;
-    } catch (e) {
-      lastResponse = {'success': false, 'detail': 'Connection error: $e'};
-      return lastResponse;
+    final result = await _sendRequest('init', data: data);
+    final status = result['status'] ?? '';
+
+    if (status == 'update_required') {
+      throw AuthSysException(
+        result['message'] ?? 'Update required',
+        errorCode: 'version_mismatch',
+      );
+    }
+
+    _initialized = status == 'success' || status == 'update_available';
+    if (result['variables'] != null) {
+      _appVariables = result['variables'] as Map<String, dynamic>;
     }
   }
 
-  Future<Map<String, dynamic>> init({String appName = ''}) async {
-    lastError = '';
-    lastResponse = {};
-    initialized = false;
-
-    final data = await _post('init', body: {
-      'app_secret': appSecret,
-      'version': version,
-      'app_name': appName,
-      'hwid': getHWID(),
-    });
-
-    final status = data['status'] as String?;
-    if (status == 'success' || status == 'update_available') {
-      initialized = true;
-      appData = (data['variables'] as Map<String, dynamic>?) ?? {};
-    } else {
-      lastError = data['detail'] as String? ?? data['message'] as String? ?? 'Init failed';
-    }
-    return data;
-  }
-
-  Future<Map<String, dynamic>> register(String username, String password, String licenseKey, {String? email}) async {
-    lastError = '';
-    lastResponse = {};
-    if (!initialized) {
-      lastError = 'init() failed or not called';
-      return {'success': false, 'detail': lastError};
+  Future<Map<String, dynamic>> register(
+    String username,
+    String password,
+    String licenseKey, {
+    String? email,
+  }) async {
+    if (!_initialized) {
+      throw AuthSysException(
+        'Not initialized. Call init() first.',
+        errorCode: 'not_initialized',
+      );
     }
 
-    final body = <String, dynamic>{
-      'app_secret': appSecret,
+    final data = {
+      'app_secret': _options.appSecret,
       'username': username,
       'password': password,
       'license_key': licenseKey,
-      'hwid': getHWID(),
+      'hwid': getHwid(),
     };
-    if (email != null && email.isNotEmpty) body['email'] = email;
-
-    final data = await _post('register', body: body);
-
-    if (data['detail'] != null) {
-      lastError = data['detail'] as String;
-    } else if (data['success'] != true) {
-      lastError = 'Registration failed';
+    if (email != null && email.isNotEmpty) {
+      data['email'] = email;
     }
-    return data;
+
+    return await _sendRequest('register', data: data);
   }
 
-  Future<Map<String, dynamic>> login(String username, String password, {int sessionLength = 86400}) async {
-    lastError = '';
-    lastResponse = {};
-    sessionToken = null;
-    if (!initialized) {
-      lastError = 'init() failed or not called';
-      return {'success': false, 'detail': lastError};
+  Future<Map<String, dynamic>> login(
+    String username,
+    String password, {
+    int sessionLength = 86400,
+  }) async {
+    if (!_initialized) {
+      throw AuthSysException(
+        'Not initialized. Call init() first.',
+        errorCode: 'not_initialized',
+      );
     }
 
-    final data = await _post('login', body: {
-      'app_secret': appSecret,
+    _sessionToken = '';
+    final data = {
+      'app_secret': _options.appSecret,
       'username': username,
       'password': password,
-      'hwid': getHWID(),
+      'hwid': getHwid(),
       'session_length': sessionLength,
-    });
+    };
 
-    if (data['detail'] != null) {
-      lastError = data['detail'] as String;
-    } else if (data['success'] == true && data['token'] != null) {
-      sessionToken = data['token'] as String;
-      this.username = username;
-      email = data['email'] as String? ?? '';
-    } else if (data['success'] != true) {
-      lastError = 'Login failed: server returned success=false';
+    final result = await _sendRequest('login', data: data);
+    if (result['token'] != null && result['token'].isNotEmpty) {
+      _sessionToken = result['token'];
     }
-    return data;
+    if (result['username'] != null) {
+      _username = result['username'];
+    }
+    return result;
   }
 
-  Future<Map<String, dynamic>> licenseLogin(String licenseKey, {int sessionLength = 86400}) async {
-    lastError = '';
-    lastResponse = {};
-    sessionToken = null;
-    if (!initialized) {
-      lastError = 'init() failed or not called';
-      return {'success': false, 'detail': lastError};
+  Future<Map<String, dynamic>> licenseLogin(
+    String licenseKey, {
+    int sessionLength = 86400,
+  }) async {
+    if (!_initialized) {
+      throw AuthSysException(
+        'Not initialized. Call init() first.',
+        errorCode: 'not_initialized',
+      );
     }
 
-    final data = await _post('license-login', body: {
-      'app_secret': appSecret,
+    _sessionToken = '';
+    final data = {
+      'app_secret': _options.appSecret,
       'license_key': licenseKey,
-      'hwid': getHWID(),
+      'hwid': getHwid(),
       'session_length': sessionLength,
-    });
+    };
 
-    if (data['detail'] != null) {
-      lastError = data['detail'] as String;
-    } else if (data['success'] == true && data['token'] != null) {
-      sessionToken = data['token'] as String;
-      username = data['username'] as String? ?? '';
-    } else if (data['success'] != true) {
-      lastError = 'License login failed: server returned success=false';
+    final result = await _sendRequest('license-login', data: data);
+    if (result['token'] != null && result['token'].isNotEmpty) {
+      _sessionToken = result['token'];
     }
-    return data;
+    if (result['username'] != null) {
+      _username = result['username'];
+    }
+    return result;
   }
 
   Future<Map<String, dynamic>> licenseCheck(String licenseKey) async {
-    lastError = '';
-    lastResponse = {};
-    final data = await _post('license/check', body: {
-      'app_secret': appSecret,
+    final data = {
+      'app_secret': _options.appSecret,
       'license_key': licenseKey,
-    });
-    if (data['detail'] != null) lastError = data['detail'] as String;
-    return data;
+    };
+    return await _sendRequest('license/check', data: data);
   }
 
   Future<Map<String, dynamic>> verify() async {
-    lastError = '';
-    lastResponse = {};
-    if (sessionToken == null || sessionToken!.isEmpty) {
-      lastError = 'No active session. Login first.';
-      return {'success': false, 'detail': lastError};
+    if (_sessionToken.isEmpty) {
+      throw AuthSysException(
+        'No active session. Login first.',
+        errorCode: 'no_session',
+      );
     }
 
-    final data = await _post('verify', headers: {
-      'Authorization': 'Bearer $sessionToken',
-      'X-HWID': getHWID(),
-    });
-
-    if (data['detail'] != null) {
-      lastError = data['detail'] as String;
-    } else if (data['valid'] != true) {
-      lastError = 'Session verification failed';
-    }
-    return data;
+    final headers = {
+      'Authorization': 'Bearer $_sessionToken',
+      'X-HWID': getHwid(),
+    };
+    return await _sendRequest('verify', headers: headers);
   }
 
-  Future<Map<String, dynamic>> chatSend(int roomId, String message) async {
-    lastError = '';
-    lastResponse = {};
-    if (sessionToken == null || sessionToken!.isEmpty) {
-      lastError = 'No active session. Login first.';
-      return {'success': false, 'detail': lastError};
+  Future<Map<String, dynamic>> sendChatMessage(int roomId, String message) async {
+    if (_sessionToken.isEmpty) {
+      throw AuthSysException(
+        'No active session. Login first.',
+        errorCode: 'no_session',
+      );
     }
 
-    final encoded = Uri.encodeComponent(message);
-    final data = await _post('chat/send?room_id=$roomId&message=$encoded', headers: {
-      'Authorization': 'Bearer $sessionToken',
-    });
-    if (data['detail'] != null) lastError = data['detail'] as String;
-    return data;
+    final headers = {'Authorization': 'Bearer $_sessionToken'};
+    final endpoint = 'chat/send?room_id=$roomId&message=$message';
+    return await _sendRequest(endpoint, headers: headers);
   }
 
-  String? var(String name) {
-    return appData[name] as String?;
+  Future<Map<String, dynamic>> registerDevice(String hwid, {String? deviceName}) async {
+    final data = {
+      'app_secret': _options.appSecret,
+      'hwid': hwid,
+    };
+    if (deviceName != null && deviceName.isNotEmpty) {
+      data['device_name'] = deviceName;
+    }
+    return await _sendRequest('device/register', data: data);
   }
 
-  void logout() {
-    sessionToken = null;
-    username = '';
-    email = '';
-    lastError = '';
-    lastResponse = {};
+  Future<Map<String, dynamic>> checkDevice(String hwid) async {
+    final data = {
+      'app_secret': _options.appSecret,
+      'hwid': hwid,
+    };
+    return await _sendRequest('device/check', data: data);
   }
+
+  dynamic getVariable(String key) => _appVariables[key];
+
+  Map<String, dynamic> getAllVariables() => _appVariables;
+
+  void logout() => _sessionToken = '';
+
+  bool get isAuthenticated => _sessionToken.isNotEmpty;
+  bool get isInitialized => _initialized;
+  String get username => _username;
+}
+
+String getHwid() {
+  return 'flutter_hwid_placeholder';
+}
+
+String hashString(String input) {
+  return input.hashCode.toString();
+}
+
+String generateGuid() {
+  return DateTime.now().millisecondsSinceEpoch.toString();
 }

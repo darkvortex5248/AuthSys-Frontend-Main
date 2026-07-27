@@ -6,7 +6,7 @@ require 'socket'
 class AuthSysDevice
   attr_reader :last_error, :last_response
 
-  def initialize(group_secret, base_url = 'https://authsys-main-production.up.railway.app/device')
+  def initialize(group_secret, base_url = 'https://api.authsys.dpdns.org/api/v1/client')
     @group_secret = group_secret
     @base_url = base_url.sub(/\/+$/, '')
     @last_error = ''
@@ -80,3 +80,4 @@ class AuthSysDevice
     data['active'] == true
   end
 end
+

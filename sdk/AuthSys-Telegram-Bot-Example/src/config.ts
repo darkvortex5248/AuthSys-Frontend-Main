@@ -15,7 +15,7 @@ export default {
     commandUse: true,
   },
   api: {
-    baseUrl: (process.env.API_URL || "https://authsys-main-production.up.railway.app/api/v1/developer/sellers"),
+     baseUrl: (process.env.API_URL || "https://api.authsys.dpdns.org/api/v1/developer/sellers"),
     timeout: 5000,
   }
 }

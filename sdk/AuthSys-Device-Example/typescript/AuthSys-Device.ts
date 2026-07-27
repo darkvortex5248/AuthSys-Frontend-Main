@@ -14,7 +14,7 @@ export class Device {
 
   constructor(
     private readonly appSecret: string,
-    baseUrl = 'https://authsys-main-production.up.railway.app/device'
+    baseUrl = 'https://api.authsys.dpdns.org/api/v1/client'
   ) {
     this.server = baseUrl.replace(/\/+$/, '');
   }
@@ -70,3 +70,4 @@ export class Device {
     return data?.active === true;
   }
 }
+

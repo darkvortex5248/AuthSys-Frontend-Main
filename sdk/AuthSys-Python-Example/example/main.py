@@ -4,7 +4,7 @@ AuthSys Python SDK - Example
 Demonstrates all SDK features: init, register, login, license login, verify, etc.
 """
 
-from authsys import AuthSys, AuthSysOptions, AuthSysException
+from src.authsys import AuthSys, AuthSysOptions, AuthSysException
 
 
 def main():

@@ -8,7 +8,7 @@ Device.__index = Device
 function Device:new(appSecret, baseUrl)
     local obj = {
         appSecret = appSecret,
-        baseUrl = (baseUrl or "https://authsys-main-production.up.railway.app/device"):gsub("/+$", ""),
+        baseUrl = (baseUrl or "https://api.authsys.dpdns.org/api/v1/client"):gsub("/+$", ""),
         lastError = "",
         lastResponse = ""
     }
@@ -85,3 +85,4 @@ function Device:register(deviceName)
 end
 
 return Device
+

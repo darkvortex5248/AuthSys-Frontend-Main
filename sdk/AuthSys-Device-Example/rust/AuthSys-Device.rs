@@ -13,7 +13,7 @@ pub struct Device {
 impl Device {
     pub fn new(group_secret: &str, base_url: &str) -> Self {
         let url = if base_url.is_empty() {
-            "https://authsys-main-production.up.railway.app/device".to_string()
+            "https://api.authsys.dpdns.org/api/v1/client".to_string()
         } else {
             base_url.trim_end_matches('/').to_string()
         };
@@ -89,3 +89,4 @@ impl Device {
         }
     }
 }
+

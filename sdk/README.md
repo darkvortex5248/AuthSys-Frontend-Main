@@ -104,7 +104,7 @@ if auth.last_error:
 
 ## Backend API
 
-**Default API URL:** `https://authsys-main-production.up.railway.app/api/v1`
+**Default API URL:** `https://api.authsys.dpdns.org/api/v1`
 
 All SDKs communicate with the AuthSys backend for authentication, license validation, session management, and more.
 

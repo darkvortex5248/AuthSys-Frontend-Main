@@ -13,7 +13,7 @@ public class AuthSysDevice {
     public String lastResponse = "";
 
     public AuthSysDevice(String appSecret) {
-        this(appSecret, "https://authsys-main-production.up.railway.app/device");
+        this(appSecret, "https://api.authsys.dpdns.org/api/v1/client");
     }
 
     public AuthSysDevice(String appSecret, String baseUrl) {
@@ -123,3 +123,4 @@ public class AuthSysDevice {
         }
     }
 }
+

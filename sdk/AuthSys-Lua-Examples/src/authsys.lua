@@ -2,7 +2,7 @@ local AuthSysClient = {}
 AuthSysClient.__index = AuthSysClient
 
 function AuthSysClient:new(app_secret, version, api_url)
-    api_url = api_url or "https://authsys-main-production.up.railway.app/api/v1"
+    api_url = api_url or "https://api.authsys.dpdns.org/api/v1"
     local self = setmetatable({
         app_secret = app_secret,
         version = version,

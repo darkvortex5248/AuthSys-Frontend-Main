@@ -1,0 +1,11 @@
+name: authsys
+description: AuthSys Flutter SDK
+version: 1.0.0
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.1.0

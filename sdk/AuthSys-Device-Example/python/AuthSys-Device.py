@@ -4,7 +4,7 @@ import platform
 
 
 class Device:
-    def __init__(self, group_secret: str, base_url: str = "https://authsys-main-production.up.railway.app/device"):
+    def __init__(self, group_secret: str, base_url: str = "https://api.authsys.dpdns.org/api/v1/client"):
         self.group_secret = group_secret
         self.base_url = base_url.rstrip("/")
         self.last_error = ""
@@ -62,3 +62,4 @@ class Device:
         except Exception as e:
             self.last_error = str(e)
             return False
+

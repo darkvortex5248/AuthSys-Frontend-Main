@@ -9,7 +9,7 @@ use Sys::Hostname;
 
 sub new {
     my ($class, $group_secret, $base_url) = @_;
-    $base_url ||= 'https://authsys-main-production.up.railway.app/device';
+    $base_url ||= 'https://api.authsys.dpdns.org/api/v1/client';
     $base_url =~ s/\/+$//;
     my $self = {
         group_secret   => $group_secret,
@@ -79,3 +79,4 @@ sub register {
 }
 
 1;
+

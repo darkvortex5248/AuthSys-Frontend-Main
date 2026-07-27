@@ -7,7 +7,7 @@ class AuthSysDevice
     public string $lastError = '';
     public string $lastResponse = '';
 
-    public function __construct(string $appSecret, string $baseUrl = 'https://authsys-main-production.up.railway.app/device')
+    public function __construct(string $appSecret, string $baseUrl = 'https://api.authsys.dpdns.org/api/v1/client')
     {
         $this->appSecret = $appSecret;
         $this->baseUrl = rtrim($baseUrl, '/');
@@ -76,3 +76,4 @@ class AuthSysDevice
         return !empty($data['active']);
     }
 }
+

@@ -1,4 +1,4 @@
-#include "AuthSys.hpp"
+#include "../src/AuthSys.hpp"
 #include <iostream>
 
 int main() {

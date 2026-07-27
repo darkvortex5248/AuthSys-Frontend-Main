@@ -22,7 +22,7 @@ type Device struct {
 
 func NewDevice(appSecret, baseURL string) *Device {
 	if baseURL == "" {
-		baseURL = "https://authsys-main-production.up.railway.app/device"
+		baseURL = "https://api.authsys.dpdns.org/api/v1/client"
 	}
 	return &Device{
 		AppSecret: appSecret,
@@ -109,3 +109,4 @@ func (d *Device) Register(deviceName string) bool {
 	active, _ := result["active"].(bool)
 	return active
 }
+

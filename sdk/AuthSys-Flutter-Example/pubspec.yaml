@@ -1,9 +1,18 @@
-name: authsys_flutter
-description: AuthSys Flutter SDK for authentication
-version: 1.0.0
+name: authsys_example
+description: AuthSys Flutter SDK Example
+publish_to: 'none'
+
 environment:
   sdk: '>=3.0.0 <4.0.0'
+
 dependencies:
-  http: ^1.2.0
+  flutter:
+    sdk: flutter
+  authsys:
+    path: ../
+  http: ^1.1.0
+
 dev_dependencies:
-  lints: ^3.0.0
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0

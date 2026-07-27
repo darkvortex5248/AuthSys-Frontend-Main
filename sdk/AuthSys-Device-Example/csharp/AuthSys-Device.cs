@@ -15,7 +15,7 @@ namespace AuthSysDevice
         public string LastError { get; private set; } = "";
         public string LastResponse { get; private set; } = "";
 
-        public Device(string appSecret, string baseUrl = "https://authsys-main-production.up.railway.app/device")
+        public Device(string appSecret, string baseUrl = "https://api.authsys.dpdns.org/api/v1/client")
         {
             _appSecret = appSecret;
             _baseUrl = baseUrl.TrimEnd('/');
@@ -84,3 +84,4 @@ namespace AuthSysDevice
         }
     }
 }
+

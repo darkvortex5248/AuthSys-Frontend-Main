@@ -24,7 +24,7 @@ namespace AuthSys
         public string Email { get; private set; }
         private string _variables = "{}";
 
-        public AuthSysClient(string appSecret, string version, string apiUrl = "https://authsys-main-production.up.railway.app/api/v1")
+        public AuthSysClient(string appSecret, string version, string apiUrl = "https://api.authsys.dpdns.org/api/v1")
         {
             _appSecret = appSecret;
             _version = version;

@@ -9,7 +9,7 @@ class AuthSysDevice {
   String lastResponse = '';
 
   AuthSysDevice(this._appSecret,
-      [String baseUrl = 'https://authsys-main-production.up.railway.app/device'])
+      [String baseUrl = 'https://api.authsys.dpdns.org/api/v1/client'])
       : _baseUrl = baseUrl.replaceAll(RegExp(r'/+$'), '');
 
   static String _getHWID() {
@@ -113,3 +113,4 @@ class AuthSysDevice {
     }
   }
 }
+

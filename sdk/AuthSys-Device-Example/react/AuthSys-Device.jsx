@@ -22,7 +22,7 @@ function getHWID() {
   }
 }
 
-export function useDevice(appSecret, baseUrl = 'https://authsys-main-production.up.railway.app/device') {
+export function useDevice(appSecret, baseUrl = 'https://api.authsys.dpdns.org/api/v1/client') {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [lastResponse, setLastResponse] = useState(null);
@@ -107,3 +107,4 @@ export function DeviceStatus({ appSecret, baseUrl }) {
     </div>
   );
 }
+

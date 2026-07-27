@@ -19,7 +19,7 @@ Namespace AuthSys
         Public Property Email As String
         Private _variables As String = "{}"
 
-        Public Sub New(appSecret As String, version As String, Optional apiUrl As String = "https://authsys-main-production.up.railway.app/api/v1")
+        Public Sub New(appSecret As String, version As String, Optional apiUrl As String = "https://api.authsys.dpdns.org/api/v1")
             _appSecret = appSecret
             _version = version
             _apiUrl = apiUrl.TrimEnd("/"c)

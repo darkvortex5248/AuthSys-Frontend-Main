@@ -7,7 +7,7 @@ use URI::Escape;
 
 sub new {
     my ($class, $app_secret, $version, $api_url) = @_;
-    $api_url ||= "https://authsys-main-production.up.railway.app/api/v1";
+    $api_url ||= "https://api.authsys.dpdns.org/api/v1";
     $api_url =~ s/\/+$//;
 
     my $self = {

@@ -148,7 +148,7 @@ const config = {
     token: TOKEN,
     DevelopmentServerId: DEVELOPMENT_SERVER_ID,
     type: TYPE || "development",
-    apiUrl: process.env.API_URL || "https://authsys-main-production.up.railway.app/api/v1/developer/sellers",
+    apiUrl: process.env.API_URL || "https://api.authsys.dpdns.org/api/v1/developer/sellers",
 
     /**
      * Make an API request to the RinoxAuth Seller API.

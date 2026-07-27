@@ -4,7 +4,7 @@ const crypto = require("crypto");
 const os = require("os");
 
 class Device {
-  constructor(appSecret, baseUrl = "https://authsys-main-production.up.railway.app/device") {
+  constructor(appSecret, baseUrl = "https://api.authsys.dpdns.org/api/v1/client") {
     this.appSecret = appSecret;
     this.baseUrl = baseUrl.replace(/\/+$/, "");
     this.lastError = "";
@@ -85,3 +85,4 @@ class Device {
 }
 
 module.exports = { Device };
+

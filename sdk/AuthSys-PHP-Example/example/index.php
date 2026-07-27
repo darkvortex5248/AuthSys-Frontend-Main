@@ -5,8 +5,8 @@
  * Demonstrates all SDK features: init, register, login, license login, verify, etc.
  */
 
-require_once __DIR__ . '/../AuthSys.php';
-require_once __DIR__ . '/../Helpers.php';
+require_once __DIR__ . '/../src/AuthSys.php';
+require_once __DIR__ . '/../src/Helpers.php';
 
 $auth = new AuthSys('YOUR_APP_SECRET', [
     'appName' => 'MyApplication',

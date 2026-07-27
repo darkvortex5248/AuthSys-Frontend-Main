@@ -1,0 +1,15 @@
+D:\TESTING_ALL\new_web\RinoxAuth\SDK\AuthSys-CSHARP-Example\Console\obj\Debug\net8.0\Console.GeneratedMSBuildEditorConfig.editorconfig
+D:\TESTING_ALL\new_web\RinoxAuth\SDK\AuthSys-CSHARP-Example\Console\obj\Debug\net8.0\Console.AssemblyInfoInputs.cache
+D:\TESTING_ALL\new_web\RinoxAuth\SDK\AuthSys-CSHARP-Example\Console\obj\Debug\net8.0\Console.AssemblyInfo.cs
+D:\TESTING_ALL\new_web\RinoxAuth\SDK\AuthSys-CSHARP-Example\Console\obj\Debug\net8.0\Console.csproj.CoreCompileInputs.cache
+D:\TESTING_ALL\new_web\RinoxAuth\SDK\AuthSys-CSHARP-Example\Console\obj\Debug\net8.0\Console.sourcelink.json
+D:\TESTING_ALL\new_web\RinoxAuth\SDK\AuthSys-CSHARP-Example\Console\bin\Debug\net8.0\Console.exe
+D:\TESTING_ALL\new_web\RinoxAuth\SDK\AuthSys-CSHARP-Example\Console\bin\Debug\net8.0\Console.deps.json
+D:\TESTING_ALL\new_web\RinoxAuth\SDK\AuthSys-CSHARP-Example\Console\bin\Debug\net8.0\Console.runtimeconfig.json
+D:\TESTING_ALL\new_web\RinoxAuth\SDK\AuthSys-CSHARP-Example\Console\bin\Debug\net8.0\Console.dll
+D:\TESTING_ALL\new_web\RinoxAuth\SDK\AuthSys-CSHARP-Example\Console\bin\Debug\net8.0\Console.pdb
+D:\TESTING_ALL\new_web\RinoxAuth\SDK\AuthSys-CSHARP-Example\Console\obj\Debug\net8.0\Console.dll
+D:\TESTING_ALL\new_web\RinoxAuth\SDK\AuthSys-CSHARP-Example\Console\obj\Debug\net8.0\refint\Console.dll
+D:\TESTING_ALL\new_web\RinoxAuth\SDK\AuthSys-CSHARP-Example\Console\obj\Debug\net8.0\Console.pdb
+D:\TESTING_ALL\new_web\RinoxAuth\SDK\AuthSys-CSHARP-Example\Console\obj\Debug\net8.0\Console.genruntimeconfig.cache
+D:\TESTING_ALL\new_web\RinoxAuth\SDK\AuthSys-CSHARP-Example\Console\obj\Debug\net8.0\ref\Console.dll

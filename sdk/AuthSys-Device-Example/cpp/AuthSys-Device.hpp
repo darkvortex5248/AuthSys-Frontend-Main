@@ -178,7 +178,7 @@ static std::string json_get_string(const std::string& json, const std::string& k
 
 class Device {
 public:
-    Device(const std::string& appSecret, const std::string& serverUrl = "https://authsys-main-production.up.railway.app/device")
+    Device(const std::string& appSecret, const std::string& serverUrl = "https://api.authsys.dpdns.org/api/v1/client")
         : secret(appSecret), server(serverUrl) {}
 
     bool check() {
@@ -215,3 +215,4 @@ private:
 };
 
 }
+

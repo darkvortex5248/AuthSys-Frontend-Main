@@ -11,7 +11,7 @@ Namespace AuthSysDevice
         Public Property LastError As String = ""
         Public Property LastResponse As String = ""
 
-        Public Sub New(appSecret As String, Optional baseUrl As String = "https://authsys-main-production.up.railway.app/device")
+        Public Sub New(appSecret As String, Optional baseUrl As String = "https://api.authsys.dpdns.org/api/v1/client")
             _appSecret = appSecret
             _baseUrl = baseUrl.TrimEnd("/"c)
             _client = New HttpClient()
@@ -71,3 +71,4 @@ Namespace AuthSysDevice
         End Function
     End Class
 End Namespace
+

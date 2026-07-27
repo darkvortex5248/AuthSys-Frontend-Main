@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <RootNamespace>AuthSysWinFormsExample</RootNamespace>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="src\AuthSys.cs" />
+    <Compile Include="src\AuthSys.Helpers.cs" />
+    <Compile Include="src\Login.cs" />
+    <Compile Include="src\Dashboard.cs" />
+    <Compile Include="src\Program.cs" />
+  </ItemGroup>
+
+</Project>

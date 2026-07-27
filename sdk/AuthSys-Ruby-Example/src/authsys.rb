@@ -6,7 +6,7 @@ require 'open3'
 class AuthSysClient
   attr_reader :session_token, :last_error, :last_response, :initialized, :username, :email
 
-  def initialize(app_secret, version, api_url = "https://authsys-main-production.up.railway.app/api/v1")
+  def initialize(app_secret, version, api_url = "https://api.authsys.dpdns.org/api/v1")
     @app_secret = app_secret
     @version = version
     @api_url = api_url.chomp("/")

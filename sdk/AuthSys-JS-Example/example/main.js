@@ -4,7 +4,7 @@
  * Demonstrates all SDK features: init, register, login, license login, verify, etc.
  */
 
-const { AuthSys, AuthSysException } = require('../authsys');
+const { AuthSys, AuthSysException } = require('../src/authsys');
 
 async function main() {
     const auth = new AuthSys({
