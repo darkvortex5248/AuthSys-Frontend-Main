@@ -1,83 +1,121 @@
 using System;
-using System.Threading;
+using System.Threading.Tasks;
+using AuthSys;
+using AuthSys.Exceptions;
+using AuthSys.Utilities;
+using AuthSys.Models;
 
-namespace AuthSys.Example
+class Program
 {
-    class Program
+    static async Task Main(string[] args)
     {
-        public static api AuthSysApp = new api(
-            name: "TestApp",
-            ownerid: "your_owner_id",
-            secret: "your_app_secret",
-            version: "1.0",
-            apiUrl: "https://authsys-main-production.up.railway.app/api/v1"
-        );
+        Console.WriteLine("AuthSys C# SDK v2.0 - Modern Example");
+        Console.WriteLine("=====================================\n");
 
-        static void Main(string[] args)
+        var client = new AuthSysClient(new AuthSysOptions
         {
-            Console.Title = "AuthSys Example";
-            Console.WriteLine("\n\n Connecting..");
-            AuthSysApp.init();
+            Name = "MyApplication",
+            Secret = "your-app-secret-here",
+            Version = "1.0.0",
+            ApiUrl = "https://api.authsys.dpdns.org/api/v1",
+            DebugMode = true,
+            Logger = new ConsoleLogger(),
+            RetryAttempts = 3,
+            RetryDelayMs = 1000
+        });
 
-            if (!AuthSysApp.initialized)
-            {
-                Console.WriteLine("\n Status: " + AuthSysApp.response.detail);
-                Thread.Sleep(1500);
-                Environment.Exit(0);
-            }
+        client.SessionExpired += (s, e) => {
+            Console.WriteLine("Session expired! Please re-authenticate.");
+        };
+
+        client.VersionUpdate += (s, e) => {
+            Console.WriteLine($"Version update: {e.Message} (Required: {e.IsRequired})");
+        };
+
+        try
+        {
+            // Phase 1: Initialize
+            Console.WriteLine("1. Initializing...");
+            var initResult = await client.InitAsync();
+            Console.WriteLine($"   Status: {initResult.Status}");
             
-            Console.WriteLine("\n [1] Login\n [2] Register\n [3] License key only\n\n Choose option: ");
-            int option = int.Parse(Console.ReadLine());
-
-            string username, password, key;
-
-            switch (option)
+            if (initResult.Status == "update_required")
             {
-                case 1:
-                    Console.Write("\n\n Enter username: ");
-                    username = Console.ReadLine();
-                    Console.Write("\n\n Enter password: ");
-                    password = Console.ReadLine();
-                    AuthSysApp.login(username, password);
-                    break;
-                case 2:
-                    Console.Write("\n\n Enter username: ");
-                    username = Console.ReadLine();
-                    Console.Write("\n\n Enter password: ");
-                    password = Console.ReadLine();
-                    Console.Write("\n\n Enter license: ");
-                    key = Console.ReadLine();
-                    AuthSysApp.register(username, password, key);
-                    break;
-                case 3:
-                    Console.Write("\n\n Enter license: ");
-                    key = Console.ReadLine();
-                    AuthSysApp.licenseLogin(key);
-                    break;
-                default:
-                    Console.WriteLine("\n Invalid option");
-                    Environment.Exit(0);
-                    break;
+                Console.WriteLine("   Update required! Please update your application.");
+                return;
             }
 
-            if (!string.IsNullOrEmpty(AuthSysApp.sessionToken) || AuthSysApp.response.message == "User registered successfully")
-            {
-                Console.WriteLine("\n Success! " + (AuthSysApp.response.message ?? "Logged in successfully."));
-                
-                string motd = AuthSysApp.var("motd");
-                if (!string.IsNullOrEmpty(motd))
-                {
-                    Console.WriteLine($"\n MOTD: {motd}");
-                }
+            // Phase 2: Login
+            Console.WriteLine("\n2. Logging in...");
+            var authResult = await client.LoginAsync("testuser", "password123");
+            Console.WriteLine($"   Login: {authResult.Success}");
+            Console.WriteLine($"   Token: {client.SessionToken?.Substring(0, 20)}...");
 
-                Console.WriteLine("\n [Main Application Running...]");
-            }
-            else
-            {
-                Console.WriteLine("\n Failed: " + AuthSysApp.response.detail);
-            }
+            // Phase 3: Verify session
+            Console.WriteLine("\n3. Verifying session...");
+            var verifyResult = await client.VerifyAsync();
+            Console.WriteLine($"   Valid: {verifyResult.Valid}");
 
-            Console.ReadLine();
+            // Phase 4: Get variables
+            Console.WriteLine("\n4. Getting variables...");
+            var theme = client.GetVariable("theme");
+            Console.WriteLine($"   Theme: {theme ?? "not set"}");
+
+            // Phase 5: Send chat message
+            Console.WriteLine("\n5. Sending chat message...");
+            var chatResult = await client.SendChatMessageAsync(1, "Hello from C# SDK!");
+            Console.WriteLine($"   Sent: {chatResult.Success}");
+
+            // Phase 6: Logout
+            Console.WriteLine("\n6. Logging out...");
+            await client.LogoutAsync();
+            Console.WriteLine($"   Authenticated: {client.IsAuthenticated}");
+
+            Console.WriteLine("\n✅ All operations completed successfully!");
         }
+        catch (AuthenticationException ex)
+        {
+            Console.WriteLine($"❌ Authentication error: {ex.Message}");
+        }
+        catch (LicenseException ex)
+        {
+            Console.WriteLine($"❌ License error: {ex.Message}");
+        }
+        catch (RateLimitException ex)
+        {
+            Console.WriteLine($"❌ Rate limit: {ex.Message}");
+        }
+        catch (NetworkException ex)
+        {
+            Console.WriteLine($"❌ Network error: {ex.Message}");
+        }
+        catch (ValidationException ex)
+        {
+            Console.WriteLine($"❌ Validation error: {ex.Message}");
+        }
+        catch (SessionExpiredException ex)
+        {
+            Console.WriteLine($"❌ Session expired: {ex.Message}");
+        }
+        catch (VersionMismatchException ex)
+        {
+            Console.WriteLine($"❌ Version mismatch: {ex.Message}");
+        }
+        catch (MaintenanceException ex)
+        {
+            Console.WriteLine($"❌ Maintenance: {ex.Message}");
+        }
+        catch (AuthSysException ex)
+        {
+            Console.WriteLine($"❌ AuthSys error: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Unexpected error: {ex.Message}");
+        }
+
+        client.Dispose();
+        Console.WriteLine("\nPress any key to exit...");
+        Console.ReadKey();
     }
 }
