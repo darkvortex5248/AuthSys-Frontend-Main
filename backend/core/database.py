@@ -1,3 +1,4 @@
+import re
 import ssl
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
@@ -5,6 +6,25 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, Asyn
 from sqlalchemy.orm import declarative_base
 
 from core.config import settings
+
+# ── CockroachDB compatibility ──────────────────────────────────────
+# SQLAlchemy's PostgreSQL dialect fails to parse CockroachDB's version
+# string (e.g. "CockroachDB CCL v26.2.1 ..."). Patch the parser so it
+# extracts the version number and returns a tuple SQLAlchemy expects.
+from sqlalchemy.dialects.postgresql.base import PGDialect
+
+_pg_version_orig = PGDialect._get_server_version_info
+
+def _pg_version_patched(self, connection):
+    raw = connection.exec_driver_sql("SELECT version()").scalar()
+    if raw and "CockroachDB" in raw:
+        m = re.search(r"v?(\d+)\.(\d+)\.(\d+)", raw)
+        if m:
+            return tuple(int(x) for x in m.groups()) + (0,)
+        return (26, 0, 0, 0)  # safe fallback
+    return _pg_version_orig(self, connection)
+
+PGDialect._get_server_version_info = _pg_version_patched
 
 # libpq query params that asyncpg/SQLAlchemy must not forward to connect()
 _STRIP_QUERY_KEYS = frozenset(
