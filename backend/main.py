@@ -50,15 +50,21 @@ async def startup_event():
         async def _background_bootstrap():
             try:
                 logger.info("[BOOTSTRAP-BG] Starting background DB schema/migration...")
-                await asyncio.wait_for(create_tables(), timeout=120)
+                await asyncio.wait_for(create_tables(), timeout=300)
                 logger.info("[BOOTSTRAP-BG] Tables created (%.1fs)", time.time() - start)
+            except asyncio.TimeoutError:
+                logger.error("[BOOTSTRAP-BG] create_tables() TIMEOUT (>300s). Tables may still exist; proceeding to seed...")
+            except Exception as exc:
+                logger.exception("[BOOTSTRAP-BG] create_tables() Failed: %s", exc)
+                return
+            try:
                 async with AsyncSessionLocal() as db:
                     result = await asyncio.wait_for(run_bootstrap(db), timeout=600)
                     logger.info("[BOOTSTRAP-BG] Done (%.1fs): %s", time.time() - start, result)
             except asyncio.TimeoutError:
-                logger.error("[BOOTSTRAP-BG] TIMEOUT (>600s). Will retry on next deploy.")
+                logger.error("[BOOTSTRAP-BG] run_bootstrap() TIMEOUT (>600s). Will retry on next deploy.")
             except Exception as exc:
-                logger.exception("[BOOTSTRAP-BG] Failed: %s", exc)
+                logger.exception("[BOOTSTRAP-BG] run_bootstrap() Failed: %s", exc)
 
         asyncio.create_task(_background_bootstrap())
     except Exception as exc:
