@@ -36,7 +36,8 @@ def build_async_database_url(raw_url: str) -> tuple[str, dict]:
         url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
     parsed = urlparse(url)
-    ssl_required = "neon.tech" in parsed.netloc or "railway.app" in parsed.netloc or "supabase.co" in parsed.netloc
+    is_cockroach = "cockroachlabs.cloud" in parsed.netloc
+    ssl_required = is_cockroach or "neon.tech" in parsed.netloc or "railway.app" in parsed.netloc or "supabase.co" in parsed.netloc
     clean_pairs: list[tuple[str, str]] = []
 
     for key, value in parse_qsl(parsed.query, keep_blank_values=True):
@@ -62,11 +63,17 @@ def build_async_database_url(raw_url: str) -> tuple[str, dict]:
     # Generous timeouts so schema migrations don't get killed mid-way
     connect_args["timeout"] = 30                    # connection timeout (sec)
     connect_args["command_timeout"] = 120           # per-query timeout (sec) — long enough for ALTER TABLE
-    connect_args["server_settings"] = {
-        "statement_timeout": "0",                  # 0 = no per-statement timeout (we control via command_timeout)
-        "lock_timeout": "30000",                   # 30s lock wait
-        "idle_in_transaction_session_timeout": "60000",
-    }
+    if is_cockroach:
+        connect_args["server_settings"] = {
+            "statement_timeout": "0",              # no per-statement timeout
+            "lock_timeout": "30000",               # 30s lock wait
+        }
+    else:
+        connect_args["server_settings"] = {
+            "statement_timeout": "0",              # no per-statement timeout
+            "lock_timeout": "30000",               # 30s lock wait
+            "idle_in_transaction_session_timeout": "60000",
+        }
 
     return clean_url, connect_args
 

@@ -728,20 +728,34 @@ async def ensure_database_schema(db: AsyncSession) -> None:
             logger.warning(f"Index creation failed: {e}")
 
     # Migrate device_apps → device_groups (legacy schema rename)
-    for stmt in [
+    try:
         # Rename column in devices table if it still uses old FK name
-        "DO $$ BEGIN IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='devices' AND column_name='device_app_id') THEN ALTER TABLE devices RENAME COLUMN device_app_id TO group_id; END IF; END $$",
-        # Migrate data from old device_apps table to device_groups if old table exists (column device_secret→group_secret)
-        "DO $$ BEGIN IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name='device_apps') THEN INSERT INTO device_groups (id, developer_id, name, group_secret, is_active, max_devices, created_at, updated_at) SELECT id, developer_id, name, device_secret, is_active, max_devices, created_at, updated_at FROM device_apps ON CONFLICT (id) DO NOTHING; END IF; END $$",
-        # Drop old device_apps table
-        "DROP TABLE IF EXISTS device_apps CASCADE",
-    ]:
-        try:
-            await db.execute(text(stmt))
+        col_res = await db.execute(text(
+            "SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='devices' AND column_name='device_app_id')"
+        ))
+        if col_res.scalar():
+            await db.execute(text("ALTER TABLE devices RENAME COLUMN device_app_id TO group_id"))
             await db.commit()
-        except Exception as e:
-            await db.rollback()
-            logger.warning(f"Device group migration step failed: {e}")
+    except Exception as e:
+        await db.rollback()
+        logger.warning(f"Column rename device_app_id→group_id failed: {e}")
+
+    try:
+        # Migrate data from old device_apps table to device_groups if old table exists
+        tbl_res = await db.execute(text(
+            "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name='device_apps')"
+        ))
+        if tbl_res.scalar():
+            await db.execute(text(
+                "INSERT INTO device_groups (id, developer_id, name, group_secret, is_active, max_devices, created_at, updated_at) SELECT id, developer_id, name, device_secret, is_active, max_devices, created_at, updated_at FROM device_apps ON CONFLICT (id) DO NOTHING"
+            ))
+            await db.commit()
+            # Drop old device_apps table
+            await db.execute(text("DROP TABLE IF EXISTS device_apps CASCADE"))
+            await db.commit()
+    except Exception as e:
+        await db.rollback()
+        logger.warning(f"Device group migration failed: {e}")
 
     for table, col, alter_sql, update_sql in columns_to_ensure:
         try:
