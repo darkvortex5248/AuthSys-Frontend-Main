@@ -24,6 +24,7 @@ import logging
 import os
 from urllib.parse import urlparse
 
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
