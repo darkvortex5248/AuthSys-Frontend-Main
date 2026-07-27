@@ -42,6 +42,7 @@ class KeyGenerate(BaseModel):
     key_type: str # time/lifetime/uses_based
     duration_days: Optional[int] = None
     max_uses: Optional[int] = None
+    max_devices: Optional[int] = None
     note: Optional[str] = None
     seller_tag: Optional[str] = None
     expires_at: Optional[datetime] = None

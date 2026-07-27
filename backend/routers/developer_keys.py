@@ -59,17 +59,23 @@ async def generate_key(req: KeyGenerate, dev: DeveloperAccount = Depends(get_cur
     existing = await db.execute(select(LicenseKey).where(LicenseKey.key_value == key_val))
     if existing.scalars().first():
         raise HTTPException(status_code=400, detail="This license key already exists")
+    
+    # Expiry: use custom expires_at if set, otherwise calculate from duration_days
     expires_at = req.expires_at
-    if req.key_type == "time" and expires_at is None and req.duration_days:
+    if expires_at is None and req.key_type == "time" and req.duration_days:
         expires_at = datetime.now(timezone.utc) + timedelta(days=req.duration_days)
 
-    max_devices = req.max_uses
+    # Device limit: use max_devices if provided, otherwise fall back to max_uses
+    max_devices = req.max_devices
+    if max_devices is None:
+        max_devices = req.max_uses
     if max_devices is None and req.key_type != "uses_based":
         max_devices = 1
 
     new_key = LicenseKey(
         app_id=req.app_id, key_value=key_val, key_type=req.key_type, 
         duration_days=req.duration_days, max_uses=max_devices, 
+        max_devices=max_devices,
         note=req.note, seller_tag=req.seller_tag,
         expires_at=expires_at
     )
@@ -91,13 +97,15 @@ async def bulk_generate(req: BulkKeyGenerate, dev: DeveloperAccount = Depends(ge
     await verify_app_owner(req.app_id, dev.id, db)
     if req.count > 1000: raise HTTPException(400, "Max 1000 keys at once")
     expires_at = req.expires_at
-    if req.key_type == "time" and expires_at is None and req.duration_days:
+    if expires_at is None and req.key_type == "time" and req.duration_days:
         expires_at = datetime.now(timezone.utc) + timedelta(days=req.duration_days)
 
     keys = []
     skipped = []
     key_values = req.custom_keys if req.custom_keys else []
-    max_devices = req.max_uses
+    max_devices = req.max_devices
+    if max_devices is None:
+        max_devices = req.max_uses
     if max_devices is None and req.key_type != "uses_based":
         max_devices = 1
     for i in range(req.count):
@@ -109,7 +117,8 @@ async def bulk_generate(req: BulkKeyGenerate, dev: DeveloperAccount = Depends(ge
         k = LicenseKey(
             app_id=req.app_id, key_value=key_val,
             key_type=req.key_type, duration_days=req.duration_days, 
-            max_uses=max_devices, note=req.note, seller_tag=req.seller_tag,
+            max_uses=max_devices, max_devices=max_devices,
+            note=req.note, seller_tag=req.seller_tag,
             expires_at=expires_at
         )
         keys.append(k)
@@ -154,6 +163,7 @@ class KeyUpdate(BaseModel):
     key_type: Optional[str] = None
     duration_days: Optional[int] = None
     max_uses: Optional[int] = None
+    max_devices: Optional[int] = None
     note: Optional[str] = None
     seller_tag: Optional[str] = None
     expires_at: Optional[datetime] = None
@@ -168,6 +178,7 @@ async def update_key(key_id: int, req: KeyUpdate, dev: DeveloperAccount = Depend
     if req.key_type: key.key_type = req.key_type
     if req.duration_days is not None: key.duration_days = req.duration_days
     if req.max_uses is not None: key.max_uses = req.max_uses
+    if req.max_devices is not None: key.max_devices = req.max_devices
     if req.note is not None: key.note = req.note
     if req.seller_tag is not None: key.seller_tag = req.seller_tag
     if req.expires_at is not None: key.expires_at = req.expires_at
@@ -187,7 +198,7 @@ async def reset_key_hwid(key_id: int, dev: DeveloperAccount = Depends(get_curren
     await db.execute(
         update(EndUser)
         .where(EndUser.license_key_id == key_id)
-        .values(hwid=None)
+        .values(hwid=None, hwids=[])
     )
     await db.commit()
 

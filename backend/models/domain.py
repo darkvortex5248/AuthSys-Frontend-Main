@@ -131,6 +131,7 @@ class LicenseKey(Base):
     key_type = Column(String) # time/lifetime/uses_based
     duration_days = Column(Integer, nullable=True)
     max_uses = Column(Integer, nullable=True)
+    max_devices = Column(Integer, nullable=True)
     current_uses = Column(Integer, default=0)
     note = Column(Text, nullable=True)
     seller_tag = Column(String, nullable=True)
@@ -154,6 +155,7 @@ class EndUser(Base):
     email = Column(String, nullable=True)
     license_key_id = Column(Integer, ForeignKey("license_keys.id", ondelete="SET NULL"), nullable=True)
     hwid = Column(String, nullable=True)
+    hwids = Column(JSON, nullable=True, default=[])
     hwid_reset_count = Column(Integer, default=0)
     hwid_reset_allowed = Column(Integer, default=1)
     ip_address = Column(String, nullable=True)
@@ -171,6 +173,7 @@ class EndUser(Base):
     is_device_only = Column(Boolean, default=False)
     expires_at = Column(DateTime(timezone=True), nullable=True)
     max_uses = Column(Integer, default=1)
+    max_devices = Column(Integer, default=1)
     user_category = Column(String, default='active')
     
     app = relationship("Application", back_populates="users")

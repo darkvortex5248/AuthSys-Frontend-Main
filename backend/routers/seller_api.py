@@ -186,7 +186,9 @@ async def seller_add_user(app_id: int, username: str, password: str, subscriptio
         username=username,
         password_hash=hashed_pw,
         subscription_expires_at=expires,
-        variable_data={"subscription": subscription} if subscription else None
+        variable_data={"subscription": subscription} if subscription else None,
+        max_uses=1,
+        max_devices=1
     )
     db.add(new_user)
     await db.commit()
@@ -297,6 +299,7 @@ async def seller_reset_hwid(app_id: int, username: str, seller_key: str = Header
     if user.hwid_reset_count >= user.hwid_reset_allowed:
         raise HTTPException(status_code=400, detail="HWID reset limit reached")
     user.hwid = None
+    user.hwids = []
     user.hwid_reset_count += 1
     await db.commit()
     return {"status": "success", "message": "HWID reset successfully"}

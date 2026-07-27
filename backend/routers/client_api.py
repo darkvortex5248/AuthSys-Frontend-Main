@@ -123,7 +123,10 @@ async def register_user(request: Request, req: ClientRegisterRequest, db: AsyncS
 
     sub_expires_at = None
     if license_key.key_type == "time":
-        sub_expires_at = utc_now() + timedelta(days=license_key.duration_days)
+        if license_key.expires_at:
+            sub_expires_at = license_key.expires_at
+        elif license_key.duration_days:
+            sub_expires_at = utc_now() + timedelta(days=license_key.duration_days)
     elif license_key.key_type == "lifetime":
         sub_expires_at = utc_now() + timedelta(days=36500)
 
@@ -136,9 +139,11 @@ async def register_user(request: Request, req: ClientRegisterRequest, db: AsyncS
         email=req.email,
         license_key_id=license_key.id,
         hwid=req.hwid,
+        hwids=[req.hwid] if req.hwid else [],
         subscription_expires_at=sub_expires_at,
         last_ip=client_ip,
-        max_uses=license_key.max_uses if license_key.max_uses is not None else 1
+        max_uses=license_key.max_uses if license_key.max_uses is not None else 1,
+        max_devices=license_key.max_devices if license_key.max_devices is not None else 1
     )
     
     # Mark key as used
@@ -183,14 +188,15 @@ async def login_user(request: Request, req: ClientLoginRequest, db: AsyncSession
         raise HTTPException(status_code=403, detail="Subscription expired")
 
     if app.hwid_enabled:
-        if user.hwid:
-            if user.hwid != req.hwid:
-                db.add(ActivityLog(app_id=app.id, user_id=user.id, action_type="hwid_mismatch", hwid=req.hwid, ip_address=client_ip, is_suspicious=True, risk_score=50))
-                await db.commit()
-                raise HTTPException(status_code=403, detail="HWID mismatch. Please reset your HWID.")
-        else:
-            # First login, bind HWID
+        user_hwids = user.hwids or []
+        if req.hwid in user_hwids:
+            pass
+        elif len(user_hwids) < user.max_devices:
+            user_hwids.append(req.hwid)
+            user.hwids = user_hwids
             user.hwid = req.hwid
+        else:
+            raise HTTPException(status_code=403, detail=f"Max devices ({user.max_devices}) reached. Please reset your HWID.")
 
     if req.hwid and user.max_uses >= 0:
         active_hwids = await db.execute(
@@ -274,14 +280,22 @@ async def license_login(request: Request, req: ClientLicenseLoginRequest, db: As
         # Auto-create a shadow user for this license key to track sessions and HWID.
         # This is required for 'Key Only' authentication flows.
         device_limit = license_key.max_uses if license_key.max_uses is not None else -1
+        max_devices = license_key.max_devices if license_key.max_devices is not None else 1
+        sub_expires_at = None
+        if license_key.key_type == "time":
+            sub_expires_at = license_key.expires_at or (utc_now() + timedelta(days=license_key.duration_days)) if license_key.duration_days else license_key.expires_at
+        elif license_key.key_type == "lifetime":
+            sub_expires_at = utc_now() + timedelta(days=36500)
         user = EndUser(
             app_id=app.id,
             username=license_key.key_value, 
             password_hash="license_only_login",
             license_key_id=license_key.id,
             hwid=req.hwid,
+            hwids=[req.hwid] if req.hwid else [],
             max_uses=device_limit,
-            subscription_expires_at=license_key.expires_at or (utc_now() + timedelta(days=license_key.duration_days)) if license_key.key_type == "time" else (utc_now() + timedelta(days=36500)),
+            max_devices=max_devices,
+            subscription_expires_at=sub_expires_at,
             last_ip=client_ip,
             is_shadow=True
         )
@@ -290,10 +304,15 @@ async def license_login(request: Request, req: ClientLicenseLoginRequest, db: As
     else:
         # HWID Check for existing user
         if app.hwid_enabled:
-            if user.hwid and user.hwid != req.hwid:
-                raise HTTPException(status_code=403, detail="HWID mismatch. Please reset HWID.")
-            elif not user.hwid:
+            user_hwids = user.hwids or []
+            if req.hwid in user_hwids:
+                pass
+            elif len(user_hwids) < user.max_devices:
+                user_hwids.append(req.hwid)
+                user.hwids = user_hwids
                 user.hwid = req.hwid
+            else:
+                raise HTTPException(status_code=403, detail=f"Max devices ({user.max_devices}) reached. Please reset your HWID.")
 
     if req.hwid and user.max_uses >= 0:
         active_hwids = await db.execute(
@@ -387,7 +406,8 @@ async def verify_session(
     
     # HWID Check
     if app.hwid_enabled:
-        if not x_hwid or x_hwid != session.hwid:
+        user_hwids = user.hwids or []
+        if not x_hwid or x_hwid not in user_hwids:
             raise HTTPException(status_code=403, detail="HWID mismatch for this session")
     
     return {
@@ -467,6 +487,7 @@ async def register_device(
             username=f"device_{hwid[:16]}",
             password_hash="device_only_auth",
             hwid=hwid,
+            hwids=[hwid] if hwid else [],
             device_name=device_name or None,
             is_shadow=True,
             is_device_only=True,
@@ -508,6 +529,7 @@ async def check_device(
             username=f"device_{hwid[:16]}",
             password_hash="device_only_auth",
             hwid=hwid,
+            hwids=[hwid] if hwid else [],
             is_shadow=True,
             is_device_only=True,
             is_banned=False,

@@ -51,6 +51,7 @@ class BotService:
             key_type=key_type,
             duration_days=duration if key_type == "time" else None,
             max_uses=1 if key_type != "uses_based" else None,
+            max_devices=1 if key_type != "uses_based" else None,
             note=note or None,
         )
         db.add(new_key)
@@ -266,6 +267,8 @@ class BotService:
             username=username,
             password_hash=hashed,
             subscription_expires_at=expires,
+            max_uses=1,
+            max_devices=1,
         )
         db.add(new_user)
         await db.commit()
