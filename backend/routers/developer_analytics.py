@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from starlette.responses import Response
 import json
+import logging
+import traceback
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from core.database import get_db
@@ -12,6 +14,8 @@ from routers.developer_keys import verify_app_owner
 from services.plan_enforcer import require_feature
 from pydantic import BaseModel
 from typing import List, Optional, Any, Dict
+
+logger = logging.getLogger(__name__)
 
 class ActivityLogResponse(BaseModel):
     id: int
@@ -189,7 +193,7 @@ async def get_overview(days: int = 7, dev: DeveloperAccount = Depends(get_curren
             return Response(content=cached, media_type="application/json")
     except Exception as e:
         redis = None
-        print("Redis cache error:", e)
+        logger.warning(f"Redis cache error for dev_id={dev.id}: {e}")
 
     # Fetch all app IDs
     stmt = select(Application.id).where(
@@ -202,7 +206,7 @@ async def get_overview(days: int = 7, dev: DeveloperAccount = Depends(get_curren
     app_ids = [row for row in app_res.scalars().all()]
     
     if not app_ids:
-        res = {
+        return {
             "total_apps": 0, 
             "total_users": 0, 
             "banned_users": 0,
@@ -215,22 +219,39 @@ async def get_overview(days: int = 7, dev: DeveloperAccount = Depends(get_curren
             "suspicious_24h": 0, 
             "suspicious_ips": []
         }
-        return res
+    
+    try:
+        stats = await calculate_app_stats(db, app_ids, days)
+        stats["total_apps"] = len(app_ids)
         
-    # Use the original comprehensive stats calculation
-    stats = await calculate_app_stats(db, app_ids, days)
-    stats["total_apps"] = len(app_ids)
-    
-    response_model = AppAnalyticsResponse(**stats)
-    response_json = response_model.model_dump_json()
-    
-    if redis:
-        try:
-            await redis.set(cache_key, response_json, ex=60) # 60 seconds cache
-        except Exception:
-            pass
-            
-    return Response(content=response_json, media_type="application/json")
+        response_model = AppAnalyticsResponse(**stats)
+        response_json = response_model.model_dump_json()
+        
+        if redis:
+            try:
+                await redis.set(cache_key, response_json, ex=60) # 60 seconds cache
+            except Exception:
+                pass
+                
+        return Response(content=response_json, media_type="application/json")
+    except Exception as e:
+        logger.error(f"Dashboard overview failed for dev_id={dev.id}, days={days}: {e}")
+        logger.error(traceback.format_exc())
+        
+        return {
+            "total_apps": len(app_ids),
+            "total_users": 0,
+            "banned_users": 0,
+            "active_keys": 0,
+            "active_sessions": 0,
+            "chart_data": [],
+            "recent_activity": [],
+            "top_countries": [],
+            "key_usage": [],
+            "suspicious_24h": 0,
+            "suspicious_ips": [],
+            "error": str(e)
+        }
 
 @router.get("/search")
 async def global_search(q: str, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
