@@ -199,6 +199,19 @@ class PaymentMethodResponse(PaymentMethodBase):
     class Config:
         from_attributes = True
 
+class DeveloperAdminResponse(BaseModel):
+    id: int
+    username: str
+    email: Optional[str] = None
+    plan_id: Optional[int] = None
+    subscription_tier: Optional[str] = "tester"
+    is_banned: bool = False
+    is_verified: bool = False
+    created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
 class AnnouncementCreate(BaseModel):
     title: str
     message: str

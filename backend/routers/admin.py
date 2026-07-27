@@ -16,7 +16,7 @@ from schemas.admin import (
     SDKDownloadCreate, SDKDownloadUpdate, SDKDownloadResponse,
     PaymentMethodCreate, PaymentMethodUpdate, PaymentMethodResponse,
     AIConfigUpdate, AIConfigResponse, AIConfigTestResponse,
-    AnnouncementCreate,
+    AnnouncementCreate, DeveloperAdminResponse,
 )
 from services.ai_config import get_ai_admin_view
 from services.ai_providers import generate_chat_response, list_live_models, catalog_for_admin
@@ -110,7 +110,7 @@ async def admin_logout(request: Request):
     )
     return response
 
-@router.get("/developers")
+@router.get("/developers", response_model=dict)
 async def get_developers(
     page: int = Query(1, ge=1),
     per_page: int = Query(50, ge=1, le=200),
@@ -129,7 +129,7 @@ async def get_developers(
     total = (await db.execute(total_q)).scalar() or 0
     stmt = stmt.order_by(DeveloperAccount.id.desc()).offset((page - 1) * per_page).limit(per_page)
     res = await db.execute(stmt)
-    items = res.scalars().all()
+    items = [DeveloperAdminResponse.model_validate(d) for d in res.scalars().all()]
     return {"items": items, "total": total, "page": page, "per_page": per_page}
 
 @router.post("/developers/{id}/ban")
@@ -157,9 +157,11 @@ async def update_developer_plan(
     admin: AdminUser = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
 ):
+    logger.info("[ADMIN] update_developer_plan called with id=%s, plan_id=%s", id, plan_id)
     res = await db.execute(select(DeveloperAccount).where(DeveloperAccount.id == id))
     dev = res.scalars().first()
     if not dev:
+        logger.warning("[ADMIN] Developer not found for id=%s", id)
         raise HTTPException(404, "Developer not found")
 
     if plan_id is None or plan_id <= 0:
