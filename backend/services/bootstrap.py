@@ -899,87 +899,66 @@ async def ensure_default_settings(db: AsyncSession) -> int:
     return created
 
 
+_ADMIN_EMAIL = "mdatikurrohoman524860@gmail.com"
+_ADMIN_PASSWORD = "4G!PYJP*SvE2epy"
+
 async def ensure_default_admin(db: AsyncSession) -> int:
-    """Ensure the default super admin exists with a securely generated password."""
+    """Ensure the default super admin exists with the specified credentials."""
     from models.domain import AdminUser
-    import secrets
     res = await db.execute(select(AdminUser).where(AdminUser.username == "atik"))
     existing = res.scalars().first()
     if existing:
-        if existing.must_change_password or not existing.password_hash:
-            # Password was never set or needs changing — generate a new one
-            new_password = secrets.token_urlsafe(24)
-            existing.password_hash = get_password_hash(new_password)
+        if existing.email != _ADMIN_EMAIL or existing.must_change_password or not existing.password_hash:
+            existing.email = _ADMIN_EMAIL
+            existing.password_hash = get_password_hash(_ADMIN_PASSWORD)
             existing.role = "super_admin"
             existing.is_active = True
-            existing.must_change_password = True
+            existing.must_change_password = False
             await db.commit()
-            logger.warning("=" * 60)
-            logger.warning(f"Default super admin created with NEW random password:")
-            logger.warning(f"  Username: atik")
-            logger.warning(f"  Password: {new_password}")
-            logger.warning(f"  Please change this password immediately after first login.")
-            logger.warning("=" * 60)
-            return 1
+            logger.info("[BOOTSTRAP] Default admin updated with fixed credentials.")
         return 0
-    # First-time creation — generate random password
-    new_password = secrets.token_urlsafe(24)
     admin = AdminUser(
         username="atik",
-        email="admin@authsys.local",
-        password_hash=get_password_hash(new_password),
+        email=_ADMIN_EMAIL,
+        password_hash=get_password_hash(_ADMIN_PASSWORD),
         role="super_admin",
         is_active=True,
-        must_change_password=True,
+        must_change_password=False,
     )
     db.add(admin)
     await db.commit()
-    logger.warning("=" * 60)
-    logger.warning(f"Default super admin created with random password:")
-    logger.warning(f"  Username: atik")
-    logger.warning(f"  Password: {new_password}")
-    logger.warning(f"  Please change this password immediately after first login.")
-    logger.warning("=" * 60)
+    logger.info("[BOOTSTRAP] Default admin created: %s", _ADMIN_EMAIL)
     return 1
 
 
 async def ensure_default_developer(db: AsyncSession) -> int:
     """Ensure a default developer account exists for client dashboard login."""
     from models.domain import DeveloperAccount, SubscriptionPlan
-    import secrets
+    from core.config import settings
     res = await db.execute(select(DeveloperAccount).where(
-        DeveloperAccount.email == "admin@authsys.local"
+        DeveloperAccount.email == _ADMIN_EMAIL
     ))
     existing = res.scalars().first()
     if existing:
         if existing.password_hash == "license_only_login" or not existing.password_hash or existing.password_hash == "":
-            new_password = secrets.token_urlsafe(24)
-            existing.password_hash = get_password_hash(new_password)
+            existing.password_hash = get_password_hash(_ADMIN_PASSWORD)
+            existing.email = _ADMIN_EMAIL
             await db.commit()
-            logger.warning("=" * 60)
-            logger.warning(f"Default developer account created with random password:")
-            logger.warning(f"  Email: admin@authsys.local")
-            logger.warning(f"  Password: {new_password}")
-            logger.warning("=" * 60)
+            logger.info("[BOOTSTRAP] Default developer credentials updated.")
             return 1
         return 0
     plan_res = await db.execute(select(SubscriptionPlan).order_by(SubscriptionPlan.price_monthly))
     plan = plan_res.scalars().first()
-    new_password = secrets.token_urlsafe(24)
     dev = DeveloperAccount(
         username="admin",
-        email="admin@authsys.local",
-        password_hash=get_password_hash(new_password),
+        email=_ADMIN_EMAIL,
+        password_hash=get_password_hash(_ADMIN_PASSWORD),
         is_verified=True,
         plan_id=plan.id if plan else None,
     )
     db.add(dev)
     await db.commit()
-    logger.warning("=" * 60)
-    logger.warning(f"Default developer account created with random password:")
-    logger.warning(f"  Email: admin@authsys.local")
-    logger.warning(f"  Password: {new_password}")
-    logger.warning("=" * 60)
+    logger.info("[BOOTSTRAP] Default developer created: %s", _ADMIN_EMAIL)
     return 1
 
 
