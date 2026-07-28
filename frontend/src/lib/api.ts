@@ -24,6 +24,7 @@ function isAdminRoute(url: string): boolean {
 const api = axios.create({
   baseURL: getApiBaseUrl(),
   timeout: 15000,
+  withCredentials: true,
 });
 
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
