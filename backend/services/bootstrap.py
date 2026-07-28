@@ -651,6 +651,62 @@ async def ensure_database_schema(db: AsyncSession) -> None:
             "ALTER TABLE developer_accounts ADD COLUMN IF NOT EXISTS device_api_key VARCHAR",
             None
         ),
+        # ── Columns added to models AFTER last Alembic migration ──────
+        (
+            "admin_users",
+            "must_change_password",
+            "ALTER TABLE admin_users ADD COLUMN IF NOT EXISTS must_change_password BOOLEAN DEFAULT FALSE",
+            "UPDATE admin_users SET must_change_password = FALSE WHERE must_change_password IS NULL"
+        ),
+        (
+            "developer_accounts",
+            "subscription_tier",
+            "ALTER TABLE developer_accounts ADD COLUMN IF NOT EXISTS subscription_tier VARCHAR DEFAULT 'tester'",
+            "UPDATE developer_accounts SET subscription_tier = 'tester' WHERE subscription_tier IS NULL"
+        ),
+        (
+            "developer_accounts",
+            "discord_id",
+            "ALTER TABLE developer_accounts ADD COLUMN IF NOT EXISTS discord_id VARCHAR",
+            None
+        ),
+        (
+            "developer_accounts",
+            "github_id",
+            "ALTER TABLE developer_accounts ADD COLUMN IF NOT EXISTS github_id VARCHAR",
+            None
+        ),
+        (
+            "developer_accounts",
+            "azure_id",
+            "ALTER TABLE developer_accounts ADD COLUMN IF NOT EXISTS azure_id VARCHAR",
+            None
+        ),
+        (
+            "end_users",
+            "hwids",
+            "ALTER TABLE end_users ADD COLUMN IF NOT EXISTS hwids JSON DEFAULT '[]'::json",
+            "UPDATE end_users SET hwids = '[]'::json WHERE hwids IS NULL"
+        ),
+        (
+            "end_users",
+            "max_devices",
+            "ALTER TABLE end_users ADD COLUMN IF NOT EXISTS max_devices INTEGER DEFAULT 1",
+            "UPDATE end_users SET max_devices = 1 WHERE max_devices IS NULL"
+        ),
+        (
+            "end_users",
+            "expires_at",
+            "ALTER TABLE end_users ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP WITH TIME ZONE",
+            None
+        ),
+        (
+            "license_keys",
+            "max_devices",
+            "ALTER TABLE license_keys ADD COLUMN IF NOT EXISTS max_devices INTEGER DEFAULT 0",
+            "UPDATE license_keys SET max_devices = 0 WHERE max_devices IS NULL"
+        ),
+
     ]
     
     indexes_to_ensure = [
@@ -666,6 +722,13 @@ async def ensure_database_schema(db: AsyncSession) -> None:
         "CREATE INDEX IF NOT EXISTS ix_activation_codes_is_used ON activation_codes(is_used)",
         "CREATE INDEX IF NOT EXISTS ix_end_users_developer_id ON end_users(developer_id)",
         "CREATE UNIQUE INDEX IF NOT EXISTS uq_developer_accounts_device_api_key ON developer_accounts(device_api_key) WHERE device_api_key IS NOT NULL",
+        "CREATE UNIQUE INDEX IF NOT EXISTS ix_developer_accounts_discord_id ON developer_accounts(discord_id) WHERE discord_id IS NOT NULL",
+        "CREATE UNIQUE INDEX IF NOT EXISTS ix_developer_accounts_github_id ON developer_accounts(github_id) WHERE github_id IS NOT NULL",
+        "CREATE UNIQUE INDEX IF NOT EXISTS ix_developer_accounts_azure_id ON developer_accounts(azure_id) WHERE azure_id IS NOT NULL",
+        "CREATE INDEX IF NOT EXISTS ix_admin_users_must_change_password ON admin_users(must_change_password)",
+        "CREATE INDEX IF NOT EXISTS ix_end_users_max_devices ON end_users(max_devices)",
+        "CREATE INDEX IF NOT EXISTS ix_end_users_expires_at ON end_users(expires_at)",
+        "CREATE INDEX IF NOT EXISTS ix_developer_accounts_subscription_tier ON developer_accounts(subscription_tier)",
     ]
     
     tables_to_ensure = [
@@ -778,6 +841,31 @@ async def ensure_database_schema(db: AsyncSession) -> None:
         except Exception as e:
             await db.rollback()
             logger.warning(f"Schema migration failed for {table}.{col}: {e}")
+
+    # Rename activity_logs.timestamp → created_at if the old column name still exists
+    try:
+        ts_res = await db.execute(text(
+            "SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='activity_logs' AND column_name='timestamp')"
+        ))
+        ct_res = await db.execute(text(
+            "SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='activity_logs' AND column_name='created_at')"
+        ))
+        if ts_res.scalar() and not ct_res.scalar():
+            await db.execute(text("ALTER TABLE activity_logs RENAME COLUMN timestamp TO created_at"))
+            await db.commit()
+            logger.info("Schema migration: Renamed activity_logs.timestamp → created_at")
+    except Exception as e:
+        await db.rollback()
+        logger.warning(f"Column rename activity_logs.timestamp→created_at failed: {e}")
+
+    # Dynamic safety net: detect any model columns still missing from the live DB
+    try:
+        from core.database import auto_sync_schema
+        changes = await auto_sync_schema(db)
+        if changes:
+            logger.info(f"Schema auto-sync added {len(changes)} missing columns")
+    except Exception as e:
+        logger.warning(f"Schema auto-sync failed: {e}")
 
 
 async def ensure_default_plans(db: AsyncSession) -> int:

@@ -568,13 +568,11 @@ async def delete_account(
     await db.execute(sa_delete(BotConfig).where(BotConfig.app_id.in_(
         select(Application.id).where(Application.developer_id == dev_id)
     )))
-    await db.execute(sa_delete(CustomDomain).where(CustomDomain.app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
-    )))
+    await db.execute(sa_delete(CustomDomain).where(CustomDomain.developer_id == dev_id))
     await db.execute(sa_delete(AppBackup).where(AppBackup.app_id.in_(
         select(Application.id).where(Application.developer_id == dev_id)
     )))
-    await db.execute(sa_delete(AppEnvironment).where(AppEnvironment.app_id.in_(
+    await db.execute(sa_delete(AppEnvironment).where(AppEnvironment.parent_app_id.in_(
         select(Application.id).where(Application.developer_id == dev_id)
     )))
     await db.execute(sa_delete(HealthCheckRecord).where(HealthCheckRecord.app_id.in_(
@@ -586,29 +584,20 @@ async def delete_account(
     await db.execute(sa_delete(ScheduledAction).where(ScheduledAction.app_id.in_(
         select(Application.id).where(Application.developer_id == dev_id)
     )))
-    await db.execute(sa_delete(OrganizationMember).where(OrganizationMember.org_id.in_(
-        select(Organization.id).where(Organization.developer_id == dev_id)
+    await db.execute(sa_delete(OrganizationMember).where(OrganizationMember.organization_id.in_(
+        select(Organization.id).where(Organization.owner_id == dev_id)
     )))
-    await db.execute(sa_delete(Organization).where(Organization.developer_id == dev_id))
+    await db.execute(sa_delete(Organization).where(Organization.owner_id == dev_id))
     await db.execute(sa_delete(UsageRecord).where(UsageRecord.developer_id == dev_id))
     await db.execute(sa_delete(CustomPlanOverride).where(CustomPlanOverride.developer_id == dev_id))
     await db.execute(sa_delete(SellerAccount).where(SellerAccount.developer_id == dev_id))
-    await db.execute(sa_delete(AIConversation).where(AIConversation.app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
+    await db.execute(sa_delete(AIConversation).where(AIConversation.user_id == dev_id))
+    await db.execute(sa_delete(AIActionLog).where(AIActionLog.conversation_id.in_(
+        select(AIConversation.id).where(AIConversation.user_id == dev_id)
     )))
-    await db.execute(sa_delete(AIActionLog).where(AIActionLog.app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
-    )))
-    await db.execute(sa_delete(AIKnowledgeBase).where(AIKnowledgeBase.app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
-    )))
-    await db.execute(sa_delete(DeviceGroup).where(DeviceGroup.app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
-    )))
+    await db.execute(sa_delete(DeviceGroup).where(DeviceGroup.developer_id == dev_id))
     await db.execute(sa_delete(Device).where(Device.group_id.in_(
-        select(DeviceGroup.id).where(DeviceGroup.app_id.in_(
-            select(Application.id).where(Application.developer_id == dev_id)
-        ))
+        select(DeviceGroup.id).where(DeviceGroup.developer_id == dev_id)
     )))
     await db.execute(sa_delete(DeveloperSession).where(DeveloperSession.developer_id == dev_id))
     await db.execute(sa_delete(Application).where(Application.developer_id == dev_id))

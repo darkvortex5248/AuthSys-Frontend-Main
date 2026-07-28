@@ -72,37 +72,66 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 async def startup_event():
     import time
     start = time.time()
-    logger.info("[STARTUP] Step 1: Beginning startup event...")
-    # Signal that the app is ready to accept traffic immediately.
-    # Heavy DB bootstrap runs in background so healthcheck isn't blocked.
+    logger.info("=" * 60)
+    logger.info("[STARTUP] Beginning startup sequence...")
+    logger.info("=" * 60)
+
+    from core.database import AsyncSessionLocal, create_tables, auto_sync_schema
+    from services.bootstrap import run_bootstrap
+
+    # ─── Phase 1: Create tables (sync, 60s timeout) ────────────────
     try:
-        from core.database import AsyncSessionLocal, create_tables
-        from services.bootstrap import run_bootstrap
-        # Yield control so uvicorn can finish startup immediately
-        async def _background_bootstrap():
-            try:
-                logger.info("[BOOTSTRAP-BG] Starting background DB schema/migration...")
-                await asyncio.wait_for(create_tables(), timeout=300)
-                logger.info("[BOOTSTRAP-BG] Tables created (%.1fs)", time.time() - start)
-            except asyncio.TimeoutError:
-                logger.error("[BOOTSTRAP-BG] create_tables() TIMEOUT (>300s). Tables may still exist; proceeding to seed...")
-            except Exception as exc:
-                logger.exception("[BOOTSTRAP-BG] create_tables() Failed: %s", exc)
-                return
-            try:
-                async with AsyncSessionLocal() as db:
-                    result = await asyncio.wait_for(run_bootstrap(db), timeout=600)
-                    logger.info("[BOOTSTRAP-BG] Done (%.1fs): %s", time.time() - start, result)
-            except asyncio.TimeoutError:
-                logger.error("[BOOTSTRAP-BG] run_bootstrap() TIMEOUT (>600s). Will retry on next deploy.")
-            except Exception as exc:
-                logger.exception("[BOOTSTRAP-BG] run_bootstrap() Failed: %s", exc)
-
-        asyncio.create_task(_background_bootstrap())
+        logger.info("[STARTUP] Phase 1/4: Creating tables...")
+        await asyncio.wait_for(create_tables(), timeout=60)
+        logger.info("[STARTUP] Phase 1/4: Tables OK (%.1fs)", time.time() - start)
+    except asyncio.TimeoutError:
+        logger.error("[STARTUP] Phase 1/4 TIMEOUT after 60s. Tables may already exist; continuing.")
     except Exception as exc:
-        logger.exception("[STARTUP] Could not schedule background bootstrap: %s", exc)
+        logger.exception("[STARTUP] Phase 1/4 FAILED: %s", exc)
+        return
 
-    logger.info("[STARTUP] Done. Background tasks running. App is live. (%.1fs)", time.time() - start)
+    # ─── Phase 2: Bootstrap schema (sync, 120s timeout) ────────────
+    # This adds known-missing columns, indexes, legacy renames
+    try:
+        logger.info("[STARTUP] Phase 2/4: Bootstrapping schema (columns, indexes, migrations)...")
+        async with AsyncSessionLocal() as db:
+            from services.bootstrap import ensure_database_schema
+            await asyncio.wait_for(ensure_database_schema(db), timeout=120)
+        logger.info("[STARTUP] Phase 2/4: Schema bootstrap OK (%.1fs)", time.time() - start)
+    except asyncio.TimeoutError:
+        logger.error("[STARTUP] Phase 2/4 TIMEOUT after 120s.")
+    except Exception as exc:
+        logger.exception("[STARTUP] Phase 2/4 FAILED: %s", exc)
+        return
+
+    # ─── Phase 3: Auto-sync any remaining missing columns (sync, 60s) ─
+    try:
+        logger.info("[STARTUP] Phase 3/4: Auto-syncing schema (dynamic column detection)...")
+        async with AsyncSessionLocal() as db:
+            await asyncio.wait_for(auto_sync_schema(db), timeout=60)
+        logger.info("[STARTUP] Phase 3/4: Auto-sync OK (%.1fs)", time.time() - start)
+    except asyncio.TimeoutError:
+        logger.warning("[STARTUP] Phase 3/4 TIMEOUT after 60s.")
+    except Exception as exc:
+        logger.warning("[STARTUP] Phase 3/4 FAILED: %s", exc)
+
+    # ─── Phase 4: Seed data in background (non-critical for API) ────
+    async def _background_seed():
+        try:
+            logger.info("[STARTUP-BG] Phase 4/4: Seeding default data (plans, admin, developer)...")
+            async with AsyncSessionLocal() as db:
+                result = await asyncio.wait_for(run_bootstrap(db), timeout=300)
+            logger.info("[STARTUP-BG] Phase 4/4: Seed complete: %s (%.1fs total)", 
+                        result, time.time() - start)
+        except Exception as exc:
+            logger.warning("[STARTUP-BG] Phase 4/4 seed failed (non-critical): %s", exc)
+
+    asyncio.create_task(_background_seed())
+
+    elapsed = time.time() - start
+    logger.info("=" * 60)
+    logger.info("[STARTUP] ✓ Schema fully synchronized in %.1fs. App is live.", elapsed)
+    logger.info("=" * 60)
 
 @app.on_event("shutdown")
 async def shutdown_event():
