@@ -199,9 +199,16 @@ async def regen_secret(app_id: int, dev: DeveloperAccount = Depends(get_current_
     
 @router.delete("/{app_id}")
 async def delete_app(app_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
-    res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == dev.id))
-    app = res.scalars().first()
-    if not app: raise HTTPException(404, "Not found")
-    await db.delete(app)
-    await db.commit()
-    return {"status": "deleted"}
+    try:
+        res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == dev.id))
+        app = res.scalars().first()
+        if not app:
+            raise HTTPException(404, "Not found")
+        await db.delete(app)
+        await db.commit()
+        return {"status": "deleted"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to delete application: {str(e)}") from e

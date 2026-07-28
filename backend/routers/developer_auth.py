@@ -12,7 +12,7 @@ from models.domain import DeveloperAccount, SubscriptionPlan, DeveloperSession, 
 from routers.developer_sessions import record_session
 from jose import jwt, JWTError
 import uuid
-from datetime import timedelta
+from datetime import timedelta, datetime, timezone
 from core.limiter import limiter
 from services.email import EmailService
 from services.otp import OTPService
@@ -196,33 +196,37 @@ async def logout(request: Request, db: AsyncSession = Depends(get_db)):
     from sqlalchemy import update as sql_update
     from models.domain import DeveloperSession
 
-    token = None
-    auth_header = request.headers.get("Authorization", "")
-    if auth_header.startswith("Bearer "):
-        token = auth_header[7:]
-    else:
-        # Also check cookie for cookie-only auth
-        token = request.cookies.get(settings.COOKIE_NAME)
-    
-    if token:
-        token_hash = hashlib.sha256(token.encode()).hexdigest()
-        await db.execute(
-            sql_update(DeveloperSession)
-            .where(DeveloperSession.token_hash == token_hash)
-            .values(is_current=False, expires_at=datetime.now(timezone.utc))
-        )
-        await db.commit()
+    try:
+        token = None
+        auth_header = request.headers.get("Authorization", "")
+        if auth_header.startswith("Bearer "):
+            token = auth_header[7:]
+        else:
+            # Also check cookie for cookie-only auth
+            token = request.cookies.get(settings.COOKIE_NAME)
 
-    secure = request.url.scheme == "https"
-    response = JSONResponse(content={"success": True, "message": "Logged out"})
-    response.delete_cookie(
-        key=settings.COOKIE_NAME,
-        path=settings.COOKIE_PATH,
-        secure=secure,
-        samesite=settings.COOKIE_SAMESITE,
-        httponly=True,
-    )
-    return response
+        if token:
+            token_hash = hashlib.sha256(token.encode()).hexdigest()
+            await db.execute(
+                sql_update(DeveloperSession)
+                .where(DeveloperSession.token_hash == token_hash)
+                .values(is_current=False, expires_at=datetime.now(timezone.utc))
+            )
+            await db.commit()
+
+        secure = request.url.scheme == "https"
+        response = JSONResponse(content={"success": True, "message": "Logged out"})
+        response.delete_cookie(
+            key=settings.COOKIE_NAME,
+            path=settings.COOKIE_PATH,
+            secure=secure,
+            samesite=settings.COOKIE_SAMESITE,
+            httponly=True,
+        )
+        return response
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=f"Logout failed: {str(e)}") from e
 
 @router.post("/google-login", response_model=Token)
 @limiter.limit("10/minute")
@@ -519,89 +523,92 @@ async def delete_account(
     """Permanently delete the developer account and all associated data."""
     from sqlalchemy import delete as sa_delete
     dev_id = dev.id
-
-    # Delete in order: child tables first
-    await db.execute(sa_delete(WebhookDelivery).where(WebhookDelivery.endpoint_id.in_(
-        select(WebhookEndpoint.id).where(WebhookEndpoint.app_id.in_(
+    try:
+        # Delete in order: child tables first
+        await db.execute(sa_delete(WebhookDelivery).where(WebhookDelivery.endpoint_id.in_(
+            select(WebhookEndpoint.id).where(WebhookEndpoint.app_id.in_(
+                select(Application.id).where(Application.developer_id == dev_id)
+            ))
+        )))
+        await db.execute(sa_delete(WebhookLog).where(WebhookLog.app_id.in_(
             select(Application.id).where(Application.developer_id == dev_id)
-        ))
-    )))
-    await db.execute(sa_delete(WebhookLog).where(WebhookLog.app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
-    )))
-    await db.execute(sa_delete(WebhookEndpoint).where(WebhookEndpoint.app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
-    )))
-    await db.execute(sa_delete(IPWhitelistRule).where(IPWhitelistRule.app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
-    )))
-    await db.execute(sa_delete(APIKey).where(APIKey.developer_id == dev_id))
-    await db.execute(sa_delete(TeamMember).where(
-        (TeamMember.developer_id == dev_id) | (TeamMember.user_id == dev_id)
-    ))
-    await db.execute(sa_delete(ChatMessage).where(ChatMessage.room_id.in_(
-        select(ChatRoom.id).where(ChatRoom.app_id.in_(
+        )))
+        await db.execute(sa_delete(WebhookEndpoint).where(WebhookEndpoint.app_id.in_(
             select(Application.id).where(Application.developer_id == dev_id)
+        )))
+        await db.execute(sa_delete(IPWhitelistRule).where(IPWhitelistRule.app_id.in_(
+            select(Application.id).where(Application.developer_id == dev_id)
+        )))
+        await db.execute(sa_delete(APIKey).where(APIKey.developer_id == dev_id))
+        await db.execute(sa_delete(TeamMember).where(
+            (TeamMember.developer_id == dev_id) | (TeamMember.user_id == dev_id)
         ))
-    )))
-    await db.execute(sa_delete(ChatRoom).where(ChatRoom.app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
-    )))
-    await db.execute(sa_delete(Variable).where(Variable.app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
-    )))
-    await db.execute(sa_delete(ActivityLog).where(ActivityLog.app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
-    )))
-    await db.execute(sa_delete(Session).where(Session.app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
-    )))
-    await db.execute(sa_delete(LicenseKey).where(LicenseKey.app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
-    )))
-    await db.execute(sa_delete(EndUser).where(EndUser.app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
-    )))
-    await db.execute(sa_delete(AIAgentLog).where(AIAgentLog.app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
-    )))
-    await db.execute(sa_delete(BotConfig).where(BotConfig.app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
-    )))
-    await db.execute(sa_delete(CustomDomain).where(CustomDomain.developer_id == dev_id))
-    await db.execute(sa_delete(AppBackup).where(AppBackup.app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
-    )))
-    await db.execute(sa_delete(AppEnvironment).where(AppEnvironment.parent_app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
-    )))
-    await db.execute(sa_delete(HealthCheckRecord).where(HealthCheckRecord.app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
-    )))
-    await db.execute(sa_delete(LogRetentionConfig).where(LogRetentionConfig.app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
-    )))
-    await db.execute(sa_delete(ScheduledAction).where(ScheduledAction.app_id.in_(
-        select(Application.id).where(Application.developer_id == dev_id)
-    )))
-    await db.execute(sa_delete(OrganizationMember).where(OrganizationMember.organization_id.in_(
-        select(Organization.id).where(Organization.owner_id == dev_id)
-    )))
-    await db.execute(sa_delete(Organization).where(Organization.owner_id == dev_id))
-    await db.execute(sa_delete(UsageRecord).where(UsageRecord.developer_id == dev_id))
-    await db.execute(sa_delete(CustomPlanOverride).where(CustomPlanOverride.developer_id == dev_id))
-    await db.execute(sa_delete(SellerAccount).where(SellerAccount.developer_id == dev_id))
-    await db.execute(sa_delete(AIConversation).where(AIConversation.user_id == dev_id))
-    await db.execute(sa_delete(AIActionLog).where(AIActionLog.conversation_id.in_(
-        select(AIConversation.id).where(AIConversation.user_id == dev_id)
-    )))
-    await db.execute(sa_delete(DeviceGroup).where(DeviceGroup.developer_id == dev_id))
-    await db.execute(sa_delete(Device).where(Device.group_id.in_(
-        select(DeviceGroup.id).where(DeviceGroup.developer_id == dev_id)
-    )))
-    await db.execute(sa_delete(DeveloperSession).where(DeveloperSession.developer_id == dev_id))
-    await db.execute(sa_delete(Application).where(Application.developer_id == dev_id))
-    await db.execute(sa_delete(Payment).where(Payment.developer_id == dev_id))
-    await db.execute(sa_delete(DeveloperAccount).where(DeveloperAccount.id == dev_id))
-    await db.commit()
-    return {"status": "success", "message": "Account permanently deleted"}
+        await db.execute(sa_delete(ChatMessage).where(ChatMessage.room_id.in_(
+            select(ChatRoom.id).where(ChatRoom.app_id.in_(
+                select(Application.id).where(Application.developer_id == dev_id)
+            ))
+        )))
+        await db.execute(sa_delete(ChatRoom).where(ChatRoom.app_id.in_(
+            select(Application.id).where(Application.developer_id == dev_id)
+        )))
+        await db.execute(sa_delete(Variable).where(Variable.app_id.in_(
+            select(Application.id).where(Application.developer_id == dev_id)
+        )))
+        await db.execute(sa_delete(ActivityLog).where(ActivityLog.app_id.in_(
+            select(Application.id).where(Application.developer_id == dev_id)
+        )))
+        await db.execute(sa_delete(Session).where(Session.app_id.in_(
+            select(Application.id).where(Application.developer_id == dev_id)
+        )))
+        await db.execute(sa_delete(LicenseKey).where(LicenseKey.app_id.in_(
+            select(Application.id).where(Application.developer_id == dev_id)
+        )))
+        await db.execute(sa_delete(EndUser).where(EndUser.app_id.in_(
+            select(Application.id).where(Application.developer_id == dev_id)
+        )))
+        await db.execute(sa_delete(AIAgentLog).where(AIAgentLog.app_id.in_(
+            select(Application.id).where(Application.developer_id == dev_id)
+        )))
+        await db.execute(sa_delete(BotConfig).where(BotConfig.app_id.in_(
+            select(Application.id).where(Application.developer_id == dev_id)
+        )))
+        await db.execute(sa_delete(CustomDomain).where(CustomDomain.developer_id == dev_id))
+        await db.execute(sa_delete(AppBackup).where(AppBackup.app_id.in_(
+            select(Application.id).where(Application.developer_id == dev_id)
+        )))
+        await db.execute(sa_delete(AppEnvironment).where(AppEnvironment.parent_app_id.in_(
+            select(Application.id).where(Application.developer_id == dev_id)
+        )))
+        await db.execute(sa_delete(HealthCheckRecord).where(HealthCheckRecord.app_id.in_(
+            select(Application.id).where(Application.developer_id == dev_id)
+        )))
+        await db.execute(sa_delete(LogRetentionConfig).where(LogRetentionConfig.app_id.in_(
+            select(Application.id).where(Application.developer_id == dev_id)
+        )))
+        await db.execute(sa_delete(ScheduledAction).where(ScheduledAction.app_id.in_(
+            select(Application.id).where(Application.developer_id == dev_id)
+        )))
+        await db.execute(sa_delete(OrganizationMember).where(OrganizationMember.organization_id.in_(
+            select(Organization.id).where(Organization.owner_id == dev_id)
+        )))
+        await db.execute(sa_delete(Organization).where(Organization.owner_id == dev_id))
+        await db.execute(sa_delete(UsageRecord).where(UsageRecord.developer_id == dev_id))
+        await db.execute(sa_delete(CustomPlanOverride).where(CustomPlanOverride.developer_id == dev_id))
+        await db.execute(sa_delete(SellerAccount).where(SellerAccount.developer_id == dev_id))
+        await db.execute(sa_delete(AIConversation).where(AIConversation.user_id == dev_id))
+        await db.execute(sa_delete(AIActionLog).where(AIActionLog.conversation_id.in_(
+            select(AIConversation.id).where(AIConversation.user_id == dev_id)
+        )))
+        await db.execute(sa_delete(DeviceGroup).where(DeviceGroup.developer_id == dev_id))
+        await db.execute(sa_delete(Device).where(Device.group_id.in_(
+            select(DeviceGroup.id).where(DeviceGroup.developer_id == dev_id)
+        )))
+        await db.execute(sa_delete(DeveloperSession).where(DeveloperSession.developer_id == dev_id))
+        await db.execute(sa_delete(Application).where(Application.developer_id == dev_id))
+        await db.execute(sa_delete(Payment).where(Payment.developer_id == dev_id))
+        await db.execute(sa_delete(DeveloperAccount).where(DeveloperAccount.id == dev_id))
+        await db.commit()
+        return {"status": "success", "message": "Account permanently deleted"}
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to delete account: {str(e)}") from e

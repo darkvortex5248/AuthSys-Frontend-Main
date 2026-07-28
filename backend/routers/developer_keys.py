@@ -161,13 +161,20 @@ async def pause_key(key_id: int, dev: DeveloperAccount = Depends(get_current_dev
 
 @router.delete("/{key_id}")
 async def delete_key(key_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
-    res = await db.execute(select(LicenseKey).where(LicenseKey.id == key_id))
-    key = res.scalars().first()
-    if not key: raise HTTPException(404, "Not found")
-    await verify_app_owner(key.app_id, dev.id, db)
-    await db.delete(key)
-    await db.commit()
-    return {"status": "deleted"}
+    try:
+        res = await db.execute(select(LicenseKey).where(LicenseKey.id == key_id))
+        key = res.scalars().first()
+        if not key:
+            raise HTTPException(404, "Not found")
+        await verify_app_owner(key.app_id, dev.id, db)
+        await db.delete(key)
+        await db.commit()
+        return {"status": "deleted"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to delete license key: {str(e)}") from e
 
 class KeyUpdate(BaseModel):
     key_type: Optional[str] = None

@@ -121,15 +121,21 @@ async def delete_device_group(
     dev: DeveloperAccount = Depends(get_current_developer),
     db: AsyncSession = Depends(get_db),
 ):
-    res = await db.execute(
-        select(DeviceGroup).where(DeviceGroup.id == group_id, DeviceGroup.developer_id == dev.id)
-    )
-    group = res.scalars().first()
-    if not group:
-        raise HTTPException(404, "Device group not found")
-    await db.delete(group)
-    await db.commit()
-    return {"status": "success"}
+    try:
+        res = await db.execute(
+            select(DeviceGroup).where(DeviceGroup.id == group_id, DeviceGroup.developer_id == dev.id)
+        )
+        group = res.scalars().first()
+        if not group:
+            raise HTTPException(404, "Device group not found")
+        await db.delete(group)
+        await db.commit()
+        return {"status": "success"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to delete device group: {str(e)}") from e
 
 
 @router.post("/{group_id}/regenerate-secret")
