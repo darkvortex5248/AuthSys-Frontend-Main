@@ -356,8 +356,8 @@ function SDKSnippet({ secret, ownerId, version, appName }: { secret: string; own
 export default function ApplicationDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const appId = parseInt(id as string, 10);
-  const { app, isLoading } = useApp(Number.isNaN(appId) ? null : appId);
+  const appId = id as string;
+  const { app, isLoading } = useApp(appId || null);
   const copy = useCopy();
   const [visibleSecret, setVisibleSecret] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);

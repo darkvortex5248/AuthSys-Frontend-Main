@@ -15,7 +15,7 @@ import { useDeleteLicenseKey, useLicenseKeys } from '@/hooks/use-developer-queri
 
 export default function KeysPage() {
   const params = useParams();
-  const appId = parseInt(params.id as string, 10);
+  const appId = params.id as string;
   const confirm = useConfirm();
   const copy = useCopy();
   const deleteKey = useDeleteLicenseKey();
@@ -30,7 +30,7 @@ export default function KeysPage() {
     copy(key, { label: 'License key copied', description: 'Paste into your app or share with customer.' });
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: number | string) => {
     const ok = await confirm({
       title: 'Delete license key?',
       message: 'Are you sure you want to delete this license key? This cannot be undone.',

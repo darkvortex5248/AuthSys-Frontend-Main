@@ -16,27 +16,27 @@ export default function VariablesPage() {
   const [vars, setVars] = useState<any[]>([]);
   const [name, setName] = useState('');
   const [val, setVal] = useState('');
-  const [showValues, setShowValues] = useState<Record<number, boolean>>({});
+  const [showValues, setShowValues] = useState<Record<string, boolean>>({});
 
   const load = () => api.get(`/developer/variables/${appId}`).then(res => setVars(res.data));
   useEffect(() => { load(); }, [appId]);
 
   const add = async () => {
     if(!name || !val) return;
-    await api.post(`/developer/variables/create`, { app_id: parseInt(appId), key_name: name, key_value: val, is_global: true });
+    await api.post(`/developer/variables/create`, { app_id: appId, key_name: name, key_value: val, is_global: true });
     toast.success("Variable saved");
     setName(''); setVal('');
     load();
   };
 
-  const remove = async (id: number) => {
+  const remove = async (id: number | string) => {
     await api.delete(`/developer/variables/${id}`);
     toast.success("Variable deleted");
     load();
   };
 
-  const toggleShow = (id: number) => {
-    setShowValues(prev => ({...prev, [id]: !prev[id]}));
+  const toggleShow = (id: number | string) => {
+    setShowValues(prev => ({...prev, [id as any]: !prev[id as any]}));
   };
 
   return (

@@ -1,9 +1,12 @@
 from fastapi import FastAPI, Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response as StarletteResponse
+from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
+from typing import Any
+import json
 
 from core.config import settings
 from core.limiter import limiter
@@ -27,9 +30,38 @@ from urllib.parse import urlparse
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
+# ── Safe Integer JSON Serialization ─────────────────────────────
+# CockroachDB generates 64-bit IDs (e.g. 1196385953220427800) that
+# exceed JavaScript's Number.MAX_SAFE_INTEGER (2^53 = 9007199254740992).
+# Serialize them as strings so the frontend receives the exact value.
+_JS_SAFE_INT_MAX = 1 << 53  # 9007199254740992
+
+def _convert_large_ints(obj: Any) -> Any:
+    if isinstance(obj, dict):
+        return {k: _convert_large_ints(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_convert_large_ints(v) for v in obj]
+    if isinstance(obj, int) and (obj > _JS_SAFE_INT_MAX or obj < -_JS_SAFE_INT_MAX):
+        return str(obj)
+    return obj
+
+class SafeIntJSONResponse(JSONResponse):
+    def render(self, content: Any) -> bytes:
+        return json.dumps(
+            _convert_large_ints(content),
+            ensure_ascii=False,
+            allow_nan=False,
+            indent=None,
+            separators=(",", ":"),
+            default=str,
+        ).encode("utf-8")
+
+# ── End safe int serializer ─────────────────────────────────────
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    default_response_class=SafeIntJSONResponse,
 )
 
 # Setup SlowAPI Rate Limiter

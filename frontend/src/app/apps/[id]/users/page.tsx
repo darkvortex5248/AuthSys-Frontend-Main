@@ -14,7 +14,7 @@ import { useAppUsers, useDeleteAppUser } from '@/hooks/use-developer-queries';
 
 export default function UsersPage() {
   const params = useParams();
-  const appId = parseInt(params.id as string, 10);
+  const appId = params.id as string;
   const confirm = useConfirm();
   const deleteUser = useDeleteAppUser();
   const { data: usersData, refetch } = useAppUsers(appId);
@@ -24,25 +24,25 @@ export default function UsersPage() {
     if (appId) refetch();
   }, [appId, refetch]);
 
-  const banUser = async (id: number) => {
+  const banUser = async (id: number | string) => {
     await api.post(`/developer/users/${id}/ban`, { reason: "Banned from dashboard" });
     toast.success("User banned");
     refetch();
   };
 
-  const unbanUser = async (id: number) => {
+  const unbanUser = async (id: number | string) => {
     await api.post(`/developer/users/${id}/unban`);
     toast.success("User unbanned");
     refetch();
   };
 
-  const resetHwid = async (id: number) => {
+  const resetHwid = async (id: number | string) => {
     await api.post(`/developer/users/${id}/hwid-reset`);
     toast.success("HWID Reset successful");
     refetch();
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: number | string) => {
     const ok = await confirm({
       title: 'Delete user?',
       message: 'Delete this user permanently? This cannot be undone.',

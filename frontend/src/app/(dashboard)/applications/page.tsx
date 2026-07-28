@@ -205,7 +205,7 @@ export default function ApplicationsPage() {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ name: '', version: '1.0.0', min_version: '0.9.0', hwid_enabled: true });
   const [creating, setCreating] = useState(false);
-  const [visibleSecrets, setVisibleSecrets] = useState<Record<number, boolean>>({});
+  const [visibleSecrets, setVisibleSecrets] = useState<Record<string, boolean>>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
 
@@ -236,12 +236,12 @@ export default function ApplicationsPage() {
     }
   };
 
-  const handleToggle = async (id: number) => {
+  const handleToggle = async (id: number | string) => {
     try { await toggleApp.mutateAsync(id); toast.success('Status updated'); }
     catch (err: any) { toast.error(err?.response?.data?.detail || 'Failed to update status'); }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: number | string) => {
     const ok = await confirm({
       title: 'Delete application?',
       message: 'This will permanently delete the application and all associated keys, users, and data. This action cannot be undone.',
@@ -254,7 +254,7 @@ export default function ApplicationsPage() {
     catch (err: any) { toast.error(err?.response?.data?.detail || 'Failed to delete application'); }
   };
 
-  const handleRegenSecret = async (id: number) => {
+  const handleRegenSecret = async (id: number | string) => {
     try {
       const res = await api.post(`/developer/apps/${id}/regenerate-secret`);
       copy(res.data.app_secret, { label: 'New secret generated', description: 'Store it safely — it will not be shown again.' });

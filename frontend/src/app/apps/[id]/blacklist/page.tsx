@@ -22,13 +22,13 @@ export default function BlacklistPage() {
 
   const add = async () => {
     if(!val) return;
-    await api.post(`/developer/blacklist/add`, { app_id: parseInt(appId), type, value: val });
+    await api.post(`/developer/blacklist/add`, { app_id: appId, type, value: val });
     toast.success("Added to blacklist");
     setVal('');
     load();
   };
 
-  const remove = async (id: number) => {
+  const remove = async (id: number | string) => {
     await api.delete(`/developer/blacklist/${id}`);
     toast.success("Removed from blacklist");
     load();

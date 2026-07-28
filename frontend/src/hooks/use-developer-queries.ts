@@ -46,11 +46,11 @@ export function useApps(enabled?: boolean) {
 }
 
 /** Instant from apps cache; fetches single app only when cache miss (direct URL). */
-export function useApp(appId: number | null) {
+export function useApp(appId: number | string | null) {
   const authed = useIsAuthenticated();
   const id = appId ?? 0;
   const { data: apps = [], isLoading: appsLoading } = useApps();
-  const cached = id ? apps.find((a) => a.id === id) : null;
+  const cached = id ? apps.find((a) => `${a.id}` === `${id}`) : null;
 
   const single = useQuery({
     queryKey: queryKeys.app(id),
@@ -85,7 +85,7 @@ export function useOverview(days: number) {
   });
 }
 
-export function useLicenseKeys(appId: number | null, skip: number = 0, limit: number = 50) {
+export function useLicenseKeys(appId: number | string | null, skip: number = 0, limit: number = 50) {
   const authed = useIsAuthenticated();
   return useQuery({
     queryKey: queryKeys.keys(appId ?? 0, skip, limit),
@@ -99,7 +99,7 @@ export function useLicenseKeys(appId: number | null, skip: number = 0, limit: nu
   });
 }
 
-export function useAppUsers(appId: number | null, skip: number = 0, limit: number = 50) {
+export function useAppUsers(appId: number | string | null, skip: number = 0, limit: number = 50) {
   const authed = useIsAuthenticated();
   return useQuery({
     queryKey: queryKeys.users(appId ?? 0, skip, limit),
@@ -126,27 +126,27 @@ export function useInvalidateDeveloperData() {
       await queryClient.invalidateQueries({ queryKey: ['developer', 'overview'] });
       await queryClient.refetchQueries({ queryKey: ['developer', 'overview'] });
     },
-    keys: async (appId: number) => {
+    keys: async (appId: number | string) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.keys(appId) });
       await queryClient.refetchQueries({ queryKey: queryKeys.keys(appId), type: 'active' });
     },
-    users: async (appId: number) => {
+    users: async (appId: number | string) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.users(appId) });
       await queryClient.refetchQueries({ queryKey: queryKeys.users(appId), type: 'active' });
     },
-    blacklist: async (appId: number) => {
+    blacklist: async (appId: number | string) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.blacklist(appId) });
       await queryClient.refetchQueries({ queryKey: queryKeys.blacklist(appId), type: 'active' });
     },
-    variables: async (appId: number) => {
+    variables: async (appId: number | string) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.variables(appId) });
       await queryClient.refetchQueries({ queryKey: queryKeys.variables(appId), type: 'active' });
     },
-    auditLogs: async (appId: number) => {
+    auditLogs: async (appId: number | string) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.auditLogs(appId) });
       await queryClient.refetchQueries({ queryKey: queryKeys.auditLogs(appId), type: 'active' });
     },
-    all: async (appId?: number) => {
+    all: async (appId?: number | string) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.apps }),
         queryClient.invalidateQueries({ queryKey: ['developer', 'overview'] }),
@@ -195,7 +195,7 @@ export function useGenerateKeys() {
 
   return useMutation({
     mutationFn: async (payload: {
-      app_id: number;
+      app_id: number | string;
       count: number;
       key_type: string;
       duration_days: number | null;
@@ -209,8 +209,8 @@ export function useGenerateKeys() {
       const items = data?.items as any[] | undefined;
       if (items?.length) {
         queryClient.setQueryData<any[]>(queryKeys.keys(appId), (old) => {
-          const ids = new Set((old ?? []).map((k) => k.id));
-          const fresh = items.filter((k) => k.id && !ids.has(k.id));
+          const ids = new Set((old ?? []).map((k: any) => `${k.id}`));
+          const fresh = items.filter((k: any) => k.id && !ids.has(`${k.id}`));
           return [...fresh, ...(old ?? [])];
         });
       }
@@ -230,11 +230,11 @@ export function useCreateLicenseKey() {
       return res.data;
     },
     onSuccess: async (data, vars: any) => {
-      const appId = vars?.app_id as number;
+      const appId = vars?.app_id;
       if (appId && data?.id) {
         queryClient.setQueryData<any[]>(queryKeys.keys(appId), (old) => {
           const list = old ?? [];
-          if (list.some((k) => k.id === data.id)) return list;
+          if (list.some((k) => `${k.id}` === `${data.id}`)) return list;
           return [data, ...list];
         });
       }
@@ -249,7 +249,7 @@ export function useDeleteLicenseKey() {
   const invalidate = useInvalidateDeveloperData();
 
   return useMutation({
-    mutationFn: async ({ id, appId }: { id: number; appId: number }) => {
+    mutationFn: async ({ id, appId }: { id: number | string; appId: number | string }) => {
       await api.delete(`/developer/keys/${id}`);
       return { id, appId };
     },
@@ -257,7 +257,7 @@ export function useDeleteLicenseKey() {
       await queryClient.cancelQueries({ queryKey: queryKeys.keys(appId) });
       const prev = queryClient.getQueryData<any[]>(queryKeys.keys(appId));
       queryClient.setQueryData<any[]>(queryKeys.keys(appId), (old) =>
-        (old ?? []).filter((k) => k.id !== id),
+        (old ?? []).filter((k) => `${k.id}` !== `${id}`),
       );
       return { prev, appId };
     },
@@ -277,7 +277,7 @@ export function useCreateAppUser() {
 
   return useMutation({
     mutationFn: async (payload: {
-      app_id: number;
+      app_id: number | string;
       username: string;
       password: string;
       email?: string;
@@ -289,7 +289,7 @@ export function useCreateAppUser() {
       if (data?.id) {
         queryClient.setQueryData<any>(queryKeys.users(vars.app_id), (old: any) => {
           const list = old ?? [];
-          if (list.some((u: any) => u.id === data.id)) return list;
+          if (list.some((u: any) => `${u.id}` === `${data.id}`)) return list;
           return [data, ...list];
         });
       }
@@ -304,7 +304,7 @@ export function useDeleteAppUser() {
   const invalidate = useInvalidateDeveloperData();
 
   return useMutation({
-    mutationFn: async ({ id, appId }: { id: number; appId: number }) => {
+    mutationFn: async ({ id, appId }: { id: number | string; appId: number | string }) => {
       await api.delete(`/developer/users/${id}`);
       return { id, appId };
     },
@@ -312,7 +312,7 @@ export function useDeleteAppUser() {
       await queryClient.cancelQueries({ queryKey: queryKeys.users(appId) });
       const prev = queryClient.getQueryData<any[]>(queryKeys.users(appId));
       queryClient.setQueryData<any[]>(queryKeys.users(appId), (old) =>
-        (old ?? []).filter((u) => u.id !== id),
+        (old ?? []).filter((u) => `${u.id}` !== `${id}`),
       );
       return { prev, appId };
     },
@@ -351,7 +351,7 @@ export function useToggleApp() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: number | string) => {
       await api.put(`/developer/apps/${id}/toggle`);
       return id;
     },
@@ -360,7 +360,7 @@ export function useToggleApp() {
       const previous = queryClient.getQueryData<any[]>(queryKeys.apps);
       queryClient.setQueryData<any[]>(queryKeys.apps, (old) =>
         (old ?? []).map((app) =>
-          app.id === id
+          `${app.id}` === `${id}`
             ? { ...app, status: app.status === 'active' ? 'inactive' : 'active' }
             : app,
         ),
@@ -379,7 +379,7 @@ export function useToggleApp() {
   });
 }
 
-export function useAnalytics(appId: number | null) {
+export function useAnalytics(appId: number | string | null) {
   const authed = useIsAuthenticated();
   return useQuery({
     queryKey: queryKeys.analytics(appId ?? 0, 7),
@@ -399,7 +399,7 @@ export function useDeleteApp() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: number | string) => {
       await api.delete(`/developer/apps/${id}`);
       return id;
     },
@@ -407,7 +407,7 @@ export function useDeleteApp() {
       await queryClient.cancelQueries({ queryKey: queryKeys.apps });
       const previous = queryClient.getQueryData<any[]>(queryKeys.apps);
       queryClient.setQueryData<any[]>(queryKeys.apps, (old) =>
-        (old ?? []).filter((app) => app.id !== id),
+        (old ?? []).filter((app) => `${app.id}` !== `${id}`),
       );
       return { previous };
     },
@@ -425,7 +425,7 @@ export function useDeleteApp() {
 
 /* ── Blacklist ────────────────────────────────────────────── */
 
-export function useBlacklist(appId: number | null) {
+export function useBlacklist(appId: number | string | null) {
   const authed = useIsAuthenticated();
   return useQuery({
     queryKey: queryKeys.blacklist(appId ?? 0),
@@ -443,7 +443,7 @@ export function useAddBlacklistEntry() {
   const queryClient = useQueryClient();
   const invalidate = useInvalidateDeveloperData();
   return useMutation({
-    mutationFn: async (payload: { app_id: number; type: string; value: string; reason?: string }) => {
+    mutationFn: async (payload: { app_id: number | string; type: string; value: string; reason?: string }) => {
       const res = await api.post('/developer/blacklist/add', payload);
       return res.data;
     },
@@ -457,7 +457,7 @@ export function useDeleteBlacklistEntry() {
   const queryClient = useQueryClient();
   const invalidate = useInvalidateDeveloperData();
   return useMutation({
-    mutationFn: async ({ id, appId }: { id: number; appId: number }) => {
+    mutationFn: async ({ id, appId }: { id: number | string; appId: number | string }) => {
       await api.delete(`/developer/blacklist/${id}`);
       return { id, appId };
     },
@@ -465,7 +465,7 @@ export function useDeleteBlacklistEntry() {
       await queryClient.cancelQueries({ queryKey: queryKeys.blacklist(appId) });
       const prev = queryClient.getQueryData<any[]>(queryKeys.blacklist(appId));
       queryClient.setQueryData<any[]>(queryKeys.blacklist(appId), (old) =>
-        (old ?? []).filter((e) => e.id !== id),
+        (old ?? []).filter((e) => `${e.id}` !== `${id}`),
       );
       return { prev, appId };
     },
@@ -480,7 +480,7 @@ export function useDeleteBlacklistEntry() {
 
 /* ── Variables ────────────────────────────────────────────── */
 
-export function useVariables(appId: number | null) {
+export function useVariables(appId: number | string | null) {
   const authed = useIsAuthenticated();
   return useQuery({
     queryKey: queryKeys.variables(appId ?? 0),
@@ -497,7 +497,7 @@ export function useVariables(appId: number | null) {
 export function useCreateVariable() {
   const invalidate = useInvalidateDeveloperData();
   return useMutation({
-    mutationFn: async (payload: { app_id: number; key_name: string; key_value: string; is_global: boolean }) => {
+    mutationFn: async (payload: { app_id: number | string; key_name: string; key_value: string; is_global: boolean }) => {
       const res = await api.post('/developer/variables/create', payload);
       return res.data;
     },
@@ -511,7 +511,7 @@ export function useDeleteVariable() {
   const queryClient = useQueryClient();
   const invalidate = useInvalidateDeveloperData();
   return useMutation({
-    mutationFn: async ({ id, appId }: { id: number; appId: number }) => {
+    mutationFn: async ({ id, appId }: { id: number | string; appId: number | string }) => {
       await api.delete(`/developer/variables/${id}`);
       return { id, appId };
     },
@@ -519,7 +519,7 @@ export function useDeleteVariable() {
       await queryClient.cancelQueries({ queryKey: queryKeys.variables(appId) });
       const prev = queryClient.getQueryData<any[]>(queryKeys.variables(appId));
       queryClient.setQueryData<any[]>(queryKeys.variables(appId), (old) =>
-        (old ?? []).filter((v) => v.id !== id),
+        (old ?? []).filter((v) => `${v.id}` !== `${id}`),
       );
       return { prev, appId };
     },
@@ -534,7 +534,7 @@ export function useDeleteVariable() {
 
 /* ── Audit Logs ───────────────────────────────────────────── */
 
-export function useAuditLogs(appId: number | null) {
+export function useAuditLogs(appId: number | string | null) {
   const authed = useIsAuthenticated();
   return useQuery({
     queryKey: queryKeys.auditLogs(appId ?? 0),
@@ -552,7 +552,7 @@ export function useAuditLogs(appId: number | null) {
 export function useClearAuditLogs() {
   const invalidate = useInvalidateDeveloperData();
   return useMutation({
-    mutationFn: async (appId: number) => {
+    mutationFn: async (appId: number | string) => {
       await api.delete(`/developer/analytics/${appId}/logs`);
       return appId;
     },
