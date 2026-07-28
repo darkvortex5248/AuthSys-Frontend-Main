@@ -867,6 +867,14 @@ async def ensure_database_schema(db: AsyncSession) -> None:
     except Exception as e:
         logger.warning(f"Schema auto-sync failed: {e}")
 
+    # Ensure default plans exist immediately (not deferred to background bootstrap)
+    try:
+        created = await ensure_default_plans(db)
+        if created:
+            logger.info(f"Schema: seeded {created} default subscription plans")
+    except Exception as e:
+        logger.warning(f"Schema: failed to seed default plans: {e}")
+
 
 async def ensure_default_plans(db: AsyncSession) -> int:
     res = await db.execute(select(SubscriptionPlan))

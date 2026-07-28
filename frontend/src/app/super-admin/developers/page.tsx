@@ -58,7 +58,26 @@ export default function DeveloperManagementPage() {
       await fetchData();
       toast.success(planId === null ? 'Plan removed' : 'Subscription assigned');
     } catch (err: any) {
-      toast.error(err.response?.data?.detail || 'Failed to update plan');
+      const detail = err.response?.data?.detail || '';
+      if (detail.includes('Plan not found')) {
+        // Self-healing: seed plans and retry
+        try {
+          const seed = await adminApi.post<{ plans: any[] }>('/admin/plans/seed');
+          setPlans(seed.data.plans || []);
+          if (planId !== null) {
+            const freshPlan = seed.data.plans?.find((p: any) => p.id === planId);
+            if (freshPlan) {
+              await adminApi.post(`/admin/developers/${devId}/plan?plan_id=${planId}`, {});
+              await fetchData();
+              toast.success('Subscription assigned');
+              return;
+            }
+          }
+        } catch {
+          // fall through to error
+        }
+      }
+      toast.error(detail || 'Failed to update plan');
     }
   };
 

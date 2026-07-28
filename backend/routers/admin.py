@@ -201,7 +201,14 @@ async def update_developer_plan(
     plan_res = await db.execute(select(SubscriptionPlan).where(SubscriptionPlan.id == plan_id))
     plan = plan_res.scalars().first()
     if not plan:
-        raise HTTPException(404, "Plan not found")
+        # Self-healing: re-seed default plans if the requested plan_id doesn't exist
+        logger.warning("[ADMIN] Plan id=%s not found — attempting self-heal via ensure_default_plans", plan_id)
+        from services.bootstrap import ensure_default_plans
+        await ensure_default_plans(db)
+        plan_res = await db.execute(select(SubscriptionPlan).where(SubscriptionPlan.id == plan_id))
+        plan = plan_res.scalars().first()
+        if not plan:
+            raise HTTPException(404, "Plan not found — please refresh the page and try again")
 
     dev.plan_id = plan.id
     dev.subscription_tier = tier_from_plan_name(plan.name)
