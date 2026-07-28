@@ -77,7 +77,7 @@ async def generate_key(req: KeyGenerate, dev: DeveloperAccount = Depends(get_cur
 
     new_key = LicenseKey(
         app_id=req.app_id, key_value=key_val, key_type=req.key_type, 
-        duration_days=req.duration_days, max_uses=max_devices, 
+        duration_days=req.duration_days, max_uses=req.max_uses, 
         max_devices=max_devices,
         note=req.note, seller_tag=req.seller_tag,
         expires_at=expires_at
@@ -127,7 +127,7 @@ async def bulk_generate(req: BulkKeyGenerate, dev: DeveloperAccount = Depends(ge
         k = LicenseKey(
             app_id=req.app_id, key_value=key_val,
             key_type=req.key_type, duration_days=req.duration_days, 
-            max_uses=max_devices, max_devices=max_devices,
+            max_uses=req.max_uses, max_devices=max_devices,
             note=req.note, seller_tag=req.seller_tag,
             expires_at=expires_at
         )

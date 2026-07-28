@@ -79,16 +79,10 @@ def validate_password(password: str) -> tuple[bool, str]:
     """Validate password meets minimum security requirements.
     Returns (is_valid, error_message).
     """
-    if not password or len(password) < 8:
-        return False, "Password must be at least 8 characters"
+    if not password or len(password) < 1:
+        return False, "Password cannot be empty"
     if len(password) > 128:
         return False, "Password must be at most 128 characters"
-    if not any(c.isupper() for c in password):
-        return False, "Password must contain at least one uppercase letter"
-    if not any(c.islower() for c in password):
-        return False, "Password must contain at least one lowercase letter"
-    if not any(c.isdigit() for c in password):
-        return False, "Password must contain at least one digit"
     return True, ""
 
 def compare_versions(v1: str, v2: str) -> int:
