@@ -19,6 +19,7 @@ function processQueue(error: unknown, token: string | null = null) {
 /** Routes under /admin/ that do not require admin JWT */
 function isPublicAdminRoute(url: string): boolean {
   return (
+    url.includes('/admin/session') ||
     url.includes('/admin/login') ||
     url.includes('/admin/change-password') ||
     url.includes('/admin/settings/public') ||
