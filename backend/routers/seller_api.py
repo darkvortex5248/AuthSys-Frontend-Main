@@ -11,7 +11,7 @@ from datetime import datetime, timezone, timedelta
 from core.database import get_db
 from core.transaction import db_transaction
 from core.deps import get_current_developer
-from core.security import get_password_hash
+from core.security import get_password_hash, validate_password
 from models.domain import SellerAccount, LicenseKey, Application, DeveloperAccount, EndUser, Blacklist, Variable, WebhookEndpoint, Session, ChatRoom, IPWhitelistRule, SubscriptionPlan, ActivationCode
 from services.plan_tiers import tier_from_plan_name
 from services.plan_enforcer import get_plan
@@ -188,6 +188,9 @@ async def seller_add_user(app_id: int, username: str, password: str, subscriptio
     existing = await db.execute(select(EndUser).where(EndUser.app_id == app_id, EndUser.username == username))
     if existing.scalars().first():
         raise HTTPException(status_code=400, detail="Username already exists")
+    is_valid, msg = validate_password(password)
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=msg)
     hashed_pw = get_password_hash(password)
     expires = datetime.now(timezone.utc) + timedelta(days=expiry)
     new_user = EndUser(
@@ -841,6 +844,9 @@ async def seller_reset_password(app_id: int, username: str, new_password: str, s
     user = user_res.scalars().first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    is_valid, msg = validate_password(new_password)
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=msg)
     user.password_hash = get_password_hash(new_password)
     await db.commit()
     return {"status": "success", "message": "Password updated"}

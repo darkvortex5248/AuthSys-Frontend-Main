@@ -560,7 +560,7 @@ async def get_sdks(admin: AdminUser = Depends(get_current_admin), db: AsyncSessi
 @router.post("/sdks", response_model=SDKDownloadResponse)
 @db_transaction
 async def create_sdk(sdk_in: SDKDownloadCreate, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
-    new_sdk = SDKDownload(**sdk_in.dict())
+    new_sdk = SDKDownload(**sdk_in.model_dump())
     db.add(new_sdk)
     await db.commit()
     await db.refresh(new_sdk)
@@ -573,7 +573,7 @@ async def update_sdk(id: int, sdk_in: SDKDownloadUpdate, admin: AdminUser = Depe
     sdk = res.scalars().first()
     if not sdk: raise HTTPException(404, "SDK not found")
     
-    for key, value in sdk_in.dict().items():
+    for key, value in sdk_in.model_dump().items():
         setattr(sdk, key, value)
     
     await db.commit()
@@ -611,7 +611,7 @@ async def get_payment_methods(admin: AdminUser = Depends(get_current_admin), db:
 @router.post("/payment-methods", response_model=PaymentMethodResponse)
 @db_transaction
 async def create_payment_method(method_in: PaymentMethodCreate, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
-    new_method = PaymentMethod(**method_in.dict())
+    new_method = PaymentMethod(**method_in.model_dump())
     db.add(new_method)
     await db.commit()
     await db.refresh(new_method)
@@ -624,7 +624,7 @@ async def update_payment_method(id: int, method_in: PaymentMethodUpdate, admin: 
     method = res.scalars().first()
     if not method: raise HTTPException(404, "Payment method not found")
     
-    for key, value in method_in.dict().items():
+    for key, value in method_in.model_dump().items():
         setattr(method, key, value)
     
     await db.commit()

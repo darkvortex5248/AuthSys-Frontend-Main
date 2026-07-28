@@ -88,7 +88,6 @@ async def register_user(request: Request, req: ClientRegisterRequest, db: AsyncS
     is_valid, msg = validate_password(req.password)
     if not is_valid:
         raise HTTPException(status_code=400, detail=msg)
-        raise HTTPException(400, "Password must be at least 1 character long")
 
     username_normalized = req.username.strip().lower()
     user_res = await db.execute(select(EndUser).where(EndUser.app_id == app.id, EndUser.username == username_normalized))
