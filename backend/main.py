@@ -68,8 +68,13 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+app.state._startup_done = False
+
 @app.on_event("startup")
 async def startup_event():
+    asyncio.create_task(_run_startup_phases())
+
+async def _run_startup_phases():
     import time
     start = time.time()
     logger.info("=" * 60)
@@ -88,10 +93,8 @@ async def startup_event():
         logger.error("[STARTUP] Phase 1/4 TIMEOUT after 60s. Tables may already exist; continuing.")
     except Exception as exc:
         logger.exception("[STARTUP] Phase 1/4 FAILED: %s", exc)
-        return
 
     # ─── Phase 2: Bootstrap schema (sync, 120s timeout) ────────────
-    # This adds known-missing columns, indexes, legacy renames
     try:
         logger.info("[STARTUP] Phase 2/4: Bootstrapping schema (columns, indexes, migrations)...")
         async with AsyncSessionLocal() as db:
@@ -102,7 +105,6 @@ async def startup_event():
         logger.error("[STARTUP] Phase 2/4 TIMEOUT after 120s.")
     except Exception as exc:
         logger.exception("[STARTUP] Phase 2/4 FAILED: %s", exc)
-        return
 
     # ─── Phase 3: Auto-sync any remaining missing columns (sync, 60s) ─
     try:
@@ -129,6 +131,7 @@ async def startup_event():
     asyncio.create_task(_background_seed())
 
     elapsed = time.time() - start
+    app.state._startup_done = True
     logger.info("=" * 60)
     logger.info("[STARTUP] ✓ Schema fully synchronized in %.1fs. App is live.", elapsed)
     logger.info("=" * 60)
@@ -277,6 +280,10 @@ async def start_scheduler():
     if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
         return
     asyncio.create_task(scheduler_loop())
+
+@app.get("/health")
+async def health():
+    return {"status": "ok", "startup_done": app.state._startup_done}
 
 @app.get("/")
 @limiter.limit("5/minute")
