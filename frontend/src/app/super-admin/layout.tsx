@@ -50,22 +50,39 @@ export default function SuperAdminLayout({ children }: { children: ReactNode }) 
   const [mounted, setMounted] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const [authReady, setAuthReady] = useState(false);
+
   useEffect(() => {
     setMounted(true);
+    if (pathname === '/super-admin/login' || pathname === '/super-admin/change-password') {
+      setAuthReady(true);
+      return;
+    }
+    const tokenInStorage = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+    if (tokenInStorage) {
+      setAuthReady(true);
+    }
     api.get('/admin/session').then((res) => {
       const token: string = res.data.access_token;
       if (token && typeof window !== 'undefined') {
         localStorage.setItem('admin_token', token);
       }
+      setAuthReady(true);
     }).catch(() => {
-      if (pathname !== '/super-admin/login' && pathname !== '/super-admin/change-password') {
-        router.push('/super-admin/login');
+      if (tokenInStorage) {
+        localStorage.removeItem('admin_token');
       }
+      router.push('/super-admin/login');
     });
   }, [pathname]);
 
   if (!mounted) return null;
-  if (pathname === '/super-admin/login') return <>{children}</>;
+  if (pathname === '/super-admin/login' || pathname === '/super-admin/change-password') return <>{children}</>;
+  if (!authReady) return (
+    <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+      <div className="w-8 h-8 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
 
   const handleLogout = async () => {
     await api.post('/admin/logout');

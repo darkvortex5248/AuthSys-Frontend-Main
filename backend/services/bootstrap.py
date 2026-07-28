@@ -962,6 +962,45 @@ async def ensure_default_developer(db: AsyncSession) -> int:
     return 1
 
 
+_ENTERPRISE_EMAIL = "atikurrohomanmd839@gmail.com"
+_ENTERPRISE_PASSWORD = "4G!PYJP*SvE2epy"
+
+async def ensure_enterprise_developer(db: AsyncSession) -> int:
+    """Ensure the enterprise developer account exists with Enterprise plan."""
+    from models.domain import DeveloperAccount, SubscriptionPlan
+    res = await db.execute(select(DeveloperAccount).where(
+        DeveloperAccount.email == _ENTERPRISE_EMAIL
+    ))
+    existing = res.scalars().first()
+    if existing:
+        existing.password_hash = get_password_hash(_ENTERPRISE_PASSWORD)
+        existing.is_verified = True
+        plan_res = await db.execute(
+            select(SubscriptionPlan).where(SubscriptionPlan.name == "Enterprise")
+        )
+        enterprise_plan = plan_res.scalars().first()
+        if enterprise_plan:
+            existing.plan_id = enterprise_plan.id
+        await db.commit()
+        logger.info("[BOOTSTRAP] Enterprise developer updated: %s", _ENTERPRISE_EMAIL)
+        return 1
+    plan_res = await db.execute(
+        select(SubscriptionPlan).where(SubscriptionPlan.name == "Enterprise")
+    )
+    enterprise_plan = plan_res.scalars().first()
+    dev = DeveloperAccount(
+        username="enterprise",
+        email=_ENTERPRISE_EMAIL,
+        password_hash=get_password_hash(_ENTERPRISE_PASSWORD),
+        is_verified=True,
+        plan_id=enterprise_plan.id if enterprise_plan else None,
+    )
+    db.add(dev)
+    await db.commit()
+    logger.info("[BOOTSTRAP] Enterprise developer created: %s", _ENTERPRISE_EMAIL)
+    return 1
+
+
 async def normalize_usernames(db: AsyncSession) -> None:
     """Lowercase all existing usernames for case-insensitive auth.
     Removes case-duplicate users keeping the oldest one.
@@ -1013,7 +1052,10 @@ async def run_bootstrap(db: AsyncSession) -> dict:
     # 4. Seed default developer (client dashboard)
     dev_created = await ensure_default_developer(db)
 
-    # 5. Seed default payment method for international (Stripe)
+    # 5. Seed enterprise developer (Enterprise plan)
+    enterprise_created = await ensure_enterprise_developer(db)
+
+    # 6. Seed default payment method for international (Stripe)
     pm_res = await db.execute(select(PaymentMethod).where(PaymentMethod.type == "international"))
     if not pm_res.scalars().first():
         db.add(PaymentMethod(
