@@ -52,8 +52,12 @@ export default function SuperAdminLayout({ children }: { children: ReactNode }) 
 
   useEffect(() => {
     setMounted(true);
-    // Validate admin session via HttpOnly cookie (server-side validated)
-    api.get('/admin/session').catch(() => {
+    api.get('/admin/session').then((res) => {
+      const token: string = res.data.access_token;
+      if (token && typeof window !== 'undefined') {
+        localStorage.setItem('admin_token', token);
+      }
+    }).catch(() => {
       if (pathname !== '/super-admin/login' && pathname !== '/super-admin/change-password') {
         router.push('/super-admin/login');
       }
@@ -65,6 +69,9 @@ export default function SuperAdminLayout({ children }: { children: ReactNode }) 
 
   const handleLogout = async () => {
     await api.post('/admin/logout');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('admin_token');
+    }
     router.push('/super-admin/login');
   };
 

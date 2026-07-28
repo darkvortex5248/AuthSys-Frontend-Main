@@ -32,7 +32,13 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const devToken = useAuthStore.getState().token;
 
   if (isAdminRoute(url)) {
-    delete config.headers.Authorization;
+    const adminToken =
+      typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+    if (adminToken) {
+      config.headers.Authorization = `Bearer ${adminToken}`;
+    } else {
+      delete config.headers.Authorization;
+    }
     return config;
   }
 

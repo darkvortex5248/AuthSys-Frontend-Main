@@ -17,7 +17,10 @@ export default function AdminLoginPage() {
     
     try {
       const res = await api.post('/admin/login', { username, password });
-      // Backend sets HttpOnly cookie automatically — no need for localStorage
+      const token: string = res.data.access_token;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('admin_token', token);
+      }
       if (res.data.must_change_password) {
         router.push('/super-admin/change-password');
       } else {
