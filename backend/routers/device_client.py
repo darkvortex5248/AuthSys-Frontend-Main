@@ -4,6 +4,7 @@ from sqlalchemy.future import select
 from sqlalchemy import func
 from datetime import datetime, timezone
 from core.database import get_db
+from core.transaction import db_transaction
 from models.domain import DeviceGroup, Device
 
 router = APIRouter(prefix="/device", tags=["Device Activation"])
@@ -25,6 +26,7 @@ async def get_device_group_by_secret(group_secret: str, db: AsyncSession) -> Dev
 
 
 @router.post("/register")
+@db_transaction
 async def register_device(data: dict, db: AsyncSession = Depends(get_db)):
     group_secret = (data.get("group_secret") or "").strip()
     hwid = (data.get("hwid") or "").strip()
@@ -70,6 +72,7 @@ async def register_device(data: dict, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/check")
+@db_transaction
 async def check_device(data: dict, db: AsyncSession = Depends(get_db)):
     group_secret = (data.get("group_secret") or "").strip()
     hwid = (data.get("hwid") or "").strip()

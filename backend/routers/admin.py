@@ -7,6 +7,7 @@ from sqlalchemy import func, or_, or_
 from core.database import get_db, Base
 from core.deps import oauth2_scheme
 from core.limiter import limiter
+from core.transaction import db_transaction
 from jose import jwt, JWTError
 from core.config import settings
 from core.security import ALGORITHM, verify_password, create_access_token, get_password_hash, encrypt_field, decrypt_field, validate_password
@@ -48,6 +49,7 @@ async def get_current_admin(token: str = Depends(oauth2_scheme), db: AsyncSessio
     return admin
 
 @router.post("/login", response_model=Token)
+@db_transaction
 @limiter.limit("5/minute")
 async def admin_login(request: Request, login_data: AdminLogin, db: AsyncSession = Depends(get_db)):
     stmt = select(AdminUser).where(
@@ -107,6 +109,7 @@ async def admin_restore_session(request: Request):
     return {"access_token": token, "token_type": "bearer"}
 
 @router.post("/logout")
+@db_transaction
 async def admin_logout(request: Request):
     secure = request.url.scheme == "https"
     response = JSONResponse(content={"success": True, "message": "Logged out"})
@@ -120,6 +123,7 @@ async def admin_logout(request: Request):
     return response
 
 @router.post("/change-password")
+@db_transaction
 async def admin_change_password(
     request: Request,
     body: dict = Body(...),
@@ -161,6 +165,7 @@ async def get_developers(
     return {"items": items, "total": total, "page": page, "per_page": per_page}
 
 @router.post("/developers/{id}/ban")
+@db_transaction
 async def ban_developer(id: int, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(DeveloperAccount).where(DeveloperAccount.id == id))
     dev = res.scalars().first()
@@ -170,6 +175,7 @@ async def ban_developer(id: int, admin: AdminUser = Depends(get_current_admin), 
     return {"status": "success", "is_banned": True}
 
 @router.post("/developers/{id}/unban")
+@db_transaction
 async def unban_developer(id: int, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(DeveloperAccount).where(DeveloperAccount.id == id))
     dev = res.scalars().first()
@@ -179,6 +185,7 @@ async def unban_developer(id: int, admin: AdminUser = Depends(get_current_admin)
     return {"status": "success", "is_banned": False}
 
 @router.post("/developers/{id}/plan")
+@db_transaction
 async def update_developer_plan(
     id: int,
     plan_id: Optional[int] = Query(None),
@@ -223,6 +230,7 @@ async def update_developer_plan(
 
 
 @router.delete("/developers/{id}/plan")
+@db_transaction
 async def clear_developer_plan(
     id: int,
     admin: AdminUser = Depends(get_current_admin),
@@ -273,14 +281,16 @@ async def get_plans(admin: AdminUser = Depends(get_current_admin), db: AsyncSess
     return res.scalars().all()
 
 @router.post("/plans", response_model=PlanResponse)
+@db_transaction
 async def create_plan(plan_in: PlanCreate, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     new_plan = SubscriptionPlan(**plan_in.model_dump())
     db.add(new_plan)
-    await db.commit()
+    await db.flush()
     await db.refresh(new_plan)
     return new_plan
 
 @router.put("/plans/{id}", response_model=PlanResponse)
+@db_transaction
 async def update_plan(id: int, plan_in: PlanUpdate, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SubscriptionPlan).where(SubscriptionPlan.id == id))
     plan = res.scalars().first()
@@ -297,6 +307,7 @@ async def update_plan(id: int, plan_in: PlanUpdate, admin: AdminUser = Depends(g
 
 
 @router.delete("/plans/{id}")
+@db_transaction
 async def delete_plan(id: int, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SubscriptionPlan).where(SubscriptionPlan.id == id))
     plan = res.scalars().first()
@@ -311,6 +322,7 @@ async def delete_plan(id: int, admin: AdminUser = Depends(get_current_admin), db
 
 
 @router.post("/plans/seed")
+@db_transaction
 async def seed_plans(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     created = await ensure_default_plans(db)
     res = await db.execute(select(SubscriptionPlan).order_by(SubscriptionPlan.id.asc()))
@@ -318,6 +330,7 @@ async def seed_plans(admin: AdminUser = Depends(get_current_admin), db: AsyncSes
 
 
 @router.post("/bootstrap")
+@db_transaction
 async def bootstrap_platform(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     result = await run_bootstrap(db)
     return {"status": "success", **result}
@@ -342,6 +355,7 @@ async def get_ai_config(admin: AdminUser = Depends(get_current_admin), db: Async
 
 
 @router.put("/ai/config", response_model=AIConfigResponse)
+@db_transaction
 async def update_ai_config(
     body: AIConfigUpdate,
     admin: AdminUser = Depends(get_current_admin),
@@ -363,6 +377,7 @@ async def update_ai_config(
 
 
 @router.post("/ai/test", response_model=AIConfigTestResponse)
+@db_transaction
 async def test_ai_config(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     from services.ai_config import get_ai_runtime_config
 
@@ -425,6 +440,7 @@ ALLOWED_SETTING_KEYS = {
 }
 
 @router.put("/settings/bulk")
+@db_transaction
 async def bulk_update_settings(
     payload: dict,
     admin: AdminUser = Depends(get_current_admin),
@@ -449,6 +465,7 @@ async def bulk_update_settings(
     return {"status": "success", "updated": updated}
 
 @router.post("/settings", response_model=SystemSettingResponse)
+@db_transaction
 async def create_setting(setting_in: SystemSettingCreate, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     new_setting = SystemSetting(**setting_in.model_dump())
     db.add(new_setting)
@@ -483,6 +500,7 @@ async def get_payments(admin: AdminUser = Depends(get_current_admin), db: AsyncS
     return results
 
 @router.put("/payments/{id}/status")
+@db_transaction
 async def update_payment_status(id: int, status: str, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(Payment).where(Payment.id == id))
     payment = res.scalars().first()
@@ -510,6 +528,7 @@ async def get_public_settings(db: AsyncSession = Depends(get_db)):
     return res.scalars().all()
 
 @router.put("/settings/{key}", response_model=SystemSettingResponse)
+@db_transaction
 async def update_setting(key: str, setting_in: SystemSettingUpdate, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SystemSetting).where(SystemSetting.key == key))
     setting = res.scalars().first()
@@ -539,6 +558,7 @@ async def get_sdks(admin: AdminUser = Depends(get_current_admin), db: AsyncSessi
     return res.scalars().all()
 
 @router.post("/sdks", response_model=SDKDownloadResponse)
+@db_transaction
 async def create_sdk(sdk_in: SDKDownloadCreate, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     new_sdk = SDKDownload(**sdk_in.dict())
     db.add(new_sdk)
@@ -547,6 +567,7 @@ async def create_sdk(sdk_in: SDKDownloadCreate, admin: AdminUser = Depends(get_c
     return new_sdk
 
 @router.put("/sdks/{id}", response_model=SDKDownloadResponse)
+@db_transaction
 async def update_sdk(id: int, sdk_in: SDKDownloadUpdate, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SDKDownload).where(SDKDownload.id == id))
     sdk = res.scalars().first()
@@ -560,6 +581,7 @@ async def update_sdk(id: int, sdk_in: SDKDownloadUpdate, admin: AdminUser = Depe
     return sdk
 
 @router.delete("/sdks/{id}")
+@db_transaction
 async def delete_sdk(id: int, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SDKDownload).where(SDKDownload.id == id))
     sdk = res.scalars().first()
@@ -587,6 +609,7 @@ async def get_payment_methods(admin: AdminUser = Depends(get_current_admin), db:
     return res.scalars().all()
 
 @router.post("/payment-methods", response_model=PaymentMethodResponse)
+@db_transaction
 async def create_payment_method(method_in: PaymentMethodCreate, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     new_method = PaymentMethod(**method_in.dict())
     db.add(new_method)
@@ -595,6 +618,7 @@ async def create_payment_method(method_in: PaymentMethodCreate, admin: AdminUser
     return new_method
 
 @router.put("/payment-methods/{id}", response_model=PaymentMethodResponse)
+@db_transaction
 async def update_payment_method(id: int, method_in: PaymentMethodUpdate, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(PaymentMethod).where(PaymentMethod.id == id))
     method = res.scalars().first()
@@ -608,6 +632,7 @@ async def update_payment_method(id: int, method_in: PaymentMethodUpdate, admin: 
     return method
 
 @router.delete("/payment-methods/{id}")
+@db_transaction
 async def delete_payment_method(id: int, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(PaymentMethod).where(PaymentMethod.id == id))
     method = res.scalars().first()
@@ -714,6 +739,7 @@ async def get_admin_end_users(
 
 
 @router.post("/end-users/{id}/ban")
+@db_transaction
 async def ban_end_user(id: int, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(EndUser).where(EndUser.id == id))
     user = res.scalars().first()
@@ -725,6 +751,7 @@ async def ban_end_user(id: int, admin: AdminUser = Depends(get_current_admin), d
 
 
 @router.post("/end-users/{id}/unban")
+@db_transaction
 async def unban_end_user(id: int, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(EndUser).where(EndUser.id == id))
     user = res.scalars().first()
@@ -736,6 +763,7 @@ async def unban_end_user(id: int, admin: AdminUser = Depends(get_current_admin),
 
 
 @router.post("/end-users/categorize")
+@db_transaction
 async def categorize_end_users(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     now = dt_now = datetime.now(timezone.utc)
     thirty_days_ago = dt_now - timedelta(days=30)
@@ -764,6 +792,7 @@ async def categorize_end_users(admin: AdminUser = Depends(get_current_admin), db
 
 
 @router.post("/end-users/purge")
+@db_transaction
 async def purge_end_users(
     older_than_days: int = Query(365, ge=1),
     category: Optional[str] = Query(None),
@@ -793,6 +822,7 @@ async def purge_end_users(
 
 
 @router.post("/end-users/bulk/ban")
+@db_transaction
 async def bulk_ban_end_users(
     ids: List[int],
     admin: AdminUser = Depends(get_current_admin),
@@ -807,6 +837,7 @@ async def bulk_ban_end_users(
 
 
 @router.post("/end-users/bulk/delete")
+@db_transaction
 async def bulk_delete_end_users(
     ids: List[int],
     admin: AdminUser = Depends(get_current_admin),
@@ -863,6 +894,7 @@ async def get_admin_users(admin: AdminUser = Depends(get_current_admin), db: Asy
 
 
 @router.post("/admins")
+@db_transaction
 async def create_admin_user(
     data: dict,
     admin: AdminUser = Depends(get_current_admin),
@@ -890,6 +922,7 @@ async def create_admin_user(
 
 
 @router.delete("/admins/{id}")
+@db_transaction
 async def delete_admin_user(id: int, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     if admin.id == id:
         raise HTTPException(400, "Cannot delete yourself")
@@ -949,6 +982,7 @@ async def get_rate_limits(admin: AdminUser = Depends(get_current_admin), db: Asy
 
 
 @router.put("/rate-limits/{limit_id}")
+@db_transaction
 async def update_rate_limit(
     limit_id: int,
     data: dict,
@@ -1070,6 +1104,7 @@ async def get_ai_providers(admin: AdminUser = Depends(get_current_admin), db: As
 
 
 @router.post("/ai/providers")
+@db_transaction
 async def create_ai_provider(
     data: dict,
     admin: AdminUser = Depends(get_current_admin),
@@ -1093,6 +1128,7 @@ async def create_ai_provider(
 
 
 @router.put("/ai/providers/{provider_id}")
+@db_transaction
 async def update_ai_provider(
     provider_id: int,
     data: dict,
@@ -1122,6 +1158,7 @@ async def update_ai_provider(
 
 
 @router.delete("/ai/providers/{provider_id}")
+@db_transaction
 async def delete_ai_provider(
     provider_id: int,
     admin: AdminUser = Depends(get_current_admin),
@@ -1137,6 +1174,7 @@ async def delete_ai_provider(
 
 
 @router.post("/ai/providers/{provider_id}/test", response_model=AIConfigTestResponse)
+@db_transaction
 async def test_single_ai_provider(
     provider_id: int,
     admin: AdminUser = Depends(get_current_admin),
@@ -1172,6 +1210,7 @@ async def test_single_ai_provider(
 # ── Announcements ──────────────────────────────────────────
 
 @router.post("/announcements")
+@db_transaction
 async def create_announcement(
     data: AnnouncementCreate,
     admin: AdminUser = Depends(get_current_admin),
@@ -1230,6 +1269,7 @@ async def list_backups(admin: AdminUser = Depends(get_current_admin), db: AsyncS
     } for b in res.scalars().all()]
 
 @router.post("/backups")
+@db_transaction
 async def create_backup(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     from sqlalchemy import inspect as sa_inspect, text
     from sqlalchemy.sql import select as sa_select
@@ -1270,6 +1310,7 @@ async def create_backup(admin: AdminUser = Depends(get_current_admin), db: Async
     return {"id": backup.id, "size": _format_size(backup.size_bytes), "status": backup.status, "created_at": backup.created_at.isoformat()}
 
 @router.post("/backups/{backup_id}/restore")
+@db_transaction
 async def restore_backup(backup_id: int, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     from sqlalchemy import text
 
@@ -1372,6 +1413,7 @@ async def list_activation_codes(
 
 
 @router.post("/activation-codes")
+@db_transaction
 async def create_activation_code(
     data: dict,
     admin: AdminUser = Depends(get_current_admin),
@@ -1417,6 +1459,7 @@ async def create_activation_code(
 
 
 @router.put("/activation-codes/{code_id}/toggle")
+@db_transaction
 async def toggle_activation_code(
     code_id: int,
     admin: AdminUser = Depends(get_current_admin),
@@ -1432,6 +1475,7 @@ async def toggle_activation_code(
 
 
 @router.delete("/activation-codes/{code_id}")
+@db_transaction
 async def delete_activation_code(
     code_id: int,
     admin: AdminUser = Depends(get_current_admin),

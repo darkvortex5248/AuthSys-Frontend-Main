@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import List
 
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from core.limiter import limiter
 from models.domain import DeveloperAccount
@@ -34,6 +35,7 @@ async def get_public_ai_config(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/chat")
+@db_transaction
 @limiter.limit("20/minute")
 async def ai_chat(
     request: Request,

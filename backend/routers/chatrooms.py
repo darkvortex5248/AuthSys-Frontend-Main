@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from datetime import datetime
 
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import ChatRoom, ChatMessage, Application, DeveloperAccount, EndUser
 from services.plan_enforcer import require_feature, check_limit
@@ -35,6 +36,7 @@ async def get_rooms(dev: DeveloperAccount = Depends(get_current_developer), db: 
     return res.scalars().all()
 
 @router.post("", response_model=ChatRoomResponse)
+@db_transaction
 async def create_room(req: ChatRoomCreate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     plan = await require_feature(dev, "has_live_chat", db)
     # Verify app ownership

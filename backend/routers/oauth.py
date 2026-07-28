@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from core.database import get_db
+from core.transaction import db_transaction
 from core.config import settings
 from core.security import get_password_hash, create_access_token
 from models.domain import DeveloperAccount, SubscriptionPlan
@@ -116,6 +117,7 @@ async def _issue_jwt(user: DeveloperAccount, request: Request, db: AsyncSession)
 
 
 @router.post("/oauth/callback")
+@db_transaction
 async def oauth_callback(
     request: Request,
     body: dict,
@@ -304,6 +306,7 @@ async def oauth_callback(
 
 
 @router.post("/google-login")
+@db_transaction
 async def google_login(
     request: Request,
     body: dict,

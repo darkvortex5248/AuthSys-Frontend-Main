@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from core.database import get_db
+from core.transaction import db_transaction
 from core.config import settings
 from models.domain import DeveloperAccount, SubscriptionPlan, Payment, PaymentMethod
 from core.deps import get_current_developer
@@ -39,6 +40,7 @@ async def list_payment_methods(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/order")
+@db_transaction
 async def create_order(
     order: OrderCreate, 
     dev: DeveloperAccount = Depends(get_current_developer), 
@@ -84,6 +86,7 @@ async def create_order(
 
 
 @router.post("/create-checkout-session")
+@db_transaction
 async def create_stripe_checkout_session(
     req: CheckoutSessionCreate,
     dev: DeveloperAccount = Depends(get_current_developer),
@@ -112,6 +115,7 @@ async def create_stripe_checkout_session(
 
 
 @router.post("/stripe-webhook")
+@db_transaction
 async def stripe_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature", "")

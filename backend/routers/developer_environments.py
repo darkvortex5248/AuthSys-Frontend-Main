@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import DeveloperAccount, Application, AppEnvironment
 from schemas.premium import AppEnvironmentCreate, AppEnvironmentResponse
@@ -21,6 +22,7 @@ async def get_environments(dev: DeveloperAccount = Depends(get_current_developer
     return res.scalars().all()
 
 @router.post("", response_model=AppEnvironmentResponse)
+@db_transaction
 async def create_environment(env: AppEnvironmentCreate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     app_res = await db.execute(
         select(Application).where(Application.id == env.parent_app_id, Application.developer_id == dev.id)
@@ -48,6 +50,7 @@ async def create_environment(env: AppEnvironmentCreate, dev: DeveloperAccount = 
     return new_env
 
 @router.delete("/{env_id}")
+@db_transaction
 async def delete_environment(env_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(
         select(AppEnvironment)
@@ -62,6 +65,7 @@ async def delete_environment(env_id: int, dev: DeveloperAccount = Depends(get_cu
     return {"status": "deleted"}
 
 @router.post("/{env_id}/regenerate-secret")
+@db_transaction
 async def regen_env_secret(env_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(
         select(AppEnvironment)

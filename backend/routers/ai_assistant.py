@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from sqlalchemy import select
 
 from core.database import get_db
+from core.transaction import db_transaction
 from core.security import encrypt_field, decrypt_field
 from services.ai_service import ai_service, AIMessage, AIProvider
 from services.action_registry import action_registry, ActionResult
@@ -81,6 +82,7 @@ class ConversationResponse(BaseModel):
 
 
 @router.post("/chat")
+@db_transaction
 async def chat(
     request: ChatRequest,
     current_user: DeveloperAccount = Depends(get_current_developer),
@@ -209,6 +211,7 @@ async def get_providers(
 
 
 @router.post("/conversations")
+@db_transaction
 async def create_conversation(
     request: ConversationCreate,
     current_user: DeveloperAccount = Depends(get_current_developer),
@@ -273,6 +276,7 @@ async def get_conversation(
 
 
 @router.delete("/conversations/{conversation_id}")
+@db_transaction
 async def delete_conversation(
     conversation_id: int,
     current_user: DeveloperAccount = Depends(get_current_developer),
@@ -336,6 +340,7 @@ async def get_provider_configs(
 
 
 @router.post("/admin/providers")
+@db_transaction
 async def create_provider_config(
     config: ProviderConfigCreate,
     current_user: DeveloperAccount = Depends(get_current_developer),
@@ -384,6 +389,7 @@ async def create_provider_config(
 
 
 @router.put("/admin/providers/{config_id}")
+@db_transaction
 async def update_provider_config(
     config_id: int,
     config: ProviderConfigUpdate,
@@ -445,6 +451,7 @@ async def update_provider_config(
 
 
 @router.delete("/admin/providers/{config_id}")
+@db_transaction
 async def delete_provider_config(
     config_id: int,
     current_user: DeveloperAccount = Depends(get_current_developer),

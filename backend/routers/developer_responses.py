@@ -6,6 +6,7 @@ from typing import Dict
 from datetime import datetime
 
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import SystemSetting, DeveloperAccount
 
@@ -93,6 +94,7 @@ async def get_response_messages(
 
 
 @router.put("/response-messages")
+@db_transaction
 async def update_response_messages(
     payload: ResponseMessagesUpdate,
     dev: DeveloperAccount = Depends(get_current_developer),
@@ -120,6 +122,7 @@ async def update_response_messages(
 
 
 @router.delete("/response-messages")
+@db_transaction
 async def reset_response_messages(
     dev: DeveloperAccount = Depends(get_current_developer),
     db: AsyncSession = Depends(get_db),

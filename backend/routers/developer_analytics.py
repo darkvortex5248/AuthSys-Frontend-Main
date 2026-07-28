@@ -6,6 +6,7 @@ import traceback
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import ActivityLog, DeveloperAccount, Application, EndUser, LicenseKey, Session, TeamMember
 from sqlalchemy import func
@@ -295,6 +296,7 @@ async def get_app_analytics(app_id: int, dev: DeveloperAccount = Depends(get_cur
     stats["app_status"] = app.status
     return stats
 @router.delete("/{app_id}/logs")
+@db_transaction
 async def clear_app_logs(app_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     await require_feature(dev, "has_audit_logs", db)
     await verify_app_owner(app_id, dev.id, db)

@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import Variable, DeveloperAccount
 from routers.developer_keys import verify_app_owner
@@ -17,6 +18,7 @@ async def get_variables(app_id: int, dev: DeveloperAccount = Depends(get_current
     return res.scalars().all()
 
 @router.post("/create")
+@db_transaction
 async def create_variable(req: VariableCreate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     await verify_app_owner(req.app_id, dev.id, db)
     plan = await require_feature(dev, "has_api_access", db)
@@ -30,6 +32,7 @@ async def create_variable(req: VariableCreate, dev: DeveloperAccount = Depends(g
     return {"status": "created"}
 
 @router.delete("/{id}")
+@db_transaction
 async def delete_variable(id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(Variable).where(Variable.id == id))
     v = res.scalars().first()

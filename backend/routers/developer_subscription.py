@@ -4,6 +4,7 @@ from sqlalchemy.future import select
 from sqlalchemy import func
 from datetime import datetime, timezone
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import DeveloperAccount, ActivationCode, SubscriptionPlan, SellerAccount
 from services.plan_tiers import tier_from_plan_name
@@ -71,6 +72,7 @@ async def get_plan_info(
 
 
 @router.post("/redeem")
+@db_transaction
 async def redeem_code(
     data: dict,
     dev: DeveloperAccount = Depends(_get_dev),

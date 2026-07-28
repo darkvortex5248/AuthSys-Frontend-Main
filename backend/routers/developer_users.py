@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from datetime import datetime, timedelta, timezone
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import EndUser, DeveloperAccount, Session, utc_now
 from routers.developer_keys import verify_app_owner
@@ -33,6 +34,7 @@ async def get_users(app_id: int, show_shadow: bool = False, skip: int = 0, limit
     return {"users": users, "total": total, "skip": skip, "limit": limit}
 
 @router.post("/create")
+@db_transaction
 async def create_user_manual(req: UserCreateManual, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     app = await verify_app_owner(req.app_id, dev.id, db)
     plan = await require_feature(dev, "has_user_panel", db)
@@ -71,6 +73,7 @@ async def create_user_manual(req: UserCreateManual, dev: DeveloperAccount = Depe
     return new_user
 
 @router.post("/bulk-create")
+@db_transaction
 async def bulk_create_users(req: BulkUserCreate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     app = await verify_app_owner(req.app_id, dev.id, db)
     plan = await require_feature(dev, "has_user_panel", db)
@@ -153,6 +156,7 @@ async def bulk_create_users(req: BulkUserCreate, dev: DeveloperAccount = Depends
     }
 
 @router.post("/{user_id}/ban")
+@db_transaction
 async def ban_user(user_id: int, req: BanRequest, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(EndUser).where(EndUser.id == user_id))
     user = res.scalars().first()
@@ -178,6 +182,7 @@ async def ban_user(user_id: int, req: BanRequest, dev: DeveloperAccount = Depend
     return {"status": "banned"}
 
 @router.post("/{user_id}/unban")
+@db_transaction
 async def unban_user(user_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(EndUser).where(EndUser.id == user_id))
     user = res.scalars().first()
@@ -191,6 +196,7 @@ async def unban_user(user_id: int, dev: DeveloperAccount = Depends(get_current_d
     return {"status": "unbanned"}
 
 @router.post("/{user_id}/hwid-reset")
+@db_transaction
 async def hwid_reset(user_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(EndUser).where(EndUser.id == user_id))
     user = res.scalars().first()
@@ -219,6 +225,7 @@ class UserUpdate(BaseModel):
     password: Optional[str] = None
 
 @router.put("/{user_id}")
+@db_transaction
 async def update_user(user_id: int, req: UserUpdate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(EndUser).where(EndUser.id == user_id))
     user = res.scalars().first()
@@ -243,6 +250,7 @@ async def update_user(user_id: int, req: UserUpdate, dev: DeveloperAccount = Dep
     return user
 
 @router.delete("/{user_id}")
+@db_transaction
 async def delete_user(user_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     from sqlalchemy import delete as sa_delete
     try:

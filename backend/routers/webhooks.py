@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import desc, delete as sa_delete
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import WebhookLog, DeveloperAccount, WebhookEndpoint, WebhookDelivery, Application
 from schemas.dashboard import WebhookEndpointCreate, WebhookEndpointUpdate, WebhookEndpointResponse
@@ -77,6 +78,7 @@ async def list_webhooks(dev: DeveloperAccount = Depends(get_current_developer), 
     return [format_endpoint(ep) for ep in res.scalars().all()]
 
 @router.post("", response_model=dict)
+@db_transaction
 async def create_webhook(req: WebhookEndpointCreate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     """Create a new webhook endpoint."""
     await require_feature(dev, "has_webhooks", db)
@@ -103,6 +105,7 @@ async def get_webhook(ep_id: int, dev: DeveloperAccount = Depends(get_current_de
     return format_endpoint(ep)
 
 @router.put("/{ep_id}", response_model=dict)
+@db_transaction
 async def update_webhook(ep_id: int, req: WebhookEndpointUpdate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     """Update a webhook endpoint (also used for toggle)."""
     await require_feature(dev, "has_webhooks", db)
@@ -119,6 +122,7 @@ async def update_webhook(ep_id: int, req: WebhookEndpointUpdate, dev: DeveloperA
     return format_endpoint(ep)
 
 @router.delete("/{ep_id}")
+@db_transaction
 async def delete_webhook(ep_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     """Delete a webhook endpoint."""
     await require_feature(dev, "has_webhooks", db)
@@ -131,6 +135,7 @@ async def delete_webhook(ep_id: int, dev: DeveloperAccount = Depends(get_current
     return {"status": "deleted"}
 
 @router.post("/{ep_id}/test")
+@db_transaction
 async def test_webhook(ep_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     """Send a test event to a webhook endpoint."""
     await require_feature(dev, "has_webhooks", db)
@@ -201,6 +206,7 @@ async def get_webhook_endpoint_logs(ep_id: int, dev: DeveloperAccount = Depends(
 # ── Internal trigger helper ──────────────────────────────────────────────
 
 @router.post("/{ep_id}/retry")
+@db_transaction
 async def retry_delivery(ep_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     await require_feature(dev, "has_webhooks", db)
     ep_res = await db.execute(select(WebhookEndpoint).where(WebhookEndpoint.id == ep_id))

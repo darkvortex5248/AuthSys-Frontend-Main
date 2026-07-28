@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import delete, update
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import PricingItem, DeveloperAccount
 from typing import List, Optional
@@ -83,6 +84,7 @@ async def get_pricing_item(
     return item
 
 @router.post("/items", response_model=PricingItemResponse)
+@db_transaction
 async def create_pricing_item(
     item: PricingItemCreate,
     db: AsyncSession = Depends(get_db),
@@ -106,6 +108,7 @@ async def create_pricing_item(
     return db_item
 
 @router.put("/items/{item_id}", response_model=PricingItemResponse)
+@db_transaction
 async def update_pricing_item(
     item_id: int,
     item: PricingItemUpdate,
@@ -129,6 +132,7 @@ async def update_pricing_item(
     return db_item
 
 @router.delete("/items/{item_id}")
+@db_transaction
 async def delete_pricing_item(
     item_id: int,
     db: AsyncSession = Depends(get_db),

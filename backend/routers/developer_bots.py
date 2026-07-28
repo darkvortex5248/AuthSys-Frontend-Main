@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from datetime import datetime
 
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import BotConfig, DeveloperAccount, Application
 from services.plan_enforcer import require_feature
@@ -49,6 +50,7 @@ async def get_bots(dev: DeveloperAccount = Depends(get_current_developer), db: A
     return bots
 
 @router.post("/config", response_model=BotConfigResponse)
+@db_transaction
 async def configure_bot(req: BotCreateRequest, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     if req.bot_type == "discord":
         await require_feature(dev, "has_discord_integration", db)
@@ -92,6 +94,7 @@ async def configure_bot(req: BotCreateRequest, dev: DeveloperAccount = Depends(g
     return new_bot
 
 @router.patch("/{bot_id}/toggle")
+@db_transaction
 async def toggle_bot(bot_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(BotConfig).where(BotConfig.id == bot_id, BotConfig.developer_id == dev.id))
     bot = res.scalars().first()
@@ -102,6 +105,7 @@ async def toggle_bot(bot_id: int, dev: DeveloperAccount = Depends(get_current_de
     return {"status": "success", "is_active": bot.is_active}
 
 @router.delete("/{bot_id}")
+@db_transaction
 async def delete_bot(bot_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(BotConfig).where(BotConfig.id == bot_id, BotConfig.developer_id == dev.id))
     bot = res.scalars().first()

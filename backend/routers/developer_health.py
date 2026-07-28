@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import func, desc
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import DeveloperAccount, Application, HealthCheckRecord, LogRetentionConfig, ActivityLog
 from schemas.premium import HealthCheckResponse, LogRetentionUpdate, LogRetentionResponse
@@ -98,6 +99,7 @@ async def get_retention(app_id: int, dev: DeveloperAccount = Depends(get_current
     return cfg
 
 @router.put("/retention/{app_id}", response_model=LogRetentionResponse)
+@db_transaction
 async def update_retention(app_id: int, upd: LogRetentionUpdate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     app_res = await db.execute(
         select(Application).where(Application.id == app_id, Application.developer_id == dev.id)

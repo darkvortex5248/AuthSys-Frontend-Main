@@ -9,6 +9,7 @@ import string
 from datetime import datetime, timezone, timedelta
 
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from core.security import get_password_hash
 from models.domain import SellerAccount, LicenseKey, Application, DeveloperAccount, EndUser, Blacklist, Variable, WebhookEndpoint, Session, ChatRoom, IPWhitelistRule, SubscriptionPlan, ActivationCode
@@ -41,6 +42,7 @@ async def get_sellers(dev: DeveloperAccount = Depends(get_current_developer), db
     return res.scalars().all()
 
 @router.post("", response_model=SellerResponse)
+@db_transaction
 async def create_seller(req: SellerCreate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     api_key = f"sk_{secrets.token_urlsafe(32)}"
     new_seller = SellerAccount(developer_id=dev.id, name=req.name, api_key=api_key)
@@ -50,6 +52,7 @@ async def create_seller(req: SellerCreate, dev: DeveloperAccount = Depends(get_c
     return new_seller
 
 @router.delete("/{seller_id}")
+@db_transaction
 async def delete_seller(seller_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SellerAccount).where(SellerAccount.id == seller_id, SellerAccount.developer_id == dev.id))
     seller = res.scalars().first()
@@ -61,6 +64,7 @@ async def delete_seller(seller_id: int, dev: DeveloperAccount = Depends(get_curr
 
 # Public Endpoint for Sellers to use
 @router.post("/generate-key")
+@db_transaction
 async def seller_generate_key(app_id: int, duration: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SellerAccount).where(SellerAccount.api_key == seller_key, SellerAccount.is_active == True))
     seller = res.scalars().first()
@@ -88,6 +92,7 @@ async def seller_generate_key(app_id: int, duration: int, seller_key: str = Head
     return {"status": "success", "key": key_val}
 
 @router.post("/delete-key")
+@db_transaction
 async def seller_delete_key(key_value: str, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SellerAccount).where(SellerAccount.api_key == seller_key, SellerAccount.is_active == True))
     seller = res.scalars().first()
@@ -105,6 +110,7 @@ async def seller_delete_key(key_value: str, seller_key: str = Header(...), db: A
     return {"status": "success", "message": "License key deleted"}
 
 @router.post("/key-info")
+@db_transaction
 async def seller_key_info(key_value: str, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     key_res = await db.execute(
@@ -133,6 +139,7 @@ async def seller_key_info(key_value: str, seller_key: str = Header(...), db: Asy
     }
 
 @router.post("/ban-key")
+@db_transaction
 async def seller_ban_key(key_value: str, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SellerAccount).where(SellerAccount.api_key == seller_key, SellerAccount.is_active == True))
     seller = res.scalars().first()
@@ -150,6 +157,7 @@ async def seller_ban_key(key_value: str, seller_key: str = Header(...), db: Asyn
     return {"status": "success", "message": "License key banned"}
 
 @router.post("/unban-key")
+@db_transaction
 async def seller_unban_key(key_value: str, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SellerAccount).where(SellerAccount.api_key == seller_key, SellerAccount.is_active == True))
     seller = res.scalars().first()
@@ -167,6 +175,7 @@ async def seller_unban_key(key_value: str, seller_key: str = Header(...), db: As
     return {"status": "success", "message": "License key unbanned"}
 
 @router.post("/add-user")
+@db_transaction
 async def seller_add_user(app_id: int, username: str, password: str, subscription: str, expiry: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SellerAccount).where(SellerAccount.api_key == seller_key, SellerAccount.is_active == True))
     seller = res.scalars().first()
@@ -196,6 +205,7 @@ async def seller_add_user(app_id: int, username: str, password: str, subscriptio
     return {"status": "success", "message": "User created", "user_id": new_user.id}
 
 @router.post("/delete-user")
+@db_transaction
 async def seller_delete_user(app_id: int, username: str, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SellerAccount).where(SellerAccount.api_key == seller_key, SellerAccount.is_active == True))
     seller = res.scalars().first()
@@ -214,6 +224,7 @@ async def seller_delete_user(app_id: int, username: str, seller_key: str = Heade
     return {"status": "success", "message": "User deleted"}
 
 @router.post("/user-info")
+@db_transaction
 async def seller_user_info(app_id: int, username: str, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SellerAccount).where(SellerAccount.api_key == seller_key, SellerAccount.is_active == True))
     seller = res.scalars().first()
@@ -245,6 +256,7 @@ async def seller_user_info(app_id: int, username: str, seller_key: str = Header(
     }
 
 @router.post("/ban-user")
+@db_transaction
 async def seller_ban_user(app_id: int, username: str, reason: str = "", seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SellerAccount).where(SellerAccount.api_key == seller_key, SellerAccount.is_active == True))
     seller = res.scalars().first()
@@ -264,6 +276,7 @@ async def seller_ban_user(app_id: int, username: str, reason: str = "", seller_k
     return {"status": "success", "message": "User banned"}
 
 @router.post("/unban-user")
+@db_transaction
 async def seller_unban_user(app_id: int, username: str, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SellerAccount).where(SellerAccount.api_key == seller_key, SellerAccount.is_active == True))
     seller = res.scalars().first()
@@ -283,6 +296,7 @@ async def seller_unban_user(app_id: int, username: str, seller_key: str = Header
     return {"status": "success", "message": "User unbanned"}
 
 @router.post("/reset-hwid")
+@db_transaction
 async def seller_reset_hwid(app_id: int, username: str, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SellerAccount).where(SellerAccount.api_key == seller_key, SellerAccount.is_active == True))
     seller = res.scalars().first()
@@ -305,6 +319,7 @@ async def seller_reset_hwid(app_id: int, username: str, seller_key: str = Header
     return {"status": "success", "message": "HWID reset successfully"}
 
 @router.post("/extend-user")
+@db_transaction
 async def seller_extend_user(app_id: int, username: str, days: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SellerAccount).where(SellerAccount.api_key == seller_key, SellerAccount.is_active == True))
     seller = res.scalars().first()
@@ -326,6 +341,7 @@ async def seller_extend_user(app_id: int, username: str, days: int, seller_key: 
     return {"status": "success", "message": f"User subscription extended by {days} days"}
 
 @router.post("/app-stats")
+@db_transaction
 async def seller_app_stats(app_id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -363,6 +379,7 @@ async def seller_app_stats(app_id: int, seller_key: str = Header(...), db: Async
     }
 
 @router.post("/list-keys")
+@db_transaction
 async def seller_list_keys(app_id: int, limit: int = 10, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SellerAccount).where(SellerAccount.api_key == seller_key, SellerAccount.is_active == True))
     seller = res.scalars().first()
@@ -392,6 +409,7 @@ async def seller_list_keys(app_id: int, limit: int = 10, seller_key: str = Heade
     }
 
 @router.post("/list-users")
+@db_transaction
 async def seller_list_users(app_id: int, limit: int = 10, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(SellerAccount).where(SellerAccount.api_key == seller_key, SellerAccount.is_active == True))
     seller = res.scalars().first()
@@ -422,6 +440,7 @@ async def seller_list_users(app_id: int, limit: int = 10, seller_key: str = Head
 
 # ── App Details ──
 @router.post("/app-details")
+@db_transaction
 async def seller_app_details(app_id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -441,6 +460,7 @@ async def seller_app_details(app_id: int, seller_key: str = Header(...), db: Asy
 
 # ── Blacklist ──
 @router.post("/list-blacklists")
+@db_transaction
 async def seller_list_blacklists(app_id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -457,6 +477,7 @@ async def seller_list_blacklists(app_id: int, seller_key: str = Header(...), db:
     }
 
 @router.post("/add-blacklist")
+@db_transaction
 async def seller_add_blacklist(app_id: int, value: str, type: str = "hwid", reason: str = "", seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -468,6 +489,7 @@ async def seller_add_blacklist(app_id: int, value: str, type: str = "hwid", reas
     return {"status": "success", "message": "Blacklist entry added"}
 
 @router.post("/delete-blacklist")
+@db_transaction
 async def seller_delete_blacklist(id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     res = await db.execute(select(Blacklist).where(Blacklist.id == id))
@@ -482,6 +504,7 @@ async def seller_delete_blacklist(id: int, seller_key: str = Header(...), db: As
     return {"status": "success", "message": "Blacklist entry deleted"}
 
 @router.post("/delete-all-blacklists")
+@db_transaction
 async def seller_delete_all_blacklists(app_id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -493,6 +516,7 @@ async def seller_delete_all_blacklists(app_id: int, seller_key: str = Header(...
 
 # ── Variables ──
 @router.post("/list-variables")
+@db_transaction
 async def seller_list_variables(app_id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -509,6 +533,7 @@ async def seller_list_variables(app_id: int, seller_key: str = Header(...), db: 
     }
 
 @router.post("/add-variable")
+@db_transaction
 async def seller_add_variable(app_id: int, key_name: str, key_value: str = "", is_global: bool = False, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -523,6 +548,7 @@ async def seller_add_variable(app_id: int, key_name: str, key_value: str = "", i
     return {"status": "success", "message": "Variable created"}
 
 @router.post("/delete-variable")
+@db_transaction
 async def seller_delete_variable(id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     res = await db.execute(select(Variable).where(Variable.id == id))
@@ -537,6 +563,7 @@ async def seller_delete_variable(id: int, seller_key: str = Header(...), db: Asy
     return {"status": "success", "message": "Variable deleted"}
 
 @router.post("/delete-all-variables")
+@db_transaction
 async def seller_delete_all_variables(app_id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -548,6 +575,7 @@ async def seller_delete_all_variables(app_id: int, seller_key: str = Header(...)
 
 # ── Webhooks ──
 @router.post("/add-webhook")
+@db_transaction
 async def seller_add_webhook(app_id: int, url: str, description: str = "", seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -560,6 +588,7 @@ async def seller_add_webhook(app_id: int, url: str, description: str = "", selle
     return {"status": "success", "message": "Webhook created", "id": hook.id}
 
 @router.post("/list-webhooks")
+@db_transaction
 async def seller_list_webhooks(app_id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -576,6 +605,7 @@ async def seller_list_webhooks(app_id: int, seller_key: str = Header(...), db: A
     }
 
 @router.post("/delete-webhook")
+@db_transaction
 async def seller_delete_webhook(id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     res = await db.execute(select(WebhookEndpoint).where(WebhookEndpoint.id == id))
@@ -590,6 +620,7 @@ async def seller_delete_webhook(id: int, seller_key: str = Header(...), db: Asyn
     return {"status": "success", "message": "Webhook deleted"}
 
 @router.post("/delete-all-webhooks")
+@db_transaction
 async def seller_delete_all_webhooks(app_id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -601,6 +632,7 @@ async def seller_delete_all_webhooks(app_id: int, seller_key: str = Header(...),
 
 # ── Sessions ──
 @router.post("/list-sessions")
+@db_transaction
 async def seller_list_sessions(app_id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -628,6 +660,7 @@ async def seller_list_sessions(app_id: int, seller_key: str = Header(...), db: A
     }
 
 @router.post("/kill-session")
+@db_transaction
 async def seller_kill_session(session_id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     res = await db.execute(select(Session).where(Session.id == session_id))
@@ -642,6 +675,7 @@ async def seller_kill_session(session_id: int, seller_key: str = Header(...), db
     return {"status": "success", "message": "Session killed"}
 
 @router.post("/kill-all-sessions")
+@db_transaction
 async def seller_kill_all_sessions(app_id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -653,6 +687,7 @@ async def seller_kill_all_sessions(app_id: int, seller_key: str = Header(...), d
 
 # ── Chat Channels ──
 @router.post("/list-chats")
+@db_transaction
 async def seller_list_chats(app_id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -666,6 +701,7 @@ async def seller_list_chats(app_id: int, seller_key: str = Header(...), db: Asyn
     }
 
 @router.post("/add-channel")
+@db_transaction
 async def seller_add_channel(app_id: int, name: str, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -677,6 +713,7 @@ async def seller_add_channel(app_id: int, name: str, seller_key: str = Header(..
     return {"status": "success", "message": "Channel created", "id": room.id}
 
 @router.post("/delete-channel")
+@db_transaction
 async def seller_delete_channel(room_id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     res = await db.execute(select(ChatRoom).where(ChatRoom.id == room_id))
@@ -692,6 +729,7 @@ async def seller_delete_channel(room_id: int, seller_key: str = Header(...), db:
 
 # ── IP Whitelist ──
 @router.post("/list-whitelists")
+@db_transaction
 async def seller_list_whitelists(app_id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -705,6 +743,7 @@ async def seller_list_whitelists(app_id: int, seller_key: str = Header(...), db:
     }
 
 @router.post("/add-whitelist")
+@db_transaction
 async def seller_add_whitelist(app_id: int, value: str, rule_type: str = "ip", note: str = "", seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -716,6 +755,7 @@ async def seller_add_whitelist(app_id: int, value: str, rule_type: str = "ip", n
     return {"status": "success", "message": "Whitelist rule added"}
 
 @router.post("/delete-whitelist")
+@db_transaction
 async def seller_delete_whitelist(id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     res = await db.execute(select(IPWhitelistRule).where(IPWhitelistRule.id == id))
@@ -731,6 +771,7 @@ async def seller_delete_whitelist(id: int, seller_key: str = Header(...), db: As
 
 # ── User Management Extras ──
 @router.post("/user-data")
+@db_transaction
 async def seller_user_data(app_id: int, username: str, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -757,6 +798,7 @@ async def seller_user_data(app_id: int, username: str, seller_key: str = Header(
     }
 
 @router.post("/edit-username")
+@db_transaction
 async def seller_edit_username(app_id: int, username: str, new_username: str, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -774,6 +816,7 @@ async def seller_edit_username(app_id: int, username: str, new_username: str, se
     return {"status": "success", "message": "Username updated"}
 
 @router.post("/edit-email")
+@db_transaction
 async def seller_edit_email(app_id: int, username: str, email: str, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -788,6 +831,7 @@ async def seller_edit_email(app_id: int, username: str, email: str, seller_key: 
     return {"status": "success", "message": "Email updated"}
 
 @router.post("/reset-password")
+@db_transaction
 async def seller_reset_password(app_id: int, username: str, new_password: str, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -802,6 +846,7 @@ async def seller_reset_password(app_id: int, username: str, new_password: str, s
     return {"status": "success", "message": "Password updated"}
 
 @router.post("/pause-user")
+@db_transaction
 async def seller_pause_user(app_id: int, username: str, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -817,6 +862,7 @@ async def seller_pause_user(app_id: int, username: str, seller_key: str = Header
     return {"status": "success", "message": "User paused"}
 
 @router.post("/unpause-user")
+@db_transaction
 async def seller_unpause_user(app_id: int, username: str, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -832,6 +878,7 @@ async def seller_unpause_user(app_id: int, username: str, seller_key: str = Head
     return {"status": "success", "message": "User unpaused"}
 
 @router.post("/subtract")
+@db_transaction
 async def seller_subtract(app_id: int, username: str, days: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -849,6 +896,7 @@ async def seller_subtract(app_id: int, username: str, days: int, seller_key: str
     return {"status": "success", "message": f"Subscription reduced by {days} days"}
 
 @router.post("/delete-all-users")
+@db_transaction
 async def seller_delete_all_users(app_id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -860,6 +908,7 @@ async def seller_delete_all_users(app_id: int, seller_key: str = Header(...), db
     return {"status": "success", "message": "All users deleted"}
 
 @router.post("/delete-expired-users")
+@db_transaction
 async def seller_delete_expired_users(app_id: int, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -871,6 +920,7 @@ async def seller_delete_expired_users(app_id: int, seller_key: str = Header(...)
     return {"status": "success", "message": "Expired users deleted"}
 
 @router.post("/set-user-variable")
+@db_transaction
 async def seller_set_user_variable(app_id: int, username: str, key: str, value: str, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -887,6 +937,7 @@ async def seller_set_user_variable(app_id: int, username: str, key: str, value: 
     return {"status": "success", "message": "User variable set"}
 
 @router.post("/delete-user-variable")
+@db_transaction
 async def seller_delete_user_variable(app_id: int, username: str, key: str, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     app_res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == seller.developer_id))
@@ -902,6 +953,7 @@ async def seller_delete_user_variable(app_id: int, username: str, key: str, sell
     return {"status": "success", "message": "User variable deleted"}
 
 @router.post("/verify-key")
+@db_transaction
 async def seller_verify_key(key_value: str, seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     key_res = await db.execute(
@@ -917,7 +969,9 @@ async def seller_verify_key(key_value: str, seller_key: str = Header(...), db: A
 
 # ── Seller Key Validation (no app_id required) ──
 @router.post("/verify-seller-key")
+@db_transaction
 @router.post("/verify-seller")
+@db_transaction
 async def seller_verify_key_only(seller_key: str = Header(...), db: AsyncSession = Depends(get_db)):
     seller = await _verify_seller(seller_key, db)
     dev_res = await db.execute(select(DeveloperAccount).where(DeveloperAccount.id == seller.developer_id))
@@ -940,6 +994,7 @@ async def _seller_dev(seller_key: str = Header(...), db: AsyncSession = Depends(
 
 
 @router.post("/subscription-plan")
+@db_transaction
 async def seller_subscription_plan(
     dev: DeveloperAccount = Depends(_seller_dev),
     db: AsyncSession = Depends(get_db),
@@ -972,6 +1027,7 @@ async def seller_subscription_plan(
 
 
 @router.post("/subscription-redeem")
+@db_transaction
 async def seller_subscription_redeem(
     code: str = "",
     dev: DeveloperAccount = Depends(_seller_dev),
@@ -1016,6 +1072,7 @@ async def seller_subscription_redeem(
 
 
 @router.post("/subscription-codes")
+@db_transaction
 async def seller_subscription_codes(
     dev: DeveloperAccount = Depends(_seller_dev),
     db: AsyncSession = Depends(get_db),

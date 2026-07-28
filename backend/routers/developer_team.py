@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from datetime import datetime
 
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import TeamMember, DeveloperAccount
 from services.plan_enforcer import require_feature, check_limit
@@ -56,6 +57,7 @@ async def get_team(
 
 
 @router.post("/invite", response_model=TeamMemberResponse)
+@db_transaction
 async def invite_member(
     req: InviteRequest,
     dev: DeveloperAccount = Depends(get_current_developer),
@@ -106,6 +108,7 @@ async def invite_member(
 
 
 @router.put("/{member_id}/role", response_model=TeamMemberResponse)
+@db_transaction
 async def update_member_role(
     member_id: int,
     body: RoleUpdateRequest,
@@ -142,6 +145,7 @@ async def update_member_role(
 
 
 @router.delete("/{member_id}")
+@db_transaction
 async def remove_member(
     member_id: int,
     dev: DeveloperAccount = Depends(get_current_developer),

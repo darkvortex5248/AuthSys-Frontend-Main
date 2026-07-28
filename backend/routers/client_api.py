@@ -7,6 +7,7 @@ import uuid
 import hashlib
 
 from core.database import get_db
+from core.transaction import db_transaction
 from models.domain import Application, EndUser, LicenseKey, Session, Variable, ActivityLog, Blacklist, ChatRoom, ChatMessage, DeveloperAccount, SubscriptionPlan, utc_now
 from services.webhooks import trigger_webhook
 from services.plan_enforcer import check_limit
@@ -51,6 +52,7 @@ async def check_blacklist(app_id: int, ip: str, hwid: str, db: AsyncSession):
         raise HTTPException(status_code=403, detail="You are blacklisted from this application")
 
 @router.post("/init", response_model=ClientInitResponse)
+@db_transaction
 async def init_client(req: ClientInitRequest, db: AsyncSession = Depends(get_db)):
     app = await get_app_by_secret(req.app_secret, db)
     
@@ -75,6 +77,7 @@ async def init_client(req: ClientInitRequest, db: AsyncSession = Depends(get_db)
     )
 
 @router.post("/register")
+@db_transaction
 @limiter.limit("5/minute")
 async def register_user(request: Request, req: ClientRegisterRequest, db: AsyncSession = Depends(get_db)):
     app = await get_app_by_secret(req.app_secret, db)
@@ -168,6 +171,7 @@ async def register_user(request: Request, req: ClientRegisterRequest, db: AsyncS
     return {"success": True, "message": "User registered successfully", "expires_at": sub_expires_at}
 
 @router.post("/login")
+@db_transaction
 @limiter.limit("10/minute")
 async def login_user(request: Request, req: ClientLoginRequest, db: AsyncSession = Depends(get_db)):
     app = await get_app_by_secret(req.app_secret, db)
@@ -253,6 +257,7 @@ async def login_user(request: Request, req: ClientLoginRequest, db: AsyncSession
     }
     
 @router.post("/license-login")
+@db_transaction
 @limiter.limit("10/minute")
 async def license_login(request: Request, req: ClientLicenseLoginRequest, db: AsyncSession = Depends(get_db)):
     app = await get_app_by_secret(req.app_secret, db)
@@ -360,6 +365,7 @@ async def license_login(request: Request, req: ClientLicenseLoginRequest, db: As
     }
 
 @router.post("/license/check")
+@db_transaction
 async def check_license(req: ClientLicenseCheckRequest, db: AsyncSession = Depends(get_db)):
     app = await get_app_by_secret(req.app_secret, db)
     key_res = await db.execute(select(LicenseKey).where(LicenseKey.app_id == app.id, LicenseKey.key_value == req.license_key))
@@ -378,6 +384,7 @@ async def check_license(req: ClientLicenseCheckRequest, db: AsyncSession = Depen
     }
 
 @router.post("/verify")
+@db_transaction
 async def verify_session(
     request: Request,
     authorization: str = Header(...), 
@@ -420,6 +427,7 @@ async def verify_session(
     }
 
 @router.post("/chat/send")
+@db_transaction
 async def send_chat_message(
     room_id: int, 
     message: str,
@@ -441,6 +449,7 @@ async def send_chat_message(
 
 
 @router.post("/device/register")
+@db_transaction
 async def register_device(
     data: dict,
     db: AsyncSession = Depends(get_db),
@@ -503,6 +512,7 @@ async def register_device(
 
 
 @router.post("/device/check")
+@db_transaction
 async def check_device(
     data: dict,
     db: AsyncSession = Depends(get_db),

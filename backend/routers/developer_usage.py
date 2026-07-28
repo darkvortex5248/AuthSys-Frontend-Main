@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import func
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import DeveloperAccount, UsageRecord, Application, LicenseKey, EndUser, ActivityLog, SubscriptionPlan, TeamMember
 from schemas.premium import UsageRecordResponse

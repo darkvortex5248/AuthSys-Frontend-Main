@@ -4,6 +4,7 @@ from sqlalchemy.future import select
 from sqlalchemy import func
 from datetime import datetime, timezone
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import DeveloperAccount, DeviceGroup, Device
 
@@ -67,6 +68,7 @@ async def get_device_key(
 
 
 @router.post("/key/regenerate")
+@db_transaction
 async def regenerate_device_key(
     dev: DeveloperAccount = Depends(get_current_developer),
     db: AsyncSession = Depends(get_db),

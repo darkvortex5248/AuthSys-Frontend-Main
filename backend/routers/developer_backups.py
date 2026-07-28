@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import DeveloperAccount, Application, AppBackup, IPWhitelistRule, WebhookEndpoint, Blacklist, Variable, LogRetentionConfig
 from schemas.premium import BackupCreate, BackupResponse
@@ -47,6 +48,7 @@ async def get_backups(dev: DeveloperAccount = Depends(get_current_developer), db
     return res.scalars().all()
 
 @router.post("", response_model=BackupResponse)
+@db_transaction
 async def create_backup(bk: BackupCreate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     app_res = await db.execute(
         select(Application).where(Application.id == bk.app_id, Application.developer_id == dev.id)
@@ -76,6 +78,7 @@ async def get_backup(backup_id: int, dev: DeveloperAccount = Depends(get_current
     return backup
 
 @router.post("/{backup_id}/restore")
+@db_transaction
 async def restore_backup(backup_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(
         select(AppBackup)
@@ -100,6 +103,7 @@ async def restore_backup(backup_id: int, dev: DeveloperAccount = Depends(get_cur
     return {"status": "restored", "app_id": backup.app_id}
 
 @router.delete("/{backup_id}")
+@db_transaction
 async def delete_backup(backup_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(
         select(AppBackup)

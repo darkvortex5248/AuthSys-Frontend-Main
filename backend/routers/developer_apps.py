@@ -4,6 +4,7 @@ from sqlalchemy.future import select
 import secrets
 import string
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import Application, DeveloperAccount, SubscriptionPlan, EndUser, LicenseKey, ActivityLog, TeamMember
 from schemas.dashboard import AppCreate, AppUpdate, AppResponse
@@ -101,6 +102,7 @@ async def get_app(app_id: int, dev: DeveloperAccount = Depends(get_current_devel
     return app
 
 @router.post("/create", response_model=AppResponse)
+@db_transaction
 async def create_app(req: AppCreate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     # Check app limit
     res = await db.execute(select(Application).where(Application.developer_id == dev.id))
@@ -141,6 +143,7 @@ async def create_app(req: AppCreate, dev: DeveloperAccount = Depends(get_current
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/{app_id}/regenerate-owner-id")
+@db_transaction
 async def regen_owner_id(app_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == dev.id))
     app = res.scalars().first()
@@ -150,6 +153,7 @@ async def regen_owner_id(app_id: int, dev: DeveloperAccount = Depends(get_curren
     return {"owner_id": app.owner_id}
 
 @router.put("/{app_id}/update")
+@db_transaction
 async def update_app(app_id: int, req: AppUpdate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == dev.id))
     app = res.scalars().first()
@@ -180,6 +184,7 @@ async def get_portal_stats(app_id: int, dev: DeveloperAccount = Depends(get_curr
     }
 
 @router.put("/{app_id}/toggle")
+@db_transaction
 async def toggle_app(app_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == dev.id))
     app = res.scalars().first()
@@ -189,6 +194,7 @@ async def toggle_app(app_id: int, dev: DeveloperAccount = Depends(get_current_de
     return {"status": app.status}
     
 @router.post("/{app_id}/regenerate-secret")
+@db_transaction
 async def regen_secret(app_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == dev.id))
     app = res.scalars().first()
@@ -198,6 +204,7 @@ async def regen_secret(app_id: int, dev: DeveloperAccount = Depends(get_current_
     return {"app_secret": app.app_secret}
     
 @router.delete("/{app_id}")
+@db_transaction
 async def delete_app(app_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     try:
         res = await db.execute(select(Application).where(Application.id == app_id, Application.developer_id == dev.id))

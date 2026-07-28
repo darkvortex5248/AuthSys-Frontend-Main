@@ -7,6 +7,7 @@ from typing import Optional
 from pydantic import BaseModel
 from datetime import datetime, timedelta, timezone
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import Application, DeveloperAccount, SubscriptionPlan, EndUser, LicenseKey, ActivityLog, TeamMember
 from schemas.dashboard import KeyGenerate, BulkKeyGenerate
@@ -49,6 +50,7 @@ async def get_keys(app_id: int, skip: int = 0, limit: int = 50, dev: DeveloperAc
     return {"keys": keys, "total": total_count, "skip": skip, "limit": limit}
 
 @router.post("/generate")
+@db_transaction
 async def generate_key(req: KeyGenerate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     app = await verify_app_owner(req.app_id, dev.id, db)
     plan = await require_feature(dev, "has_api_access", db)
@@ -96,6 +98,7 @@ async def generate_key(req: KeyGenerate, dev: DeveloperAccount = Depends(get_cur
     return new_key
 
 @router.post("/bulk-generate")
+@db_transaction
 async def bulk_generate(req: BulkKeyGenerate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     from services.plan_tiers import require_feature
     app = await verify_app_owner(req.app_id, dev.id, db)
@@ -150,6 +153,7 @@ async def bulk_generate(req: BulkKeyGenerate, dev: DeveloperAccount = Depends(ge
     return result
 
 @router.post("/{key_id}/pause")
+@db_transaction
 async def pause_key(key_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(LicenseKey).where(LicenseKey.id == key_id))
     key = res.scalars().first()
@@ -160,6 +164,7 @@ async def pause_key(key_id: int, dev: DeveloperAccount = Depends(get_current_dev
     return {"paused": key.is_paused}
 
 @router.delete("/{key_id}")
+@db_transaction
 async def delete_key(key_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     try:
         res = await db.execute(select(LicenseKey).where(LicenseKey.id == key_id))
@@ -186,6 +191,7 @@ class KeyUpdate(BaseModel):
     expires_at: Optional[datetime] = None
 
 @router.put("/{key_id}")
+@db_transaction
 async def update_key(key_id: int, req: KeyUpdate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(LicenseKey).where(LicenseKey.id == key_id))
     key = res.scalars().first()
@@ -204,6 +210,7 @@ async def update_key(key_id: int, req: KeyUpdate, dev: DeveloperAccount = Depend
     return key
 
 @router.post("/{key_id}/hwid-reset")
+@db_transaction
 async def reset_key_hwid(key_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(LicenseKey).where(LicenseKey.id == key_id))
     key = res.scalars().first()

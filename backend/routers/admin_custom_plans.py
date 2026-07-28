@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from typing import List, Optional
 from core.database import get_db
+from core.transaction import db_transaction
 from models.domain import AdminUser, DeveloperAccount, SubscriptionPlan, CustomPlanOverride
 from schemas.premium import CustomPlanOverrideCreate, CustomPlanOverrideResponse
 from schemas.admin import PlanCreate, PlanUpdate, PlanResponse
@@ -26,6 +27,7 @@ async def get_developer_overrides(developer_id: int, admin: AdminUser = Depends(
     return res.scalars().all()
 
 @router.post("/overrides", response_model=CustomPlanOverrideResponse)
+@db_transaction
 async def create_override(ov: CustomPlanOverrideCreate, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     dev_res = await db.execute(select(DeveloperAccount).where(DeveloperAccount.id == ov.developer_id))
     if not dev_res.scalars().first():
@@ -37,6 +39,7 @@ async def create_override(ov: CustomPlanOverrideCreate, admin: AdminUser = Depen
     return new_ov
 
 @router.delete("/overrides/{override_id}")
+@db_transaction
 async def delete_override(override_id: int, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(CustomPlanOverride).where(CustomPlanOverride.id == override_id))
     ov = res.scalars().first()
@@ -47,6 +50,7 @@ async def delete_override(override_id: int, admin: AdminUser = Depends(get_curre
     return {"status": "deleted"}
 
 @router.put("/overrides/{override_id}/toggle")
+@db_transaction
 async def toggle_override(override_id: int, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(CustomPlanOverride).where(CustomPlanOverride.id == override_id))
     ov = res.scalars().first()
@@ -89,6 +93,7 @@ AVAILABLE_FEATURES = [
 ]
 
 @router.put("/overrides/{override_id}", response_model=CustomPlanOverrideResponse)
+@db_transaction
 async def update_override(override_id: int, ov: CustomPlanOverrideCreate, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(CustomPlanOverride).where(CustomPlanOverride.id == override_id))
     existing = res.scalars().first()

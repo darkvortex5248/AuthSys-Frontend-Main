@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import func
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import DeveloperAccount, DeviceGroup, Device
 from schemas.dashboard import DeviceGroupCreate, DeviceGroupUpdate, DeviceGroupResponse, DeviceResponse
@@ -40,6 +41,7 @@ async def list_device_groups(
 
 
 @router.post("")
+@db_transaction
 async def create_device_group(
     req: DeviceGroupCreate,
     dev: DeveloperAccount = Depends(get_current_developer),
@@ -93,6 +95,7 @@ async def get_device_group(
 
 
 @router.put("/{group_id}")
+@db_transaction
 async def update_device_group(
     group_id: int,
     req: DeviceGroupUpdate,
@@ -116,6 +119,7 @@ async def update_device_group(
 
 
 @router.delete("/{group_id}")
+@db_transaction
 async def delete_device_group(
     group_id: int,
     dev: DeveloperAccount = Depends(get_current_developer),
@@ -139,6 +143,7 @@ async def delete_device_group(
 
 
 @router.post("/{group_id}/regenerate-secret")
+@db_transaction
 async def regenerate_group_secret(
     group_id: int,
     dev: DeveloperAccount = Depends(get_current_developer),
@@ -186,6 +191,7 @@ async def list_devices(
 
 
 @router.post("/{group_id}/devices/{device_id}/{action}")
+@db_transaction
 async def device_action(
     group_id: int,
     device_id: int,

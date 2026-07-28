@@ -3,6 +3,7 @@ from nacl.signing import VerifyKey
 import json
 
 from core.database import AsyncSessionLocal
+from core.transaction import db_transaction
 from sqlalchemy.future import select
 from models.domain import BotConfig
 from services.bot_service import BotService
@@ -16,6 +17,7 @@ def get_prefix(config) -> str:
     return get_settings(config).get("key_prefix", "AUTH")
 
 @router.post("/interactions")
+@db_transaction
 async def discord_interactions(
     request: Request,
     x_signature_ed25519: str = Header(None),

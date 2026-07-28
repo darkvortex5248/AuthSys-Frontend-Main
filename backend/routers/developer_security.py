@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import DeveloperAccount, IPWhitelistRule, APIKey, Application
 from schemas.premium import (
@@ -28,6 +29,7 @@ async def get_ip_rules(dev: DeveloperAccount = Depends(get_current_developer), d
     return res.scalars().all()
 
 @router.post("/ipwhitelist", response_model=IPWhitelistRuleResponse)
+@db_transaction
 async def create_ip_rule(rule: IPWhitelistRuleCreate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     await require_feature(dev, "has_ip_tracking", db)
     app_res = await db.execute(
@@ -42,6 +44,7 @@ async def create_ip_rule(rule: IPWhitelistRuleCreate, dev: DeveloperAccount = De
     return new_rule
 
 @router.delete("/ipwhitelist/{rule_id}")
+@db_transaction
 async def delete_ip_rule(rule_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(
         select(IPWhitelistRule)
@@ -56,6 +59,7 @@ async def delete_ip_rule(rule_id: int, dev: DeveloperAccount = Depends(get_curre
     return {"status": "deleted"}
 
 @router.put("/ipwhitelist/{rule_id}/toggle")
+@db_transaction
 async def toggle_ip_rule(rule_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(
         select(IPWhitelistRule)
@@ -82,6 +86,7 @@ async def get_api_keys(dev: DeveloperAccount = Depends(get_current_developer), d
     return res.scalars().all()
 
 @router.post("/apikeys", response_model=APIKeyCreatedResponse)
+@db_transaction
 async def create_api_key(key_in: APIKeyCreate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     await require_feature(dev, "has_api_access", db)
     raw_key = f"rinox_{secrets.token_hex(24)}"
@@ -108,6 +113,7 @@ async def create_api_key(key_in: APIKeyCreate, dev: DeveloperAccount = Depends(g
     )
 
 @router.delete("/apikeys/{key_id}")
+@db_transaction
 async def delete_api_key(key_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(
         select(APIKey).where(APIKey.id == key_id, APIKey.developer_id == dev.id)
@@ -120,6 +126,7 @@ async def delete_api_key(key_id: int, dev: DeveloperAccount = Depends(get_curren
     return {"status": "deleted"}
 
 @router.put("/apikeys/{key_id}/toggle")
+@db_transaction
 async def toggle_api_key(key_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(
         select(APIKey).where(APIKey.id == key_id, APIKey.developer_id == dev.id)
@@ -150,6 +157,7 @@ async def get_available_scopes():
     return SCOPES
 
 @router.post("/revoke-all-keys")
+@db_transaction
 async def revoke_all_api_keys(
     dev: DeveloperAccount = Depends(get_current_developer),
     db: AsyncSession = Depends(get_db),

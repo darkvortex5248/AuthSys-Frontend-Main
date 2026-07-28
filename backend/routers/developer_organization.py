@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import or_
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import DeveloperAccount, Organization, OrganizationMember
 from schemas.premium import OrganizationCreate, OrganizationResponse, OrganizationMemberResponse, InviteMemberRequest
@@ -32,6 +33,7 @@ async def get_org(dev: DeveloperAccount = Depends(get_current_developer), db: As
     return org
 
 @router.post("", response_model=OrganizationResponse)
+@db_transaction
 async def create_org(org_in: OrganizationCreate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     existing = await db.execute(select(Organization).where(Organization.slug == org_in.slug))
     if existing.scalars().first():
@@ -45,6 +47,7 @@ async def create_org(org_in: OrganizationCreate, dev: DeveloperAccount = Depends
     return org
 
 @router.put("/{org_id}")
+@db_transaction
 async def update_org(org_id: int, org_in: OrganizationCreate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(
         select(Organization).where(Organization.id == org_id, Organization.owner_id == dev.id)
@@ -84,6 +87,7 @@ async def get_org_members(dev: DeveloperAccount = Depends(get_current_developer)
     return res.scalars().all()
 
 @router.post("/invite")
+@db_transaction
 async def invite_member(inv: InviteMemberRequest, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     org_res = await db.execute(
         select(Organization).where(Organization.owner_id == dev.id)
@@ -114,6 +118,7 @@ async def invite_member(inv: InviteMemberRequest, dev: DeveloperAccount = Depend
     return {"status": "invited", "email": inv.developer_email}
 
 @router.post("/invite/{member_id}/accept")
+@db_transaction
 async def accept_invite(member_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(
         select(OrganizationMember).where(
@@ -130,6 +135,7 @@ async def accept_invite(member_id: int, dev: DeveloperAccount = Depends(get_curr
     return {"status": "accepted"}
 
 @router.put("/members/{member_id}/role")
+@db_transaction
 async def update_member_role(member_id: int, role: str, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     org_res = await db.execute(select(Organization).where(Organization.owner_id == dev.id))
     org = org_res.scalars().first()
@@ -149,6 +155,7 @@ async def update_member_role(member_id: int, role: str, dev: DeveloperAccount = 
     return {"status": "updated", "role": role}
 
 @router.delete("/members/{member_id}")
+@db_transaction
 async def remove_member(member_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     org_res = await db.execute(select(Organization).where(Organization.owner_id == dev.id))
     org = org_res.scalars().first()

@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import func
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import DeveloperAccount, DeveloperSession
 from schemas.premium import DeveloperSessionResponse
@@ -21,6 +22,7 @@ async def get_sessions(dev: DeveloperAccount = Depends(get_current_developer), d
     return res.scalars().all()
 
 @router.post("/logout/{session_id}")
+@db_transaction
 async def logout_session(session_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(
         select(DeveloperSession).where(
@@ -37,6 +39,7 @@ async def logout_session(session_id: int, dev: DeveloperAccount = Depends(get_cu
     return {"status": "logged_out"}
 
 @router.post("/logout-all")
+@db_transaction
 async def logout_all_sessions(dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     await db.execute(
         select(DeveloperSession).where(

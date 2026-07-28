@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import func, and_
 from core.database import get_db
+from core.transaction import db_transaction
 from core.deps import get_current_developer
 from models.domain import DeveloperAccount, Application, ScheduledAction, LicenseKey, EndUser
 from schemas.premium import ScheduledActionCreate, ScheduledActionResponse
@@ -20,6 +21,7 @@ async def get_scheduled_actions(dev: DeveloperAccount = Depends(get_current_deve
     return res.scalars().all()
 
 @router.post("", response_model=ScheduledActionResponse)
+@db_transaction
 async def create_scheduled_action(action: ScheduledActionCreate, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     if action.app_id:
         app_res = await db.execute(
@@ -40,6 +42,7 @@ async def create_scheduled_action(action: ScheduledActionCreate, dev: DeveloperA
     return new_action
 
 @router.delete("/{action_id}")
+@db_transaction
 async def delete_scheduled_action(action_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(
         select(ScheduledAction).where(
@@ -55,6 +58,7 @@ async def delete_scheduled_action(action_id: int, dev: DeveloperAccount = Depend
     return {"status": "deleted"}
 
 @router.post("/{action_id}/execute")
+@db_transaction
 async def execute_action_now(action_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(
         select(ScheduledAction).where(
