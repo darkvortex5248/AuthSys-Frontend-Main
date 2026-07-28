@@ -15,4 +15,4 @@ RUN useradd -m myuser && chown -R myuser /app
 USER myuser
 
 EXPOSE ${PORT:-8080}
-CMD sh -c "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080} --forwarded-allow-ips '*'"
+CMD sh -c "python run_migrations.py && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080} --forwarded-allow-ips '*'"
