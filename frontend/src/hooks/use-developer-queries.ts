@@ -118,9 +118,14 @@ export function useInvalidateDeveloperData() {
   const queryClient = useQueryClient();
 
   return {
-    apps: () => queryClient.refetchQueries({ queryKey: queryKeys.apps }),
-    overview: () =>
-      queryClient.refetchQueries({ queryKey: ['developer', 'overview'] }),
+    apps: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.apps });
+      await queryClient.refetchQueries({ queryKey: queryKeys.apps });
+    },
+    overview: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['developer', 'overview'] });
+      await queryClient.refetchQueries({ queryKey: ['developer', 'overview'] });
+    },
     keys: async (appId: number) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.keys(appId) });
       await queryClient.refetchQueries({ queryKey: queryKeys.keys(appId), type: 'active' });
@@ -142,6 +147,25 @@ export function useInvalidateDeveloperData() {
       await queryClient.refetchQueries({ queryKey: queryKeys.auditLogs(appId), type: 'active' });
     },
     all: async (appId?: number) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.apps }),
+        queryClient.invalidateQueries({ queryKey: ['developer', 'overview'] }),
+        appId
+          ? queryClient.invalidateQueries({ queryKey: queryKeys.keys(appId) })
+          : Promise.resolve(),
+        appId
+          ? queryClient.invalidateQueries({ queryKey: queryKeys.users(appId) })
+          : Promise.resolve(),
+        appId
+          ? queryClient.invalidateQueries({ queryKey: queryKeys.blacklist(appId) })
+          : Promise.resolve(),
+        appId
+          ? queryClient.invalidateQueries({ queryKey: queryKeys.variables(appId) })
+          : Promise.resolve(),
+        appId
+          ? queryClient.invalidateQueries({ queryKey: queryKeys.auditLogs(appId) })
+          : Promise.resolve(),
+      ]);
       await Promise.all([
         queryClient.refetchQueries({ queryKey: queryKeys.apps }),
         queryClient.refetchQueries({ queryKey: ['developer', 'overview'] }),

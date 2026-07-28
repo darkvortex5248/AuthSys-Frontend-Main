@@ -35,7 +35,7 @@ const LANGS: Record<LangKey, Lang> = {
 const LANG_ORDER: LangKey[] = ['csharp','cpp','python','javascript','typescript','java','php','lua','rust','go','swift','kotlin','ruby','dart','shell'];
 
 function getSnippet(lang: LangKey, secret: string, ownerId: string, version: string, appName: string): string {
-  const base = 'https://authsys-main-production-8762.up.railway.app/api/v1';
+  const base = 'https://api.authsys.dpdns.org/api/v1';
   const name = appName || 'MyApp';
   switch (lang) {
     case 'csharp': return `using AuthSysSDK;
