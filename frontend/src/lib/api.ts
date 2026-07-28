@@ -16,20 +16,9 @@ function processQueue(error: unknown, token: string | null = null) {
   failedQueue = [];
 }
 
-/** Routes under /admin/ that do not require admin JWT */
-function isPublicAdminRoute(url: string): boolean {
-  return (
-    url.includes('/admin/session') ||
-    url.includes('/admin/login') ||
-    url.includes('/admin/change-password') ||
-    url.includes('/admin/settings/public') ||
-    url.includes('/admin/sdks/public')
-  );
-}
-
-/** Protected admin routes — use admin_token only */
-function isProtectedAdminRoute(url: string): boolean {
-  return url.includes('/admin/') && !isPublicAdminRoute(url);
+/** Any route under /admin/ — admin routes must NEVER enter developer auth flow */
+function isAdminRoute(url: string): boolean {
+  return url.includes('/admin/');
 }
 
 const api = axios.create({
@@ -39,21 +28,10 @@ const api = axios.create({
 
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const url = config.url || '';
-  const adminToken =
-    typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
   const devToken = useAuthStore.getState().token;
 
-  if (isPublicAdminRoute(url)) {
+  if (isAdminRoute(url)) {
     delete config.headers.Authorization;
-    return config;
-  }
-
-  if (isProtectedAdminRoute(url)) {
-    if (adminToken) {
-      config.headers.Authorization = `Bearer ${adminToken}`;
-    } else {
-      delete config.headers.Authorization;
-    }
     return config;
   }
 
@@ -77,10 +55,8 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     const url = originalRequest?.url || '';
 
-    if (isProtectedAdminRoute(url)) {
-      if (typeof window !== 'undefined') {
-        window.location.href = '/super-admin/login';
-      }
+    // Admin routes must NEVER enter the developer refresh flow
+    if (isAdminRoute(url)) {
       return Promise.reject(error);
     }
 
