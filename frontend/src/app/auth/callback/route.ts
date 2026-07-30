@@ -1,5 +1,18 @@
 import { NextResponse } from 'next/server';
-import { getApiBaseUrl } from '@/lib/api-base-url';
+
+function getCallbackApiBaseUrl(requestUrl: URL): string {
+  const isLocalhost = requestUrl.hostname === 'localhost' || requestUrl.hostname === '127.0.0.1';
+  if (!isLocalhost) {
+    return `${requestUrl.origin}/api/v1`;
+  }
+
+  const envUrl = process.env.NEXT_PUBLIC_API_URL?.trim().replace(/\/$/, '');
+  if (envUrl) {
+    return envUrl.endsWith('/api/v1') ? envUrl : `${envUrl}/api/v1`;
+  }
+
+  return 'http://127.0.0.1:8000/api/v1';
+}
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
@@ -18,7 +31,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const apiBase = getApiBaseUrl();
+    const apiBase = getCallbackApiBaseUrl(requestUrl);
     const res = await fetch(`${apiBase}/developer/auth/oauth/callback`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

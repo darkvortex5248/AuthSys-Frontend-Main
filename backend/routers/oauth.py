@@ -5,6 +5,7 @@ from sqlalchemy.future import select
 from core.database import get_db
 from core.transaction import db_transaction
 from core.config import settings
+from core.cookies import is_secure_request
 from core.security import get_password_hash, create_access_token
 from models.domain import DeveloperAccount, SubscriptionPlan
 from routers.developer_sessions import record_session
@@ -102,7 +103,7 @@ async def _issue_jwt(user: DeveloperAccount, request: Request, db: AsyncSession)
         request.headers.get("user-agent", ""),
         db,
     )
-    secure = request.url.scheme == "https"
+    secure = is_secure_request(request)
     response = JSONResponse(content={"access_token": access_token, "token_type": "bearer"})
     response.set_cookie(
         key=settings.COOKIE_NAME,

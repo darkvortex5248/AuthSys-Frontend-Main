@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_REMEMBER_DAYS: int = 1  # 24 hours with remember-me
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     COOKIE_NAME: str = "rinox_token"
+    ADMIN_COOKIE_NAME: str = "rinox_admin_token"
     COOKIE_PATH: str = "/"
     COOKIE_SAMESITE: str = "none"
 

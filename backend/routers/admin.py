@@ -10,6 +10,7 @@ from core.limiter import limiter
 from core.transaction import db_transaction
 from jose import jwt, JWTError
 from core.config import settings
+from core.cookies import is_secure_request
 from core.security import ALGORITHM, verify_password, create_access_token, get_password_hash, encrypt_field, decrypt_field, validate_password
 from models.domain import AdminUser, DeveloperAccount, Application, EndUser, SubscriptionPlan, SystemSetting, Payment, SDKDownload, PaymentMethod, Announcement, LicenseKey, AIProviderConfig, SystemBackup, ActivityLog, ActivationCode
 from schemas.admin import (
@@ -75,7 +76,7 @@ async def admin_login(request: Request, login_data: AdminLogin, db: AsyncSession
         subject=str(admin.id), additional_claims={"role": admin.role}
     )
     
-    secure = request.url.scheme == "https"
+    secure = is_secure_request(request)
     max_age = 24 * 60 * 60  # 24 hours for admin
     response = JSONResponse(content={
         "access_token": access_token,
@@ -83,7 +84,7 @@ async def admin_login(request: Request, login_data: AdminLogin, db: AsyncSession
         "must_change_password": admin.must_change_password,
     })
     response.set_cookie(
-        key=settings.COOKIE_NAME,
+        key=settings.ADMIN_COOKIE_NAME,
         value=access_token,
         httponly=True,
         secure=secure,
@@ -95,7 +96,7 @@ async def admin_login(request: Request, login_data: AdminLogin, db: AsyncSession
 
 @router.get("/session")
 async def admin_restore_session(request: Request):
-    token = request.cookies.get(settings.COOKIE_NAME)
+    token = request.cookies.get(settings.ADMIN_COOKIE_NAME)
     if not token:
         raise HTTPException(status_code=401, detail="No session cookie")
     try:
@@ -111,10 +112,10 @@ async def admin_restore_session(request: Request):
 @router.post("/logout")
 @db_transaction
 async def admin_logout(request: Request):
-    secure = request.url.scheme == "https"
+    secure = is_secure_request(request)
     response = JSONResponse(content={"success": True, "message": "Logged out"})
     response.delete_cookie(
-        key=settings.COOKIE_NAME,
+        key=settings.ADMIN_COOKIE_NAME,
         path=settings.COOKIE_PATH,
         secure=secure,
         samesite=settings.COOKIE_SAMESITE,

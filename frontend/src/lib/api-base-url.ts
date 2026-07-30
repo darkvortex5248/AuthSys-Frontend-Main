@@ -1,4 +1,11 @@
 export function getApiBaseUrl(): string {
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname || 'localhost';
+    if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+      return '/api/v1';
+    }
+  }
+
   const envUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
 
   if (envUrl) {
@@ -11,9 +18,6 @@ export function getApiBaseUrl(): string {
 
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname || 'localhost';
-    if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
-      return '/api/v1';
-    }
     const protocol = window.location.protocol.startsWith('http')
       ? window.location.protocol
       : 'http:';

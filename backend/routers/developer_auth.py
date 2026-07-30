@@ -8,6 +8,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from core.database import get_db
 from core.security import get_password_hash, verify_password, create_access_token, ALGORITHM, validate_password
 from core.config import settings
+from core.cookies import is_secure_request
 from models.domain import DeveloperAccount, SubscriptionPlan, DeveloperSession, Application, EndUser, LicenseKey, Session, ActivityLog, Variable, ChatRoom, ChatMessage, WebhookEndpoint, WebhookDelivery, WebhookLog, IPWhitelistRule, APIKey, TeamMember, Payment, AIAgentLog, BotConfig, CustomDomain, AppBackup, AppEnvironment, HealthCheckRecord, LogRetentionConfig, ScheduledAction, Organization, OrganizationMember, UsageRecord, CustomPlanOverride, SellerAccount, AIConversation, AIActionLog, AIKnowledgeBase, DeviceGroup, Device
 from routers.developer_sessions import record_session
 from jose import jwt, JWTError
@@ -131,7 +132,7 @@ async def login_developer(request: Request, form_data: OAuth2PasswordRequestForm
 
     # Set httpOnly cookie
     max_age = expire_minutes * 60
-    secure = request.url.scheme == "https"
+    secure = is_secure_request(request)
     response = JSONResponse(content={"access_token": access_token, "token_type": "bearer"})
     response.set_cookie(
         key=settings.COOKIE_NAME,
@@ -171,7 +172,7 @@ async def restore_session(request: Request, db: AsyncSession = Depends(get_db)):
     fresh_token = create_access_token(subject=user.id, expires_delta=fresh_expires)
     
     # Refresh the httpOnly cookie
-    secure = request.url.scheme == "https"
+    secure = is_secure_request(request)
     data = DeveloperResponse.model_validate(user)
     response = JSONResponse(content={
         "access_token": fresh_token,
@@ -213,7 +214,7 @@ async def logout(request: Request, db: AsyncSession = Depends(get_db)):
             )
             await db.commit()
 
-        secure = request.url.scheme == "https"
+        secure = is_secure_request(request)
         response = JSONResponse(content={"success": True, "message": "Logged out"})
         response.delete_cookie(
             key=settings.COOKIE_NAME,
