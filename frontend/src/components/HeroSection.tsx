@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShieldCheck, 
@@ -49,17 +49,41 @@ const useCountUp = (end: number, duration: number = 1500) => {
 // --- Components ---
 
 const NAVBAR_EASING = [0.22, 0.61, 0.36, 1] as const;
+const NAVBAR_EASING_CSS = 'cubic-bezier(0.22, 0.61, 0.36, 1)';
 const NAV_MORPH_DURATION = 300; // ms — single clean morph, no bounce
-const SCROLL_THRESHOLD = 50; // px — scroll past this to trigger compact state
+const SCROLL_THRESHOLD = 50; // px — nominal threshold
+const SCROLL_HYSTERESIS = 20; // px — hysteresis band to prevent jitter (40/70)
 
-const Navbar = () => {
+// Module-level constant — prevents recreation on every render
+const childTransition: React.CSSProperties = {
+  transitionProperty: 'gap',
+  transitionDuration: `${NAV_MORPH_DURATION}ms`,
+  transitionTimingFunction: NAVBAR_EASING_CSS,
+  willChange: 'gap',
+};
+
+const Navbar = memo(() => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
+    // Hysteresis: expand below 40px, compact above 70px — prevents jitter
+    // rAF throttling: ensures the handler fires at most once per animation frame
+    let ticking = false;
     const handleScroll = () => {
-      setScrolled(window.scrollY > SCROLL_THRESHOLD);
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = window.scrollY;
+        setScrolled(prev => {
+          if (y > SCROLL_THRESHOLD + SCROLL_HYSTERESIS) return true;
+          if (y < SCROLL_THRESHOLD - SCROLL_HYSTERESIS / 2) return false;
+          return prev; // hysteresis: stay in current state within the band
+        });
+        ticking = false;
+      });
     };
+    handleScroll(); // sync initial state on mount
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -109,36 +133,23 @@ const Navbar = () => {
     borderStyle: 'solid',
     borderColor: `rgba(${brR}, ${brG}, ${brB}, ${borderAlpha})`,
     boxShadow: `0 4px 24px -8px rgba(0, 0, 0, ${shadowAlpha})`,
-  };
-
-  // Child-element gap transitions (same duration + easing as parent morph)
-  const childTransition: React.CSSProperties = {
-    transitionProperty: 'gap',
+    // CSS-driven transitions — browser handles animation at compositor level,
+    // no JS animation loop. Single duration + easing for all properties.
+    transitionProperty:
+      'height, max-width, padding, border-radius, background-color, backdrop-filter, border-color, box-shadow',
     transitionDuration: `${NAV_MORPH_DURATION}ms`,
-    transitionTimingFunction: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
+    transitionTimingFunction: NAVBAR_EASING_CSS,
+    willChange:
+      'height, max-width, padding, border-radius, background-color, backdrop-filter, border-color, box-shadow',
   };
 
   return (
     <>
-      <motion.nav
+      {/* Plain <nav> with CSS transitions — no framer-motion JS animation loop.
+          Browser handles the morph natively via CSS transition compositor. */}
+      <nav
         className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-32px)] flex items-center justify-between overflow-hidden"
         style={navStyle}
-        initial={false}
-        animate={{
-          height: `${navHeight}px`,
-          maxWidth: `${navMaxWidth}px`,
-          paddingLeft: `${navPadX}px`,
-          paddingRight: `${navPadX}px`,
-          borderRadius: `${navRadius}px`,
-          backgroundColor: `rgba(${bgR}, ${bgG}, ${bgB}, ${bgAlpha})`,
-          backdropFilter: `blur(${blurAmount}px)`,
-          borderColor: `rgba(${brR}, ${brG}, ${brB}, ${borderAlpha})`,
-          boxShadow: `0 4px 24px -8px rgba(0, 0, 0, ${shadowAlpha})`,
-        }}
-        transition={{
-          duration: NAV_MORPH_DURATION / 1000,
-          ease: NAVBAR_EASING,
-        }}
       >
         {/* Left: Logo — always inside container, never resizes or moves */}
         <Link href="/" className="flex items-center gap-2 shrink-0">
@@ -192,7 +203,7 @@ const Navbar = () => {
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
-      </motion.nav>
+	      </nav>
 
       {/* Mobile Menu — positioned dynamically below navbar */}
       <AnimatePresence>
@@ -245,7 +256,7 @@ const Navbar = () => {
       </AnimatePresence>
     </>
   );
-};
+});
 
 const StatCard = ({ icon: Icon, iconBg, iconColor, trend, number, label, endValue }: any) => {
   const displayValue = useCountUp(endValue);
