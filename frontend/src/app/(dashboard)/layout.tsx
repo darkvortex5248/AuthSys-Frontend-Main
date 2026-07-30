@@ -20,7 +20,7 @@ const navItems = [
   { name: 'Applications', icon: 'apps', href: '/applications', tier: 'tester' },
   { name: 'License Keys', icon: 'vpn_key', href: '/license-keys', tier: 'tester' },
   { name: 'Users', icon: 'group', href: '/users', tier: 'tester' },
-  { name: 'Devices', icon: 'devices', href: '/devices', tier: 'tester' },
+  { name: 'Device Groups', icon: 'devices', href: '/devices/groups', tier: 'tester' },
   { name: 'Analytics', icon: 'insights', href: '/analytics', tier: 'tester' },
   { name: 'Blacklist', icon: 'block', href: '/blacklist', tier: 'tester' },
   { name: 'Variables', icon: 'code', href: '/variables', tier: 'tester' },
