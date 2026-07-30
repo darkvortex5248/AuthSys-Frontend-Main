@@ -37,7 +37,7 @@ export default function DeveloperManagementPage() {
     }
   };
 
-  const handleBan = async (id: number) => {
+  const handleBan = async (id: number | string) => {
     try {
       await adminApi.post(`/admin/developers/${id}/ban`, {});
       fetchData();
@@ -48,7 +48,7 @@ export default function DeveloperManagementPage() {
     }
   };
 
-  const changePlan = async (devId: number, planId: number | null) => {
+  const changePlan = async (devId: number | string, planId: string | null) => {
     try {
       if (planId === null) {
         await adminApi.delete(`/admin/developers/${devId}/plan`);
@@ -65,7 +65,7 @@ export default function DeveloperManagementPage() {
           const seed = await adminApi.post<{ plans: any[] }>('/admin/plans/seed');
           setPlans(seed.data.plans || []);
           if (planId !== null) {
-            const freshPlan = seed.data.plans?.find((p: any) => p.id === planId);
+            const freshPlan = seed.data.plans?.find((p: any) => `${p.id}` === `${planId}`);
             if (freshPlan) {
               await adminApi.post(`/admin/developers/${devId}/plan`, { plan_id: planId });
               await fetchData();
@@ -169,7 +169,7 @@ export default function DeveloperManagementPage() {
                         value={dev.plan_id ?? ''} 
                         onChange={(e) => {
                           const v = e.target.value;
-                          changePlan(dev.id, v ? parseInt(v, 10) : null);
+                          changePlan(dev.id, v || null);
                         }}
                         className="min-w-[140px] bg-[var(--card)] border border-white/10 rounded-xl px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-[var(--primary)] outline-none focus:border-[var(--primary)] transition-all cursor-pointer"
                       >
