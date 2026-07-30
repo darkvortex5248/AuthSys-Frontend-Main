@@ -136,3 +136,99 @@ def scan_module(path: pathlib.Path) -> list[dict]:
             }
         )
     return rows
+
+
+def main() -> int:
+    rows: list[dict] = []
+    for path in sorted(ROUTERS.glob("*.py")):
+        if path.name == "__init__.py":
+            continue
+        try:
+            rows.extend(scan_module(path))
+        except SyntaxError as exc:
+            print(f"!! SYNTAX ERROR {path.name}: {exc}")
+
+    total = len(rows)
+    mutating = [r for r in rows if r["method"].lower() in MUTATING or r["mutates"]]
+    unsafe = [
+        r for r in mutating
+        if r["mutates"] and not r["decorated"] and r["commits"] == 0
+    ]
+    double = [r for r in mutating if r["decorated"] and r["commits"] > 0]
+    readonly_decorated = [
+        r for r in rows
+        if r["decorated"] and not r["mutates"] and r["method"].lower() not in MUTATING
+    ]
+
+    print("=" * 78)
+    print(f"ROUTE AUDIT — {total} routes across {len(list(ROUTERS.glob('*.py')))} modules")
+    print("=" * 78)
+    print(f"  mutating routes ............ {len(mutating)}")
+    print(f"  UNSAFE (write, no commit) .. {len(unsafe)}")
+    print(f"  double-commit risk ......... {len(double)}")
+    print(f"  decorated but read-only .... {len(readonly_decorated)}")
+    print()
+
+    print("-" * 78)
+    print("CRITICAL — mutates the DB but has NO @db_transaction and NO commit()")
+    print("-" * 78)
+    by_file: dict[str, list[dict]] = {}
+    for r in unsafe:
+        by_file.setdefault(r["file"], []).append(r)
+    for fname in sorted(by_file):
+        print(f"\n  {fname}")
+        for r in sorted(by_file[fname], key=lambda x: x["line"]):
+            sig = []
+            if r["adds"]:
+                sig.append(f"add×{r['adds']}")
+            if r["deletes"]:
+                sig.append(f"del×{r['deletes']}")
+            if r["write_sql"]:
+                sig.append(f"sql×{r['write_sql']}")
+            if r["attr_writes"]:
+                sig.append(f"attr×{r['attr_writes']}")
+            print(
+                f"    L{r['line']:<5} {r['method']:<6} {r['path'] or '/':<38} "
+                f"{r['func']:<34} [{', '.join(sig)}]"
+            )
+
+    print()
+    print("-" * 78)
+    print("DOUBLE COMMIT — @db_transaction AND explicit commit() in body")
+    print("-" * 78)
+    for r in sorted(double, key=lambda x: (x["file"], x["line"])):
+        print(
+            f"  {r['file']:<32} L{r['line']:<5} {r['method']:<6} "
+            f"{r['func']:<34} commits={r['commits']}"
+        )
+
+    print()
+    print("-" * 78)
+    print("PER-FILE SUMMARY")
+    print("-" * 78)
+    files: dict[str, dict[str, int]] = {}
+    for r in rows:
+        f = files.setdefault(
+            r["file"], {"routes": 0, "mutating": 0, "decorated": 0, "unsafe": 0}
+        )
+        f["routes"] += 1
+        if r["mutates"] or r["method"].lower() in MUTATING:
+            f["mutating"] += 1
+        if r["decorated"]:
+            f["decorated"] += 1
+        if r["mutates"] and not r["decorated"] and r["commits"] == 0:
+            f["unsafe"] += 1
+    print(f"  {'file':<34} {'routes':>7} {'mut':>6} {'deco':>6} {'UNSAFE':>7}")
+    for fname in sorted(files, key=lambda k: -files[k]["unsafe"]):
+        s = files[fname]
+        flag = "  <<<" if s["unsafe"] else ""
+        print(
+            f"  {fname:<34} {s['routes']:>7} {s['mutating']:>6} "
+            f"{s['decorated']:>6} {s['unsafe']:>7}{flag}"
+        )
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

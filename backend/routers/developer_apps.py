@@ -27,6 +27,16 @@ async def verify_app_access(app_id: int, dev_id: int, db: AsyncSession):
 
 router = APIRouter(prefix="/api/v1/developer/apps", tags=["Apps"])
 
+
+def _app_response(app: Application, *, total_users: int = 0, total_keys: int = 0, logins_today: int = 0) -> dict:
+    data = AppResponse.model_validate(app).model_dump()
+    data.update(
+        total_users=total_users,
+        total_keys=total_keys,
+        logins_today=logins_today,
+    )
+    return data
+
 @router.get("", response_model=list[AppResponse])
 async def get_apps(dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     # Optimized Query: Fetch apps and their related counts in fewer queries
@@ -65,13 +75,15 @@ async def get_apps(dev: DeveloperAccount = Depends(get_current_developer), db: A
     logins_res = await db.execute(logins_stmt)
     logins_counts = dict(logins_res.all())
 
-    # Map the counts back to apps
-    for app in apps:
-        app.total_users = users_counts.get(app.id, 0)
-        app.total_keys = keys_counts.get(app.id, 0)
-        app.logins_today = logins_counts.get(app.id, 0)
-        
-    return apps
+    return [
+        _app_response(
+            app,
+            total_users=users_counts.get(app.id, 0),
+            total_keys=keys_counts.get(app.id, 0),
+            logins_today=logins_counts.get(app.id, 0),
+        )
+        for app in apps
+    ]
 
 @router.get("/{app_id}", response_model=AppResponse)
 async def get_app(app_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
@@ -96,10 +108,12 @@ async def get_app(app_id: int, dev: DeveloperAccount = Depends(get_current_devel
         )
     )).scalar() or 0
 
-    app.total_users = users_count
-    app.total_keys = keys_count
-    app.logins_today = logins_today
-    return app
+    return _app_response(
+        app,
+        total_users=users_count,
+        total_keys=keys_count,
+        logins_today=logins_today,
+    )
 
 @router.post("/create", response_model=AppResponse)
 @db_transaction

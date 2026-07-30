@@ -121,7 +121,12 @@ Base = declarative_base()
 
 async def get_db():
     async with AsyncSessionLocal() as session:
-        yield session
+        try:
+            yield session
+        except Exception:
+            if session.in_transaction():
+                await session.rollback()
+            raise
 
 
 async def create_tables():

@@ -1,4 +1,7 @@
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi import HTTPException
+from sqlalchemy.exc import SQLAlchemyError
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response as StarletteResponse
 from starlette.responses import JSONResponse
@@ -25,6 +28,7 @@ from routers import (
 import asyncio
 import logging
 import os
+import time
 from urllib.parse import urlparse
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -67,6 +71,66 @@ app = FastAPI(
 # Setup SlowAPI Rate Limiter
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "detail": exc.detail,
+            "success": False,
+            "error": {
+                "code": exc.status_code,
+                "message": exc.detail,
+            },
+        },
+        headers=getattr(exc, "headers", None),
+    )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": "Validation failed",
+            "success": False,
+            "error": {
+                "code": 422,
+                "message": "Validation failed",
+                "details": exc.errors(),
+            },
+        },
+    )
+
+@app.exception_handler(SQLAlchemyError)
+async def database_exception_handler(request: Request, exc: SQLAlchemyError):
+    logger.error("Database error on %s %s", request.method, request.url.path, exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={
+            "detail": "Database operation failed",
+            "success": False,
+            "error": {
+                "code": 500,
+                "message": "Database operation failed",
+            },
+        },
+    )
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    logger.error("Unhandled error on %s %s", request.method, request.url.path, exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={
+            "detail": "Internal server error",
+            "success": False,
+            "error": {
+                "code": 500,
+                "message": "Internal server error",
+            },
+        },
+    )
 
 app.state._startup_done = False
 
@@ -195,8 +259,6 @@ app.add_middleware(DynamicCORSMiddleware)
 
 # Maintenance Middleware with caching
 _system_mode_cache = {"mode": "live", "last_fetch": 0.0}
-import time
-
 @app.middleware("http")
 async def maintenance_middleware(request: Request, call_next):
     path = request.url.path
@@ -233,6 +295,20 @@ async def maintenance_middleware(request: Request, call_next):
         )
 
     return await call_next(request)
+
+@app.middleware("http")
+async def mutation_audit_middleware(request: Request, call_next):
+    started = time.perf_counter()
+    response = await call_next(request)
+    if request.method in {"POST", "PUT", "PATCH", "DELETE"}:
+        logger.info(
+            "mutation.request method=%s path=%s status=%s elapsed_ms=%.2f",
+            request.method,
+            request.url.path,
+            response.status_code,
+            (time.perf_counter() - started) * 1000,
+        )
+    return response
 
 # Include Routers
 app.include_router(developer_auth.router)

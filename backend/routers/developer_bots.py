@@ -45,9 +45,12 @@ class BotCreateRequest(BaseModel):
 async def get_bots(dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(BotConfig).where(BotConfig.developer_id == dev.id))
     bots = res.scalars().all()
-    for b in bots:
-        b.bot_token = BotConfigResponse.mask_token(b.bot_token)
-    return bots
+    return [
+        BotConfigResponse.model_validate(b)
+        .model_copy(update={"bot_token": BotConfigResponse.mask_token(b.bot_token)})
+        .model_dump()
+        for b in bots
+    ]
 
 @router.post("/config", response_model=BotConfigResponse)
 @db_transaction

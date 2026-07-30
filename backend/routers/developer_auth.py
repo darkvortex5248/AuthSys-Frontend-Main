@@ -11,13 +11,12 @@ from core.config import settings
 from models.domain import DeveloperAccount, SubscriptionPlan, DeveloperSession, Application, EndUser, LicenseKey, Session, ActivityLog, Variable, ChatRoom, ChatMessage, WebhookEndpoint, WebhookDelivery, WebhookLog, IPWhitelistRule, APIKey, TeamMember, Payment, AIAgentLog, BotConfig, CustomDomain, AppBackup, AppEnvironment, HealthCheckRecord, LogRetentionConfig, ScheduledAction, Organization, OrganizationMember, UsageRecord, CustomPlanOverride, SellerAccount, AIConversation, AIActionLog, AIKnowledgeBase, DeviceGroup, Device
 from routers.developer_sessions import record_session
 from jose import jwt, JWTError
-import uuid
 from datetime import timedelta, datetime, timezone
 from core.limiter import limiter
 from services.email import EmailService
 from services.otp import OTPService
 from schemas.auth import (
-    DeveloperCreate, DeveloperResponse, Token, DeveloperGoogleLogin,
+    DeveloperCreate, DeveloperResponse, Token,
     PasswordResetRequest, OTPVerify, NewPassword, ChangePassword, DeveloperUpdate,
     PreferencesUpdate, TwoFactorSetupResponse, TwoFactorVerifyRequest,
     TwoFactorDisableRequest, TwoFactorLoginVerify
@@ -227,72 +226,6 @@ async def logout(request: Request, db: AsyncSession = Depends(get_db)):
     except Exception as e:
         await db.rollback()
         raise HTTPException(status_code=500, detail=f"Logout failed: {str(e)}") from e
-
-@router.post("/google-login", response_model=Token)
-@limiter.limit("10/minute")
-async def google_login(request: Request, google_data: DeveloperGoogleLogin, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(DeveloperAccount).where(DeveloperAccount.email == google_data.email))
-    user = result.scalars().first()
-    
-    if user:
-        if not user.google_id:
-            user.google_id = google_data.google_id
-        if not user.avatar_url and google_data.avatar_url:
-            user.avatar_url = google_data.avatar_url
-            
-        if user.is_banned:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Your account has been banned. Please contact support.",
-            )
-            
-        await db.commit()
-        await db.refresh(user)
-    else:
-        random_password = str(uuid.uuid4())
-        hashed_password = get_password_hash(random_password)
-        base_username = google_data.email.split('@')[0]
-        
-        # Ensure unique username
-        username_result = await db.execute(select(DeveloperAccount).where(DeveloperAccount.username == base_username))
-        if username_result.scalars().first():
-            base_username = f"{base_username}_{str(uuid.uuid4())[:6]}"
-            
-        # Assign default Free plan for new Google users
-        plan_result = await db.execute(select(SubscriptionPlan).where(SubscriptionPlan.name == 'Free'))
-        free_plan = plan_result.scalars().first()
-        
-        user = DeveloperAccount(
-            username=base_username,
-            email=google_data.email,
-            password_hash=hashed_password,
-            google_id=google_data.google_id,
-            avatar_url=google_data.avatar_url,
-            is_verified=True,
-            plan_id=free_plan.id if free_plan else None,
-            subscription_tier='tester'
-        )
-        db.add(user)
-        await db.commit()
-        await db.refresh(user)
-        
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        subject=user.id, expires_delta=access_token_expires
-    )
-    
-    secure = request.url.scheme == "https"
-    response = JSONResponse(content={"access_token": access_token, "token_type": "bearer"})
-    response.set_cookie(
-        key=settings.COOKIE_NAME,
-        value=access_token,
-        httponly=True,
-        secure=secure,
-        samesite=settings.COOKIE_SAMESITE,
-        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        path=settings.COOKIE_PATH,
-    )
-    return response
 
 @router.post("/verify-email")
 async def verify_email(data: OTPVerify, db: AsyncSession = Depends(get_db)):
@@ -566,9 +499,7 @@ async def delete_account(
         await db.execute(sa_delete(EndUser).where(EndUser.app_id.in_(
             select(Application.id).where(Application.developer_id == dev_id)
         )))
-        await db.execute(sa_delete(AIAgentLog).where(AIAgentLog.app_id.in_(
-            select(Application.id).where(Application.developer_id == dev_id)
-        )))
+        await db.execute(sa_delete(AIAgentLog).where(AIAgentLog.developer_id == dev_id))
         await db.execute(sa_delete(BotConfig).where(BotConfig.app_id.in_(
             select(Application.id).where(Application.developer_id == dev_id)
         )))
@@ -595,14 +526,14 @@ async def delete_account(
         await db.execute(sa_delete(UsageRecord).where(UsageRecord.developer_id == dev_id))
         await db.execute(sa_delete(CustomPlanOverride).where(CustomPlanOverride.developer_id == dev_id))
         await db.execute(sa_delete(SellerAccount).where(SellerAccount.developer_id == dev_id))
-        await db.execute(sa_delete(AIConversation).where(AIConversation.user_id == dev_id))
         await db.execute(sa_delete(AIActionLog).where(AIActionLog.conversation_id.in_(
             select(AIConversation.id).where(AIConversation.user_id == dev_id)
         )))
-        await db.execute(sa_delete(DeviceGroup).where(DeviceGroup.developer_id == dev_id))
         await db.execute(sa_delete(Device).where(Device.group_id.in_(
             select(DeviceGroup.id).where(DeviceGroup.developer_id == dev_id)
         )))
+        await db.execute(sa_delete(DeviceGroup).where(DeviceGroup.developer_id == dev_id))
+        await db.execute(sa_delete(AIConversation).where(AIConversation.user_id == dev_id))
         await db.execute(sa_delete(DeveloperSession).where(DeveloperSession.developer_id == dev_id))
         await db.execute(sa_delete(Application).where(Application.developer_id == dev_id))
         await db.execute(sa_delete(Payment).where(Payment.developer_id == dev_id))
