@@ -163,11 +163,11 @@ export default function LoginPage() {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className={`w-full bg-[var(--color-bg-elevated)] rounded-2xl border border-white/5 p-8 flex flex-col gap-6 shadow-2xl transition-all duration-300 ${hasError ? 'animate-[shake_0.4s_cubic-bezier(.36,.07,.19,.97)_both] !border-[#ef4444] !shadow-[0_0_12px_rgba(239,68,68,0.2)]' : ''} ${isSuccess ? '!border-[#10b981] !shadow-[0_0_12px_rgba(16,185,129,0.3)]' : ''}`}
+      className={`w-full bg-[var(--color-bg-elevated)] rounded-2xl border border-white/5 p-8 flex flex-col gap-6 shadow-2xl transition-[background-color,box-shadow,border-color] duration-200 ease-out ${hasError ? 'animate-[shake_0.4s_cubic-bezier(.36,.07,.19,.97)_both] !border-[#ef4444] !shadow-[0_0_12px_rgba(239,68,68,0.2)]' : ''} ${isSuccess ? '!border-[#10b981] !shadow-[0_0_12px_rgba(16,185,129,0.3)]' : ''}`}
     >
       {/* Tab Switcher */}
       <motion.div variants={itemVariants} className="flex p-1 bg-[#0a0a0a] rounded-xl border border-white/5 relative">
-        <div className="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-[var(--color-bg-elevated)] rounded-[10px] transition-all duration-300 ease-in-out" style={{ transform: 'translateX(0%)' }}></div>
+        <div className="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-[var(--color-bg-elevated)] rounded-[10px] transition-[background-color,box-shadow,border-color] duration-200 ease-out ease-in-out" style={{ transform: 'translateX(0%)' }}></div>
         <Link href="/login" className="relative flex-1 py-2 text-sm font-medium leading-[1] text-center text-white z-10 transition-colors">Sign in</Link>
         <Link href="/register" className="relative flex-1 py-2 text-sm font-medium leading-[1] text-center text-[var(--color-text-secondary)] z-10 transition-colors">Sign up</Link>
       </motion.div>
@@ -194,7 +194,7 @@ export default function LoginPage() {
       <motion.form variants={containerVariants} initial="hidden" animate="visible" onSubmit={handleSubmit} className="flex flex-col gap-4">
         <motion.div variants={itemVariants} className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-[var(--color-text-secondary)] uppercase">Email or Username</label>
-          <div className="relative group rounded-xl border border-white/5 bg-[var(--color-bg-elevated)] transition-all duration-200 focus-within:border-[var(--color-accent)] focus-within:shadow-[0_0_12px_color-mix(in_srgb,var(--primary)_13%,transparent)]">
+          <div className="relative group rounded-xl border border-white/5 bg-[var(--color-bg-elevated)] transition-[background-color,box-shadow,border-color] duration-200 ease-out focus-within:border-[var(--color-accent)] focus-within:shadow-[0_0_12px_color-mix(in_srgb,var(--primary)_13%,transparent)]">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)] text-[20px] group-focus-within:text-[var(--color-accent)] transition-colors">person</span>
             <input 
               id="username"
@@ -213,7 +213,7 @@ export default function LoginPage() {
             <label className="text-xs font-medium tracking-wide text-[var(--color-text-secondary)] uppercase">Password</label>
             <Link href="/forgot-password" className="text-xs font-medium text-[var(--color-accent)] hover:text-[var(--accent-hover)] transition-colors">Forgot password?</Link>
           </div>
-          <div className="relative group rounded-xl border border-white/5 bg-[var(--color-bg-elevated)] transition-all duration-200 focus-within:border-[var(--color-accent)] focus-within:shadow-[0_0_12px_color-mix(in_srgb,var(--primary)_13%,transparent)]">
+          <div className="relative group rounded-xl border border-white/5 bg-[var(--color-bg-elevated)] transition-[background-color,box-shadow,border-color] duration-200 ease-out focus-within:border-[var(--color-accent)] focus-within:shadow-[0_0_12px_color-mix(in_srgb,var(--primary)_13%,transparent)]">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)] text-[20px] group-focus-within:text-[var(--color-accent)] transition-colors">lock</span>
             <input 
               id="password"
@@ -255,7 +255,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isSubmitting || isSuccess}
-            className={`w-full h-[42px] text-sm font-medium rounded-xl flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98]
+            className={`w-full h-[42px] text-sm font-medium rounded-xl flex items-center justify-center gap-2 transition-[background-color,box-shadow,border-color] duration-200 ease-out active:brightness-95
               ${isSuccess
                 ? 'bg-[#10b981] text-[#064e3b]'
                 : 'bg-[var(--color-accent)] hover:bg-[var(--accent-hover)] text-black shadow-[0_4px_12px_color-mix(in_srgb,var(--primary)_20%,transparent)] hover:shadow-[0_6px_16px_color-mix(in_srgb,var(--primary)_30%,transparent)]'
@@ -286,7 +286,7 @@ export default function LoginPage() {
             { provider: 'azure', svg: <svg className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" viewBox="0 0 24 24"><path fill="#F25022" d="M1 1h10v10H1z"/><path fill="#7FBA00" d="M13 1h10v10H13z"/><path fill="#00A4EF" d="M1 13h10v10H1z"/><path fill="#FFB900" d="M13 13h10v10H13z"/></svg> },
             { provider: 'github', svg: <svg className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" fill="#FFFFFF" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.419 2.865 8.166 6.839 9.489c.5.092.682-.217.682-.482c0-.237-.008-.866-.013-1.7c-2.782.603-3.369-1.341-3.369-1.341c-.454-1.152-1.11-1.459-1.11-1.459c-.908-.62.069-.608.069-.608c1.003.07 1.531 1.03 1.531 1.03c.892 1.529 2.341 1.087 2.91.832c.092-.647.35-1.088.636-1.338c-2.22-.253-4.555-1.11-4.555-4.943c0-1.091.39-1.984 1.029-2.683c-.103-.253-.446-1.27.098-2.647c0 0 .84-.269 2.75 1.025A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025c.546 1.377.203 2.394.1 2.647c.64.699 1.028 1.592 1.028 2.683c0 3.842-2.339 4.687-4.566 4.935c.359.309.678.92.678 1.855c0 1.338-.012 2.419-.012 2.747c0 .268.18.58.688.482C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z"/></svg> },
           ].map(({ provider, svg }) => (
-            <button key={provider} onClick={() => handleSocialSignIn(provider)} type="button" className="h-[42px] bg-[var(--color-bg-surface)] border border-white/5 hover:border-[var(--color-accent)]/30 rounded-xl flex items-center justify-center transition-all group hover:bg-[var(--color-accent-dim)]">
+            <button key={provider} onClick={() => handleSocialSignIn(provider)} type="button" className="h-[42px] bg-[var(--color-bg-surface)] border border-white/5 hover:border-[var(--border-hover)]/30 rounded-xl flex items-center justify-center transition-[background-color,box-shadow,border-color] duration-200 ease-out group hover:bg-[var(--color-accent-dim)]">
               {svg}
             </button>
           ))}

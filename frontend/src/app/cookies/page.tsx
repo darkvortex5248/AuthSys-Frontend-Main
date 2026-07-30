@@ -75,7 +75,7 @@ export default function CookiesPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08, duration: 0.4 }}
-              className="p-6 rounded-2xl border border-white/5 bg-[var(--color-bg-elevated)]/50 hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300"
+              className="p-6 rounded-2xl border border-white/5 bg-[var(--color-bg-elevated)]/50 hover:bg-white/[0.04] 0 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
             >
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-xl bg-[var(--color-accent-dim)] border border-[var(--color-accent)]/20 flex items-center justify-center shrink-0 mt-0.5">

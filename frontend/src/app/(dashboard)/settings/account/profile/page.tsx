@@ -351,7 +351,7 @@ export default function ProfilePage() {
                   <select
                     value={profileData.timezone}
                     onChange={e => updateField('timezone', e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-[var(--foreground)] focus:border-[var(--primary)]/50 outline-none transition-all appearance-none cursor-pointer"
+                    className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-[var(--foreground)] focus:border-[var(--primary)]/50 outline-none transition-[background-color,box-shadow,border-color] duration-200 ease-out appearance-none cursor-pointer"
                   >
                     {TIMEZONES.map(tz => (
                       <option key={tz.value} value={tz.value}>{tz.label}</option>
@@ -373,7 +373,7 @@ export default function ProfilePage() {
                   rows={3}
                   maxLength={160}
                   placeholder="e.g. Full-stack dev building auth tools for the modern web…"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/40 focus:border-[var(--primary)]/50 outline-none transition-all resize-none"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/40 focus:border-[var(--primary)]/50 outline-none transition-[background-color,box-shadow,border-color] duration-200 ease-out resize-none"
                 />
                 <span className="absolute bottom-3 right-3.5 text-[10px] text-[var(--muted-foreground)]/40 tabular-nums">
                   {profileData.bio.length}/160
@@ -387,7 +387,7 @@ export default function ProfilePage() {
             <button
               type="submit"
               disabled={loading || !isDirty}
-              className="flex items-center gap-2 px-6 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white rounded-xl text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              className="flex items-center gap-2 px-6 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white rounded-xl text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-[background-color,box-shadow,border-color] duration-200 ease-out"
             >
               {loading
                 ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -400,7 +400,7 @@ export default function ProfilePage() {
               type="button"
               onClick={handleDiscard}
               disabled={!isDirty}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/8 border border-white/8 rounded-xl text-sm text-[var(--foreground)] font-medium disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/8 border border-white/8 rounded-xl text-sm text-[var(--foreground)] font-medium disabled:opacity-30 disabled:cursor-not-allowed transition-[background-color,box-shadow,border-color] duration-200 ease-out"
             >
               <span className="material-symbols-outlined text-[16px]">undo</span>
               Discard
@@ -459,14 +459,14 @@ export default function ProfilePage() {
               onChange={e => { setAvatarInput(e.target.value); setAvatarPreview(e.target.value || null); }}
               onKeyDown={e => e.key === 'Enter' && handleSetAvatar()}
               placeholder="https://example.com/photo.png"
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm text-[var(--foreground)] placeholder:text-white/20 focus:border-[var(--primary)]/50 outline-none transition-all font-mono mb-5"
+              className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm text-[var(--foreground)] placeholder:text-white/20 focus:border-[var(--primary)]/50 outline-none transition-[background-color,box-shadow,border-color] duration-200 ease-out font-mono mb-5"
             />
 
             <div className="flex gap-3">
               <button
                 onClick={handleSetAvatar}
                 disabled={!avatarInput.trim()}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[var(--primary)] text-white font-semibold text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[var(--primary)] text-white font-semibold text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-[background-color,box-shadow,border-color] duration-200 ease-out"
               >
                 <span className="material-symbols-outlined text-[16px]">check</span>
                 Set photo

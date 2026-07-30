@@ -119,7 +119,7 @@ export default function ChatroomsPage() {
               <motion.button
                 type="submit"
                 disabled={isCreating}
-                whileTap={{ scale: 0.97 }}
+                whileTap={{ opacity: 0.9 }}
                 className="btn-primary w-full"
               >
                 {isCreating
@@ -194,7 +194,7 @@ function RoomCard({ room, index }: { room: any; index: number }) {
         <div className="flex items-start justify-between mb-5">
           <div className="flex items-center gap-3">
             <div
-              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 ${
+              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                 hovered ? 'bg-[var(--primary)]/15' : 'bg-white/5'
               }`}
             >
@@ -228,8 +228,8 @@ function RoomCard({ room, index }: { room: any; index: number }) {
             </div>
           </div>
           <motion.button
-            whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }}
-            className="p-2 rounded-xl border border-white/6 bg-white/3 hover:bg-white/8 text-[var(--muted-foreground)] hover:text-white transition-all duration-200"
+            whileHover={{ opacity: 0.95 }} whileTap={{ opacity: 0.9 }}
+            className="p-2 rounded-xl border border-white/6 bg-white/3 hover:bg-white/8 text-[var(--muted-foreground)] hover:text-white transition-[background-color,box-shadow,border-color] duration-200 ease-out"
           >
             <Settings className="w-4 h-4" />
           </motion.button>

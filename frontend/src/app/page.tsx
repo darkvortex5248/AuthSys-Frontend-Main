@@ -40,7 +40,7 @@ const T = {
 // ─── Utility Components ───────────────────────────────────────────────────────
 
 const Button = ({ children, variant = "primary", size = "md", className = "", style, ...props }: any) => {
-  const base = "inline-flex items-center justify-center font-semibold tracking-tight transition-all duration-200 focus-visible:outline-none disabled:opacity-40 active:scale-[0.97] select-none";
+  const base = "inline-flex items-center justify-center font-semibold tracking-tight transition-[background-color,box-shadow,border-color] duration-200 ease-out focus-visible:outline-none disabled:opacity-40 active:brightness-95 select-none";
   const variants: Record<string, { className: string; style?: any }> = {
     primary: {
       className: "text-[var(--primary-foreground)] rounded-xl",
@@ -48,7 +48,7 @@ const Button = ({ children, variant = "primary", size = "md", className = "", st
     },
     ghost: { className: "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-white/5 rounded-xl" },
     outline: { className: "border border-[var(--border)] text-[var(--foreground)] hover:bg-white/5 hover:border-[var(--border-hover)] rounded-xl" },
-    glass: { className: "text-[var(--foreground)] hover:bg-white/8 hover:border-white/15 backdrop-blur-sm rounded-xl", style: { background: 'var(--glass-bg)', border: '1px solid var(--glass-border)' } },
+    glass: { className: "text-[var(--foreground)] hover:bg-white/8 5 backdrop-blur-sm rounded-xl", style: { background: 'var(--glass-bg)', border: '1px solid var(--glass-border)' } },
   };
   const sizes: any = {
     sm: "h-9 px-4 text-sm",
@@ -151,7 +151,7 @@ function FeatureCard({ icon: Icon, title, desc, delay = 0 }: any) {
         style={{ boxShadow: `inset 0 0 0 1px var(--accent-opacity-20)` }} />
 
       <div className="relative z-10">
-        <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110"
+        <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-5 transition-[background-color,box-shadow,border-color] duration-200 ease-out group-hover:scale-110"
           style={{ background: T.accentTint, border: `1px solid var(--accent-opacity-15)` }}>
           <Icon className="w-5 h-5" style={{ color: T.accent }} />
         </div>
@@ -170,7 +170,7 @@ function StatCard({ value, label, delay = 0 }: any) {
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
       transition={{ duration: 0.3, delay, ease: [0.22, 1, 0.36, 1] }}
-      className="relative group rounded-2xl p-7 border text-center overflow-hidden transition-all duration-200 hover:border-[var(--accent-opacity-20)]"
+      className="relative group rounded-2xl p-7 border text-center overflow-hidden transition-[background-color,box-shadow,border-color] duration-200 ease-out hover:border-[var(--accent-opacity-20)]"
       style={{ background: "var(--glass-bg)", borderColor: T.border, backdropFilter: "blur(20px)" }}
     >
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
@@ -394,7 +394,7 @@ export default function HomePage() {
               </ul>
               <Link href="/register">
                 <button
-                  className="inline-flex items-center gap-2 h-12 px-7 rounded-xl font-semibold text-sm transition-all duration-200 hover:gap-3 active:scale-[0.97]"
+                  className="inline-flex items-center gap-2 h-12 px-7 rounded-xl font-semibold text-sm transition-[background-color,box-shadow,border-color] duration-200 ease-out hover:gap-3 active:brightness-95"
                   style={{ background: T.accent, color: "white", boxShadow: `0 4px 24px ${T.accentGlow}` }}
                 >
                   Try the AI Agent <ArrowRight className="w-4 h-4" />
@@ -526,7 +526,7 @@ export default function HomePage() {
                     style={{ background: T.surface2, color: T.textMuted }}>
                     Ask the AI agent...
                   </div>
-                  <button className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:scale-110"
+                  <button className="w-9 h-9 rounded-lg flex items-center justify-center transition-[background-color,box-shadow,border-color] duration-200 ease-out hover:scale-110"
                     style={{ background: T.accent }}>
                     <ArrowRight className="w-4 h-4 text-white" />
                   </button>
@@ -579,7 +579,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href="/register">
                   <button
-                    className="inline-flex items-center gap-2 h-14 px-10 rounded-xl font-bold text-base transition-all duration-200 hover:gap-3 active:scale-[0.97]"
+                    className="inline-flex items-center gap-2 h-14 px-10 rounded-xl font-bold text-base transition-[background-color,box-shadow,border-color] duration-200 ease-out hover:gap-3 active:brightness-95"
                     style={{ background: T.accent, color: "white", boxShadow: `0 8px 32px ${T.accentGlow}` }}
                   >
                     Get Started Free <ArrowRight className="w-5 h-5" />
@@ -587,7 +587,7 @@ export default function HomePage() {
                 </Link>
                 <Link href={getVal("watch_demo_url") || "#"}>
                   <button
-                    className="inline-flex items-center gap-2 h-14 px-8 rounded-xl font-semibold text-base transition-all duration-200 hover:bg-white/8 active:scale-[0.97]"
+                    className="inline-flex items-center gap-2 h-14 px-8 rounded-xl font-semibold text-base transition-[background-color,box-shadow,border-color] duration-200 ease-out hover:bg-white/8 active:brightness-95"
                     style={{ background: "rgba(255,255,255,0.04)", color: T.textPrimary, border: `1px solid ${T.border}` }}
                   >
                     <Play className="w-4 h-4" style={{ color: T.accent }} fill="currentColor" />

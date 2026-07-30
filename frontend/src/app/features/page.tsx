@@ -52,7 +52,7 @@ export default function FeaturesPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
             {features.map((f) => (
-              <div key={f.title} className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all">
+              <div key={f.title} className="p-6 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                 <span className="text-2xl mb-3 block">{f.icon}</span>
                 <h3 className="text-lg font-semibold text-white mb-2">{f.title}</h3>
                 <p className="text-gray-400 text-sm">{f.desc}</p>
@@ -60,7 +60,7 @@ export default function FeaturesPage() {
             ))}
           </div>
           <div className="text-center">
-            <Link href="/pricing" className="inline-flex px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-all">View Pricing</Link>
+            <Link href="/pricing" className="inline-flex px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-[background-color,box-shadow,border-color] duration-200 ease-out">View Pricing</Link>
           </div>
         </div>
       </div>

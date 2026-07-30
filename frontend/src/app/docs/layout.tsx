@@ -75,7 +75,7 @@ function SidebarCategory({
     <div>
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`group relative flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150 ${
+        className={`group relative flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
           isCategoryActive || hasActiveChild
             ? 'text-[var(--color-text-primary)]'
             : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
@@ -100,18 +100,18 @@ function SidebarCategory({
           className="relative z-10 transition-transform duration-150"
           style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
         >
-          <ChevronDown className="h-3 w-3 opacity-40" />
+          <ChevronDown className="h-3 w-3 opacity-35 transition-opacity group-hover:opacity-60" />
         </span>
       </button>
 
       <div
-        className="transition-all duration-200 ease-out overflow-hidden"
+        className="transition-[background-color,box-shadow,border-color] duration-200 ease-out overflow-hidden"
         style={{
           maxHeight: isOpen ? `${cat.pages.length * 40 + 8}px` : '0px',
           opacity: isOpen ? 1 : 0,
         }}
       >
-        <div className="ml-4 mt-0.5 space-y-0.5 border-l border-[var(--color-border)] pl-3">
+          <div className="ml-4 mt-0.5 space-y-0.5 border-l border-[var(--color-border)]/50 pl-3">
           {cat.pages.map((page) => {
             const isPageActive = pathname === page.href
             return (
@@ -120,10 +120,10 @@ function SidebarCategory({
                   href={page.href}
                   data-active={isPageActive ? 'true' : undefined}
                   onClick={onNavigate}
-                  className={`group relative flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs transition-all duration-150 ${
+                  className={`group relative flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                     isPageActive
                       ? 'font-medium text-[var(--primary)]'
-                      : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
+                      : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--accent-opacity-6)]'
                   }`}
                 >
                   <span
@@ -203,11 +203,11 @@ function SearchDialog({
             onClick={onClose}
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: -12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: -12 }}
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.96 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="fixed inset-4 top-[12%] z-[110] mx-auto h-fit max-w-[580px] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-2xl shadow-black/40 sm:inset-x-auto sm:left-1/2 sm:w-full sm:-translate-x-1/2"
+            className="fixed inset-4 top-[12%] z-[110] mx-auto h-fit max-w-[580px] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-xl sm:inset-x-auto sm:left-1/2 sm:w-full sm:-translate-x-1/2"
           >
             <div className="relative">
               <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-muted)]" />
@@ -237,7 +237,7 @@ function SearchDialog({
                     key={page.href}
                     href={page.href}
                     onClick={onClose}
-                    className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-[var(--accent-tint)]"
+                    className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-[background-color] duration-200 ease-out hover:bg-[var(--accent-tint)]"
                   >
                     <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--color-bg-base)] text-[10px] font-semibold text-[var(--color-text-muted)]">
                       <BookOpen className="h-3.5 w-3.5" />
@@ -322,7 +322,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="min-h-screen bg-[var(--color-bg-base)] text-[var(--color-text-primary)]">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-bg-base)]/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-[var(--color-border)]/50 bg-[var(--color-bg-base)]/80 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 lg:px-6">
           <div className="flex items-center gap-4">
             <button
@@ -381,7 +381,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
           <div className="flex items-center gap-3">
             <button
               onClick={openSearch}
-              className="flex h-8 items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-3 text-xs text-[var(--color-text-muted)] transition-all duration-150 hover:border-[var(--color-border)]/50 hover:text-[var(--color-text-primary)] sm:w-48 lg:w-56"
+              className="flex h-8 items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-3 text-xs text-[var(--color-text-muted)] transition-[background-color,box-shadow,border-color] duration-200 ease-out hover:border-[var(--primary)]/15 hover:text-[var(--color-text-primary)] sm:w-48 lg:w-56"
             >
               <Search className="h-3.5 w-3.5 flex-shrink-0" />
               <span className="hidden sm:inline">Search docs...</span>
@@ -424,14 +424,14 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
           {/* Sidebar */}
           <aside
             ref={sidebarRef}
-            className={`fixed left-0 top-14 z-40 flex h-[calc(100vh-56px)] w-[280px] flex-col border-r border-[var(--color-border)] bg-[var(--color-bg-surface)] transition-transform duration-250 ease-out lg:sticky lg:top-14 lg:z-auto lg:h-[calc(100vh-56px)] lg:border-r lg:bg-transparent ${
+            className={`fixed left-0 top-14 z-40 flex h-[calc(100vh-56px)] w-[280px] flex-col border-r border-[var(--color-border)]/50 bg-[var(--color-bg-surface)] transition-transform duration-250 ease-out lg:sticky lg:top-14 lg:z-auto lg:h-[calc(100vh-56px)] lg:border-r lg:bg-transparent ${
               sidebarOpen
                 ? 'translate-x-0'
                 : '-translate-x-full lg:translate-x-0'
             }`}
           >
             {/* Search input */}
-            <div className="flex-shrink-0 border-b border-[var(--color-border)] px-3 py-3">
+            <div className="flex-shrink-0 border-b border-[var(--color-border)]/50 px-3 py-3">
               <div className="relative">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--color-text-muted)]" />
                 <input
@@ -439,7 +439,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
                   placeholder="Filter..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-base)] py-2 pl-9 pr-3 text-xs text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none transition-all duration-150 focus:border-[var(--primary)]/30"
+                  className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-base)] py-2 pl-9 pr-3 text-xs text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none transition-[background-color,box-shadow,border-color] duration-200 ease-out focus:border-[var(--primary)]/20"
                 />
               </div>
             </div>
@@ -480,7 +480,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-[var(--color-border)]">
+      <footer className="border-t border-[var(--color-border)]/50">
         <div className="mx-auto max-w-7xl px-4 py-8 lg:px-6">
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
             <p className="text-xs text-[var(--color-text-muted)]">

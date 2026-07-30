@@ -360,11 +360,11 @@ const CSS = `
   border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
   background: color-mix(in srgb, var(--primary) 10%, transparent);
   color: var(--primary); font-size: 13px; font-weight: 700;
-  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  cursor: pointer; transition: background-color 200ms var(--ease-smooth), box-shadow 200ms var(--ease-smooth), border-color 200ms var(--ease-smooth); white-space: nowrap;
   box-shadow: 0 0 28px color-mix(in srgb, var(--primary) 8%, transparent);
 }
-.tm-invite-btn:hover { background: color-mix(in srgb, var(--primary) 18%, transparent); transform: translateY(-1px); box-shadow: 0 0 36px color-mix(in srgb, var(--primary) 18%, transparent); }
-.tm-invite-btn:active { transform: scale(0.97); }
+.tm-invite-btn:hover { box-shadow: 0 0 36px color-mix(in srgb, var(--primary) 20%, transparent); }
+.tm-invite-btn:active { opacity: 0.92; }
 
 /* STATS */
 .tm-stats {
@@ -406,7 +406,7 @@ const CSS = `
 .tm-filter-pill {
   padding: 6px 14px; border-radius: 12px; font-size: 11px; font-weight: 700;
   border: 1px solid var(--bdr); background: var(--sur);
-  color: var(--muted-foreground); cursor: pointer; transition: all 0.17s;
+  color: var(--muted-foreground); cursor: pointer; transition: background-color 200ms var(--ease-smooth), color 200ms var(--ease-smooth), border-color 200ms var(--ease-smooth);
 }
 .tm-filter-pill:hover { color: var(--foreground); border-color: rgba(255,255,255,0.14); }
 .tm-filter-pill.active { background: color-mix(in srgb, var(--primary) 10%, transparent); border-color: color-mix(in srgb, var(--primary) 35%, transparent); color: var(--primary); }
@@ -452,7 +452,7 @@ const CSS = `
 .remove-btn {
   width: 32px; height: 32px; border-radius: 8px; border: 1px solid transparent;
   background: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
-  color: rgba(248,113,113,0.4); transition: all 0.17s;
+  color: rgba(248,113,113,0.4); transition: background-color 200ms var(--ease-smooth), color 200ms var(--ease-smooth), border-color 200ms var(--ease-smooth);
 }
 .remove-btn:hover { color: #f87171; background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.18); }
 .card-glow { position: absolute; inset: 0; pointer-events: none; }
@@ -471,7 +471,7 @@ const CSS = `
 .tm-empty-ring {
   position: absolute; inset: -7px; border-radius: 50%;
   border: 1px dashed rgba(255,255,255,0.07);
-  animation: tmSpin 14s linear infinite;
+  animation: tmPulse 2s ease-in-out infinite;
 }
 .tm-empty-title { font-size: 17px; font-weight: 700; color: var(--foreground); margin: 0; }
 .tm-empty-sub { font-size: 13px; color: var(--muted-foreground); margin: 0; }
@@ -479,9 +479,9 @@ const CSS = `
   display: flex; align-items: center; gap: 6px; margin-top: 6px;
   padding: 9px 18px; border-radius: 10px;
   border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent); background: color-mix(in srgb, var(--primary) 8%, transparent);
-  color: var(--primary); font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+  color: var(--primary); font-size: 12px; font-weight: 700; cursor: pointer; transition: background-color 200ms var(--ease-smooth), box-shadow 200ms var(--ease-smooth), border-color 200ms var(--ease-smooth);
 }
-.tm-invite-btn-sm:hover { background: color-mix(in srgb, var(--primary) 15%, transparent); transform: translateY(-1px); }
+.tm-invite-btn-sm:hover { background: color-mix(in srgb, var(--primary) 15%, transparent);  }
 
 /* MODAL */
 .tm-overlay {
@@ -514,7 +514,7 @@ const CSS = `
   margin-left: auto; width: 30px; height: 30px; border-radius: 8px;
   border: 1px solid var(--bdr); background: none; cursor: pointer;
   color: var(--muted-foreground); display: flex; align-items: center; justify-content: center;
-  transition: all 0.17s;
+  transition: background-color 200ms var(--ease-smooth), color 200ms var(--ease-smooth), border-color 200ms var(--ease-smooth);
 }
 .tm-modal-close:hover { color: var(--foreground); background: rgba(255,255,255,0.06); }
 .tm-field { margin-bottom: 20px; position: relative; }
@@ -531,24 +531,24 @@ const CSS = `
   transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box;
 }
 .tm-input::placeholder { color: var(--muted-foreground); opacity: 0.4; }
-.tm-input:focus { border-color: color-mix(in srgb, var(--primary) 45%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 9%, transparent); }
+.tm-input:focus { border-color: color-mix(in srgb, var(--primary) 30%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 12%, transparent); }
 .tm-role-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
 .tm-role-opt {
   display: flex; flex-direction: column; align-items: center; gap: 6px;
   padding: 14px 8px; border-radius: 12px; border: 1px solid var(--bdr);
-  background: rgba(255,255,255,0.03); cursor: pointer; transition: all 0.18s;
+  background: rgba(255,255,255,0.03); cursor: pointer; transition: background-color 200ms var(--ease-smooth), box-shadow 200ms var(--ease-smooth), border-color 200ms var(--ease-smooth);
   font-size: 11px; font-weight: 700; color: var(--muted-foreground);
   position: relative;
 }
 .tm-role-opt:hover { border-color: rgba(255,255,255,0.14); background: rgba(255,255,255,0.05); }
-.tm-role-opt.sel { transform: translateY(-2px); }
+.tm-role-opt.sel {  }
 .tm-role-check { position: absolute; top: 7px; right: 7px; font-size: 13px !important; }
 .tm-modal-actions { display: flex; gap: 10px; margin-top: 24px; }
 .tm-btn-cancel {
   flex: 1; padding: 12px; border-radius: 12px;
   border: 1px solid var(--bdr); background: rgba(255,255,255,0.04);
   color: var(--muted-foreground); font-size: 13px; font-weight: 700;
-  cursor: pointer; transition: all 0.17s;
+  cursor: pointer; transition: background-color 200ms var(--ease-smooth), color 200ms var(--ease-smooth), border-color 200ms var(--ease-smooth);
 }
 .tm-btn-cancel:hover { background: rgba(255,255,255,0.07); color: var(--foreground); }
 .tm-btn-submit {
@@ -556,20 +556,21 @@ const CSS = `
   background: var(--primary); border: none;
   color: #fff; font-size: 13px; font-weight: 700; cursor: pointer;
   display: flex; align-items: center; justify-content: center; gap: 7px;
-  transition: all 0.2s; box-shadow: 0 4px 18px color-mix(in srgb, var(--primary) 28%, transparent);
+  transition: background-color 200ms var(--ease-smooth), box-shadow 200ms var(--ease-smooth), border-color 200ms var(--ease-smooth); box-shadow: 0 4px 18px color-mix(in srgb, var(--primary) 28%, transparent);
 }
-.tm-btn-submit:hover { box-shadow: 0 6px 24px color-mix(in srgb, var(--primary) 42%, transparent); transform: translateY(-1px); }
-.tm-btn-submit:active { transform: scale(0.97); }
+.tm-btn-submit:hover { box-shadow: 0 6px 24px color-mix(in srgb, var(--primary) 20%, transparent); }
+.tm-btn-submit:active { opacity: 0.92; }
 .tm-btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 .tm-spinner {
   width: 14px; height: 14px; border-radius: 50%;
   border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;
-  animation: tmSpin 0.7s linear infinite; display: inline-block;
+  animation: tmPulse 0.7s ease-in-out infinite; display: inline-block;
 }
+@keyframes tmPulse { 0%,100% { opacity:0.3; } 50% { opacity:1; } }
 @keyframes tmFadeIn { from { opacity:0; } to { opacity:1; } }
-@keyframes tmModalIn { from { opacity:0; transform:scale(0.93) translateY(14px); } to { opacity:1; transform:scale(1) translateY(0); } }
-@keyframes rowIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
-@keyframes statPop { 0% { transform:scale(0.9); opacity:0; } 60% { transform:scale(1.04); } 100% { transform:scale(1); opacity:1; } }
+@keyframes tmModalIn { from { opacity:0; } to { opacity:1; } }
+@keyframes rowIn { from { opacity:0; } to { opacity:1; } }
+@keyframes statPop { 0% { opacity:0; } 60% { opacity:1; } 100% { opacity:1; } }
 .tm-member-card { animation:rowIn 0.3s ease-out both; }
 .tm-stat-card { animation:statPop 0.4s ease-out both; }
 `;

@@ -76,7 +76,7 @@ function VerifyEmailForm() {
   };
 
   return (
-    <div className="w-full max-w-[440px] bg-[var(--card)] p-[24px] rounded-xl border border-white/5 transition-all duration-300 hover:border-white/10 shadow-[0_0_40px_2px_color-mix(in_srgb,var(--primary)_3%,transparent)]">
+    <div className="w-full max-w-[440px] bg-[var(--card)] p-[24px] rounded-xl border border-white/5 transition-[background-color,box-shadow,border-color] duration-200 ease-out 0 shadow-[0_0_40px_2px_color-mix(in_srgb,var(--primary)_3%,transparent)]">
       <div className="flex justify-center mb-8">
         <div className="w-16 h-16 rounded-full bg-[var(--primary)]/10 flex items-center justify-center border border-[var(--primary)]/20 shadow-[0_0_20px_0px_color-mix(in_srgb,var(--primary)_15%,transparent)]">
           <span className="material-symbols-outlined text-[32px] text-[var(--primary)]" style={{ fontVariationSettings: "'FILL' 1" }}>mark_email_unread</span>
@@ -97,7 +97,7 @@ function VerifyEmailForm() {
               key={i}
               ref={(el) => { if (el) inputRefs.current[i] = el; }}
               type="text"
-              className="w-full h-[52px] text-center text-xl font-bold bg-[var(--card)] border border-white/5 rounded-lg text-[var(--primary)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] outline-none transition-all focus-within:shadow-[0_0_12px_color-mix(in_srgb,var(--primary)_15%,transparent)]"
+              className="w-full h-[52px] text-center text-xl font-bold bg-[var(--card)] border border-white/5 rounded-lg text-[var(--primary)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] outline-none transition-[background-color,box-shadow,border-color] duration-200 ease-out focus-within:shadow-[0_0_12px_color-mix(in_srgb,var(--primary)_15%,transparent)]"
               value={digit}
               onChange={(e) => handleChange(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
@@ -110,7 +110,7 @@ function VerifyEmailForm() {
         <button 
           onClick={handleVerify}
           disabled={loading}
-          className="w-full h-[42px] bg-[var(--primary)] hover:bg-[var(--primary)] active:scale-[0.98] rounded text-[13.5px] font-medium text-black flex items-center justify-center gap-2 transition-all duration-200 shadow-[0_4px_12px_color-mix(in_srgb,var(--primary)_20%,transparent)] hover:shadow-[0_6px_16px_color-mix(in_srgb,var(--primary)_30%,transparent)] disabled:opacity-50"
+          className="w-full h-[42px] bg-[var(--primary)] hover:bg-[var(--primary)] active:brightness-95 rounded text-[13.5px] font-medium text-black flex items-center justify-center gap-2 transition-[background-color,box-shadow,border-color] duration-200 ease-out shadow-[0_4px_12px_color-mix(in_srgb,var(--primary)_20%,transparent)] hover:shadow-[0_6px_16px_color-mix(in_srgb,var(--primary)_30%,transparent)] disabled:opacity-50"
         >
           {loading ? (
             <><span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span> Verifying...</>
@@ -123,7 +123,7 @@ function VerifyEmailForm() {
       <div className="mt-8 flex flex-col gap-4 items-center">
         <button 
           onClick={() => router.push('/login')}
-          className="w-full h-[42px] bg-[var(--card)] border border-white/5 hover:bg-[#222222] hover:border-white/10 text-[#ffffff] rounded text-[13.5px] font-medium flex items-center justify-center transition-all duration-200"
+          className="w-full h-[42px] bg-[var(--card)] border border-white/5 text-white rounded text-[13.5px] font-medium flex items-center justify-center transition-[background-color,box-shadow,border-color] duration-200"
         >
           Return to sign in
         </button>

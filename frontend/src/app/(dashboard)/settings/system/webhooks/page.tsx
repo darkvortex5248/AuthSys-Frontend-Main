@@ -218,7 +218,7 @@ export default function WebhooksPage() {
     <div className="space-y-8 pb-20">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/settings/system" className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all">
+          <Link href="/settings/system" className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
@@ -227,7 +227,7 @@ export default function WebhooksPage() {
           </div>
         </div>
         <button onClick={() => { setEditing(null); setFormUrl(''); setFormDesc(''); setFormEvents([]); setShowModal(true); }}
-          className="h-10 px-5 bg-[var(--primary)] text-black font-bold text-xs uppercase tracking-widest rounded-xl flex items-center gap-2 hover:opacity-90 transition-all">
+          className="h-10 px-5 bg-[var(--primary)] text-black font-bold text-xs uppercase tracking-widest rounded-xl flex items-center gap-2 hover:opacity-90 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
           <Plus className="w-4 h-4" /> Add Webhook
         </button>
       </div>
@@ -242,14 +242,14 @@ export default function WebhooksPage() {
             Create webhook endpoints to receive real-time events about licenses, users, threats, and more.
           </p>
           <button onClick={() => { setEditing(null); setFormUrl(''); setFormDesc(''); setFormEvents([]); setShowModal(true); }}
-            className="h-10 px-5 bg-[var(--primary)] text-black font-bold text-xs uppercase tracking-widest rounded-xl flex items-center gap-2 hover:opacity-90 transition-all">
+            className="h-10 px-5 bg-[var(--primary)] text-black font-bold text-xs uppercase tracking-widest rounded-xl flex items-center gap-2 hover:opacity-90 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
             <Plus className="w-4 h-4" /> Create Your First Webhook
           </button>
         </div>
       ) : (
         <div className="space-y-4">
           {webhooks.map(wh => (
-            <div key={wh.id} className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all">
+            <div key={wh.id} className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 0 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
@@ -277,27 +277,27 @@ export default function WebhooksPage() {
                 </div>
                 <div className="flex items-center gap-2 shrink-0 ml-4">
                   <button onClick={() => handleTest(wh.id)} disabled={testing === wh.id}
-                    className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-[var(--primary)] hover:border-[var(--primary)]/30 transition-all disabled:opacity-40"
+                    className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-[var(--primary)] hover:border-[var(--border-hover)]/30 transition-[background-color,box-shadow,border-color] duration-200 ease-out disabled:opacity-40"
                     title="Send test event">
                     {testing === wh.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <TestTube className="w-4 h-4" />}
                   </button>
                   <button onClick={() => handleToggle(wh)}
-                    className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all"
+                    className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                     title={wh.is_active ? 'Disable' : 'Enable'}>
                     <span className="material-symbols-outlined text-sm">{wh.is_active ? 'pause' : 'play_arrow'}</span>
                   </button>
                   <button onClick={() => openEdit(wh)}
-                    className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all"
+                    className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                     title="Edit">
                     <span className="material-symbols-outlined text-sm">edit</span>
                   </button>
                   <button onClick={() => handleDelete(wh.id)}
-                    className="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 hover:bg-red-500/20 transition-all"
+                    className="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 hover:bg-red-500/20 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                     title="Delete">
                     <Trash2 className="w-4 h-4" />
                   </button>
                   <button onClick={() => fetchLog(wh.id)}
-                    className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all"
+                    className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                     title="Delivery log">
                     <span className="material-symbols-outlined text-sm">history</span>
                   </button>
@@ -330,7 +330,7 @@ export default function WebhooksPage() {
                 <label className="block text-[10px] font-bold text-[var(--muted-foreground)] uppercase tracking-widest mb-3">Subscribe to Events</label>
                 <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
                   {EVENT_OPTIONS.map(ev => (
-                    <label key={ev.value} className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border cursor-pointer transition-all ${
+                    <label key={ev.value} className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border cursor-pointer transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                       formEvents.includes(ev.value)
                         ? 'bg-[var(--primary)]/10 border-[var(--primary)]/30 text-white'
                         : 'bg-white/5 border-white/10 text-[var(--muted-foreground)] hover:bg-white/10'
@@ -338,7 +338,7 @@ export default function WebhooksPage() {
                       <input type="checkbox" checked={formEvents.includes(ev.value)}
                         onChange={() => setFormEvents(prev => prev.includes(ev.value) ? prev.filter(e => e !== ev.value) : [...prev, ev.value])}
                         className="sr-only" />
-                      <span className={`w-4 h-4 rounded flex items-center justify-center border transition-all ${
+                      <span className={`w-4 h-4 rounded flex items-center justify-center border transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                         formEvents.includes(ev.value) ? 'bg-[var(--primary)] border-[var(--primary)]' : 'bg-transparent border-white/20'
                       }`}>
                         {formEvents.includes(ev.value) && <span className="material-symbols-outlined text-[12px] text-black font-bold">check</span>}
@@ -369,7 +369,7 @@ export default function WebhooksPage() {
           <div className="w-full max-w-2xl bg-[var(--card)] border border-white/10 rounded-2xl p-8 shadow-2xl">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-white">Delivery Log</h2>
-              <button onClick={() => setShowLog(false)} className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-white/50 hover:text-white transition-all">
+              <button onClick={() => setShowLog(false)} className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-white/50 hover:text-white transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                 <span className="material-symbols-outlined text-sm">close</span>
               </button>
             </div>

@@ -35,7 +35,7 @@ export function ModalHeader({ title, onClose, danger = false }: { title: string;
       <h3 className={`text-lg font-black tracking-tight ${danger ? 'text-[var(--destructive)]' : 'text-[var(--foreground)]'}`}>{title}</h3>
       <button
         onClick={onClose}
-        className="w-8 h-8 rounded-xl bg-[var(--accent-opacity-8)] hover:bg-[var(--destructive)]/15 text-[var(--muted-foreground)] hover:text-[var(--destructive)] flex items-center justify-center transition-all duration-200"
+        className="w-8 h-8 rounded-xl bg-[var(--accent-opacity-8)] hover:bg-[var(--destructive)]/15 text-[var(--muted-foreground)] hover:text-[var(--destructive)] flex items-center justify-center transition-[background-color,box-shadow,border-color] duration-200 ease-out"
       >
         <span className="material-symbols-outlined text-[18px]">close</span>
       </button>
@@ -46,7 +46,7 @@ export function ModalHeader({ title, onClose, danger = false }: { title: string;
 export function GlassInput({ className = '', ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
-      className={`w-full bg-[var(--accent-opacity-8)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--foreground)]/85 font-mono focus:outline-none focus:border-[var(--primary)]/50 focus:bg-[var(--accent-opacity-15)] transition-all duration-200 placeholder:text-[var(--muted-foreground)] ${className}`}
+      className={`w-full bg-[var(--accent-opacity-8)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--foreground)]/85 font-mono focus:outline-none focus:border-[var(--primary)]/50 focus:bg-[var(--accent-opacity-15)] transition-[background-color,box-shadow,border-color] duration-200 ease-out placeholder:text-[var(--muted-foreground)] ${className}`}
       {...props}
     />
   );
@@ -55,7 +55,7 @@ export function GlassInput({ className = '', ...props }: React.InputHTMLAttribut
 export function GlassSelect({ className = '', ...props }: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
-      className={`w-full bg-[var(--accent-opacity-8)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--foreground)]/85 focus:outline-none focus:border-[var(--primary)]/50 transition-all duration-200 appearance-none ${className}`}
+      className={`w-full bg-[var(--accent-opacity-8)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--foreground)]/85 focus:outline-none focus:border-[var(--primary)]/50 transition-[background-color,box-shadow,border-color] duration-200 ease-out appearance-none ${className}`}
       {...props}
     />
   );
@@ -64,7 +64,7 @@ export function GlassSelect({ className = '', ...props }: React.SelectHTMLAttrib
 export function GlassTextarea({ className = '', ...props }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
-      className={`w-full bg-[var(--accent-opacity-8)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--foreground)]/75 focus:outline-none focus:border-[var(--primary)]/50 transition-all duration-200 resize-none placeholder:text-[var(--muted-foreground)] ${className}`}
+      className={`w-full bg-[var(--accent-opacity-8)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--foreground)]/75 focus:outline-none focus:border-[var(--primary)]/50 transition-[background-color,box-shadow,border-color] duration-200 ease-out resize-none placeholder:text-[var(--muted-foreground)] ${className}`}
       {...props}
     />
   );
@@ -93,7 +93,7 @@ export function PasswordStrengthMeter({ password }: { password: string }) {
         {[1, 2, 3, 4].map(i => (
           <div
             key={i}
-            className="h-1 flex-1 rounded-full transition-all duration-300"
+            className="h-1 flex-1 rounded-full transition-[background-color,box-shadow,border-color] duration-200 ease-out"
             style={{ background: i <= score ? colors[score] : 'rgba(255,255,255,0.08)' }}
           />
         ))}
@@ -115,8 +115,8 @@ export function GlassDropzone({ onFiles }: { onFiles: (files: File[]) => void })
       onDragLeave={() => setDragging(false)}
       onDrop={e => { e.preventDefault(); setDragging(false); onFiles(Array.from(e.dataTransfer.files)); }}
       onClick={() => inputRef.current?.click()}
-      className={`relative border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-200 ${
-        dragging ? 'border-[var(--primary)] bg-[var(--primary)]/5' : 'border-white/10 hover:border-white/20 bg-white/[0.01]'
+      className={`relative border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
+        dragging ? 'border-[var(--primary)] bg-[var(--primary)]/5' : 'border-white/10 0 bg-white/[0.01]'
       }`}
     >
       <input

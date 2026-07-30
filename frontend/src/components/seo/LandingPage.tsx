@@ -76,13 +76,13 @@ export function LandingPageShell({
               <div className="flex items-center justify-center gap-4">
                 <Link
                   href="/pricing"
-                  className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-blue-600/25"
+                  className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-[background-color,box-shadow,border-color] duration-200 ease-out hover:shadow-lg"
                 >
                   Get Started Free
                 </Link>
                 <Link
                   href="/docs"
-                  className="px-8 py-3 border border-white/10 hover:border-white/20 text-gray-300 hover:text-white font-semibold rounded-xl transition-all"
+                  className="px-8 py-3 border border-white/10 0 text-gray-300 hover:text-white font-semibold rounded-xl transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                 >
                   View Documentation
                 </Link>
@@ -137,7 +137,7 @@ export function LandingPageShell({
               </p>
               <Link
                 href="/pricing"
-                className="inline-flex px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-blue-600/25"
+                className="inline-flex px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-[background-color,box-shadow,border-color] duration-200 ease-out hover:shadow-lg"
               >
                 Choose Your Plan
               </Link>

@@ -45,7 +45,7 @@ export default function FAQPage() {
           </div>
           <div className="text-center mt-12">
             <p className="text-gray-400 mb-4">Still have questions?</p>
-            <Link href="/contact" className="inline-flex px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-all">Contact Support</Link>
+            <Link href="/contact" className="inline-flex px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-[background-color,box-shadow,border-color] duration-200 ease-out">Contact Support</Link>
           </div>
         </div>
       </div>

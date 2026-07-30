@@ -62,7 +62,7 @@ export default function AdminUsersPage() {
           <p className="text-[var(--muted-foreground)] mt-1">Manage platform administrator accounts</p>
         </div>
         <button onClick={() => setShowModal(true)}
-          className="px-5 py-2.5 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-[#131313] font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg shadow-[var(--primary)]/20">
+          className="px-5 py-2.5 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-[#131313] font-black text-[10px] uppercase tracking-widest transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center gap-2 shadow-lg shadow-[var(--primary)]/20">
           <span className="material-symbols-outlined text-sm">add</span>
           Create Admin
         </button>
@@ -91,7 +91,7 @@ export default function AdminUsersPage() {
                 <td className="px-6 py-4"><span className="text-xs text-[var(--muted-foreground)]">{a.created_at ? new Date(a.created_at).toLocaleDateString() : '—'}</span></td>
                 <td className="px-6 py-4">
                   <button onClick={() => handleDelete(a.id)}
-                    className="px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-400 hover:bg-red-500/20 transition-all">
+                    className="px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-400 hover:bg-red-500/20 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                     Delete
                   </button>
                 </td>

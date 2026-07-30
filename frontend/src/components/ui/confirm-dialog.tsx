@@ -76,14 +76,14 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                 <button
                   type="button"
                   onClick={() => close(false)}
-                  className="px-5 py-2.5 rounded-xl border border-white/10 text-sm font-bold text-[var(--foreground)] hover:bg-white/5 transition-all"
+                  className="px-5 py-2.5 rounded-xl border border-white/10 text-sm font-bold text-[var(--foreground)] hover:bg-white/5 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                 >
                   {state.cancelLabel || 'No, cancel'}
                 </button>
                 <button
                   type="button"
                   onClick={() => close(true)}
-                  className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                  className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                     isDanger
                       ? 'bg-red-500 text-white hover:bg-red-600 shadow-lg shadow-red-500/20'
                       : 'bg-[var(--primary)] text-[#131313] hover:opacity-90 shadow-lg shadow-[var(--primary)]/20'

@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/auth';
@@ -34,9 +34,6 @@ export default function TelegramBotPage() {
   const [showToken, setShowToken] = useState(false);
   const [apps, setApps] = useState<any[]>([]);
   const [activeStep, setActiveStep] = useState<number | null>(null);
-  const [particles, setParticles] = useState<{ x: number; y: number; id: number }[]>([]);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const particleId = useRef(0);
 
   const fetchData = async () => {
     if (locked) return;
@@ -65,14 +62,6 @@ export default function TelegramBotPage() {
   }, [selectedAppId, locked]);
 
   if (locked) return <PremiumLocked feature="Telegram Bot" />;
-
-  const spawnParticle = (e: React.MouseEvent) => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const id = particleId.current++;
-    setParticles(p => [...p, { x: e.clientX - rect.left, y: e.clientY - rect.top, id }]);
-    setTimeout(() => setParticles(p => p.filter(pt => pt.id !== id)), 900);
-  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,44 +98,12 @@ export default function TelegramBotPage() {
   );
 
   return (
-    <div
-      ref={containerRef}
-      className="page-wrapper pt-6 space-y-6 overflow-visible"
-      style={{ '--tg': '#0088cc' } as React.CSSProperties}
-      onClick={spawnParticle}
-    >
-      {/* Floating particles */}
-      {particles.map(p => (
-        <span
-          key={p.id}
-          className="pointer-events-none fixed z-50 w-2 h-2 rounded-full bg-[var(--primary)] opacity-80"
-          style={{
-            left: p.x,
-            top: p.y,
-            animation: 'floatUp 0.9s ease-out forwards',
-          }}
-        />
-      ))}
-
+    <div className="page-wrapper pt-6 space-y-6 overflow-visible" style={{ '--tg': '#0088cc' } as React.CSSProperties}>
       <style>{`
-        @keyframes floatUp {
-          0%   { transform: translate(-50%,-50%) scale(1); opacity:0.8; }
-          100% { transform: translate(-50%,-200%) scale(0); opacity:0; }
-        }
-        @keyframes shimmer {
-          0%   { background-position: -200% center; }
-          100% { background-position: 200% center; }
-        }
-        .shimmer-text {
-          background: linear-gradient(90deg, #fff 0%, var(--primary) 40%, #fff 60%, #fff 100%);
-          background-size: 200% auto;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          animation: shimmer 4s linear infinite;
-        }
-        .cmd-card { transition: all 0.25s cubic-bezier(.4,0,.2,1); }
-        .cmd-card:hover { transform: translateY(-3px) scale(1.02); }
-        .step-item { transition: all 0.2s ease; }
+        .shimmer-text { color: var(--primary); }
+        .cmd-card { transition: background-color 200ms var(--ease-smooth), box-shadow 200ms var(--ease-smooth); }
+        .cmd-card:hover { opacity: 0.9; }
+        .step-item { transition: background-color 200ms var(--ease-smooth), box-shadow 200ms var(--ease-smooth); }
       `}</style>
 
       {/* Header */}
@@ -237,7 +194,7 @@ export default function TelegramBotPage() {
                     </span>
                   </div>
                   <div className="h-0.5 bg-white/5 rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full transition-all duration-500 ${/^\d+:[A-Za-z0-9_-]{35,}$/.test(token) ? 'bg-emerald-500 w-full' : 'bg-amber-500 w-1/2'}`} />
+                    <div className={`h-full rounded-full transition-[background-color,box-shadow,border-color] duration-200 ease-out duration-500 ${/^\d+:[A-Za-z0-9_-]{35,}$/.test(token) ? 'bg-emerald-500 w-full' : 'bg-amber-500 w-1/2'}`} />
                   </div>
                 </div>
               )}
@@ -279,7 +236,7 @@ export default function TelegramBotPage() {
               {COMMANDS.map((c, i) => (
                 <div
                   key={c.cmd}
-                  className="cmd-card p-4 rounded-2xl border border-white/5 bg-white/[0.02] hover:border-[var(--primary)]/30 hover:bg-[var(--primary)]/5 cursor-default group"
+                  className="cmd-card p-4 rounded-2xl border border-white/5 bg-white/[0.02] hover:border-[var(--border-hover)]/30 hover:bg-[var(--primary)]/5 cursor-default group"
                   style={{ animationDelay: `${i * 60}ms` }}
                 >
                   <div className="flex items-start gap-3">
@@ -366,11 +323,11 @@ export default function TelegramBotPage() {
               {STEPS.map((s, i) => (
                 <li
                   key={s.step}
-                  className="step-item flex gap-3 p-3 rounded-xl cursor-pointer hover:bg-white/5 transition-all"
+                  className="step-item flex gap-3 p-3 rounded-xl cursor-pointer hover:bg-white/5 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                   onMouseEnter={() => setActiveStep(s.step)}
                   onMouseLeave={() => setActiveStep(null)}
                 >
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 transition-all duration-200 border ${
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 transition-[background-color,box-shadow,border-color] duration-200 ease-out border ${
                     activeStep === s.step
                       ? 'bg-[var(--primary)]/25 border-[var(--primary)]/50 text-[var(--primary)]'
                       : config && s.step <= 4

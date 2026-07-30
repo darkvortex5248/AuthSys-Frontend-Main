@@ -273,12 +273,12 @@ function SDKSnippet({ secret, ownerId, version, appName }: { secret: string; own
           <div className="relative" ref={dropRef}>
             <button
               onClick={() => setDropOpen(v => !v)}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] border border-white/8 text-[11px] font-medium text-white/70 hover:text-white hover:bg-white/[0.08] hover:border-white/15 transition-all duration-200"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] border border-white/8 text-[11px] font-medium text-white/70 hover:text-white hover:bg-white/[0.08] 5 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
             >
               <span className="w-2 h-2 rounded-full" style={{ background: lang.dot }} />
               <span className="tracking-wide">{lang.label}</span>
               <span
-                className="material-symbols-outlined text-[16px] transition-all duration-300"
+                className="material-symbols-outlined text-[16px] transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                 style={{ transform: dropOpen ? 'rotate(180deg)' : 'rotate(0deg)', fontVariationSettings: "'FILL' 1" }}
               >expand_more</span>
             </button>
@@ -301,7 +301,7 @@ function SDKSnippet({ secret, ownerId, version, appName }: { secret: string; own
                           <button
                             key={lk}
                             onClick={() => { setActiveLang(lk); setDropOpen(false); }}
-                            className={`flex items-center gap-1.5 flex-1 py-1.5 px-2.5 rounded-xl text-[11px] font-medium transition-all duration-150 ${
+                            className={`flex items-center gap-1.5 flex-1 py-1.5 px-2.5 rounded-xl text-[11px] font-medium transition-[background-color,box-shadow,border-color] duration-200 ease-out duration-150 ${
                               isActive
                                 ? 'bg-[var(--primary)]/15 text-[var(--primary)]'
                                 : 'text-white/40 hover:text-white hover:bg-white/5'
@@ -321,7 +321,7 @@ function SDKSnippet({ secret, ownerId, version, appName }: { secret: string; own
 
           <button
             onClick={handleCopy}
-            className={`flex items-center gap-1.5 text-[10px] font-medium transition-all px-2.5 py-1.5 rounded-lg ${
+            className={`flex items-center gap-1.5 text-[10px] font-medium transition-[background-color,box-shadow,border-color] duration-200 ease-out px-2.5 py-1.5 rounded-lg ${
               copied
                 ? 'bg-emerald-500/15 text-emerald-400'
                 : 'bg-white/5 text-white/30 hover:bg-[var(--primary)]/15 hover:text-[var(--primary)]'
@@ -410,23 +410,12 @@ export default function ApplicationDetailPage() {
   return (
     <>
       <style>{`
-        @keyframes shimmerAD {
-          0%   { background-position:-200% center; }
-          100% { background-position:200% center; }
-        }
         @keyframes statPop {
-          0%   { transform:scale(0.9); opacity:0; }
-          60%  { transform:scale(1.04); }
-          100% { transform:scale(1); opacity:1; }
+          0%   { opacity:0; }
+          60%  { opacity:1; }
+          100% { opacity:1; }
         }
-        .shimmer-ad {
-          color: var(--foreground);
-          background:linear-gradient(90deg,var(--foreground) 0%,var(--primary) 40%,var(--foreground) 60%);
-          background-size:200% auto;
-          -webkit-background-clip:text;
-          -webkit-text-fill-color:transparent;
-          animation:shimmerAD 5s linear infinite;
-        }
+        .shimmer-ad { color: var(--primary); }
         .stat-card { animation:statPop 0.4s ease-out both; }
         .field-box {
           background:color-mix(in srgb, var(--foreground) 3%, transparent);
@@ -441,7 +430,7 @@ export default function ApplicationDetailPage() {
         }
         .field-box:hover { border-color:color-mix(in srgb, var(--foreground) 14%, transparent); }
         .action-btn { transition:all 0.15s ease; }
-        .action-btn:hover { transform:scale(1.12); }
+        .action-btn:hover { opacity:0.9; }
       `}</style>
 
       <div className="max-w-4xl mx-auto space-y-8">
@@ -477,11 +466,11 @@ export default function ApplicationDetailPage() {
           {statItems.map((s, i) => (
             <div
               key={s.label}
-              className="stat-card glass-card p-5 rounded-2xl border border-white/5 flex flex-col gap-4 hover:border-white/10 transition-all duration-300 group cursor-default"
+              className="stat-card glass-card p-5 rounded-2xl border border-white/5 flex flex-col gap-4 0 transition-[background-color,box-shadow,border-color] duration-200 ease-out group cursor-default"
               style={{ animationDelay: `${i * 60}ms` }}
             >
               <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center border transition-all duration-300 group-hover:scale-110"
+                className="w-10 h-10 rounded-xl flex items-center justify-center border transition-[background-color,box-shadow,border-color] duration-200 ease-out group-hover:scale-110"
                 style={{ background: s.bg, borderColor: s.color + '30', color: s.color }}
               >
                 <span className="material-symbols-outlined text-[18px]">{s.icon}</span>
@@ -523,7 +512,7 @@ export default function ApplicationDetailPage() {
                   <span className="font-mono text-sm text-white/70 truncate">{app.owner_id}</span>
                   <button
                     onClick={() => handleCopy(app.owner_id, 'Owner ID')}
-                    className={`action-btn shrink-0 w-7 h-7 flex items-center justify-center rounded-lg transition-all ${
+                    className={`action-btn shrink-0 w-7 h-7 flex items-center justify-center rounded-lg transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                       copiedField === 'Owner ID'
                         ? 'bg-emerald-500/15 text-emerald-400'
                         : 'bg-white/5 text-white/25 hover:bg-[var(--primary)]/15 hover:text-[var(--primary)]'
@@ -544,7 +533,7 @@ export default function ApplicationDetailPage() {
                   <div className="flex gap-1.5 shrink-0">
                     <button
                       onClick={() => setVisibleSecret(!visibleSecret)}
-                      className="action-btn w-7 h-7 flex items-center justify-center rounded-lg bg-white/5 text-white/25 hover:bg-[var(--primary)]/15 hover:text-[var(--primary)] transition-all"
+                      className="action-btn w-7 h-7 flex items-center justify-center rounded-lg bg-white/5 text-white/25 hover:bg-[var(--primary)]/15 hover:text-[var(--primary)] transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                     >
                       <span className="material-symbols-outlined text-[14px]">
                         {visibleSecret ? 'visibility_off' : 'visibility'}
@@ -552,7 +541,7 @@ export default function ApplicationDetailPage() {
                     </button>
                     <button
                       onClick={() => handleCopy(app.app_secret, 'Secret Key')}
-                      className={`action-btn w-7 h-7 flex items-center justify-center rounded-lg transition-all ${
+                      className={`action-btn w-7 h-7 flex items-center justify-center rounded-lg transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                         copiedField === 'Secret Key'
                           ? 'bg-emerald-500/15 text-emerald-400'
                           : 'bg-white/5 text-white/25 hover:bg-[var(--primary)]/15 hover:text-[var(--primary)]'

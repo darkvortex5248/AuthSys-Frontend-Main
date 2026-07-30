@@ -46,7 +46,7 @@ export function CodeBlock({
           </div>
           <button
             onClick={handleCopy}
-            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs text-[var(--color-text-muted)] transition-all duration-200 hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-primary)]"
+            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs text-[var(--color-text-muted)] transition-[background-color,box-shadow,border-color] duration-200 ease-out hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-primary)]"
           >
             {copied ? (
               <>
@@ -66,7 +66,7 @@ export function CodeBlock({
         {!title && !lang && (
           <button
             onClick={handleCopy}
-            className="absolute right-3 top-3 z-10 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-[var(--color-text-muted)] opacity-0 transition-all duration-200 hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-primary)] group-hover:opacity-100"
+            className="absolute right-3 top-3 z-10 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-[var(--color-text-muted)] opacity-0 transition-[background-color,box-shadow,border-color] duration-200 ease-out hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-primary)] group-hover:opacity-100"
           >
             {copied ? (
               <>

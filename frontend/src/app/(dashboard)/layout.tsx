@@ -160,7 +160,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       {/* Lock body scroll when mobile sidebar is open */}
       {sidebarOpen && <style>{`body { overflow: hidden; }`}</style>}
 
-      <aside className={`fixed left-0 top-0 h-screen max-h-screen border-r border-[var(--border)] bg-[var(--glass-bg)] backdrop-blur-xl flex flex-col shadow-2xl z-[60] transition-all duration-300 lg:translate-x-0 ${sidebarIcons ? 'w-[72px]' : 'w-[260px]'} ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed left-0 top-0 h-screen max-h-screen border-r border-[var(--border)] bg-[var(--glass-bg)] backdrop-blur-xl flex flex-col shadow-2xl z-[60] transition-[background-color,box-shadow,border-color] duration-200 ease-out lg:translate-x-0 ${sidebarIcons ? 'w-[72px]' : 'w-[260px]'} ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className={`pt-8 pb-4 flex justify-between items-center shrink-0 ${sbCompact ? 'px-2' : 'px-5'}`}>
           <div className={sbCompact ? 'w-full flex justify-center' : ''}>
             <div className="flex items-center gap-2.5">
@@ -233,7 +233,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <div className="shrink-0 border-t border-[var(--border)] pb-6 pt-3 px-2">
           <button
             onClick={handleLogout}
-            className={`w-full flex items-center gap-3 text-[var(--destructive)] hover:bg-[var(--destructive)]/10 transition-all duration-200 rounded-lg sidebar-item ${sbCompact ? 'justify-center p-2.5' : 'px-4 py-2.5'}`}
+            className={`w-full flex items-center gap-3 text-[var(--destructive)] hover:bg-[var(--destructive)]/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out rounded-lg sidebar-item ${sbCompact ? 'justify-center p-2.5' : 'px-4 py-2.5'}`}
           >
             <span className="material-symbols-outlined text-[18px]">logout</span>
             {!sbCompact && <span className="text-sm font-semibold tracking-tight">Sign Out</span>}
@@ -241,7 +241,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <header className={`fixed top-0 right-0 max-lg:left-0 top-navbar flex justify-between items-center px-3 lg:px-8 z-50 transition-all duration-300 ${sidebarIcons ? 'lg:w-[calc(100%-72px)]' : 'lg:w-[calc(100%-260px)]'}`}>
+      <header className={`fixed top-0 right-0 max-lg:left-0 top-navbar flex justify-between items-center px-3 lg:px-8 z-50 transition-[background-color,box-shadow,border-color] duration-200 ease-out ${sidebarIcons ? 'lg:w-[calc(100%-72px)]' : 'lg:w-[calc(100%-260px)]'}`}>
         <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
           <button
             className="lg:hidden w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center shrink-0 rounded-xl bg-[var(--glass-bg)] border border-[var(--border)] text-[var(--muted-foreground)]"
@@ -254,7 +254,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 <select
                value={selectedAppId || ''}
                onChange={(e) => setSelectedAppId(parseInt(e.target.value))}
-               className="appearance-none bg-[var(--glass-bg)] border border-[var(--border)] rounded-xl px-2 md:px-4 py-1.5 md:py-2 pr-8 md:pr-10 text-[9px] md:text-[10px] font-black uppercase tracking-[0.15em] text-[var(--foreground)] truncate max-w-full focus:outline-none focus:ring-1 focus:ring-[var(--primary)]/40 focus:border-[var(--primary)]/40 transition-all cursor-pointer hover:bg-[var(--accent-opacity-8)]"
+               className="appearance-none bg-[var(--glass-bg)] border border-[var(--border)] rounded-xl px-2 md:px-4 py-1.5 md:py-2 pr-8 md:pr-10 text-[9px] md:text-[10px] font-black uppercase tracking-[0.15em] text-[var(--foreground)] truncate max-w-full focus:outline-none focus:ring-1 focus:ring-[var(--primary)]/40 focus:border-[var(--primary)]/40 transition-[background-color,box-shadow,border-color] duration-200 ease-out cursor-pointer hover:bg-[var(--accent-opacity-8)]"
               >
                 <option value="" disabled>Select Application</option>
                 {apps.map(app => (
@@ -383,7 +383,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </div>
       )}
 
-      <main className={`transition-all duration-300 mt-[56px] pt-10 px-4 lg:px-10 pb-4 lg:pb-10 min-h-screen relative z-10 overflow-visible ${sidebarOpen ? 'blur-md lg:blur-none' : ''} ${sidebarIcons ? 'lg:ml-[72px]' : 'lg:ml-[260px]'}`}>
+      <main className={`transition-[background-color,box-shadow,border-color] duration-200 ease-out mt-[56px] pt-10 px-4 lg:px-10 pb-4 lg:pb-10 min-h-screen relative z-10 overflow-visible ${sidebarOpen ? 'blur-md lg:blur-none' : ''} ${sidebarIcons ? 'lg:ml-[72px]' : 'lg:ml-[260px]'}`}>
         <div className="max-w-[1600px] mx-auto overflow-visible">
           {children}
         </div>

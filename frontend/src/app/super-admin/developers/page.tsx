@@ -104,7 +104,7 @@ export default function DeveloperManagementPage() {
             const blob = new Blob([csv], {type:'text/csv'});
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'developers.csv';
             a.click(); URL.revokeObjectURL(a.href);
-          }} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-[var(--muted-foreground)] hover:text-white hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+          }} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-[var(--muted-foreground)] hover:text-white hover:bg-white/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
             <span className="material-symbols-outlined text-sm">download</span>CSV
           </button>
         <div className="relative w-full sm:w-72">
@@ -114,7 +114,7 @@ export default function DeveloperManagementPage() {
             placeholder="Search systems or devs..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full bg-white/5 border border-white/5 rounded-full py-2.5 pl-12 pr-4 text-[var(--foreground)] text-sm focus:ring-2 focus:ring-blue-500/50 transition-all outline-none placeholder:text-[#424754]"
+            className="w-full bg-white/5 border border-white/5 rounded-full py-2.5 pl-12 pr-4 text-[var(--foreground)] text-sm focus:ring-2 focus:ring-blue-500/50 transition-[background-color,box-shadow,border-color] duration-200 ease-out outline-none placeholder:text-[#424754]"
             />
         </div>
         </div>
@@ -171,7 +171,7 @@ export default function DeveloperManagementPage() {
                           const v = e.target.value;
                           changePlan(dev.id, v || null);
                         }}
-                        className="min-w-[140px] bg-[var(--card)] border border-white/10 rounded-xl px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-[var(--primary)] outline-none focus:border-[var(--primary)] transition-all cursor-pointer"
+                        className="min-w-[140px] bg-[var(--card)] border border-white/10 rounded-xl px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-[var(--primary)] outline-none focus:border-[var(--primary)] transition-[background-color,box-shadow,border-color] duration-200 ease-out cursor-pointer"
                       >
                         <option value="">No Plan</option>
                         {plans.map(p => (
@@ -197,7 +197,7 @@ export default function DeveloperManagementPage() {
                 <td className="px-8 py-6 text-right">
                    <button 
                     onClick={() => handleBan(dev.id)}
-                    className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${dev.is_banned ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white'}`}
+                    className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,box-shadow,border-color] duration-200 ease-out ${dev.is_banned ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white'}`}
                    >
                      {dev.is_banned ? 'Authorize' : 'Revoke'}
                    </button>

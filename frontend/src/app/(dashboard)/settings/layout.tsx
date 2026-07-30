@@ -32,7 +32,7 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
           <button
             key={group.id}
             onClick={() => router.push(`/settings/${group.id}`)}
-            className={`shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
+            className={`shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
               activeGroup === group.id
                 ? 'bg-[var(--primary)] text-[#131313] shadow-lg shadow-[var(--accent-opacity-20)]'
                 : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-white/5'

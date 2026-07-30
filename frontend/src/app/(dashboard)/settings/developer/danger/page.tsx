@@ -49,7 +49,7 @@ function DangerButton({
     <button
       onClick={onClick}
       disabled={disabled || loading}
-      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/25 hover:border-red-500/40 text-red-400 text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/25 hover:border-red-500/20 text-red-400 text-sm font-semibold transition-[background-color,box-shadow,border-color] duration-200 ease-out disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
     >
       {loading
         ? <span className="w-4 h-4 border-2 border-red-400/30 border-t-red-400 rounded-full animate-spin" />
@@ -204,7 +204,7 @@ export default function DangerPage() {
                 placeholder={CONFIRM_PHRASE}
                 value={deleteInput}
                 onChange={e => setDeleteInput(e.target.value)}
-                className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-[var(--foreground)] placeholder:text-white/15 outline-none transition-all text-sm font-mono ${
+                className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-[var(--foreground)] placeholder:text-white/15 outline-none transition-[background-color,box-shadow,border-color] duration-200 ease-out text-sm font-mono ${
                   deleteInput.length > 0
                     ? phraseMatch
                       ? 'border-red-500/50 focus:border-red-500/70'
@@ -226,7 +226,7 @@ export default function DangerPage() {
           <button
             disabled={!phraseMatch || deleting}
             onClick={handleDeleteAccount}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg shadow-red-500/20"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-bold transition-[background-color,box-shadow,border-color] duration-200 ease-out disabled:opacity-30 disabled:cursor-not-allowed shadow-lg shadow-red-500/20"
           >
             {deleting
               ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

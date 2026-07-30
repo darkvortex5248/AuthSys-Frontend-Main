@@ -231,7 +231,7 @@ export default function ResponsesPage() {
                                   type="text"
                                   value={getValue(eventKey)}
                                   onChange={e => setRespMsgs(prev => ({ ...prev, [eventKey]: e.target.value }))}
-                                  className={`w-full bg-white/5 border rounded-xl pl-10 pr-4 py-2.5 text-sm font-mono outline-none transition-all ${
+                                  className={`w-full bg-white/5 border rounded-xl pl-10 pr-4 py-2.5 text-sm font-mono outline-none transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                                     isCustom
                                       ? 'text-[var(--foreground)] border-[var(--primary)]/30 focus:border-[var(--primary)]/60'
                                       : 'text-[var(--muted-foreground)] border-white/10 focus:border-[var(--primary)]/50'
@@ -254,12 +254,12 @@ export default function ResponsesPage() {
 
       <div className="flex items-center gap-3 mt-8 pt-6 border-t border-white/5">
         <button onClick={handleSave} disabled={respLoading}
-          className="flex items-center gap-2 px-6 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-bold disabled:opacity-40 transition-all">
+          className="flex items-center gap-2 px-6 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-bold disabled:opacity-40 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
           {respLoading ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <span className="material-symbols-outlined text-[16px]">save</span>}
           Save changes
         </button>
         <button onClick={handleReset} disabled={respLoading}
-          className="flex items-center gap-2 px-5 py-2.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm font-bold disabled:opacity-40 transition-all">
+          className="flex items-center gap-2 px-5 py-2.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm font-bold disabled:opacity-40 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
           <span className="material-symbols-outlined text-[16px]">restart_alt</span>
           Reset all
         </button>

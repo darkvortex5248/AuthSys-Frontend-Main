@@ -49,7 +49,7 @@ export default function CookieConsent() {
               {/* Close — desktop only */}
               <button
                 onClick={decline}
-                className="hidden sm:flex absolute top-3 right-3 w-7 h-7 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.04] items-center justify-center text-[var(--muted-foreground)] hover:text-white transition-all z-20"
+                className="hidden sm:flex absolute top-3 right-3 w-7 h-7 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.04] items-center justify-center text-[var(--muted-foreground)] hover:text-white transition-[background-color,box-shadow,border-color] duration-200 ease-out z-20"
                 aria-label="Close"
               >
                 <X className="w-3.5 h-3.5" />
@@ -76,14 +76,14 @@ export default function CookieConsent() {
                 <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                   <button
                     onClick={accept}
-                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl bg-[var(--primary)] text-black text-xs font-black uppercase tracking-widest hover:bg-[var(--primary)]/90 active:scale-[0.97] transition-all shadow-lg shadow-[var(--primary)]/20"
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl bg-[var(--primary)] text-black text-xs font-black uppercase tracking-widest hover:bg-[var(--primary)]/90 active:brightness-95 transition-[background-color,box-shadow,border-color] duration-200 ease-out shadow-lg shadow-[var(--primary)]/20"
                   >
                     <Check className="w-3.5 h-3.5" />
                     Accept
                   </button>
                   <button
                     onClick={decline}
-                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl border border-white/[0.08] text-[var(--muted-foreground)] text-xs font-black uppercase tracking-widest hover:text-white hover:bg-white/[0.04] active:scale-[0.97] transition-all"
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl border border-white/[0.08] text-[var(--muted-foreground)] text-xs font-black uppercase tracking-widest hover:text-white hover:bg-white/[0.04] active:brightness-95 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                   >
                     Decline
                   </button>

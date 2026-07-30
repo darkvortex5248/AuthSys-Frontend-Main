@@ -42,7 +42,7 @@ export default function BlogPage() {
           <div className="grid gap-8">
             {articles.map((article) => (
               <article key={article.slug} className="group">
-                <Link href={`/blog/${article.slug}`} className="block p-6 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all">
+                <Link href={`/blog/${article.slug}`} className="block p-6 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                   <time className="text-sm text-gray-500">{article.date}</time>
                   <h2 className="text-xl font-bold text-white mt-2 group-hover:text-blue-400 transition-colors">{article.title}</h2>
                   <p className="text-gray-400 mt-2 leading-relaxed">{article.excerpt}</p>

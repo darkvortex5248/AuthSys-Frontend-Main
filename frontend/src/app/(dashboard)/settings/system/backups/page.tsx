@@ -174,7 +174,7 @@ export default function BackupsPage() {
             <select
               value={form.app_id}
               onChange={e => setForm({ ...form, app_id: parseInt(e.target.value) })}
-              className="w-full pl-9 pr-3 py-2.5 bg-[var(--card)]/50 border border-white/8 rounded-xl text-sm text-[var(--foreground)] focus:border-[var(--primary)]/40 outline-none transition-all appearance-none cursor-pointer"
+              className="w-full pl-9 pr-3 py-2.5 bg-[var(--card)]/50 border border-white/8 rounded-xl text-sm text-[var(--foreground)] focus:border-[var(--primary)]/40 outline-none transition-[background-color,box-shadow,border-color] duration-200 ease-out appearance-none cursor-pointer"
             >
               <option value={0} disabled>Select app…</option>
               {apps.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
@@ -189,14 +189,14 @@ export default function BackupsPage() {
               onChange={e => setForm({ ...form, name: e.target.value })}
               onKeyDown={e => e.key === 'Enter' && handleCreate()}
               placeholder="e.g. pre-deploy-v2"
-              className="w-full pl-9 pr-4 py-2.5 bg-[var(--card)]/50 border border-white/8 rounded-xl text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/50 focus:border-[var(--primary)]/40 outline-none transition-all"
+              className="w-full pl-9 pr-4 py-2.5 bg-[var(--card)]/50 border border-white/8 rounded-xl text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/50 focus:border-[var(--primary)]/40 outline-none transition-[background-color,box-shadow,border-color] duration-200 ease-out"
             />
           </div>
 
           <button
             onClick={handleCreate}
             disabled={!form.app_id || !form.name.trim() || creating}
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white rounded-xl text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0"
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white rounded-xl text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-[background-color,box-shadow,border-color] duration-200 ease-out shrink-0"
           >
             {creating
               ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -242,7 +242,7 @@ export default function BackupsPage() {
 
                 <div className="space-y-2">
                   {(appBups as any[]).map(b => (
-                    <div key={b.id} className="premium-card p-4 flex items-center gap-4 border border-white/5 hover:border-white/10 transition-all">
+                    <div key={b.id} className="premium-card p-4 flex items-center gap-4 border border-white/5 0 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
 
                       {/* Icon */}
                       <div className="w-9 h-9 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
@@ -268,7 +268,7 @@ export default function BackupsPage() {
                         <button
                           onClick={() => handleRestore(b.id)}
                           disabled={restoringId === b.id}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-50 ${
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-[background-color,box-shadow,border-color] duration-200 ease-out disabled:opacity-50 ${
                             confirmRestore === b.id
                               ? 'bg-[var(--primary)] text-white'
                               : 'bg-[var(--primary)]/10 hover:bg-[var(--primary)]/15 text-[var(--primary)]'
@@ -284,7 +284,7 @@ export default function BackupsPage() {
                         <button
                           onClick={() => handleDelete(b.id)}
                           disabled={deletingId === b.id}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all disabled:opacity-50 ${
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-[background-color,box-shadow,border-color] duration-200 ease-out disabled:opacity-50 ${
                             confirmDelete === b.id
                               ? 'bg-red-500 text-white'
                               : 'hover:bg-red-500/10 text-[var(--muted-foreground)] hover:text-red-400'

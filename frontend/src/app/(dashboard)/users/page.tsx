@@ -408,30 +408,19 @@ export default function UsersPage() {
   return (
     <div className="page-wrapper pt-6 overflow-visible">
       <style>{`
-        @keyframes shimmerUM {
-          0%   { background-position:-200% center; }
-          100% { background-position:200% center; }
-        }
         @keyframes rowIn {
-          from { opacity:0; transform:translateY(6px); }
-          to   { opacity:1; transform:translateY(0); }
+          from { opacity:0; }
+          to   { opacity:1; }
         }
         @keyframes statPop {
-          0%   { transform:scale(0.9); opacity:0; }
-          60%  { transform:scale(1.04); }
-          100% { transform:scale(1); opacity:1; }
-        }
-        .shimmer-um {
-          background:linear-gradient(90deg,#fff 0%,var(--primary) 40%,#fff 60%);
-          background-size:200% auto;
-          -webkit-background-clip:text;
-          -webkit-text-fill-color:transparent;
-          animation:shimmerUM 5s linear infinite;
+          0%   { opacity:0; }
+          60%  { opacity:1; }
+          100% { opacity:1; }
         }
         .user-row  { animation:rowIn 0.3s ease-out both; }
         .user-row:hover td { background:rgba(255,255,255,0.02); }
         .action-btn { transition:all 0.15s ease; }
-        .action-btn:hover { transform:scale(1.12); }
+        .action-btn:hover { opacity:0.9; }
       `}</style>
 
       {/* ── Header ── */}
@@ -450,14 +439,14 @@ export default function UsersPage() {
         <div className="flex gap-2">
           <button
             onClick={() => setShowCSVModal(true)}
-            className="h-11 px-4 rounded-2xl border border-white/8 text-white/50 hover:text-white hover:bg-white/5 font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-2"
+            className="h-11 px-4 rounded-2xl border border-white/8 text-white/50 hover:text-white hover:bg-white/5 font-black text-[10px] uppercase tracking-widest transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center gap-2"
           >
             <span className="material-symbols-outlined text-[16px]">upload_file</span>
             Import CSV
           </button>
           <button
             onClick={handleExportCSV}
-            className="h-11 px-4 rounded-2xl border border-white/8 text-white/50 hover:text-white hover:bg-white/5 font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-2"
+            className="h-11 px-4 rounded-2xl border border-white/8 text-white/50 hover:text-white hover:bg-white/5 font-black text-[10px] uppercase tracking-widest transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center gap-2"
           >
             <span className="material-symbols-outlined text-[16px]">download</span>
             Export
@@ -517,7 +506,7 @@ export default function UsersPage() {
                 placeholder="Search users..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full sm:w-52 pl-9 pr-4 py-2.5 bg-white/5 border border-white/8 rounded-xl text-xs text-white/75 focus:outline-none focus:border-[var(--primary)]/45 transition-all placeholder:text-white/20"
+                className="w-full sm:w-52 pl-9 pr-4 py-2.5 bg-white/5 border border-white/8 rounded-xl text-xs text-white/75 focus:outline-none focus:border-[var(--primary)]/45 transition-[background-color,box-shadow,border-color] duration-200 ease-out placeholder:text-white/20"
               />
             </div>
             {/* Filter pills */}
@@ -552,21 +541,21 @@ export default function UsersPage() {
             <div className="flex gap-2">
               <button
                 onClick={handleBatchBan}
-                className="px-3.5 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-1.5"
+                className="px-3.5 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 text-[10px] font-black uppercase tracking-widest transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center gap-1.5"
               >
                 <span className="material-symbols-outlined text-[14px]">block</span>
                 Ban
               </button>
               <button
                 onClick={handleBatchHWIDReset}
-                className="px-3.5 py-2 rounded-xl bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--primary)] hover:bg-[var(--primary)]/20 text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-1.5"
+                className="px-3.5 py-2 rounded-xl bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--primary)] hover:bg-[var(--primary)]/20 text-[10px] font-black uppercase tracking-widest transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center gap-1.5"
               >
                 <span className="material-symbols-outlined text-[14px]">restart_alt</span>
                 HWID Reset
               </button>
               <button
                 onClick={handleBatchDelete}
-                className="px-3.5 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-1.5"
+                className="px-3.5 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 text-[10px] font-black uppercase tracking-widest transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center gap-1.5"
               >
                 <span className="material-symbols-outlined text-[14px]">delete</span>
                 Delete
@@ -581,7 +570,7 @@ export default function UsersPage() {
             <thead>
               <tr className="bg-white/[0.01]">
                 <th className="px-4 py-4 w-12 border-b border-white/5">
-                  <button onClick={toggleSelectAll} className="w-5 h-5 rounded-md border border-white/20 flex items-center justify-center hover:border-white/40 transition-all">
+                  <button onClick={toggleSelectAll} className="w-5 h-5 rounded-md border border-white/20 flex items-center justify-center 0 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                     {selectedUsers.size === filteredUsers.length && filteredUsers.length > 0 ? (
                       <span className="material-symbols-outlined text-[12px] text-[var(--primary)]">check</span>
                     ) : selectedUsers.size > 0 ? (
@@ -628,8 +617,8 @@ export default function UsersPage() {
                   <td className="px-4 py-4">
                     <button
                       onClick={() => toggleSelectUser(user.id)}
-                      className={`w-5 h-5 rounded-md border transition-all flex items-center justify-center ${
-                        selectedUsers.has(user.id) ? 'border-[var(--primary)] bg-[var(--primary)]/15' : 'border-white/20 hover:border-white/40'
+                      className={`w-5 h-5 rounded-md border transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center justify-center ${
+                        selectedUsers.has(user.id) ? 'border-[var(--primary)] bg-[var(--primary)]/15' : 'border-white/20 0'
                       }`}
                     >
                       {selectedUsers.has(user.id) && (
@@ -656,7 +645,7 @@ export default function UsersPage() {
                           )}
                           <button
                             onClick={() => handleCopyUsername(user.id, user.username)}
-                            className={`action-btn opacity-0 group-hover:opacity-100 p-1 rounded-lg transition-all ${
+                            className={`action-btn opacity-0 group-hover:opacity-100 p-1 rounded-lg transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                               copiedId === user.id
                                 ? 'bg-emerald-500/15 text-emerald-400'
                                 : 'hover:bg-white/8 text-white/30 hover:text-[var(--primary)]'
@@ -703,7 +692,7 @@ export default function UsersPage() {
 
                   {/* Actions */}
                   <td className="px-6 py-4">
-                    <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                    <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                       {/* Edit */}
                       <button
                         onClick={() => {
@@ -857,7 +846,7 @@ export default function UsersPage() {
                     key={m.label}
                     type="button"
                     onClick={() => { setBulkMode(m.val); setBulkResult(null); }}
-                    className={`flex-1 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all duration-200 ${
+                    className={`flex-1 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-lg transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                       bulkMode === m.val
                         ? 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/25'
                         : 'text-white/35 hover:text-white/60'
@@ -965,10 +954,10 @@ export default function UsersPage() {
                             key={d.val}
                             type="button"
                             onClick={() => setNewUser({ ...newUser, duration: d.val })}
-                            className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl border transition-all duration-200 ${
+                            className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl border transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                               newUser.duration === d.val
                                 ? 'bg-[var(--primary)]/20 border-[var(--primary)]/40 text-[var(--primary)]'
-                                : 'bg-white/5 border-white/8 text-white/35 hover:border-[var(--primary)]/25 hover:text-white/60'
+                                : 'bg-white/5 border-white/8 text-white/35 hover:border-[var(--border-hover)]/25 hover:text-white/60'
                             }`}
                           >
                             {d.label}
@@ -1045,7 +1034,7 @@ export default function UsersPage() {
         setNewUser({ username: '', password: '', email: '', expires_at: '', use_custom_expiry: false, duration: 30, type: 'time', max_uses: 1 });
                     if (selectedAppId && bulkResult) invalidate.users(selectedAppId);
                   }}
-                  className="flex-1 py-3 rounded-xl border border-white/8 text-white/40 hover:text-white/70 hover:bg-white/5 font-black text-[11px] uppercase tracking-widest transition-all"
+                  className="flex-1 py-3 rounded-xl border border-white/8 text-white/40 hover:text-white/70 hover:bg-white/5 font-black text-[11px] uppercase tracking-widest transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                 >
                   {bulkResult ? 'Done' : 'Cancel'}
                 </button>
@@ -1053,7 +1042,7 @@ export default function UsersPage() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="flex-1 py-3 rounded-xl bg-[var(--primary)] text-white font-black text-[11px] uppercase tracking-widest shadow-lg shadow-[var(--primary)]/25 hover:shadow-[var(--primary)]/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
+                    className="flex-1 py-3 rounded-xl bg-[var(--primary)] text-white font-black text-[11px] uppercase tracking-widest shadow-lg shadow-[var(--primary)]/25 hover:shadow-[var(--primary)]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center justify-center gap-2"
                   >
                     {submitting
                       ? <><div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />{bulkMode ? 'Creating...' : 'Adding...'}</>
@@ -1110,13 +1099,13 @@ export default function UsersPage() {
                 <button
                   type="button"
                   onClick={() => setShowEditModal(null)}
-                  className="flex-1 py-3 rounded-xl border border-white/8 text-white/40 hover:text-white/70 hover:bg-white/5 font-black text-[11px] uppercase tracking-widest transition-all"
+                  className="flex-1 py-3 rounded-xl border border-white/8 text-white/40 hover:text-white/70 hover:bg-white/5 font-black text-[11px] uppercase tracking-widest transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 rounded-xl bg-[var(--primary)] text-white font-black text-[11px] uppercase tracking-widest shadow-lg shadow-[var(--primary)]/25 hover:shadow-[var(--primary)]/40 transition-all duration-200"
+                  className="flex-1 py-3 rounded-xl bg-[var(--primary)] text-white font-black text-[11px] uppercase tracking-widest shadow-lg shadow-[var(--primary)]/25 hover:shadow-[var(--primary)]/30 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                 >
                   Save Changes
                 </button>
@@ -1153,10 +1142,10 @@ export default function UsersPage() {
                       key={d.val}
                       type="button"
                       onClick={() => setBanData({ ...banData, days: d.val })}
-                      className={`flex-1 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl border transition-all duration-200 ${
+                      className={`flex-1 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl border transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                         banData.days === d.val
                           ? 'bg-red-500/20 border-red-500/40 text-red-400'
-                          : 'bg-white/5 border-white/8 text-white/35 hover:border-red-500/25 hover:text-white/60'
+                          : 'bg-white/5 border-white/8 text-white/35 hover:border-red-500/20 hover:text-white/60'
                       }`}
                     >
                       {d.label}
@@ -1174,13 +1163,13 @@ export default function UsersPage() {
                 <button
                   type="button"
                   onClick={() => setShowBanModal(null)}
-                  className="flex-1 py-3 rounded-xl border border-white/8 text-white/40 hover:text-white/70 hover:bg-white/5 font-black text-[11px] uppercase tracking-widest transition-all"
+                  className="flex-1 py-3 rounded-xl border border-white/8 text-white/40 hover:text-white/70 hover:bg-white/5 font-black text-[11px] uppercase tracking-widest transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleBan}
-                  className="flex-1 py-3 rounded-xl bg-red-500 text-white font-black text-[11px] uppercase tracking-widest shadow-lg shadow-red-500/25 hover:shadow-red-500/40 hover:bg-red-400 transition-all duration-200"
+                  className="flex-1 py-3 rounded-xl bg-red-500 text-white font-black text-[11px] uppercase tracking-widest shadow-lg shadow-red-500/25 hover:shadow-red-500/25 hover:bg-red-400 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                 >
                   Confirm Ban
                 </button>
@@ -1224,7 +1213,7 @@ export default function UsersPage() {
                 <button
                   type="button"
                   onClick={() => { setShowCSVModal(false); setCSVResult(null); }}
-                  className="flex-1 py-3 rounded-xl border border-white/8 text-white/40 hover:text-white/70 hover:bg-white/5 font-black text-[11px] uppercase tracking-widest transition-all"
+                  className="flex-1 py-3 rounded-xl border border-white/8 text-white/40 hover:text-white/70 hover:bg-white/5 font-black text-[11px] uppercase tracking-widest transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                 >
                   {csvResult ? 'Done' : 'Cancel'}
                 </button>

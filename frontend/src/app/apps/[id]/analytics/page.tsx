@@ -29,7 +29,7 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <Card className="bg-zinc-900 border-zinc-800 shadow-md hover:border-[var(--primary)]/50 transition-colors">
+        <Card className="bg-zinc-900 border-zinc-800 shadow-md hover:border-[var(--border-hover)]/30 transition-colors">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-zinc-400">Total API Events Logged</CardTitle>
             <div className="p-2 bg-[var(--primary)]/30 rounded-lg"><Activity className="h-4 w-4 text-[var(--primary)]" /></div>
@@ -38,7 +38,7 @@ export default function AnalyticsPage() {
             <div className="text-3xl font-bold">{stats.total_logs}</div>
           </CardContent>
         </Card>
-        <Card className="bg-zinc-900 border-zinc-800 shadow-md hover:border-red-500/50 transition-colors">
+        <Card className="bg-zinc-900 border-zinc-800 shadow-md hover:border-red-500/20 transition-colors">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-zinc-400">Suspicious Events</CardTitle>
             <div className="p-2 bg-red-900/30 rounded-lg"><ShieldAlert className="h-4 w-4 text-red-400" /></div>

@@ -111,10 +111,10 @@
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
-  --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
-  --dur-fast: 150ms;
-  --dur-base: 200ms;
-  --dur-slow: 320ms;
+  --ease-smooth: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-fast: 120ms;
+  --dur-base: 160ms;
+  --dur-slow: 200ms;
 
   /* Border-radius scale (legacy class consumers) */
   --r-xs: 8px;
@@ -130,17 +130,13 @@
 
 /* ─── Keyframes ─────────────────────────────────────────────────────────── */
 
-@keyframes shimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.98); }
-  to   { opacity: 1; transform: scale(1); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 @keyframes pulseDot {
   0%, 100% { opacity: 1; }
@@ -202,6 +198,7 @@
   --info-foreground:      #0A0E17;
 
   --border:               rgba(255, 255, 255, 0.06);
+  --border-hover:         rgba(255, 255, 255, 0.08);
   --input:                rgba(255, 255, 255, 0.05);
   --ring:                 #00D4FF;          /* cyan glow ring */
 
@@ -319,6 +316,7 @@
   --info-foreground:      #ffffff;
 
   --border:               rgba(15, 23, 42, 0.08);
+  --border-hover:         rgba(15, 23, 42, 0.12);
   --input:                rgba(15, 23, 42, 0.10);
   --ring:                 #00D4FF;
 
@@ -389,6 +387,11 @@
   --text-primary:   var(--foreground);
   --text-secondary: var(--muted-foreground);
   --text-muted:     #9CA3AF;
+
+  /* Glass effect variables */
+  --glass-bg: rgba(248, 250, 255, 0.7);
+  --glass-border: rgba(15, 23, 42, 0.10);
+  --glass-blur: 20px;
 }
 
 /* ==========================================================================
@@ -414,7 +417,7 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
-  ::selection { background: color-mix(in srgb, var(--primary) 28%, transparent); }
+  ::selection { background: color-mix(in srgb, var(--primary) 15%, transparent); }
   /* Native select options should match theme */
   select option {
     background-color: var(--popover);
@@ -468,18 +471,16 @@ body::before {
 a, button, input, select, textarea, [role="button"] {
   transition-duration: var(--dur-base);
   transition-timing-function: var(--ease-smooth);
-  will-change: transform, opacity;
 }
 
 /* Scroll-driven entrance (fast, responsive) */
 [data-animate] {
   opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.25s var(--ease-out-expo), transform 0.25s var(--ease-out-expo);
-  will-change: opacity, transform;
+  transition: opacity 0.18s var(--ease-smooth);
+  will-change: opacity;
 }
 .animate-in[data-animate],
-.animate-in [data-animate] { opacity: 1; transform: translateY(0); }
+.animate-in [data-animate] { opacity: 1; }
 .animate-in [data-animate]:nth-child(1) { transition-delay: 0ms; }
 .animate-in [data-animate]:nth-child(2) { transition-delay: 20ms; }
 .animate-in [data-animate]:nth-child(3) { transition-delay: 40ms; }
@@ -490,14 +491,6 @@ a, button, input, select, textarea, [role="button"] {
 .fade-in-up      { animation: fadeIn 0.3s var(--ease-smooth) both; }
 .scale-in-center { animation: scaleIn 0.25s var(--ease-smooth) both; }
 
-.shimmer {
-  background: linear-gradient(90deg,
-    var(--accent-opacity-3) 0%,
-    var(--accent-opacity-10) 50%,
-    var(--accent-opacity-3) 100%);
-  background-size: 200% 100%;
-  animation: shimmer 1.6s ease-in-out infinite;
-}
 
 /* ==========================================================================
    Trimmed component-class vocabulary
@@ -517,13 +510,11 @@ a, button, input, select, textarea, [role="button"] {
     border-radius: var(--r-card);
     transition: border-color 200ms var(--ease-in-out),
                 box-shadow   200ms var(--ease-in-out),
-                transform    200ms var(--ease-out-expo),
                 background  200ms var(--ease-in-out);
   }
   .card-wrapper:hover,
   .premium-card:hover {
-    transform: translateY(-1px);
-    border-color: color-mix(in srgb, var(--primary) 15%, var(--border));
+    border-color: color-mix(in srgb, var(--primary) 8%, var(--border));
     background: color-mix(in srgb, var(--card) 98%, var(--primary) 2%);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
@@ -542,18 +533,16 @@ a, button, input, select, textarea, [role="button"] {
     padding: 14px 28px; font-size: 14px; font-weight: 700;
     cursor: pointer;
     transition: background 200ms var(--ease-smooth),
-                box-shadow 200ms var(--ease-smooth),
-                transform  200ms var(--ease-smooth);
+                box-shadow 200ms var(--ease-smooth);
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
   }
   .btn-primary:hover,
   .vault-primary-button:hover {
     background: var(--accent-hover);
-    transform: translateY(-1px);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
   }
   .btn-primary:active,
-  .vault-primary-button:active { transform: scale(0.98); }
+  .vault-primary-button:active { opacity: 0.9; }
 
   .btn-secondary,
   .btn-secondary-legacy,
@@ -566,7 +555,6 @@ a, button, input, select, textarea, [role="button"] {
     cursor: pointer;
     transition: background 200ms var(--ease-smooth),
                 border-color 200ms var(--ease-smooth),
-                transform  200ms var(--ease-smooth),
                 box-shadow  200ms var(--ease-smooth);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   }
@@ -574,12 +562,11 @@ a, button, input, select, textarea, [role="button"] {
   .btn-secondary-legacy:hover,
   .vault-secondary-button:hover {
     background: color-mix(in srgb, var(--primary) 5%, transparent);
-    border-color: color-mix(in srgb, var(--primary) 20%, var(--border));
-    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--primary) 8%, var(--border));
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
   .btn-secondary:active,
-  .btn-secondary-legacy:active { transform: scale(0.98); }
+  .btn-secondary-legacy:active { opacity: 0.9; }
 
   .btn-danger {
     display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -589,14 +576,12 @@ a, button, input, select, textarea, [role="button"] {
     border-radius: var(--r-btn);
     padding: 7px 20px; font-size: 14px; font-weight: 600;
     cursor: pointer;
-    transition: background var(--dur-fast) var(--ease-in-out),
-                transform  var(--dur-fast) var(--ease-out-expo);
+    transition: background var(--dur-fast) var(--ease-in-out);
   }
   .btn-danger:hover {
     background: color-mix(in srgb, var(--destructive) 20%, transparent);
-    transform: translateY(-1px);
   }
-  .btn-danger:active { transform: scale(0.97); }
+  .btn-danger:active { opacity: 0.9; }
 
   .btn-ghost {
     display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -607,16 +592,14 @@ a, button, input, select, textarea, [role="button"] {
     padding: 7px 20px; font-size: 13px; font-weight: 600;
     cursor: pointer;
     transition: background var(--dur-fast) var(--ease-in-out),
-                color var(--dur-fast) var(--ease-in-out),
-                transform  var(--dur-fast) var(--ease-out-expo);
+                color var(--dur-fast) var(--ease-in-out);
   }
   .btn-ghost:hover {
     background: color-mix(in srgb, var(--foreground) 5%, transparent);
     color: var(--foreground);
-    transform: translateY(-1px);
   }
-  .btn-ghost:active { transform: scale(0.97); }
-  .btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-ghost:active { opacity: 0.9; }
+  .btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
 
   .btn-primary-legacy {
     display: inline-flex; align-items: center; justify-content: center; gap: 7px;
@@ -624,11 +607,10 @@ a, button, input, select, textarea, [role="button"] {
     font-size: 12px; font-weight: 700; letter-spacing: 0.04em;
     background: var(--primary); color: var(--primary-foreground);
     border: none; cursor: pointer;
-    transition: background var(--dur-fast) var(--ease-in-out),
-                transform  var(--dur-fast) var(--ease-out-expo);
+    transition: background var(--dur-fast) var(--ease-in-out);
   }
-  .btn-primary-legacy:hover { background: var(--accent-hover); transform: translateY(-1px); }
-  .btn-primary-legacy:active { transform: scale(0.97); }
+  .btn-primary-legacy:hover { background: var(--accent-hover); }
+  .btn-primary-legacy:active { opacity: 0.9; }
 
   .btn-icon {
     display: inline-flex; align-items: center; justify-content: center;
@@ -636,14 +618,12 @@ a, button, input, select, textarea, [role="button"] {
     background: var(--secondary); border: 1px solid var(--border);
     color: var(--muted-foreground); cursor: pointer;
     transition: background var(--dur-fast) var(--ease-in-out),
-                color      var(--dur-fast) var(--ease-in-out),
-                transform  var(--dur-fast) var(--ease-out-expo);
+                color      var(--dur-fast) var(--ease-in-out);
   }
   .btn-icon:hover {
     background: var(--muted); color: var(--foreground);
-    transform: translateY(-1px);
   }
-  .btn-icon:active { transform: scale(0.95); }
+  .btn-icon:active { opacity: 0.9; }
 
   /* Touch-target safety: on small / touch screens, enlarge interactive
      targets toward the 44px accessibility minimum WITHOUT changing their
@@ -657,11 +637,10 @@ a, button, input, select, textarea, [role="button"] {
     border-radius: var(--r-btn);
     border: 1px solid var(--border);
     transition: background var(--dur-fast) var(--ease-in-out),
-                border-color var(--dur-fast) var(--ease-in-out),
-                transform  var(--dur-fast) var(--ease-out-expo);
+                border-color var(--dur-fast) var(--ease-in-out);
   }
-  .g-button:hover  { transform: translateY(-1px); }
-  .g-button:active { transform: scale(0.97); }
+  .g-button:hover  { border-color: var(--border-hover); }
+  .g-button:active { opacity: 0.9; }
 
   /* Inputs */
   .field-input,
@@ -751,20 +730,16 @@ a, button, input, select, textarea, [role="button"] {
     position: relative;
     z-index: 1;
     transition: background 200ms var(--ease-in-out),
-                color      200ms var(--ease-in-out),
-                transform  200ms var(--ease-in-out);
+                color      200ms var(--ease-in-out);
     cursor: pointer;
     user-select: none;
   }
   .sidebar-item:hover {
     background: color-mix(in srgb, var(--sidebar-accent) 70%, transparent);
     color: var(--sidebar-accent-foreground);
-    transform: translateX(1px);
     z-index: 2;
   }
-  .sidebar-item:active {
-    transform: scale(0.97) translateX(1px);
-  }
+  .sidebar-item:active { opacity: 0.9; }
   .sidebar-item-active {
     background: color-mix(in srgb, var(--sidebar-accent) 70%, transparent);
     color: var(--sidebar-accent-foreground);
@@ -772,10 +747,10 @@ a, button, input, select, textarea, [role="button"] {
     z-index: 2;
   }
   .sidebar-item-active:hover {
-    transform: none;
+    opacity: 0.9;
   }
   .sidebar-item-active:active {
-    transform: scale(0.97);
+    opacity: 0.8;
   }
   .sidebar-item-locked {
     opacity: 0.8;
@@ -799,13 +774,14 @@ a, button, input, select, textarea, [role="button"] {
   }
   .sidebar-item .material-symbols-outlined {
     font-size: 18px;
-    transition: transform 200ms var(--ease-in-out);
+    transition: color 200ms var(--ease-in-out),
+                opacity 200ms var(--ease-in-out);
   }
   .sidebar-item:hover .material-symbols-outlined {
-    transform: scale(1.05);
+    opacity: 0.9;
   }
   .sidebar-item:active .material-symbols-outlined {
-    transform: scale(0.95);
+    opacity: 0.8;
   }
   .active-nav-glow {
     box-shadow: -2px 0 6px -2px color-mix(in srgb, var(--primary) 15%, transparent);
@@ -925,7 +901,8 @@ a, button, input, select, textarea, [role="button"] {
     padding: 10px 12px 10px 36px;
     font-size: 13px;
     color: var(--foreground);
-    transition: all 200ms ease;
+    transition: border-color 200ms var(--ease-smooth),
+                box-shadow   200ms var(--ease-smooth);
   }
   .search-input:focus {
     outline: none;
@@ -954,12 +931,14 @@ a, button, input, select, textarea, [role="button"] {
     padding: 12px 16px;
     font-size: 14px;
     color: var(--foreground);
-    transition: all 0.2s ease;
+    transition: border-color 200ms var(--ease-smooth),
+                box-shadow   200ms var(--ease-smooth),
+                background   200ms var(--ease-smooth);
   }
   .field-input:focus {
     outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px var(--accent-opacity-15);
+    border-color: color-mix(in srgb, var(--primary) 25%, var(--border));
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 8%, transparent);
   }
   .field-input::placeholder {
     color: var(--muted-foreground);
@@ -1101,7 +1080,7 @@ a, button, input, select, textarea, [role="button"] {
   }
 
   /* Generic */
-  .btn-no-jump { border: 1px solid; transition: all var(--dur-base) var(--ease-in-out); }
+  .btn-no-jump { border: 1px solid; transition: background-color 200ms var(--ease-in-out), box-shadow 200ms var(--ease-in-out), border-color 200ms var(--ease-in-out); }
 }
 
 /* GPU-accelerated animations for smooth 60 FPS performance */
@@ -1122,24 +1101,16 @@ a, button, input, select, textarea, [role="button"] {
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @keyframes scaleIn {
   from {
     opacity: 0;
-    transform: scale(0.95);
   }
   to {
     opacity: 1;
-    transform: scale(1);
   }
 }
 

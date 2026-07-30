@@ -153,9 +153,9 @@ export default function PlanEditPage() {
           <h1 className="text-3xl font-bold text-[var(--foreground)] tracking-tight">{isNew ? 'Create Plan' : `Edit ${plan.name}`}</h1>
         </div>
         <div className="flex items-center gap-3">
-          <Link href="/super-admin/plans" className="px-5 py-2.5 rounded-xl text-sm font-bold border border-white/10 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-all">Cancel</Link>
+          <Link href="/super-admin/plans" className="px-5 py-2.5 rounded-xl text-sm font-bold border border-white/10 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-[background-color,box-shadow,border-color] duration-200 ease-out">Cancel</Link>
           <button onClick={save} disabled={saving}
-            className="inline-flex items-center gap-2 bg-[var(--primary)] text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:brightness-110 transition-all disabled:opacity-50"
+            className="inline-flex items-center gap-2 bg-[var(--primary)] text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:brightness-110 transition-[background-color,box-shadow,border-color] duration-200 ease-out disabled:opacity-50"
           >
             {saving ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</> : 'Save Plan'}
           </button>
@@ -283,7 +283,7 @@ export default function PlanEditPage() {
                   </button>
                 </div>
                 <input value={feat.label} onChange={e => updateFeature(idx, 'label', e.target.value)}
-                  className="flex-1 bg-transparent border-b border-transparent hover:border-white/10 focus:border-[var(--primary)] px-2 py-1 text-sm text-[var(--foreground)] outline-none transition-colors"
+                  className="flex-1 bg-transparent border-b border-transparent 0 focus:border-[var(--primary)] px-2 py-1 text-sm text-[var(--foreground)] outline-none transition-colors"
                   placeholder="Feature label" />
                 <select value={feat.key} onChange={e => updateFeature(idx, 'key', e.target.value)}
                   className="bg-[var(--card)]/50 border border-white/10 rounded-lg px-2 py-1 text-xs text-[var(--muted-foreground)]">
@@ -296,7 +296,7 @@ export default function PlanEditPage() {
                   <span className="text-[10px] text-[var(--muted-foreground)]">Show</span>
                 </label>
                 <button onClick={() => removeFeature(idx)}
-                  className="w-7 h-7 rounded-lg hover:bg-red-500/10 flex items-center justify-center text-[var(--muted-foreground)] hover:text-red-400 transition-all shrink-0">
+                  className="w-7 h-7 rounded-lg hover:bg-red-500/10 flex items-center justify-center text-[var(--muted-foreground)] hover:text-red-400 transition-[background-color,box-shadow,border-color] duration-200 ease-out shrink-0">
                   <span className="material-symbols-outlined text-sm">close</span>
                 </button>
               </div>

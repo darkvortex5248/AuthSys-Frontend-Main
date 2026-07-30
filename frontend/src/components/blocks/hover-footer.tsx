@@ -84,7 +84,7 @@ export function HoverFooter({ email, phone, address, paragraph, onSupportOpen }:
                 <a
                   key={label}
                   href={href}
-                  className="w-8 h-8 rounded-full bg-[var(--card)] border border-white/10 flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:border-[var(--primary)]/50 transition-all"
+                  className="w-8 h-8 rounded-full bg-[var(--card)] border border-white/10 flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:border-[var(--border-hover)]/30 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                 >
                   {icon}
                 </a>

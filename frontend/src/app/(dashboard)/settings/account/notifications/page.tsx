@@ -112,7 +112,7 @@ export default function NotificationsPage() {
               placeholder="Search notifications..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 bg-white/5 border border-white/8 rounded-xl text-xs text-white/75 focus:outline-none focus:border-[var(--primary)]/45 transition-all placeholder:text-white/20"
+              className="w-full pl-9 pr-4 py-2.5 bg-white/5 border border-white/8 rounded-xl text-xs text-white/75 focus:outline-none focus:border-[var(--primary)]/45 transition-[background-color,box-shadow,border-color] duration-200 ease-out placeholder:text-white/20"
             />
           </div>
         </div>
@@ -191,7 +191,7 @@ export default function NotificationsPage() {
             { label: 'Billing & renewals', sub: 'Invoice and plan change emails', val: notifBilling, set: setNotifBilling },
             { label: 'Product updates', sub: 'New features and release notes', val: notifUpdates, set: setNotifUpdates },
           ].map(row => (
-            <div key={row.label} className="flex items-center justify-between p-4 border border-white/5 rounded-xl hover:border-white/10 transition-colors">
+            <div key={row.label} className="flex items-center justify-between p-4 border border-white/5 rounded-xl 0 transition-colors">
               <div>
                 <p className="text-sm font-bold text-[var(--foreground)]">{row.label}</p>
                 <p className="text-xs text-[var(--muted-foreground)] font-mono mt-0.5">{row.sub}</p>
@@ -206,7 +206,7 @@ export default function NotificationsPage() {
           {[
             { label: 'Real-time toast notifications', sub: 'Success, error, and info toasts', val: notifToast, set: setNotifToast },
           ].map(row => (
-            <div key={row.label} className="flex items-center justify-between p-4 border border-white/5 rounded-xl hover:border-white/10 transition-colors">
+            <div key={row.label} className="flex items-center justify-between p-4 border border-white/5 rounded-xl 0 transition-colors">
               <div>
                 <p className="text-sm font-bold text-[var(--foreground)]">{row.label}</p>
                 <p className="text-xs text-[var(--muted-foreground)] font-mono mt-0.5">{row.sub}</p>

@@ -30,9 +30,8 @@ function Card({
         "has-[>img:first-child]:pt-0 *:[img:first-child]:rounded-t-2xl *:[img:last-child]:rounded-b-2xl",
         // Hoverable
         hoverable && [
-          "cursor-pointer transition-all duration-300 ease-out",
-          "hover:-translate-y-1 hover:shadow-lg hover:shadow-[var(--accent-opacity-15)]",
-          "hover:ring-[var(--accent-opacity-20)]",
+          "cursor-pointer transition-[box-shadow] duration-200 ease-out",
+          "hover:shadow-md hover:shadow-[var(--accent-opacity-15)]",
         ],
         className
       )}

@@ -100,15 +100,15 @@ export default function AuditLogsPage() {
     <div className="page-wrapper pt-6 overflow-visible">
       <style>{`
         @keyframes rowIn {
-          from { opacity:0; transform:translateY(6px); }
-          to   { opacity:1; transform:translateY(0); }
+          from { opacity:0; }
+          to   { opacity:1; }
         }
         @keyframes statPop {
-          0%   { transform:scale(0.9); opacity:0; }
-          60%  { transform:scale(1.04); }
-          100% { transform:scale(1); opacity:1; }
+          0%   { opacity:0; }
+          60%  { opacity:1; }
+          100% { opacity:1; }
         }
-        .al-row { animation:rowIn 0.3s ease-out both; will-change:transform,opacity; }
+        .al-row { animation:rowIn 0.3s ease-out both; will-change:opacity; }
         .al-row:hover td { background:rgba(255,255,255,0.02); }
       `}</style>
 
@@ -183,7 +183,7 @@ export default function AuditLogsPage() {
                 placeholder="Search logs..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full sm:w-52 pl-9 pr-4 py-2.5 bg-white/5 border border-white/8 rounded-xl text-xs text-white/75 focus:outline-none focus:border-[var(--primary)]/45 transition-all placeholder:text-white/20"
+                className="w-full sm:w-52 pl-9 pr-4 py-2.5 bg-white/5 border border-white/8 rounded-xl text-xs text-white/75 focus:outline-none focus:border-[var(--primary)]/45 transition-[background-color,box-shadow,border-color] duration-200 ease-out placeholder:text-white/20"
               />
             </div>
           </div>

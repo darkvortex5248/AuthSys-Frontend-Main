@@ -31,7 +31,7 @@ export default function PremiumLocked({ feature, tier = 'Seller' }: PremiumLocke
       </p>
       <Link
         href="/settings/billing"
-        className="px-6 py-3 rounded-xl bg-amber-500/15 text-amber-400 text-sm font-black uppercase tracking-widest hover:bg-amber-500/25 transition-all"
+        className="px-6 py-3 rounded-xl bg-amber-500/15 text-amber-400 text-sm font-black uppercase tracking-widest hover:bg-amber-500/25 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
       >
         View Plans →
       </Link>

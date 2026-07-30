@@ -8,29 +8,26 @@ const buttonVariants = cva(
     "group/button relative inline-flex shrink-0 items-center justify-center overflow-hidden",
     "rounded-[12px] border border-transparent bg-clip-padding",
     "text-sm font-semibold tracking-wide whitespace-nowrap",
-    "transition-all duration-200 ease-out outline-none select-none",
-    "focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:border-ring",
-    "active:not-aria-[haspopup]:scale-[0.97] active:not-aria-[haspopup]:translate-y-px",
+    "transition-[background-color,box-shadow] duration-200 ease-out select-none",
+    "focus-visible:ring-[3px] focus-visible:ring-ring/20",
     "disabled:pointer-events-none disabled:opacity-40",
     "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20",
     "dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-    "before:absolute before:inset-0 before:-translate-x-full before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:transition-transform before:duration-500 hover:before:translate-x-full",
   ].join(" "),
   {
     variants: {
       variant: {
         default: [
-          "bg-primary text-primary-foreground shadow-md shadow-primary/25",
-          "hover:brightness-110 hover:shadow-lg hover:shadow-primary/30",
-          "active:shadow-sm",
+          "bg-primary text-primary-foreground shadow-sm shadow-primary/15",
+          "hover:brightness-105 hover:shadow-md hover:shadow-primary/20",
         ].join(" "),
         outline: [
           "border-border/60 bg-background/80 backdrop-blur-sm text-foreground",
-          "hover:bg-muted hover:border-border hover:text-foreground",
+          "hover:bg-muted/80",
           "aria-expanded:bg-muted aria-expanded:text-foreground",
           "dark:border-input dark:bg-input/20 dark:hover:bg-input/40",
-          "shadow-sm hover:shadow-md",
+          "shadow-sm",
         ].join(" "),
         secondary: [
           "bg-secondary/90 text-secondary-foreground shadow-sm",
@@ -44,15 +41,15 @@ const buttonVariants = cva(
         ].join(" "),
         destructive: [
           "bg-destructive/10 text-destructive shadow-sm",
-          "hover:bg-destructive/20 hover:shadow-md hover:shadow-destructive/20",
-          "focus-visible:border-destructive/40 focus-visible:ring-destructive/20",
+          "hover:bg-destructive/20",
+          "focus-visible:ring-destructive/20",
           "dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         ].join(" "),
         link: "text-primary underline-offset-4 hover:underline hover:text-primary/80",
         glow: [
-          "bg-primary text-primary-foreground shadow-lg shadow-primary/40",
-          "hover:shadow-xl hover:shadow-primary/50 hover:brightness-110",
-          "after:absolute after:inset-0 after:rounded-[12px] after:ring-2 after:ring-primary/0 after:transition-all after:duration-300 hover:after:ring-primary/30",
+          "bg-primary text-primary-foreground shadow-lg shadow-primary/45",
+          "hover:shadow-xl hover:shadow-primary/55 hover:brightness-105",
+          "after:absolute after:inset-0 after:rounded-[12px] after:ring-2 after:ring-primary/0 after:transition-[ring-color] after:duration-200 after:ease-out hover:after:ring-primary/15",
         ].join(" "),
       },
       size: {

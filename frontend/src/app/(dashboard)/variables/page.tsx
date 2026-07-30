@@ -103,18 +103,18 @@ export default function VariablesPage() {
     <div className="page-wrapper pt-6 overflow-visible">
       <style>{`
         @keyframes rowIn {
-          from { opacity:0; transform:translateY(6px); }
-          to   { opacity:1; transform:translateY(0); }
+          from { opacity:0; }
+          to   { opacity:1; }
         }
         @keyframes statPop {
-          0%   { transform:scale(0.9); opacity:0; }
-          60%  { transform:scale(1.04); }
-          100% { transform:scale(1); opacity:1; }
+          0%   { opacity:0; }
+          60%  { opacity:1; }
+          100% { opacity:1; }
         }
-        .vr-row { animation:rowIn 0.3s ease-out both; will-change:transform,opacity; }
+        .vr-row { animation:rowIn 0.3s ease-out both; will-change:opacity; }
         .vr-row:hover td { background:rgba(255,255,255,0.02); }
         .action-btn { transition:all 0.15s ease; }
-        .action-btn:hover { transform:scale(1.12); }
+        .action-btn:hover { opacity:0.9; }
       `}</style>
 
       {/* ── Header ── */}
@@ -177,7 +177,7 @@ export default function VariablesPage() {
                 placeholder="Search variables..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full sm:w-52 pl-9 pr-4 py-2.5 bg-white/5 border border-white/8 rounded-xl text-xs text-white/75 focus:outline-none focus:border-[var(--primary)]/45 transition-all placeholder:text-white/20"
+                className="w-full sm:w-52 pl-9 pr-4 py-2.5 bg-white/5 border border-white/8 rounded-xl text-xs text-white/75 focus:outline-none focus:border-[var(--primary)]/45 transition-[background-color,box-shadow,border-color] duration-200 ease-out placeholder:text-white/20"
               />
             </div>
           </div>
@@ -265,7 +265,7 @@ function VarRow({ v, index, onDelete }: any) {
       </td>
       <td className="px-6 py-4">
         <div
-          className="flex items-center gap-2 font-mono text-[11px] text-white/50 bg-white/5 border border-white/8 rounded-lg px-3 py-1.5 max-w-[180px] cursor-pointer select-none transition-all hover:border-white/15 w-fit"
+          className="flex items-center gap-2 font-mono text-[11px] text-white/50 bg-white/5 border border-white/8 rounded-lg px-3 py-1.5 max-w-[180px] cursor-pointer select-none transition-[background-color,box-shadow,border-color] duration-200 ease-out 5 w-fit"
           onClick={() => setRevealed(r => !r)}
         >
           <span className="truncate">
@@ -329,7 +329,7 @@ function CreateModal({ onClose, onCreate }: any) {
               <button
                 key={String(val)} type="button"
                 onClick={() => setFormData(f => ({ ...f, is_global: val }))}
-                className="flex items-center gap-3 p-4 rounded-xl border text-left transition-all duration-200"
+                className="flex items-center gap-3 p-4 rounded-xl border text-left transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                 style={formData.is_global === val ? {
                   background: `${color}15`, borderColor: `${color}35`, color,
                 } : {
@@ -357,11 +357,11 @@ function CreateModal({ onClose, onCreate }: any) {
         </div>
         <div className="flex gap-3 pt-1">
           <button type="button" onClick={onClose}
-            className="flex-1 py-3 rounded-xl border border-white/8 text-white/40 hover:text-white/70 hover:bg-white/5 font-black text-[11px] uppercase tracking-widest transition-all">
+            className="flex-1 py-3 rounded-xl border border-white/8 text-white/40 hover:text-white/70 hover:bg-white/5 font-black text-[11px] uppercase tracking-widest transition-[background-color,box-shadow,border-color] duration-200 ease-out">
             Cancel
           </button>
           <button type="submit" disabled={submitting}
-            className="flex-1 py-3 rounded-xl bg-[var(--primary)] text-white font-black text-[11px] uppercase tracking-widest shadow-lg shadow-[var(--primary)]/25 hover:shadow-[var(--primary)]/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2">
+            className="flex-1 py-3 rounded-xl bg-[var(--primary)] text-white font-black text-[11px] uppercase tracking-widest shadow-lg shadow-[var(--primary)]/25 hover:shadow-[var(--primary)]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center justify-center gap-2">
             {submitting
               ? <><div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Creating...</>
               : <><span className="material-symbols-outlined text-[16px]">add</span> Create Variable</>

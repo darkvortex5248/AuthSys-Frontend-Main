@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/auth';
@@ -37,9 +37,6 @@ export default function DiscordBotPage() {
   const [apps, setApps] = useState<any[]>([]);
   const [copied, setCopied] = useState(false);
   const [activeField, setActiveField] = useState<string | null>(null);
-  const [ripples, setRipples] = useState<{ x: number; y: number; id: number }[]>([]);
-  const rippleId = useRef(0);
-  const cardRef = useRef<HTMLDivElement>(null);
 
   const fetchData = async () => {
     if (locked) return;
@@ -86,14 +83,6 @@ export default function DiscordBotPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const spawnRipple = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = cardRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const id = rippleId.current++;
-    setRipples(r => [...r, { x: e.clientX - rect.left, y: e.clientY - rect.top, id }]);
-    setTimeout(() => setRipples(r => r.filter(rp => rp.id !== id)), 700);
-  };
-
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedAppId) { toast.error('Please select an application first'); return; }
@@ -134,33 +123,13 @@ export default function DiscordBotPage() {
   return (
     <div className="relative max-w-5xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
       <style>{`
-        @keyframes shimmerD {
-          0%   { background-position: -200% center; }
-          100% { background-position: 200% center; }
-        }
-        @keyframes rippleOut {
-          0%   { transform:translate(-50%,-50%) scale(0); opacity:0.4; }
-          100% { transform:translate(-50%,-50%) scale(3); opacity:0; }
-        }
-        @keyframes borderGlow {
-          0%,100% { border-color:rgba(88,101,242,0.15); box-shadow:none; }
-          50%     { border-color:rgba(88,101,242,0.45); box-shadow:0 0 20px rgba(88,101,242,0.1); }
-        }
         @keyframes slideDown {
-          from { opacity:0; transform:translateY(-8px); }
-          to   { opacity:1; transform:translateY(0); }
+          from { opacity:0; }
+          to   { opacity:1; }
         }
-        .shimmer-discord {
-          background: linear-gradient(90deg, #fff 0%, #5865F2 40%, #a8b4ff 55%, #fff 70%);
-          background-size: 200% auto;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          animation: shimmerD 5s linear infinite;
-        }
-        .card-border { animation: borderGlow 4s ease-in-out infinite; }
-        .field-focus { transition: all 0.3s cubic-bezier(.4,0,.2,1); }
-        .cmd-card-d { transition: all 0.2s cubic-bezier(.4,0,.2,1); }
-        .cmd-card-d:hover { transform:translateY(-3px); }
+        .shimmer-discord { color: #5865F2; }
+        .cmd-card-d { transition: background-color 200ms var(--ease-smooth), box-shadow 200ms var(--ease-smooth), border-color 200ms var(--ease-smooth); }
+        .cmd-card-d:hover { opacity:0.95; }
         .endpoint-reveal { animation: slideDown 0.3s ease-out; }
       `}</style>
 
@@ -202,7 +171,7 @@ export default function DiscordBotPage() {
         </div>
         <div className="h-0.5 bg-white/5 rounded-full overflow-hidden">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-[#5865F2] to-[#a8b4ff] transition-all duration-700"
+            className="h-full rounded-full bg-gradient-to-r from-[#5865F2] to-[#a8b4ff] transition-[background-color,box-shadow,border-color] duration-200 ease-out duration-700"
             style={{ width: `${([token, appId, publicKey].filter(Boolean).length / 3) * 100}%` }}
           />
         </div>
@@ -212,20 +181,7 @@ export default function DiscordBotPage() {
 
         {/* Main Config Card */}
         <div className="lg:col-span-8 space-y-5">
-          <div
-            ref={cardRef}
-            className="relative rounded-3xl overflow-hidden border bg-white/[0.03] backdrop-blur-xl card-border"
-            onClick={spawnRipple}
-          >
-            {/* Ripples */}
-            {ripples.map(r => (
-              <span
-                key={r.id}
-                className="pointer-events-none absolute w-32 h-32 rounded-full bg-[#5865F2]/20"
-                style={{ left: r.x, top: r.y, animation: 'rippleOut 0.7s ease-out forwards' }}
-              />
-            ))}
-
+          <div className="relative rounded-3xl overflow-hidden border border-[var(--border)] bg-white/[0.03] backdrop-blur-xl">
             {/* BG Glows */}
             <div className="absolute -right-28 -top-28 w-96 h-96 bg-[#5865F2]/8 blur-[130px] rounded-full pointer-events-none" />
             <div className="absolute -left-10 -bottom-10 w-48 h-48 bg-indigo-600/5 blur-[80px] rounded-full pointer-events-none" />
@@ -264,7 +220,7 @@ export default function DiscordBotPage() {
                     <span className="material-symbols-outlined text-[13px] text-[#5865F2]">fingerprint</span>
                     Application ID
                   </label>
-                  <div className={`relative rounded-xl border transition-all duration-300 ${activeField === 'appId' ? 'border-[#5865F2]/50 shadow-[0_0_16px_rgba(88,101,242,0.15)]' : 'border-white/8'}`}>
+                  <div className={`relative rounded-xl border transition-[background-color,box-shadow,border-color] duration-200 ease-out ${activeField === 'appId' ? 'border-[#5865F2]/50 shadow-[0_0_16px_rgba(88,101,242,0.15)]' : 'border-white/8'}`}>
                     <input
                       type="text"
                       value={appId}
@@ -272,7 +228,7 @@ export default function DiscordBotPage() {
                       onFocus={() => setActiveField('appId')}
                       onBlur={() => setActiveField(null)}
                       placeholder="1234567890123456789"
-                      className="w-full bg-white/4 rounded-xl px-4 py-3.5 text-sm font-mono text-white/85 focus:outline-none transition-all placeholder:text-white/12"
+                      className="w-full bg-white/4 rounded-xl px-4 py-3.5 text-sm font-mono text-white/85 focus:outline-none transition-[background-color,box-shadow,border-color] duration-200 ease-out placeholder:text-white/12"
                     />
                   </div>
                 </div>
@@ -282,7 +238,7 @@ export default function DiscordBotPage() {
                     <span className="material-symbols-outlined text-[13px] text-[#5865F2]">lock</span>
                     Public Key
                   </label>
-                  <div className={`relative rounded-xl border transition-all duration-300 ${activeField === 'pubKey' ? 'border-[#5865F2]/50 shadow-[0_0_16px_rgba(88,101,242,0.15)]' : 'border-white/8'}`}>
+                  <div className={`relative rounded-xl border transition-[background-color,box-shadow,border-color] duration-200 ease-out ${activeField === 'pubKey' ? 'border-[#5865F2]/50 shadow-[0_0_16px_rgba(88,101,242,0.15)]' : 'border-white/8'}`}>
                     <input
                       type="text"
                       value={publicKey}
@@ -290,7 +246,7 @@ export default function DiscordBotPage() {
                       onFocus={() => setActiveField('pubKey')}
                       onBlur={() => setActiveField(null)}
                       placeholder="ed25519_public_key..."
-                      className="w-full bg-white/4 rounded-xl px-4 py-3.5 text-sm font-mono text-white/85 focus:outline-none transition-all placeholder:text-white/12"
+                      className="w-full bg-white/4 rounded-xl px-4 py-3.5 text-sm font-mono text-white/85 focus:outline-none transition-[background-color,box-shadow,border-color] duration-200 ease-out placeholder:text-white/12"
                     />
                   </div>
                 </div>
@@ -302,7 +258,7 @@ export default function DiscordBotPage() {
                   <span className="material-symbols-outlined text-[13px] text-[#5865F2]">vpn_key</span>
                   Bot Token
                 </label>
-                <div className={`relative rounded-xl border transition-all duration-300 ${activeField === 'token' ? 'border-[#5865F2]/50 shadow-[0_0_16px_rgba(88,101,242,0.15)]' : 'border-white/8'}`}>
+                <div className={`relative rounded-xl border transition-[background-color,box-shadow,border-color] duration-200 ease-out ${activeField === 'token' ? 'border-[#5865F2]/50 shadow-[0_0_16px_rgba(88,101,242,0.15)]' : 'border-white/8'}`}>
                   <input
                     type={showToken ? 'text' : 'password'}
                     value={token}
@@ -310,7 +266,7 @@ export default function DiscordBotPage() {
                     onFocus={() => setActiveField('token')}
                     onBlur={() => setActiveField(null)}
                     placeholder="MTIzNDU2Nzg5MDEyMzQ1Njc4.Xyz..."
-                    className="w-full bg-white/4 rounded-xl px-4 py-3.5 pr-12 text-sm font-mono text-white/85 focus:outline-none transition-all placeholder:text-white/12"
+                    className="w-full bg-white/4 rounded-xl px-4 py-3.5 pr-12 text-sm font-mono text-white/85 focus:outline-none transition-[background-color,box-shadow,border-color] duration-200 ease-out placeholder:text-white/12"
                   />
                   <button
                     type="button"
@@ -342,7 +298,7 @@ export default function DiscordBotPage() {
                     <button
                       type="button"
                       onClick={handleCopy}
-                      className={`p-2.5 rounded-xl border transition-all duration-200 flex items-center gap-1.5 ${
+                      className={`p-2.5 rounded-xl border transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center gap-1.5 ${
                         copied
                           ? 'bg-emerald-500/30 border-emerald-500/40 text-emerald-300'
                           : 'bg-emerald-500/15 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/25'
@@ -361,9 +317,9 @@ export default function DiscordBotPage() {
                 <button
                   type="submit"
                   disabled={saving || !isComplete}
-                  className="relative overflow-hidden px-8 py-3.5 bg-[#5865F2] text-white rounded-xl text-sm font-black tracking-wide shadow-lg shadow-[#5865F2]/25 hover:shadow-[#5865F2]/45 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2 group"
+                  className="relative overflow-hidden px-8 py-3.5 bg-[#5865F2] text-white rounded-xl text-sm font-black tracking-wide shadow-lg shadow-[#5865F2]/25 hover:shadow-[#5865F2]/25 active:brightness-95 disabled:opacity-40 disabled:cursor-not-allowed transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center gap-2 group"
                 >
-                  <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-all duration-200" />
+                  <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out" />
                   {saving ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -396,7 +352,7 @@ export default function DiscordBotPage() {
               {COMMANDS.map((c, i) => (
                 <div
                   key={c.cmd}
-                  className="cmd-card-d p-4 bg-white/3 rounded-2xl border border-white/5 hover:border-[#5865F2]/35 hover:bg-[#5865F2]/5 cursor-default group"
+                  className="cmd-card-d p-4 bg-white/3 rounded-2xl border border-white/5 hover:border-[var(--border-hover)] hover:bg-[var(--border-hover)]/10 cursor-default group"
                   style={{ animationDelay: `${i * 50}ms` }}
                 >
                   <div className="flex items-start gap-3">
@@ -479,11 +435,11 @@ export default function DiscordBotPage() {
             <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em] mb-5">Setup Guide</h4>
             <ul className="space-y-1">
               {STEPS.map(s => (
-                <li key={s.step} className="flex gap-3 p-3 rounded-xl hover:bg-white/5 transition-all group cursor-default">
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 border transition-all duration-200 ${
+                <li key={s.step} className="flex gap-3 p-3 rounded-xl hover:bg-white/5 transition-[background-color,box-shadow,border-color] duration-200 ease-out group cursor-default">
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 border transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                     config
                       ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400'
-                      : 'bg-white/8 border-white/10 text-white/45 group-hover:bg-[#5865F2]/20 group-hover:border-[#5865F2]/30 group-hover:text-[#5865F2]'
+                      : 'bg-white/8 border-white/10 text-white/45 group-hover:bg-[#5865F2]/20 group-hover:border-[var(--border-hover)] group-hover:text-[#5865F2]'
                   }`}>
                     {config ? '✓' : s.step}
                   </span>

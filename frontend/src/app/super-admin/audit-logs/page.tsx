@@ -77,7 +77,7 @@ export default function AuditLogsPage() {
             className="bg-[var(--card)]/50 border border-white/10 rounded-xl py-2 px-3 text-xs text-[var(--foreground)] outline-none" />
         </div>
         <button onClick={() => { setPage(1); fetchLogs(); }}
-          className="px-4 py-2 rounded-xl bg-[var(--primary)]/10 border border-[var(--primary)]/30 text-[10px] font-bold text-[var(--primary)] hover:bg-[var(--primary)]/20 transition-all">
+          className="px-4 py-2 rounded-xl bg-[var(--primary)]/10 border border-[var(--primary)]/30 text-[10px] font-bold text-[var(--primary)] hover:bg-[var(--primary)]/20 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
           Apply Filters
         </button>
       </div>
@@ -127,12 +127,12 @@ export default function AuditLogsPage() {
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2">
           <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1}
-            className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-[var(--foreground)] disabled:opacity-30 hover:bg-white/10 transition-all">
+            className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-[var(--foreground)] disabled:opacity-30 hover:bg-white/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
             Previous
           </button>
           <span className="text-xs text-[var(--muted-foreground)]">Page {page} of {totalPages}</span>
           <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-            className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-[var(--foreground)] disabled:opacity-30 hover:bg-white/10 transition-all">
+            className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-[var(--foreground)] disabled:opacity-30 hover:bg-white/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
             Next
           </button>
         </div>

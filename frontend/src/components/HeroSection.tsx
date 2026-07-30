@@ -48,41 +48,119 @@ const useCountUp = (end: number, duration: number = 1500) => {
 
 // --- Components ---
 
+const NAVBAR_EASING = [0.22, 0.61, 0.36, 1] as const;
+const NAV_MORPH_DURATION = 300; // ms — single clean morph, no bounce
+const SCROLL_THRESHOLD = 50; // px — scroll past this to trigger compact state
+
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > SCROLL_THRESHOLD);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Theme-aware colors
+  const isDark = typeof window !== 'undefined'
+    ? document.documentElement.classList.contains('dark')
+    : true;
+
+  const bgR = isDark ? 15 : 248;
+  const bgG = isDark ? 20 : 250;
+  const bgB = isDark ? 31 : 255;
+  const brR = isDark ? 255 : 15;
+  const brG = isDark ? 255 : 23;
+  const brB = isDark ? 255 : 42;
+
+  // ─── Two discrete states — NOT scroll-progress interpolation ───
+
+  // Layout: large (top) → compact (scrolled)
+  const navHeight    = scrolled ? 56 : 80;      // 80px → 56px
+  const navMaxWidth  = scrolled ? 896 : 1280;   // 1280px → 896px (30% narrower)
+  const navPadX      = scrolled ? 16 : 24;      // 24px → 16px
+  const navRadius    = scrolled ? 16 : 24;      // 24px → 16px (capsule)
+  const linkGap      = scrolled ? 20 : 28;      // tighter on scroll
+  const ctaGap       = scrolled ? 12 : 20;      // tighter on scroll
+
+  // Visual: transparent (top) → dark glass (scrolled)
+  const bgAlpha      = scrolled ? 0.78 : 0;     // 0 → 0.78
+  const blurAmount   = scrolled ? 14 : 0;       // 0 → 14px
+  const borderAlpha  = scrolled ? 0.08 : 0;     // 0 → 0.08
+  const shadowAlpha  = scrolled ? 0.12 : 0;     // 0 → 0.12
+
+  // Mobile menu top tracks navbar height + offset
+  const mobileTop = 32 + navHeight;
+
+  const navStyle: React.CSSProperties = {
+    height: `${navHeight}px`,
+    maxWidth: `${navMaxWidth}px`,
+    paddingLeft: `${navPadX}px`,
+    paddingRight: `${navPadX}px`,
+    borderRadius: `${navRadius}px`,
+    backgroundColor: `rgba(${bgR}, ${bgG}, ${bgB}, ${bgAlpha})`,
+    backdropFilter: `blur(${blurAmount}px)`,
+    // Border is ALWAYS 1px so the compact state never causes a layout shift.
+    // Only the alpha changes — invisible at top, subtle when scrolled.
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: `rgba(${brR}, ${brG}, ${brB}, ${borderAlpha})`,
+    boxShadow: `0 4px 24px -8px rgba(0, 0, 0, ${shadowAlpha})`,
+  };
+
+  // Child-element gap transitions (same duration + easing as parent morph)
+  const childTransition: React.CSSProperties = {
+    transitionProperty: 'gap',
+    transitionDuration: `${NAV_MORPH_DURATION}ms`,
+    transitionTimingFunction: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
+  };
+
   return (
-    <nav 
-      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 border-b ${
-        scrolled 
-          ? 'bg-[var(--glass-bg)] backdrop-blur-xl border-[var(--glass-border)] shadow-[0_4px_20px_-10px_var(--accent-opacity-15)]' 
-          : 'bg-[var(--background)] border-[var(--border)]'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
-        {/* Left: Logo */}
-        <Link href="/" className="flex items-center gap-2">
+    <>
+      <motion.nav
+        className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-32px)] flex items-center justify-between overflow-hidden"
+        style={navStyle}
+        initial={false}
+        animate={{
+          height: `${navHeight}px`,
+          maxWidth: `${navMaxWidth}px`,
+          paddingLeft: `${navPadX}px`,
+          paddingRight: `${navPadX}px`,
+          borderRadius: `${navRadius}px`,
+          backgroundColor: `rgba(${bgR}, ${bgG}, ${bgB}, ${bgAlpha})`,
+          backdropFilter: `blur(${blurAmount}px)`,
+          borderColor: `rgba(${brR}, ${brG}, ${brB}, ${borderAlpha})`,
+          boxShadow: `0 4px 24px -8px rgba(0, 0, 0, ${shadowAlpha})`,
+        }}
+        transition={{
+          duration: NAV_MORPH_DURATION / 1000,
+          ease: NAVBAR_EASING,
+        }}
+      >
+        {/* Left: Logo — always inside container, never resizes or moves */}
+        <Link href="/" className="flex items-center gap-2 shrink-0">
           <ShieldCheck className="w-[18px] h-[18px] text-[var(--primary)]" />
-          <span className="text-[14px] font-semibold text-[var(--foreground)] tracking-tight">AuthSys</span>
+          <span className="text-xs font-semibold text-[var(--foreground)] tracking-tight">
+            AuthSys
+          </span>
         </Link>
 
         {/* Center: Nav Links (Desktop) */}
-        <div className="hidden md:flex items-center gap-8">
+        <div
+          className="hidden md:flex items-center"
+          style={{ gap: `${linkGap}px`, ...childTransition }}
+        >
           {['Features', 'Pricing', 'Docs', 'Status'].map((link) => {
             const isPage = link === 'Docs';
             const href = isPage ? '/docs' : `#${link.toLowerCase()}`;
             return (
-              <Link 
-                key={link} 
-                href={href} 
-                className="text-[12px] text-[var(--muted-foreground)] transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-[var(--primary)] after:transition-all after:duration-300 hover:after:w-full hover:text-[var(--foreground)] font-medium"
+              <Link
+                key={link}
+                href={href}
+                className="text-[12px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] font-medium transition-[color] duration-200 ease-out"
               >
                 {link}
               </Link>
@@ -90,55 +168,82 @@ const Navbar = () => {
           })}
         </div>
 
-        {/* Right: Actions */}
-        <div className="flex items-center gap-4">
-          <Link href="/login" className="hidden sm:block text-[12px] text-[var(--muted-foreground)] hover:text-white font-medium transition-colors">
+        {/* Right: Actions — CTA always inside container, never overflows */}
+        <div
+          className="flex items-center shrink-0"
+          style={{ gap: `${ctaGap}px`, ...childTransition }}
+        >
+          <Link
+            href="/login"
+            className="hidden sm:block text-[12px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] font-medium transition-[color] duration-200 ease-out"
+          >
             Sign In
           </Link>
-          <Link href="/register">
-            <MagneticButton className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] rounded-xl px-[32px] py-[18px] text-[15px] font-bold transition-all duration-250 hover:translate-y-[-2px] shadow-[0_4px_20px_rgba(0,0,0,0.25)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.3)]">
+          <Link href="/register" className="shrink-0">
+            <button className="bg-[var(--primary)] hover:brightness-110 text-[var(--primary-foreground)] rounded-full px-[22px] py-[10px] text-[13px] font-bold transition-[background-color,box-shadow] duration-200 ease-out">
               Start Free
-            </MagneticButton>
+            </button>
           </Link>
-          <button 
+          <button
             className="md:hidden text-[var(--muted-foreground)]"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
           >
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
-      </div>
+      </motion.nav>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu — positioned dynamically below navbar */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-[var(--glass-bg)] backdrop-blur-xl border-b border-[var(--glass-border)] overflow-hidden"
+            transition={{ duration: 0.2, ease: NAVBAR_EASING }}
+            className="md:hidden fixed left-1/2 -translate-x-1/2 z-[99] w-[calc(100%-32px)] overflow-hidden"
+            style={{
+              top: `${mobileTop}px`,
+              maxWidth: `${navMaxWidth}px`,
+            }}
           >
-            <div className="px-4 py-6 flex flex-col gap-4">
-              {['Features', 'Pricing', 'Docs', 'Status'].map((link) => {
-                const isPage = link === 'Docs';
-                const href = isPage ? '/docs' : `#${link.toLowerCase()}`;
-                return (
-                  <Link 
-                    key={link} 
-                    href={href} 
-                    className="text-[14px] text-[var(--muted-foreground)]"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {link}
-                  </Link>
-                );
-              })}
-              <Link href="/login" className="text-[14px] text-[var(--muted-foreground)]">Sign In</Link>
+            <div className="bg-[var(--glass-bg)] backdrop-blur-xl border border-[var(--glass-border)] rounded-2xl">
+              <div className="px-4 py-4 flex flex-col gap-3">
+                {['Features', 'Pricing', 'Docs', 'Status'].map((link) => {
+                  const isPage = link === 'Docs';
+                  const href = isPage ? '/docs' : `#${link.toLowerCase()}`;
+                  return (
+                    <Link
+                      key={link}
+                      href={href}
+                      className="text-[14px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] font-medium transition-[color] duration-200 ease-out"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {link}
+                    </Link>
+                  );
+                })}
+                <Link
+                  href="/login"
+                  className="text-[14px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] font-medium transition-[color] duration-200 ease-out"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/register"
+                  className="mt-1 text-[14px] font-semibold text-[var(--primary-foreground)] bg-[var(--primary)] hover:brightness-110 text-center rounded-full px-5 py-2.5 transition-[background-color,box-shadow] duration-200 ease-out"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Start Free
+                </Link>
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
+    </>
   );
 };
 
@@ -156,7 +261,7 @@ const StatCard = ({ icon: Icon, iconBg, iconColor, trend, number, label, endValu
         </div>
         <span className="text-[7px] font-bold" style={{ color: iconColor }}>{trend}</span>
       </div>
-      <span className="text-[14px] font-bold leading-none transition-all duration-200 hover:text-[var(--primary)]" style={{ color: number.includes('#') ? number : 'var(--foreground)' }}>
+      <span className="text-[14px] font-bold leading-none transition-[background-color,box-shadow,border-color] duration-200 ease-out hover:text-[var(--primary)]" style={{ color: number.includes('#') ? number : 'var(--foreground)' }}>
         {displayValue}
       </span>
       <span className="text-[7px] text-[var(--muted-foreground)] mt-[2px]">{label}</span>
@@ -252,7 +357,7 @@ const DashboardFrame = () => {
             </div>
 
             <div className="mt-auto p-2">
-              <div className="bg-gradient-to-br from-[var(--card)] to-[var(--card)] border-[0.5px] border-white/10 rounded-xl p-1.5 text-center cursor-pointer hover:border-[var(--primary)] transition-all">
+              <div className="bg-gradient-to-br from-[var(--card)] to-[var(--card)] border-[0.5px] border-white/10 rounded-xl p-1.5 text-center cursor-pointer hover:border-[var(--border-hover)] transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                 <div className="flex items-center justify-center gap-1 mb-0.5">
                   <Bot size={8} className="text-[var(--primary)]" />
                   <span className="text-[8px] text-[var(--primary)] font-bold">AI Agent</span>
@@ -324,7 +429,7 @@ const DashboardFrame = () => {
                   {barData.map((val, i) => (
                     <div 
                       key={i} 
-                      className={`flex-1 rounded-t-sm transition-all duration-700 ${
+                      className={`flex-1 rounded-t-sm transition-[background-color,box-shadow,border-color] duration-200 ease-out duration-700 ${
                         i === 5 ? 'bg-[var(--primary)]' : 'bg-[var(--card)] border-[0.5px] border-white/10'
                       }`}
                       style={{ 
@@ -390,7 +495,7 @@ export default function HeroSection({ demoUrl, heroParagraph }: { demoUrl?: stri
     <div ref={scrollRef}>
       <Navbar />
       
-      <section className="pt-[100px] pb-24 px-4 relative">
+      <section className="pt-[120px] pb-24 px-4 relative">
         {/* Background Gradients */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-[var(--primary)]/5 blur-[120px] rounded-full -z-10 pointer-events-none" />
         
@@ -399,7 +504,7 @@ export default function HeroSection({ demoUrl, heroParagraph }: { demoUrl?: stri
           {/* Announcement Badge */}
           <div 
             data-animate
-            className="bg-[var(--card)] border-[0.5px] border-white/10 rounded-2xl px-3 py-1 flex items-center gap-2 mb-8 cursor-pointer hover:border-[var(--primary)] transition-colors shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
+            className="bg-[var(--card)] border-[0.5px] border-white/10 rounded-2xl px-3 py-1 flex items-center gap-2 mb-8 cursor-pointer hover:border-[var(--border-hover)] transition-colors shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
           >
             <div className="w-[6px] h-[6px] rounded-full bg-[var(--primary)] animate-pulse shadow-[0_0_8px_var(--primary)]" />
             <span className="text-[11px] text-[var(--muted-foreground)] font-medium">AI Agent — control your app in plain English</span>
@@ -428,13 +533,13 @@ export default function HeroSection({ demoUrl, heroParagraph }: { demoUrl?: stri
             className="flex flex-col sm:flex-row items-center gap-[16px] mb-12"
           >
             <Link href="/register">
-              <MagneticButton className="flex items-center gap-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] rounded-xl px-[36px] py-[18px] text-[16px] font-bold transition-all duration-250 hover:translate-y-[-2px] shadow-[0_4px_24px_rgba(0,0,0,0.25)] hover:shadow-[0_6px_28px_rgba(0,0,0,0.3)]">
+              <MagneticButton className="flex items-center gap-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-[var(--primary-foreground)] rounded-xl px-[36px] py-[18px] text-[16px] font-bold transition-[background-color,box-shadow,border-color] duration-200 ease-out  shadow-[0_4px_24px_rgba(0,0,0,0.25)] hover:shadow-[0_6px_28px_rgba(0,0,0,0.3)]">
                 <Zap size={16} fill="currentColor" />
                 Start for free
               </MagneticButton>
             </Link>
             <a href={demoUrl || '#'} target={demoUrl ? "_blank" : "_self"}>
-              <MagneticButton className="flex items-center gap-3 bg-[var(--glass-bg)] backdrop-blur-sm text-[var(--foreground)] border-[1px] border-[var(--border)] hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 rounded-xl px-[36px] py-[18px] text-[16px] font-semibold transition-all duration-250 hover:translate-y-[-2px] shadow-[0_2px_12px_rgba(0,0,0,0.15)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)]">
+              <MagneticButton className="flex items-center gap-3 bg-[var(--glass-bg)] backdrop-blur-sm text-[var(--foreground)] border-[1px] border-[var(--border)] hover:border-[var(--border-hover)] hover:bg-[var(--primary)]/5 rounded-xl px-[36px] py-[18px] text-[16px] font-semibold transition-[background-color,box-shadow,border-color] duration-200 ease-out  shadow-[0_2px_12px_rgba(0,0,0,0.15)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)]">
                 <Play size={16} fill="currentColor" />
                 Watch demo
               </MagneticButton>

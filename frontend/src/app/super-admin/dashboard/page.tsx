@@ -95,12 +95,12 @@ export default function SuperAdminDashboard() {
         </div>
         <div className="flex items-center gap-3">
           <button onClick={() => setShowBroadcast(true)}
-            className="px-4 py-2.5 rounded-xl bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--primary)] hover:bg-[var(--primary)]/20 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+            className="px-4 py-2.5 rounded-xl bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--primary)] hover:bg-[var(--primary)]/20 transition-[background-color,box-shadow,border-color] duration-200 ease-out text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
             <span className="material-symbols-outlined text-sm">campaign</span>
             Broadcast
           </button>
           <button onClick={() => router.push('/super-admin/status')}
-            className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-[var(--muted-foreground)] hover:text-white hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+            className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-[var(--muted-foreground)] hover:text-white hover:bg-white/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
             <span className="material-symbols-outlined text-sm">monitor_heart</span>
             System Health
           </button>
@@ -137,7 +137,7 @@ export default function SuperAdminDashboard() {
                { name: 'Broadcast', icon: 'campaign', path: null },
              ].map(action => (
                <button key={action.name} onClick={() => action.path ? router.push(action.path) : setShowBroadcast(true)}
-                 className="flex flex-col items-center justify-center gap-2.5 p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-[var(--primary)]/30 transition-all group">
+                 className="flex flex-col items-center justify-center gap-2.5 p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-[var(--border-hover)]/30 transition-[background-color,box-shadow,border-color] duration-200 ease-out group">
                  <span className="material-symbols-outlined text-xl text-[var(--muted-foreground)] group-hover:text-[var(--primary)] transition-colors">{action.icon}</span>
                  <span className="text-[9px] font-bold text-[var(--muted-foreground)] group-hover:text-[var(--foreground)] uppercase tracking-widest">{action.name}</span>
                </button>
@@ -181,7 +181,7 @@ export default function SuperAdminDashboard() {
           { name: 'Rate Limits', icon: 'speed', path: '/super-admin/rate-limits', color: '#fb923c' },
         ].map(item => (
           <button key={item.name} onClick={() => router.push(item.path)}
-            className="glass-card rounded-xl p-4 flex flex-col items-center gap-2 hover:bg-white/[0.07] transition-all border border-transparent hover:border-white/10 group">
+            className="glass-card rounded-xl p-4 flex flex-col items-center gap-2 hover:bg-white/[0.07] transition-[background-color,box-shadow,border-color] duration-200 ease-out border border-transparent 0 group">
             <span className="material-symbols-outlined text-xl" style={{ color: item.color }}>{item.icon}</span>
             <span className="text-[9px] font-bold text-[var(--muted-foreground)] group-hover:text-[var(--foreground)] uppercase tracking-widest text-center">{item.name}</span>
           </button>
@@ -200,7 +200,7 @@ export default function SuperAdminDashboard() {
                 <div className="flex gap-2">
                   {['info', 'warning', 'critical'].map(s => (
                     <button key={s} type="button" onClick={() => setBroadcastSeverity(s)}
-                      className={`flex-1 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${
+                      className={`flex-1 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                         broadcastSeverity === s
                           ? s === 'critical' ? 'bg-red-500/20 text-red-400 border border-red-500/30'
                             : s === 'warning' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'

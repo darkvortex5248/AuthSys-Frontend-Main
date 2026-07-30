@@ -139,7 +139,7 @@ export default function SessionsPage() {
             <button
               onClick={handleLogoutAll}
               disabled={loggingOutAll}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                 confirmLogoutAll
                   ? 'bg-red-500 text-white'
                   : 'bg-red-500/10 hover:bg-red-500/15 text-red-400 border border-red-500/20'
@@ -213,7 +213,7 @@ function SessionCard({ session: s, loggingOut, onLogout }: {
   const browserLabel = getBrowserLabel(s.user_agent);
 
   return (
-    <div className={`premium-card p-4 flex items-center gap-4 border transition-all ${s.is_current ? 'border-[var(--primary)]/25' : 'border-white/5'}`}>
+    <div className={`premium-card p-4 flex items-center gap-4 border transition-[background-color,box-shadow,border-color] duration-200 ease-out ${s.is_current ? 'border-[var(--primary)]/25' : 'border-white/5'}`}>
 
       {/* Icon */}
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${s.is_current ? 'bg-[var(--primary)]/15' : 'bg-white/5'}`}>

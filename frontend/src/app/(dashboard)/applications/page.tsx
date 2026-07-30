@@ -57,7 +57,7 @@ function AppCard({
       className={[
         'group relative flex flex-col premium-card',
         'shadow-xl shadow-black/40',
-        'transition-all duration-300 hover:border-white/[0.13] hover:shadow-2xl hover:shadow-black/60',
+        'transition-[background-color,box-shadow,border-color] duration-200 ease-out  hover:shadow-2xl hover:shadow-black/60',
         !isActive && 'opacity-70 hover:opacity-100',
       ].join(' ')}
     >
@@ -96,7 +96,7 @@ function AppCard({
           <div className="relative">
             <button
               onClick={() => setMenuOpen(v => !v)}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--accent-opacity-8)] transition-all"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--accent-opacity-8)] transition-[background-color,box-shadow,border-color] duration-200 ease-out"
             >
               <span className="material-symbols-outlined text-[18px]">more_vert</span>
             </button>
@@ -144,7 +144,7 @@ function AppCard({
           <div className="flex items-center gap-1.5 shrink-0 opacity-0 group-hover/secret:opacity-100 transition-opacity">
             <button
               onClick={onToggleSecret}
-              className="w-6 h-6 rounded-md flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--accent-opacity-8)] transition-all"
+              className="w-6 h-6 rounded-md flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--accent-opacity-8)] transition-[background-color,box-shadow,border-color] duration-200 ease-out"
             >
               <span className="material-symbols-outlined text-[14px]">
                 {visibleSecret ? 'visibility_off' : 'visibility'}
@@ -152,7 +152,7 @@ function AppCard({
             </button>
             <button
               onClick={onCopySecret}
-              className="w-6 h-6 rounded-md flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[var(--accent-opacity-15)] transition-all"
+              className="w-6 h-6 rounded-md flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[var(--accent-opacity-15)] transition-[background-color,box-shadow,border-color] duration-200 ease-out"
             >
               <span className="material-symbols-outlined text-[14px]">content_copy</span>
             </button>
@@ -162,7 +162,7 @@ function AppCard({
         <div className="flex items-center gap-2 mt-auto">
           <button
             onClick={onManage}
-            className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-xl text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)] border border-[var(--border)] bg-[var(--accent-opacity-8)] hover:bg-[var(--accent-opacity-15)] hover:text-[var(--primary)] hover:border-[var(--accent-opacity-20)] transition-all duration-200"
+            className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-xl text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)] border border-[var(--border)] bg-[var(--accent-opacity-8)] hover:bg-[var(--accent-opacity-15)] hover:text-[var(--primary)] hover:border-[var(--accent-opacity-20)] transition-[background-color,box-shadow,border-color] duration-200 ease-out"
           >
             <span className="material-symbols-outlined text-[15px]">open_in_new</span>
             Manage
@@ -171,7 +171,7 @@ function AppCard({
             onClick={onToggle}
             title={isActive ? 'Pause' : 'Resume'}
             className={[
-              'w-9 h-9 rounded-xl flex items-center justify-center border transition-all duration-200',
+              'w-9 h-9 rounded-xl flex items-center justify-center border transition-[background-color,box-shadow,border-color] duration-200 ease-out',
               isActive
                 ? 'border-[var(--warning)]/20 bg-[var(--warning)]/5 text-[var(--warning)] hover:bg-[var(--warning)]/15'
                 : 'border-[var(--success)]/20 bg-[var(--success)]/5 text-[var(--success)] hover:bg-[var(--success)]/15',
@@ -182,7 +182,7 @@ function AppCard({
           <button
             onClick={onDelete}
             title="Delete"
-            className="w-9 h-9 rounded-xl flex items-center justify-center border border-[var(--destructive)]/20 bg-[var(--destructive)]/5 text-[var(--destructive)] hover:bg-[var(--destructive)]/15 transition-all duration-200"
+            className="w-9 h-9 rounded-xl flex items-center justify-center border border-[var(--destructive)]/20 bg-[var(--destructive)]/5 text-[var(--destructive)] hover:bg-[var(--destructive)]/15 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
           >
             <span className="material-symbols-outlined text-[18px]">delete</span>
           </button>
@@ -460,7 +460,7 @@ export default function ApplicationsPage() {
                   </div>
                   <button
                     onClick={() => setShowModal(false)}
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--accent-opacity-8)] transition-all"
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--accent-opacity-8)] transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                   >
                     <span className="material-symbols-outlined text-[18px]">close</span>
                   </button>
@@ -508,7 +508,7 @@ export default function ApplicationsPage() {
                     onClick={() => setFormData({ ...formData, hwid_enabled: !formData.hwid_enabled })}
                     className={[
                       'w-full flex items-center justify-between gap-4 p-4 rounded-xl text-left',
-                      'border transition-all duration-200',
+                      'border transition-[background-color,box-shadow,border-color] duration-200 ease-out',
                       formData.hwid_enabled
                         ? 'bg-[var(--accent-opacity-15)] border-[var(--accent-opacity-20)] hover:bg-[var(--accent-opacity-20)]'
                         : 'bg-[var(--accent-opacity-8)] border-[var(--border)] hover:bg-[var(--accent-opacity-10)]',

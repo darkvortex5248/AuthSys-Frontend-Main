@@ -68,7 +68,7 @@ export default function PublicSDKPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="group p-8 rounded-3xl bg-[var(--card)] border border-[var(--border)] hover:border-[var(--primary)] transition-all hover:shadow-[0_0_30px_rgba(108,92,231,0.1)]"
+                className="group p-8 rounded-3xl bg-[var(--card)] border border-[var(--border)] hover:border-[var(--border-hover)] transition-[background-color,box-shadow,border-color] duration-200 ease-out hover:shadow-[0_0_30px_rgba(108,92,231,0.1)]"
               >
                 <div className="flex items-start justify-between mb-8">
                   <div className="w-14 h-14 rounded-2xl bg-[var(--background)] border border-[var(--border)] flex items-center justify-center text-[var(--primary)] group-hover:scale-110 transition-transform">
@@ -102,7 +102,7 @@ export default function PublicSDKPage() {
                 <a 
                   href={sdk.download_url} 
                   target="_blank"
-                  className="flex items-center justify-center gap-2 w-full py-4 rounded-xl bg-[var(--primary)] hover:bg-[#7D6FF0] text-white font-bold transition-all shadow-lg shadow-[var(--primary)]/20 active:scale-[0.98]"
+                  className="flex items-center justify-center gap-2 w-full py-4 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold transition-[background-color,box-shadow,border-color] duration-200 ease-out shadow-lg shadow-[var(--primary)]/20 active:brightness-95"
                 >
                   <Download className="w-4 h-4" />
                   Download Binary
@@ -128,7 +128,7 @@ export default function PublicSDKPage() {
               <p className="text-sm text-[#8888AA]">Our enterprise clients get access to custom-built wrappers and source-code access for audit purposes.</p>
            </div>
            <Link href="/register">
-             <button className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white text-sm font-bold transition-all">
+             <button className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white text-sm font-bold transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                Contact Enterprise
              </button>
            </Link>

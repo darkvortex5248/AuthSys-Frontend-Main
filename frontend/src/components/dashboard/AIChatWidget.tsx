@@ -134,7 +134,7 @@ function LockedState({ onClose }: { onClose: () => void }) {
       <a
         href="/settings/billing"
         onClick={onClose}
-        className="px-5 py-2.5 rounded-xl bg-amber-500/15 text-amber-400 text-[11px] font-black uppercase tracking-widest hover:bg-amber-500/25 transition-all"
+        className="px-5 py-2.5 rounded-xl bg-amber-500/15 text-amber-400 text-[11px] font-black uppercase tracking-widest hover:bg-amber-500/25 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
       >
         View Plans →
       </a>
@@ -306,14 +306,14 @@ export default function AIChatWidget() {
                 <button
                   onClick={clearChat}
                   title="Clear chat"
-                  className="w-7 h-7 rounded-lg flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-white/5 transition-all"
+                  className="w-7 h-7 rounded-lg flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-white/5 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                 >
                   <span className="material-symbols-outlined text-[15px]">delete_sweep</span>
                 </button>
                 <button
                   onClick={() => setIsMinimized((v) => !v)}
                   title={isMinimized ? 'Expand' : 'Minimize'}
-                  className="w-7 h-7 rounded-lg flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-white/5 transition-all"
+                  className="w-7 h-7 rounded-lg flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-white/5 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                 >
                   <span className="material-symbols-outlined text-[15px]">
                     {isMinimized ? 'expand_less' : 'remove'}
@@ -322,7 +322,7 @@ export default function AIChatWidget() {
                 <button
                   onClick={() => setIsOpen(false)}
                   title="Close"
-                  className="w-7 h-7 rounded-lg flex items-center justify-center text-[var(--muted-foreground)] hover:text-red-400 hover:bg-red-500/10 transition-all"
+                  className="w-7 h-7 rounded-lg flex items-center justify-center text-[var(--muted-foreground)] hover:text-red-400 hover:bg-red-500/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                 >
                   <span className="material-symbols-outlined text-[15px]">close</span>
                 </button>
@@ -392,15 +392,15 @@ export default function AIChatWidget() {
                               onKeyDown={handleKey}
                               placeholder="Ask something…"
                               disabled={loading}
-                              className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-[12.5px] text-[var(--foreground)] placeholder:text-[#555] focus:border-[var(--primary)]/40 focus:bg-white/[0.06] outline-none transition-all pr-3 disabled:opacity-50"
+                              className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-[12.5px] text-[var(--foreground)] placeholder:text-[#555] focus:border-[var(--primary)]/40 focus:bg-white/[0.06] outline-none transition-[background-color,box-shadow,border-color] duration-200 ease-out pr-3 disabled:opacity-50"
                             />
                           </div>
                           <motion.button
-                            whileTap={{ scale: 0.9 }}
+                            whileTap={{ opacity: 0.9 }}
                             type="button"
                             onClick={() => handleSend()}
                             disabled={loading || !input.trim()}
-                            className="w-9 h-9 rounded-xl bg-[var(--primary)] text-white flex items-center justify-center shadow-lg shadow-[var(--primary)]/25 hover:bg-[#c4663f] transition-all disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+                            className="w-9 h-9 rounded-xl bg-[var(--primary)] text-white flex items-center justify-center shadow-lg shadow-[var(--primary)]/25 hover:bg-[var(--primary-hover)] transition-[background-color,box-shadow,border-color] duration-200 ease-out disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
                           >
                             <span className="material-symbols-outlined text-[16px]">send</span>
                           </motion.button>
@@ -422,8 +422,8 @@ export default function AIChatWidget() {
 
       {/* ── FAB button ──────────────────────────────────────────────────────── */}
       <motion.button
-        whileTap={{ scale: 0.92 }}
-        whileHover={{ scale: 1.05 }}
+        whileTap={{ opacity: 0.9 }}
+        whileHover={{ opacity: 0.95 }}
         onClick={toggleOpen}
         animate={isOpen ? { rotate: 0 } : { rotate: 0 }}
         transition={{ type: 'spring', stiffness: 300, damping: 20 }}

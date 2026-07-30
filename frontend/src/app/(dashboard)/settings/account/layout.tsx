@@ -20,7 +20,7 @@ export default function AccountLayout({ children }: { children: ReactNode }) {
           <button
             key={tab.id}
             onClick={() => router.push(`/settings/account/${tab.id}`)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
               activeTab === tab.id
                 ? 'bg-[var(--primary)] text-[#131313]'
                 : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-white/5'

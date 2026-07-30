@@ -85,7 +85,7 @@ export default function PlansManagementPage() {
         </div>
         <Link
           href="/super-admin/plans/new"
-          className="inline-flex items-center gap-2 bg-[var(--primary)] text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:brightness-110 transition-all"
+          className="inline-flex items-center gap-2 bg-[var(--primary)] text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:brightness-110 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
         >
           <span className="material-symbols-outlined text-sm">add</span>
           New Plan
@@ -159,17 +159,17 @@ export default function PlansManagementPage() {
                     <div className="flex items-center gap-2">
                       <Link
                         href={`/super-admin/plans/${plan.id}`}
-                        className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-all"
+                        className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                       >
                         <span className="material-symbols-outlined text-sm">edit</span>
                       </Link>
                       <button onClick={() => duplicatePlan(plan)}
-                        className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-all"
+                        className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                       >
                         <span className="material-symbols-outlined text-sm">content_copy</span>
                       </button>
                       <button onClick={() => deletePlan(plan)}
-                        className="w-8 h-8 rounded-lg bg-white/5 hover:bg-red-500/10 flex items-center justify-center text-[var(--muted-foreground)] hover:text-red-400 transition-all"
+                        className="w-8 h-8 rounded-lg bg-white/5 hover:bg-red-500/10 flex items-center justify-center text-[var(--muted-foreground)] hover:text-red-400 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                       >
                         <span className="material-symbols-outlined text-sm">delete</span>
                       </button>

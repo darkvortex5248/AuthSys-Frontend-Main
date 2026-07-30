@@ -23,18 +23,17 @@ function Input({
         "text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/60",
         "md:text-sm",
         // Transition
-        "transition-all duration-200 ease-out outline-none",
+        "transition-[border-color,box-shadow] duration-200 ease-out outline-none",
         // File input
         "file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-[var(--foreground)]",
         // Focus
-        "focus-visible:border-[var(--primary)]/70 focus-visible:ring-[3px] focus-visible:ring-[var(--primary)]/25",
-        "focus-visible:bg-[var(--background)]",
+        "focus-visible:ring-[3px] focus-visible:ring-[var(--primary)]/15",
         // Disabled
         "disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-[var(--muted)]/50 disabled:opacity-50",
         // Invalid
         "aria-invalid:border-[var(--destructive)] aria-invalid:ring-3 aria-invalid:ring-[var(--destructive)]/20",
         // Hover
-        "hover:border-[var(--border-hover)] hover:bg-[var(--background)]/80",
+        "hover:border-[var(--border-hover)]",
         className
       )}
       {...props}

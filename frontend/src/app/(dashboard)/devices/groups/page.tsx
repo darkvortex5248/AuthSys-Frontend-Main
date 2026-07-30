@@ -106,7 +106,7 @@ export default function DeviceGroupsPage() {
           <p className="text-sm text-[var(--muted-foreground)] mt-0.5">Create device groups for your EXEs — no login required</p>
         </div>
         <button onClick={() => setShowCreate(true)}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[var(--primary)] text-[#131313] text-xs font-black uppercase tracking-widest hover:opacity-90 transition-all">
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[var(--primary)] text-[#131313] text-xs font-black uppercase tracking-widest hover:opacity-90 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
           <span className="material-symbols-outlined text-[18px]">add</span>
           New Group
         </button>
@@ -118,13 +118,13 @@ export default function DeviceGroupsPage() {
             <div>
               <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Group Name</label>
               <input value={newName} onChange={e => setNewName(e.target.value)}
-                className="w-full mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-[var(--foreground)] outline-none focus:border-[var(--primary)]/50 transition-all"
+                className="w-full mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-[var(--foreground)] outline-none focus:border-[var(--primary)]/50 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                 placeholder="e.g. My Game EXE" />
             </div>
             <div>
               <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Max Devices</label>
               <input type="number" value={newMaxDevices} onChange={e => setNewMaxDevices(parseInt(e.target.value) || 0)}
-                className="w-full mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-[var(--foreground)] outline-none focus:border-[var(--primary)]/50 transition-all" />
+                className="w-full mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-[var(--foreground)] outline-none focus:border-[var(--primary)]/50 transition-[background-color,box-shadow,border-color] duration-200 ease-out" />
             </div>
             <div className="flex items-end gap-2">
               <button onClick={handleCreate} disabled={creating}
@@ -180,7 +180,7 @@ export default function DeviceGroupsPage() {
                         {group.group_secret.substring(0, 20)}...
                       </code>
                       <button onClick={() => copySecret(group.group_secret)}
-                        className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg bg-white/5 hover:bg-[var(--primary)]/15 text-white/30 hover:text-[var(--primary)] transition-all">
+                        className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg bg-white/5 hover:bg-[var(--primary)]/15 text-white/30 hover:text-[var(--primary)] transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                         <span className="material-symbols-outlined text-[14px]">content_copy</span>
                       </button>
                     </div>
@@ -198,15 +198,15 @@ export default function DeviceGroupsPage() {
                   <td className="px-6 py-4">
                     <div className="flex gap-2">
                       <button onClick={() => copySecret(group.group_secret)}
-                        className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[var(--muted-foreground)] text-[10px] font-bold uppercase tracking-widest hover:bg-[var(--primary)]/15 hover:text-[var(--primary)] transition-all">
+                        className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[var(--muted-foreground)] text-[10px] font-bold uppercase tracking-widest hover:bg-[var(--primary)]/15 hover:text-[var(--primary)] transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                         Copy Secret
                       </button>
                       <button onClick={() => handleRegen(group)}
-                        className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-bold uppercase tracking-widest hover:bg-amber-500/20 transition-all">
+                        className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-bold uppercase tracking-widest hover:bg-amber-500/20 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                         Regenerate
                       </button>
                       <button onClick={() => handleDelete(group)}
-                        className="px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-[10px] font-bold uppercase tracking-widest hover:bg-red-500/20 transition-all">
+                        className="px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-[10px] font-bold uppercase tracking-widest hover:bg-red-500/20 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                         Delete
                       </button>
                     </div>

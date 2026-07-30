@@ -106,8 +106,8 @@ export default function CustomPlansPage() {
     if (feature.type === 'boolean') {
       return (
         <div className="flex gap-2">
-          <button type="button" onClick={() => onChange('true')} className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${value === 'true' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-[var(--card)]/50 border border-white/10 text-[var(--muted-foreground)]'}`}>True</button>
-          <button type="button" onClick={() => onChange('false')} className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${value === 'false' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-[var(--card)]/50 border border-white/10 text-[var(--muted-foreground)]'}`}>False</button>
+          <button type="button" onClick={() => onChange('true')} className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-bold transition-[background-color,box-shadow,border-color] duration-200 ease-out ${value === 'true' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-[var(--card)]/50 border border-white/10 text-[var(--muted-foreground)]'}`}>True</button>
+          <button type="button" onClick={() => onChange('false')} className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-bold transition-[background-color,box-shadow,border-color] duration-200 ease-out ${value === 'false' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-[var(--card)]/50 border border-white/10 text-[var(--muted-foreground)]'}`}>False</button>
         </div>
       );
     }
@@ -128,7 +128,7 @@ export default function CustomPlansPage() {
     <div className="max-w-5xl space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div><h1 className="text-3xl font-bold text-[var(--foreground)] tracking-tight">Custom Plan Builder</h1><p className="text-sm text-[var(--muted-foreground)] mt-1">Override plan features per developer</p></div>
-        <button onClick={() => { setShowCreate(true); setEditingOverride(null); setForm({ developer_id: 0, feature_key: 'max_apps', feature_value: '10', label: '' }); }} className="px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-bold hover:brightness-110 transition-all">+ Add Override</button>
+        <button onClick={() => { setShowCreate(true); setEditingOverride(null); setForm({ developer_id: 0, feature_key: 'max_apps', feature_value: '10', label: '' }); }} className="px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-bold hover:brightness-110 transition-[background-color,box-shadow,border-color] duration-200 ease-out">+ Add Override</button>
       </div>
 
       {(showCreate || editingOverride) && (

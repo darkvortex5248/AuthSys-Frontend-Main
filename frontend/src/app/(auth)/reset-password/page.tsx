@@ -56,7 +56,7 @@ function ResetPasswordForm() {
   const score = calculateStrength(formData.password);
 
   return (
-    <div className="w-full max-w-[440px] bg-[var(--card)] rounded-xl border border-white/5 p-10 shadow-2xl transition-all duration-300">
+    <div className="w-full max-w-[440px] bg-[var(--card)] rounded-xl border border-white/5 p-10 shadow-2xl transition-[background-color,box-shadow,border-color] duration-200 ease-out">
       <div className="flex flex-col items-center mb-8">
         <div className="w-12 h-12 rounded-xl bg-[var(--primary)] flex items-center justify-center mb-4 shadow-[0_0_12px_color-mix(in_srgb,var(--primary)_13%,transparent)]">
           <svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
@@ -75,7 +75,7 @@ function ResetPasswordForm() {
           <div className="relative group">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#a1a1aa] text-[18px]">lock</span>
             <input 
-              className="w-full h-[42px] bg-[var(--card)] border border-white/5 rounded-lg pl-10 pr-10 text-[13.5px] focus:outline-none focus:border-[var(--primary)] focus:ring-0 transition-all placeholder-[#3f3f46] text-[#ffffff]" 
+              className="w-full h-[42px] bg-[var(--card)] border border-white/5 rounded-lg pl-10 pr-10 text-[13.5px] focus:outline-none focus:border-[var(--primary)] focus:ring-0 transition-[background-color,box-shadow,border-color] duration-200 ease-out placeholder-[#3f3f46] text-[#ffffff]" 
               id="new-password" 
               placeholder="Enter new password" 
               type={showPassword ? 'text' : 'password'}
@@ -127,7 +127,7 @@ function ResetPasswordForm() {
           <div className="relative group">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#a1a1aa] text-[18px]">lock</span>
             <input 
-              className="w-full h-[42px] bg-[var(--card)] border border-white/5 rounded-lg pl-10 pr-10 text-[13.5px] focus:outline-none focus:border-[var(--primary)] focus:ring-0 transition-all placeholder-[#3f3f46] text-[#ffffff]" 
+              className="w-full h-[42px] bg-[var(--card)] border border-white/5 rounded-lg pl-10 pr-10 text-[13.5px] focus:outline-none focus:border-[var(--primary)] focus:ring-0 transition-[background-color,box-shadow,border-color] duration-200 ease-out placeholder-[#3f3f46] text-[#ffffff]" 
               id="confirm-password" 
               placeholder="Repeat new password" 
               type={showConfirmPassword ? 'text' : 'password'}
@@ -146,7 +146,7 @@ function ResetPasswordForm() {
         </div>
 
         <button 
-          className="w-full h-[42px] bg-[var(--primary)] text-black font-medium text-[13.5px] rounded-lg hover:bg-[var(--primary)] active:scale-[0.98] transition-all shadow-[0_4px_12px_color-mix(in_srgb,var(--primary)_20%,transparent)] hover:shadow-[0_6px_16px_color-mix(in_srgb,var(--primary)_30%,transparent)] disabled:opacity-50 flex items-center justify-center gap-2" 
+          className="w-full h-[42px] bg-[var(--primary)] text-black font-medium text-[13.5px] rounded-lg hover:bg-[var(--primary)] active:brightness-95 transition-[background-color,box-shadow,border-color] duration-200 ease-out shadow-[0_4px_12px_color-mix(in_srgb,var(--primary)_20%,transparent)] hover:shadow-[0_6px_16px_color-mix(in_srgb,var(--primary)_30%,transparent)] disabled:opacity-50 flex items-center justify-center gap-2" 
           type="submit"
           disabled={loading}
         >

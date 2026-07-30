@@ -15,7 +15,7 @@ export default function SuperAdminError({ error, reset }: { error: Error & { dig
       </p>
       <button
         onClick={reset}
-        className="px-6 py-2.5 rounded-xl bg-[var(--primary)] text-white text-sm font-bold hover:bg-[var(--primary)]/80 transition-all"
+        className="px-6 py-2.5 rounded-xl bg-[var(--primary)] text-white text-sm font-bold hover:bg-[var(--primary)]/80 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
       >
         Try again
       </button>

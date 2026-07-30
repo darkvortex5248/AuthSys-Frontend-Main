@@ -117,7 +117,7 @@ export default function ContactPage() {
                       name="from_name"
                       type="text" 
                       placeholder="John Doe"
-                      className="w-full bg-[var(--color-bg-surface)] border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[var(--color-accent)]/50 transition-all placeholder:text-[var(--color-text-muted)]"
+                      className="w-full bg-[var(--color-bg-surface)] border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[var(--color-accent)]/50 transition-[background-color,box-shadow,border-color] duration-200 ease-out placeholder:text-[var(--color-text-muted)]"
                     />
                   </div>
                   <div className="space-y-2">
@@ -129,7 +129,7 @@ export default function ContactPage() {
                       name="reply_to"
                       type="email" 
                       placeholder="john@example.com"
-                      className="w-full bg-[var(--color-bg-surface)] border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[var(--color-accent)]/50 transition-all placeholder:text-[var(--color-text-muted)]"
+                      className="w-full bg-[var(--color-bg-surface)] border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[var(--color-accent)]/50 transition-[background-color,box-shadow,border-color] duration-200 ease-out placeholder:text-[var(--color-text-muted)]"
                     />
                   </div>
                 </motion.div>
@@ -146,7 +146,7 @@ export default function ContactPage() {
                     name="message"
                     rows={6}
                     placeholder="How can we help you today?"
-                    className="w-full bg-[var(--color-bg-surface)] border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[var(--color-accent)]/50 transition-all resize-none placeholder:text-[var(--color-text-muted)]"
+                    className="w-full bg-[var(--color-bg-surface)] border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[var(--color-accent)]/50 transition-[background-color,box-shadow,border-color] duration-200 ease-out resize-none placeholder:text-[var(--color-text-muted)]"
                   />
                 </motion.div>
 
@@ -156,7 +156,7 @@ export default function ContactPage() {
                   <button 
                     disabled={loading}
                     type="submit"
-                    className="w-full h-12 bg-[var(--color-accent)] hover:bg-[var(--accent-hover)] disabled:opacity-50 disabled:pointer-events-none text-black font-semibold rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_10px_20px_color-mix(in_srgb,var(--primary)_20%,transparent)] active:scale-[0.97] text-sm"
+                    className="w-full h-12 bg-[var(--color-accent)] hover:bg-[var(--accent-hover)] disabled:opacity-50 disabled:pointer-events-none text-black font-semibold rounded-xl flex items-center justify-center gap-2 transition-[background-color,box-shadow,border-color] duration-200 ease-out shadow-[0_10px_20px_color-mix(in_srgb,var(--primary)_20%,transparent)] active:brightness-95 text-sm"
                   >
                     {loading ? (
                       <>

@@ -42,7 +42,7 @@ function ErrorContent() {
       <div className="space-y-4">
         <Link 
           href="/login"
-          className="w-full h-[56px] rounded-xl bg-white/[0.03] border border-white/10 text-white font-bold text-sm tracking-widest uppercase hover:bg-white/[0.08] transition-all duration-300 flex items-center justify-center gap-2 group"
+          className="w-full h-[56px] rounded-xl bg-white/[0.03] border border-white/10 text-white font-bold text-sm tracking-widest uppercase hover:bg-white/[0.08] transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center justify-center gap-2 group"
         >
           <span className="material-symbols-outlined text-[20px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
           Return to Login
@@ -50,7 +50,7 @@ function ErrorContent() {
         
         <a 
           href="mailto:support@rinoxauth.com"
-          className="w-full h-[56px] rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold text-sm tracking-widest uppercase shadow-xl shadow-blue-600/20 hover:shadow-blue-600/40 transition-all duration-300 flex items-center justify-center gap-2"
+          className="w-full h-[56px] rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold text-sm tracking-widest uppercase shadow-xl shadow-blue-600/15 transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center justify-center gap-2"
         >
           <span className="material-symbols-outlined text-[20px]">support_agent</span>
           Contact Support

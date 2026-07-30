@@ -73,9 +73,9 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         "group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start",
         // Hover
         "hover:text-foreground",
-        "transition-all duration-200 ease-out",
+        "transition-[color,box-shadow] duration-200 ease-out",
         // Focus
-        "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none",
+        "focus-visible:ring-[3px] focus-visible:ring-ring/15 focus-visible:outline-none focus-visible:outline-2 focus-visible:outline-offset-2",
         // Disabled
         "disabled:pointer-events-none disabled:opacity-40 aria-disabled:pointer-events-none aria-disabled:opacity-40",
         // Icon
@@ -100,7 +100,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         "group-data-[variant=pills]/tabs-list:data-active:border-primary/20",
 
         // ── Underline active indicator ──
-        "after:absolute after:bg-primary after:opacity-0 after:transition-all after:duration-200",
+        "after:absolute after:bg-primary after:opacity-0 after:transition-[opacity] after:duration-200 after:ease-out",
         "group-data-horizontal/tabs:after:inset-x-2 group-data-horizontal/tabs:after:bottom-[-4px] group-data-horizontal/tabs:after:h-0.5 group-data-horizontal/tabs:after:rounded-full",
         "group-data-vertical/tabs:after:inset-y-2 group-data-vertical/tabs:after:-right-[3px] group-data-vertical/tabs:after:w-0.5 group-data-vertical/tabs:after:rounded-full",
         "group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
@@ -119,8 +119,8 @@ function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
       data-slot="tabs-content"
       className={cn(
         "flex-1 text-sm outline-none",
-        "data-open:animate-in data-open:fade-in-0 data-open:slide-in-from-bottom-1",
-        "duration-200",
+        "data-open:animate-in data-open:fade-in-0 data-open:slide-in-from-bottom-0.5",
+        "duration-200 ease-out",
         className
       )}
       {...props}

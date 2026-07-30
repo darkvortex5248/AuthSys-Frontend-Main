@@ -64,7 +64,7 @@ export default function AdminLoginPage() {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-[var(--card)]/50 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 transition-all placeholder:text-[#525250]"
+                  className="w-full bg-[var(--card)]/50 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 transition-[background-color,box-shadow,border-color] duration-200 ease-out placeholder:text-[#525250]"
                   placeholder="Root username"
                   required
                 />
@@ -79,7 +79,7 @@ export default function AdminLoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[var(--card)]/50 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 transition-all placeholder:text-[#525250]"
+                  className="w-full bg-[var(--card)]/50 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 transition-[background-color,box-shadow,border-color] duration-200 ease-out placeholder:text-[#525250]"
                   placeholder="••••••••"
                   required
                 />
@@ -96,7 +96,7 @@ export default function AdminLoginPage() {
             <button 
               type="submit"
               disabled={loading}
-              className="w-full bg-[var(--primary)] text-white font-bold py-4 rounded-xl shadow-xl shadow-[var(--primary)]/10 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+              className="w-full bg-[var(--primary)] text-white font-bold py-4 rounded-xl shadow-xl shadow-[var(--primary)]/10 hover:brightness-105 active:brightness-95 transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center justify-center gap-2"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>

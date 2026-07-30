@@ -151,7 +151,7 @@ export default function EnvironmentsPage() {
             <select
               value={form.parent_app_id}
               onChange={e => setForm({ ...form, parent_app_id: parseInt(e.target.value) })}
-              className="w-full pl-9 pr-3 py-2.5 bg-[var(--card)]/50 border border-white/8 rounded-xl text-sm text-[var(--foreground)] focus:border-[var(--primary)]/40 outline-none transition-all appearance-none cursor-pointer"
+              className="w-full pl-9 pr-3 py-2.5 bg-[var(--card)]/50 border border-white/8 rounded-xl text-sm text-[var(--foreground)] focus:border-[var(--primary)]/40 outline-none transition-[background-color,box-shadow,border-color] duration-200 ease-out appearance-none cursor-pointer"
             >
               <option value={0} disabled>Select app…</option>
               {apps.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
@@ -163,7 +163,7 @@ export default function EnvironmentsPage() {
             <select
               value={form.name}
               onChange={e => setForm({ ...form, name: e.target.value })}
-              className="pl-9 pr-3 py-2.5 bg-[var(--card)]/50 border border-white/8 rounded-xl text-sm text-[var(--foreground)] focus:border-[var(--primary)]/40 outline-none transition-all appearance-none cursor-pointer"
+              className="pl-9 pr-3 py-2.5 bg-[var(--card)]/50 border border-white/8 rounded-xl text-sm text-[var(--foreground)] focus:border-[var(--primary)]/40 outline-none transition-[background-color,box-shadow,border-color] duration-200 ease-out appearance-none cursor-pointer"
             >
               <option value="dev">Dev</option>
               <option value="staging">Staging</option>
@@ -174,7 +174,7 @@ export default function EnvironmentsPage() {
           <button
             onClick={handleCreate}
             disabled={!form.parent_app_id || creating}
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white rounded-xl text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0"
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white rounded-xl text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-[background-color,box-shadow,border-color] duration-200 ease-out shrink-0"
           >
             {creating
               ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -217,7 +217,7 @@ export default function EnvironmentsPage() {
                   {(appEnvs as any[]).map(e => {
                     const cfg = getEnvConfig(e.name);
                     return (
-                      <div key={e.id} className={`premium-card p-4 flex items-center gap-4 border ${cfg.border} transition-all`}>
+                      <div key={e.id} className={`premium-card p-4 flex items-center gap-4 border ${cfg.border} transition-[background-color,box-shadow,border-color] duration-200 ease-out`}>
 
                         {/* Env badge */}
                         <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${cfg.bg}`}>
@@ -256,7 +256,7 @@ export default function EnvironmentsPage() {
                           <button
                             onClick={() => handleDelete(e.id)}
                             disabled={deleteId === e.id}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all disabled:opacity-50 ${
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-[background-color,box-shadow,border-color] duration-200 ease-out disabled:opacity-50 ${
                               confirmDelete === e.id
                                 ? 'bg-red-500 text-white'
                                 : 'hover:bg-red-500/10 text-[var(--muted-foreground)] hover:text-red-400'

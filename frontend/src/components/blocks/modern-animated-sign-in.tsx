@@ -421,7 +421,7 @@ if (field.type === 'password' && value && value.length < 1) {
             width='unset'
           >
             <button
-              className='group/btn bg-[var(--card)] w-full rounded-xl border border-[var(--border)] h-12 font-medium outline-none hover:bg-[#161628] hover:border-[var(--primary)]/30 transition-all'
+              className='group/btn bg-[var(--card)] w-full rounded-xl border border-[var(--border)] h-12 font-medium outline-none hover:bg-[var(--border-hover)] hover:border-[var(--border-hover)]/30 transition-[background-color,box-shadow,border-color] duration-200 ease-out'
               type='button'
               onClick={() => {
                 if (onGoogleLogin) onGoogleLogin();
@@ -524,7 +524,7 @@ if (field.type === 'password' && value && value.length < 1) {
           overflow='visible'
         >
           <button
-            className='relative group/btn bg-[var(--primary)] hover:bg-[#7D6FF0] w-full text-white rounded-xl h-12 font-bold transition-all active:scale-[0.98] shadow-[0_0_20px_rgba(108,92,231,0.2)]'
+            className='relative group/btn bg-[var(--primary)] hover:bg-[var(--primary-hover)] w-full text-white rounded-xl h-12 font-bold transition-[background-color,box-shadow,border-color] duration-200 ease-out active:brightness-95 shadow-[0_0_20px_rgba(108,92,231,0.2)]'
             type='submit'
           >
             <span className="relative z-10 flex items-center justify-center gap-2">

@@ -48,8 +48,8 @@ export default function MaintenancePage() {
             <p className="text-sm text-[var(--muted-foreground)] mt-1">When enabled, only admins can access the platform. All other users will see the maintenance page.</p>
           </div>
           <button onClick={() => setMode(!mode)}
-            className={`relative w-14 h-8 rounded-full transition-all ${mode ? 'bg-[var(--primary)]' : 'bg-white/10'}`}>
-            <div className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow transition-all ${mode ? 'left-7' : 'left-1'}`} />
+            className={`relative w-14 h-8 rounded-full transition-[background-color,box-shadow,border-color] duration-200 ease-out ${mode ? 'bg-[var(--primary)]' : 'bg-white/10'}`}>
+            <div className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow transition-[background-color,box-shadow,border-color] duration-200 ease-out ${mode ? 'left-7' : 'left-1'}`} />
           </button>
         </div>
 

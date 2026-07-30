@@ -51,7 +51,7 @@ export default function AppOversightPage() {
             const blob = new Blob([csv], {type:'text/csv'});
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'applications.csv';
             a.click(); URL.revokeObjectURL(a.href);
-          }} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-[var(--muted-foreground)] hover:text-white hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+          }} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-[var(--muted-foreground)] hover:text-white hover:bg-white/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
             <span className="material-symbols-outlined text-sm">download</span>CSV
           </button>
         <div className="relative w-full sm:w-auto">
@@ -100,7 +100,7 @@ export default function AppOversightPage() {
                   </td>
                   <td className="px-6 py-4">
                     <button onClick={() => setSelectedApp(app)}
-                      className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-[var(--foreground)] hover:bg-white/10 transition-all">View</button>
+                      className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-[var(--foreground)] hover:bg-white/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out">View</button>
                   </td>
                 </tr>
               ))}

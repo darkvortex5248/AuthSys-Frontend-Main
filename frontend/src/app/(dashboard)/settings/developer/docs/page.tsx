@@ -21,7 +21,7 @@ export default function DocsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {categories.map(cat => (
           <Link key={cat.title} href={cat.href}
-            className="group premium-card p-5 hover:border-white/20 transition-all duration-200">
+            className="group premium-card p-5 0 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
             <div className="flex items-center gap-3 mb-3">
               <div className="stat-icon-circle" style={{ background: cat.color + '15', color: cat.color }}>
                 <span className="material-symbols-outlined text-lg">{cat.icon}</span>

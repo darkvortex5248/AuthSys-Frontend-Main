@@ -102,12 +102,12 @@ export default function SuperAdminLayout({ children }: { children: ReactNode }) 
        {/* Mobile Overlay */}
        {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-md z-[55] lg:hidden transition-all duration-300"
+          className="fixed inset-0 bg-black/60 backdrop-blur-md z-[55] lg:hidden transition-[background-color,box-shadow,border-color] duration-200 ease-out"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      <aside className={`fixed left-0 top-0 h-full border-r border-white/5 bg-[var(--card)]/90 lg:bg-[var(--card)]/40 backdrop-blur-2xl flex flex-col py-5 shadow-2xl z-[60] transition-all duration-300 lg:translate-x-0 w-[260px] ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      <aside className={`fixed left-0 top-0 h-full border-r border-white/5 bg-[var(--card)]/90 lg:bg-[var(--card)]/40 backdrop-blur-2xl flex flex-col py-5 shadow-2xl z-[60] transition-[background-color,box-shadow,border-color] duration-200 ease-out lg:translate-x-0 w-[260px] ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="px-6 mb-6 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--primary)]/60 flex items-center justify-center shadow-lg shadow-[var(--primary)]/20">
@@ -138,7 +138,7 @@ export default function SuperAdminLayout({ children }: { children: ReactNode }) 
                       key={item.name}
                       href={item.href}
                       onClick={() => setSidebarOpen(false)}
-                      className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all border ${
+                      className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-[background-color,box-shadow,border-color] duration-200 ease-out border ${
                         isActive 
                           ? 'text-[var(--primary)] font-bold bg-[var(--primary)]/10 active-nav-glow border-[var(--primary)]/20' 
                           : 'text-[var(--muted-foreground)] hover:text-white hover:bg-white/5 border-transparent'
@@ -157,7 +157,7 @@ export default function SuperAdminLayout({ children }: { children: ReactNode }) 
         <div className="px-3 mt-auto pt-4 border-t border-white/5">
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-400/10 transition-all"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-400/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
           >
             <span className="material-symbols-outlined">logout</span>
             <span className="text-sm font-bold">Terminate Session</span>

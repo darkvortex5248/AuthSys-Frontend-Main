@@ -102,14 +102,14 @@ export default function SecurityPage() {
         <p className="text-white/35 mt-1 text-sm font-medium">IP whitelist, geo-fencing, and API keys</p>
       </div>
       <div className="flex gap-2 p-1 bg-[var(--card)]/50 rounded-xl w-fit border border-white/5 mb-8">
-        <button onClick={() => setTab('ipwhitelist')} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${tab === 'ipwhitelist' ? 'bg-primary/20 text-primary' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}>IP Whitelist</button>
-        <button onClick={() => setTab('apikeys')} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${tab === 'apikeys' ? 'bg-primary/20 text-primary' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}>API Keys</button>
+        <button onClick={() => setTab('ipwhitelist')} className={`px-4 py-2 rounded-lg text-sm font-bold transition-[background-color,box-shadow,border-color] duration-200 ease-out ${tab === 'ipwhitelist' ? 'bg-primary/20 text-primary' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}>IP Whitelist</button>
+        <button onClick={() => setTab('apikeys')} className={`px-4 py-2 rounded-lg text-sm font-bold transition-[background-color,box-shadow,border-color] duration-200 ease-out ${tab === 'apikeys' ? 'bg-primary/20 text-primary' : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'}`}>API Keys</button>
       </div>
 
       {tab === 'ipwhitelist' && (
         <div className="space-y-4">
           <div className="flex justify-end">
-            <button onClick={() => setShowNewRule(true)} className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-xl text-sm font-bold text-primary hover:bg-primary/20 transition-all">+ Add Rule</button>
+            <button onClick={() => setShowNewRule(true)} className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-xl text-sm font-bold text-primary hover:bg-primary/20 transition-[background-color,box-shadow,border-color] duration-200 ease-out">+ Add Rule</button>
           </div>
           {showNewRule && (
             <div className="glass-card rounded-xl p-5 space-y-4 border border-primary/20">
@@ -163,7 +163,7 @@ export default function SecurityPage() {
       {tab === 'apikeys' && (
         <div className="space-y-4">
           <div className="flex justify-end">
-            <button onClick={() => { setShowNewKey(true); setNewKeyResult(null); }} className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-xl text-sm font-bold text-primary hover:bg-primary/20 transition-all">+ Create API Key</button>
+            <button onClick={() => { setShowNewKey(true); setNewKeyResult(null); }} className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-xl text-sm font-bold text-primary hover:bg-primary/20 transition-[background-color,box-shadow,border-color] duration-200 ease-out">+ Create API Key</button>
           </div>
           {newKeyResult && (
             <div className="glass-card rounded-xl p-5 border border-yellow-500/30 bg-yellow-500/5 space-y-3">

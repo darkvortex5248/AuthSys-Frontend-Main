@@ -71,9 +71,9 @@ function DialogContent({
           "ring-1 ring-foreground/10 dark:ring-white/10",
           "shadow-2xl shadow-black/20 dark:shadow-black/50",
           // Animations
-          "duration-200 outline-none",
-          "data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-open:slide-in-from-bottom-2",
-          "data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "duration-200 ease-out outline-none",
+          "data-open:animate-in data-open:fade-in-0 data-open:slide-in-from-bottom-0.5",
+          "data-closed:animate-out data-closed:fade-out-0 data-closed:slide-out-to-bottom-0.5",
           // Sizes
           size === "sm" && "sm:max-w-sm",
           size === "default" && "sm:max-w-md",
@@ -91,7 +91,7 @@ function DialogContent({
             render={
               <Button
                 variant="ghost"
-                className="absolute top-3 right-3 opacity-60 hover:opacity-100 transition-opacity"
+                className="absolute top-3 right-3 opacity-60 hover:opacity-100 transition-opacity duration-200 ease-out"
                 size="icon-sm"
               />
             }

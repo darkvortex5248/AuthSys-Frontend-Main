@@ -168,42 +168,42 @@ export default function DevicesListPage() {
                     <div className="flex gap-1.5 flex-wrap max-w-[220px]">
                       {device.status === 'active' && (
                         <button onClick={() => handleAction(device.id, 'pause')}
-                          className="px-2 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[9px] font-bold uppercase tracking-widest hover:bg-amber-500/20 transition-all">
+                          className="px-2 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[9px] font-bold uppercase tracking-widest hover:bg-amber-500/20 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                           Pause
                         </button>
                       )}
                       {device.status === 'paused' && (
                         <button onClick={() => handleAction(device.id, 'unpause')}
-                          className="px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold uppercase tracking-widest hover:bg-emerald-500/20 transition-all">
+                          className="px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold uppercase tracking-widest hover:bg-emerald-500/20 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                           Unpause
                         </button>
                       )}
                       {device.status !== 'banned' && device.status !== 'perma_banned' && (
                         <button onClick={() => handleAction(device.id, 'ban')}
-                          className="px-2 py-1 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-[9px] font-bold uppercase tracking-widest hover:bg-red-500/20 transition-all">
+                          className="px-2 py-1 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-[9px] font-bold uppercase tracking-widest hover:bg-red-500/20 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                           Ban
                         </button>
                       )}
                       {device.status === 'banned' && (
                         <button onClick={() => handleAction(device.id, 'unban')}
-                          className="px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold uppercase tracking-widest hover:bg-emerald-500/20 transition-all">
+                          className="px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold uppercase tracking-widest hover:bg-emerald-500/20 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                           Unban
                         </button>
                       )}
                       {device.status !== 'perma_banned' && (
                         <button onClick={() => handleAction(device.id, 'perma-ban')}
-                          className="px-2 py-1 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-[9px] font-bold uppercase tracking-widest hover:bg-red-500/20 transition-all">
+                          className="px-2 py-1 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-[9px] font-bold uppercase tracking-widest hover:bg-red-500/20 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                           Perma-Ban
                         </button>
                       )}
                       {device.status !== 'whitelisted' && (
                         <button onClick={() => handleAction(device.id, 'whitelist')}
-                          className="px-2 py-1 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[9px] font-bold uppercase tracking-widest hover:bg-blue-500/20 transition-all">
+                          className="px-2 py-1 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[9px] font-bold uppercase tracking-widest hover:bg-blue-500/20 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                           Whitelist
                         </button>
                       )}
                       <button onClick={() => handleAction(device.id, 'remove')}
-                        className="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[var(--muted-foreground)] text-[9px] font-bold uppercase tracking-widest hover:bg-red-500/10 hover:text-red-400 transition-all">
+                        className="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[var(--muted-foreground)] text-[9px] font-bold uppercase tracking-widest hover:bg-red-500/10 hover:text-red-400 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                         Remove
                       </button>
                     </div>

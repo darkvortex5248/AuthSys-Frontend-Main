@@ -51,11 +51,11 @@ function DropdownMenuContent({
             "ring-1 ring-foreground/10 dark:ring-white/10",
             "shadow-xl shadow-black/12 dark:shadow-black/40",
             // Animations
-            "duration-150 outline-none",
-            "data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95",
-            "data-closed:animate-out data-closed:overflow-hidden data-closed:fade-out-0 data-closed:zoom-out-95",
-            "data-[side=bottom]:slide-in-from-top-1 data-[side=top]:slide-in-from-bottom-1",
-            "data-[side=left]:slide-in-from-right-1 data-[side=right]:slide-in-from-left-1",
+            "duration-200 ease-out outline-none",
+            "data-open:animate-in data-open:fade-in-0",
+            "data-closed:animate-out data-closed:overflow-hidden data-closed:fade-out-0",
+            "data-[side=bottom]:slide-in-from-top-0.5 data-[side=top]:slide-in-from-bottom-0.5",
+            "data-[side=left]:slide-in-from-right-0.5 data-[side=right]:slide-in-from-left-0.5",
             className
           )}
           {...props}
@@ -108,7 +108,7 @@ function DropdownMenuItem({
         // Base
         "group/dropdown-menu-item relative flex cursor-default items-center gap-2",
         "rounded-lg px-2 py-1.5 text-sm outline-hidden select-none",
-        "transition-colors duration-100",
+            "transition-colors duration-200 ease-out",
         // Focus/hover
         "focus:bg-accent/80 focus:text-accent-foreground",
         "not-data-[variant=destructive]:focus:**:text-accent-foreground",
@@ -149,7 +149,7 @@ function DropdownMenuSubTrigger({
       data-inset={inset}
       className={cn(
         "flex cursor-default items-center gap-2 rounded-lg px-2 py-1.5 text-sm",
-        "outline-hidden select-none transition-colors duration-100",
+        "outline-hidden select-none transition-colors duration-200 ease-out",
         "focus:bg-accent/80 focus:text-accent-foreground",
         "not-data-[variant=destructive]:focus:**:text-accent-foreground",
         "data-inset:pl-8",
@@ -208,7 +208,7 @@ function DropdownMenuCheckboxItem({
       data-inset={inset}
       className={cn(
         "relative flex cursor-default items-center gap-2 rounded-lg py-1.5 pr-8 pl-2 text-sm",
-        "outline-hidden select-none transition-colors duration-100",
+        "outline-hidden select-none transition-colors duration-200 ease-out",
         "focus:bg-accent/80 focus:text-accent-foreground focus:**:text-accent-foreground",
         "data-inset:pl-8 data-disabled:pointer-events-none data-disabled:opacity-40",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -253,7 +253,7 @@ function DropdownMenuRadioItem({
       data-inset={inset}
       className={cn(
         "relative flex cursor-default items-center gap-2 rounded-lg py-1.5 pr-8 pl-2 text-sm",
-        "outline-hidden select-none transition-colors duration-100",
+        "outline-hidden select-none transition-colors duration-200 ease-out",
         "focus:bg-accent/80 focus:text-accent-foreground focus:**:text-accent-foreground",
         "data-inset:pl-8 data-disabled:pointer-events-none data-disabled:opacity-40",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",

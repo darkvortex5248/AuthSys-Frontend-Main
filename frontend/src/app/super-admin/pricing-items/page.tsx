@@ -165,7 +165,7 @@ export default function PricingItemsPage() {
         </div>
         <button
           onClick={() => handleOpenModal()}
-          className="inline-flex items-center gap-2 bg-[var(--primary)] text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:brightness-110 transition-all"
+          className="inline-flex items-center gap-2 bg-[var(--primary)] text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:brightness-110 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
         >
           <Plus className="w-4 h-4" />
           Add Item
@@ -193,7 +193,7 @@ export default function PricingItemsPage() {
           </p>
           <button
             onClick={() => handleOpenModal()}
-            className="inline-flex items-center gap-2 bg-[var(--primary)] text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:brightness-110 transition-all"
+            className="inline-flex items-center gap-2 bg-[var(--primary)] text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:brightness-110 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
           >
             <Plus className="w-4 h-4" />
             Add Item
@@ -261,14 +261,14 @@ export default function PricingItemsPage() {
                 <div className="flex gap-2 pt-2">
                   <button
                     onClick={() => handleOpenModal(item)}
-                    className="flex-1 bg-white/5 hover:bg-white/10 text-[var(--foreground)] px-3 py-2 rounded-lg text-xs font-bold transition-all"
+                    className="flex-1 bg-white/5 hover:bg-white/10 text-[var(--foreground)] px-3 py-2 rounded-lg text-xs font-bold transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                   >
                     <Edit2 className="w-3.5 h-3.5 inline mr-1" />
                     Edit
                   </button>
                   <button
                     onClick={() => handleDelete(item.id)}
-                    className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-2 rounded-lg text-xs font-bold transition-all"
+                    className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-2 rounded-lg text-xs font-bold transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                   >
                     <Trash2 className="w-3.5 h-3.5 inline mr-1" />
                     Delete
@@ -304,7 +304,7 @@ export default function PricingItemsPage() {
                   </h3>
                   <button
                     onClick={handleCloseModal}
-                    className="w-8 h-8 rounded-lg bg-[var(--accent-opacity-8)] hover:bg-[var(--destructive)]/15 text-[var(--muted-foreground)] hover:text-[var(--destructive)] flex items-center justify-center transition-all"
+                    className="w-8 h-8 rounded-lg bg-[var(--accent-opacity-8)] hover:bg-[var(--destructive)]/15 text-[var(--muted-foreground)] hover:text-[var(--destructive)] flex items-center justify-center transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -427,13 +427,13 @@ export default function PricingItemsPage() {
                     <button
                       type="button"
                       onClick={handleCloseModal}
-                      className="flex-1 bg-white/5 hover:bg-white/10 text-[var(--foreground)] px-4 py-3 rounded-lg text-sm font-bold transition-all"
+                      className="flex-1 bg-white/5 hover:bg-white/10 text-[var(--foreground)] px-4 py-3 rounded-lg text-sm font-bold transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 bg-[var(--primary)] text-white px-4 py-3 rounded-lg text-sm font-bold hover:brightness-110 transition-all"
+                      className="flex-1 bg-[var(--primary)] text-white px-4 py-3 rounded-lg text-sm font-bold hover:brightness-110 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                     >
                       <Save className="w-4 h-4 inline mr-2" />
                       {editingItem ? 'Update' : 'Create'}

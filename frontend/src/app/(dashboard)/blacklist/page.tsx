@@ -111,18 +111,18 @@ export default function BlacklistPage() {
     <div className="page-wrapper pt-6 overflow-visible">
       <style>{`
         @keyframes rowIn {
-          from { opacity:0; transform:translateY(6px); }
-          to   { opacity:1; transform:translateY(0); }
+          from { opacity:0; }
+          to   { opacity:1; }
         }
         @keyframes statPop {
-          0%   { transform:scale(0.9); opacity:0; }
-          60%  { transform:scale(1.04); }
-          100% { transform:scale(1); opacity:1; }
+          0%   { opacity:0; }
+          60%  { opacity:1; }
+          100% { opacity:1; }
         }
-        .bl-row { animation:rowIn 0.3s ease-out both; will-change:transform,opacity; }
+        .bl-row { animation:rowIn 0.3s ease-out both; will-change:opacity; }
         .bl-row:hover td { background:rgba(255,255,255,0.02); }
         .action-btn { transition:all 0.15s ease; }
-        .action-btn:hover { transform:scale(1.12); }
+        .action-btn:hover { opacity:0.9; }
       `}</style>
 
       {/* ── Header ── */}
@@ -185,7 +185,7 @@ export default function BlacklistPage() {
                 placeholder="Search entries..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full sm:w-52 pl-9 pr-4 py-2.5 bg-white/5 border border-white/8 rounded-xl text-xs text-white/75 focus:outline-none focus:border-[var(--primary)]/45 transition-all placeholder:text-white/20"
+                className="w-full sm:w-52 pl-9 pr-4 py-2.5 bg-white/5 border border-white/8 rounded-xl text-xs text-white/75 focus:outline-none focus:border-[var(--primary)]/45 transition-[background-color,box-shadow,border-color] duration-200 ease-out placeholder:text-white/20"
               />
             </div>
             <div className="flex gap-1">
@@ -337,10 +337,10 @@ function AddModal({ onClose, onAdd }: { onClose: () => void; onAdd: (data: any) 
                 key={t.key}
                 type="button"
                 onClick={() => setFormData(f => ({ ...f, type: t.key }))}
-                className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all duration-200 ${
+                className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                   formData.type === t.key
                     ? 'bg-[var(--primary)]/15 border-[var(--primary)]/40 text-[var(--primary)]'
-                    : 'bg-white/5 border-white/8 text-white/35 hover:border-white/20 hover:text-white/60'
+                    : 'bg-white/5 border-white/8 text-white/35 0 hover:text-white/60'
                 }`}
               >
                 <span className="material-symbols-outlined text-[18px]">{t.icon}</span>
@@ -361,7 +361,7 @@ function AddModal({ onClose, onAdd }: { onClose: () => void; onAdd: (data: any) 
               value={formData.value}
               onChange={e => setFormData(f => ({ ...f, value: e.target.value }))}
               placeholder={formData.type === 'ip' ? '192.168.1.1' : 'target_value'}
-              className="w-full bg-[var(--accent-opacity-8)] border border-[var(--border)] rounded-xl pl-10 pr-4 py-3 text-sm font-mono text-[var(--foreground)]/85 placeholder:text-[var(--muted-foreground)] focus:outline-none focus:border-[var(--primary)]/50 transition-all"
+              className="w-full bg-[var(--accent-opacity-8)] border border-[var(--border)] rounded-xl pl-10 pr-4 py-3 text-sm font-mono text-[var(--foreground)]/85 placeholder:text-[var(--muted-foreground)] focus:outline-none focus:border-[var(--primary)]/50 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
             />
           </div>
         </div>
@@ -376,11 +376,11 @@ function AddModal({ onClose, onAdd }: { onClose: () => void; onAdd: (data: any) 
         </div>
         <div className="flex gap-3 pt-1">
           <button type="button" onClick={onClose}
-            className="flex-1 py-3 rounded-xl border border-white/8 text-white/40 hover:text-white/70 hover:bg-white/5 font-black text-[11px] uppercase tracking-widest transition-all">
+            className="flex-1 py-3 rounded-xl border border-white/8 text-white/40 hover:text-white/70 hover:bg-white/5 font-black text-[11px] uppercase tracking-widest transition-[background-color,box-shadow,border-color] duration-200 ease-out">
             Cancel
           </button>
           <button type="submit" disabled={submitting}
-            className="flex-1 py-3 rounded-xl bg-[var(--destructive)] text-white font-black text-[11px] uppercase tracking-widest shadow-lg shadow-[var(--destructive)]/25 hover:shadow-[var(--destructive)]/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2">
+            className="flex-1 py-3 rounded-xl bg-[var(--destructive)] text-white font-black text-[11px] uppercase tracking-widest shadow-lg shadow-[var(--destructive)]/25 hover:shadow-[var(--destructive)]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center justify-center gap-2">
             {submitting
               ? <><div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Adding...</>
               : <><span className="material-symbols-outlined text-[16px]">block</span> Add to Blacklist</>

@@ -24,7 +24,7 @@ function UsageBar({ label, current, limit, pct }: { label: string; current: numb
         <span className="text-[var(--muted-foreground)] font-mono text-xs">{current.toLocaleString()} / {limit.toLocaleString()}</span>
       </div>
       <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
-        <div className={`h-full rounded-full transition-all duration-500 ${color}`} style={{ width: `${pct}%` }} />
+        <div className={`h-full rounded-full transition-[background-color,box-shadow,border-color] duration-200 ease-out duration-500 ${color}`} style={{ width: `${pct}%` }} />
       </div>
     </div>
   );
@@ -99,7 +99,7 @@ export default function PlanPage() {
           <Link href="/settings/billing/payments" className="text-[var(--primary)] font-bold hover:underline">View upgrade options</Link>
         </p>
         <button onClick={() => refreshSubscription()} disabled={isFetching}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/8 border border-white/10 text-xs font-bold transition-all">
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/8 border border-white/10 text-xs font-bold transition-[background-color,box-shadow,border-color] duration-200 ease-out">
           <span className={`material-symbols-outlined text-[14px] ${isFetching ? 'animate-spin' : ''}`}>refresh</span>
           Refresh
         </button>

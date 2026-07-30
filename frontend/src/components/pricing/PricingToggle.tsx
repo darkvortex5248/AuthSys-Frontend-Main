@@ -17,7 +17,7 @@ export default function PricingToggle({ isYearly, onChange, plans }: Props) {
     <div className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border)] bg-[var(--card)] p-1">
       <button
         onClick={() => onChange(false)}
-        className={`rounded-lg px-4 py-2 text-xs font-semibold transition-all duration-150 ${
+        className={`rounded-lg px-4 py-2 text-xs font-semibold transition-[background-color,box-shadow,border-color] duration-200 ease-out duration-150 ${
           !isYearly
             ? 'bg-[var(--primary)] text-white shadow-sm'
             : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
@@ -27,7 +27,7 @@ export default function PricingToggle({ isYearly, onChange, plans }: Props) {
       </button>
       <button
         onClick={() => onChange(true)}
-        className={`rounded-lg px-4 py-2 text-xs font-semibold transition-all duration-150 ${
+        className={`rounded-lg px-4 py-2 text-xs font-semibold transition-[background-color,box-shadow,border-color] duration-200 ease-out duration-150 ${
           isYearly
             ? 'bg-[var(--primary)] text-white shadow-sm'
             : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'

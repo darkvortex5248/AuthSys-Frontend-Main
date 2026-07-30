@@ -72,7 +72,7 @@ export default function TransactionLogsPage() {
               <p className="text-[10px] font-bold text-[var(--muted-foreground)] uppercase tracking-widest mb-0.5">Total Revenue</p>
               <p className="text-xl font-black text-green-500">${(totalRevenue / 100).toFixed(2)}</p>
            </div>
-           <button onClick={exportCSV} className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-[var(--foreground)] font-bold transition-all flex items-center gap-2 text-[10px] uppercase tracking-widest">
+           <button onClick={exportCSV} className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-[var(--foreground)] font-bold transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center gap-2 text-[10px] uppercase tracking-widest">
               <span className="material-symbols-outlined text-sm">download</span>
               Export CSV
             </button>
@@ -122,7 +122,7 @@ export default function TransactionLogsPage() {
                      <select 
                       value={p.status} 
                       onChange={(e) => updateStatus(p.id, e.target.value)}
-                      className={`bg-transparent text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border border-transparent hover:border-white/20 outline-none cursor-pointer ${p.status === 'completed' ? 'text-green-500' : 'text-[#ffb4ab]'}`}
+                      className={`bg-transparent text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border border-transparent 0 outline-none cursor-pointer ${p.status === 'completed' ? 'text-green-500' : 'text-[#ffb4ab]'}`}
                      >
                        <option value="pending" className="bg-[#0b0e15] text-[#ffb4ab]">Pending</option>
                        <option value="completed" className="bg-[#0b0e15] text-green-500">Completed</option>

@@ -96,7 +96,7 @@ function ChartBar({ label, value, maxValue, index }: { label: string; value: num
 
       <div className="w-full flex-1 relative flex items-end justify-center rounded-t-lg overflow-hidden" style={{ minHeight: 1 }}>
         <motion.div
-          className="w-full rounded-t-lg transition-all duration-200"
+          className="w-full rounded-t-lg transition-[background-color,box-shadow,border-color] duration-200 ease-out"
           initial={{ height: 0 }}
           animate={inView ? { height: `${Math.max(pct, 2)}%` } : { height: 0 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: index * 0.07 }}
@@ -183,7 +183,7 @@ export default function AnalyticsPage() {
         <p className="text-sm text-[var(--muted-foreground)] max-w-sm">{(error as any)?.response?.data?.detail || 'Failed to load analytics'}</p>
       </div>
       <motion.button
-        whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+        whileHover={{ opacity: 0.95 }} whileTap={{ opacity: 0.9 }}
         onClick={() => refetch()}
         className="btn-secondary text-xs px-5 py-2.5"
       >
@@ -220,7 +220,7 @@ export default function AnalyticsPage() {
           </p>
         </div>
         <motion.button
-          whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+          whileHover={{ opacity: 0.95 }} whileTap={{ opacity: 0.9 }}
           onClick={() => refetch()}
           className="btn-secondary"
         >
@@ -312,7 +312,7 @@ export default function AnalyticsPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.35 + i * 0.07, duration: 0.4 }}
-                className="flex items-center justify-between px-4 py-4 rounded-xl border border-white/6 bg-white/[0.02] group hover:border-white/12 transition-all duration-200"
+                className="flex items-center justify-between px-4 py-4 rounded-xl border border-white/6 bg-white/[0.02] group 2 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--primary)]/10">

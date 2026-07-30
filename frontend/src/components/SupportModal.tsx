@@ -154,7 +154,7 @@ export default function SupportModal({ isOpen, onClose }: SupportModalProps) {
                     <button 
                       disabled={loading}
                       type="submit"
-                      className="w-full h-12 bg-[var(--primary)] hover:bg-[var(--primary)] disabled:opacity-50 disabled:pointer-events-none text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_10px_20px_color-mix(in_srgb,var(--primary)_20%,transparent)] active:scale-95"
+                      className="w-full h-12 bg-[var(--primary)] hover:bg-[var(--primary)] disabled:opacity-50 disabled:pointer-events-none text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-[background-color,box-shadow,border-color] duration-200 ease-out shadow-[0_10px_20px_color-mix(in_srgb,var(--primary)_20%,transparent)] active:brightness-95"
                     >
                       {loading ? (
                         <>

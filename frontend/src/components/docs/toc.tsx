@@ -83,7 +83,7 @@ export function TableOfContents() {
                   history.replaceState(null, '', `#${item.id}`)
                 }
               }}
-              className={`group relative flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs transition-all duration-200 ${
+              className={`group relative flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                 activeId === item.id
                   ? 'text-[var(--primary)] font-medium'
                   : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'

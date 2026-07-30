@@ -139,7 +139,7 @@ export default function PlanCard({ plan, isYearly, onSelect }: Props) {
 
       <button
         onClick={() => onSelect(plan)}
-        className={`w-full rounded-xl py-2.5 text-xs font-bold uppercase tracking-[0.06em] transition-all duration-150 active:scale-[0.98] ${
+        className={`w-full rounded-xl py-2.5 text-xs font-bold uppercase tracking-[0.06em] transition-[background-color,box-shadow,border-color] duration-200 ease-out duration-150 active:brightness-95 ${
           plan.is_recommended
             ? 'bg-[var(--primary)] text-[var(--primary-foreground)] shadow-sm hover:brightness-110'
             : 'border border-[var(--border)] text-[var(--foreground)] hover:border-[var(--accent-opacity-20)] hover:bg-[var(--accent-opacity-8)]'

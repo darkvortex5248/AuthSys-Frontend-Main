@@ -78,7 +78,7 @@ export default function SDKManagementPage() {
         </div>
         <button 
           onClick={() => { setEditingSdk({ name: '', version: '1.0.0', download_url: '', icon_name: 'deployed_code', is_active: true }); setIsAdding(true); }}
-          className="px-5 py-2.5 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-[#131313] font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg shadow-[var(--primary)]/20"
+          className="px-5 py-2.5 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-[#131313] font-black text-[10px] uppercase tracking-widest transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center gap-2 shadow-lg shadow-[var(--primary)]/20"
         >
           <span className="material-symbols-outlined">add</span>
           New SDK Binary
@@ -87,7 +87,7 @@ export default function SDKManagementPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {sdks.map((sdk) => (
-          <div key={sdk.id} className="glass-card rounded-xl p-6 hover:bg-white/5 transition-all group">
+          <div key={sdk.id} className="glass-card rounded-xl p-6 hover:bg-white/5 transition-[background-color,box-shadow,border-color] duration-200 ease-out group">
             <div className="flex items-center gap-5">
               <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)]">
                 <span className="material-symbols-outlined text-2xl">{sdk.icon_name}</span>

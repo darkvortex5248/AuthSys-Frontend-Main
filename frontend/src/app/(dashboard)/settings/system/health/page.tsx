@@ -55,7 +55,7 @@ function UptimeBars({ checks }: { checks: any[] }) {
             <div
               key={i}
               title={`${c.is_up ? 'Up' : 'Down'} · ${c.status_code ?? '—'} · ${c.response_time_ms ?? '?'}ms`}
-              className={`flex-1 rounded-sm transition-all hover:opacity-100 ${
+              className={`flex-1 rounded-sm transition-[background-color,box-shadow,border-color] duration-200 ease-out hover:opacity-100 ${
                 c.is_up ? 'bg-emerald-500/50 hover:bg-emerald-400' : 'bg-red-500/60 hover:bg-red-400'
               }`}
               style={{ height: c.is_up ? `${Math.min(40, 20 + (c.response_time_ms ?? 100) / 20)}px` : '40px' }}
@@ -215,10 +215,10 @@ export default function HealthPage() {
             <button
               key={a.id}
               onClick={() => loadHealth(a.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                 selApp === a.id
                   ? 'bg-[var(--primary)]/15 border-[var(--primary)]/30 text-[var(--primary)]'
-                  : 'bg-[var(--card)]/50 border-white/5 text-[var(--muted-foreground)] hover:border-white/10 hover:text-[var(--foreground)]'
+                  : 'bg-[var(--card)]/50 border-white/5 text-[var(--muted-foreground)] 0 hover:text-[var(--foreground)]'
               }`}
             >
               <span className="material-symbols-outlined text-[14px]">grid_view</span>
@@ -317,7 +317,7 @@ export default function HealthPage() {
                     max={365}
                     value={retForm.retention_days}
                     onChange={e => setRetForm({ ...retForm, retention_days: parseInt(e.target.value) || 30 })}
-                    className="w-full bg-[var(--card)]/50 border border-white/8 rounded-xl px-4 py-2.5 pr-14 text-sm text-[var(--foreground)] focus:border-[var(--primary)]/40 outline-none transition-all"
+                    className="w-full bg-[var(--card)]/50 border border-white/8 rounded-xl px-4 py-2.5 pr-14 text-sm text-[var(--foreground)] focus:border-[var(--primary)]/40 outline-none transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[var(--muted-foreground)] pointer-events-none">days</span>
                 </div>
@@ -332,14 +332,14 @@ export default function HealthPage() {
                 <button
                   type="button"
                   onClick={() => setRetForm(f => ({ ...f, auto_cleanup: !f.auto_cleanup }))}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl border text-sm font-medium transition-all ${
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl border text-sm font-medium transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                     retForm.auto_cleanup
                       ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
                       : 'bg-white/5 border-white/8 text-[var(--muted-foreground)]'
                   }`}
                 >
-                  <div className={`w-9 h-5 rounded-full transition-all relative shrink-0 ${retForm.auto_cleanup ? 'bg-emerald-500' : 'bg-white/10'}`}>
-                    <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all ${retForm.auto_cleanup ? 'left-[calc(100%-18px)]' : 'left-0.5'}`} />
+                  <div className={`w-9 h-5 rounded-full transition-[background-color,box-shadow,border-color] duration-200 ease-out relative shrink-0 ${retForm.auto_cleanup ? 'bg-emerald-500' : 'bg-white/10'}`}>
+                    <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-[background-color,box-shadow,border-color] duration-200 ease-out ${retForm.auto_cleanup ? 'left-[calc(100%-18px)]' : 'left-0.5'}`} />
                   </div>
                   {retForm.auto_cleanup ? 'Enabled — logs auto-delete' : 'Disabled — manual only'}
                 </button>
@@ -352,7 +352,7 @@ export default function HealthPage() {
             <button
               onClick={handleSaveRetention}
               disabled={savingRet}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white rounded-xl text-sm font-semibold disabled:opacity-50 transition-all"
+              className="flex items-center gap-2 px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white rounded-xl text-sm font-semibold disabled:opacity-50 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
             >
               {savingRet
                 ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

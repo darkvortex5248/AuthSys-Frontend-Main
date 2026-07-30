@@ -164,13 +164,13 @@ export default function DomainsPage() {
             onChange={e => setNewDom(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleAdd()}
             placeholder="auth.yourdomain.com"
-            className="w-full pl-10 pr-4 py-2.5 bg-[var(--card)]/50 border border-white/8 rounded-xl text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/50 focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20 outline-none transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-[var(--card)]/50 border border-white/8 rounded-xl text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/50 focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20 outline-none transition-[background-color,box-shadow,border-color] duration-200 ease-out"
           />
         </div>
         <button
           onClick={handleAdd}
           disabled={!newDom.trim() || adding}
-          className="shrink-0 flex items-center gap-1.5 px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white rounded-xl text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          className="shrink-0 flex items-center gap-1.5 px-4 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary)]/90 text-white rounded-xl text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-[background-color,box-shadow,border-color] duration-200 ease-out"
         >
           {adding
             ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

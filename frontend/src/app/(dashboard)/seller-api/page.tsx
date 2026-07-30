@@ -36,7 +36,7 @@ function ModalHeader({ title, onClose }: { title: string; onClose: () => void })
       <h3 className="text-lg font-black text-white tracking-tight">{title}</h3>
       <button
         onClick={onClose}
-        className="w-8 h-8 rounded-xl bg-white/5 hover:bg-red-500/15 text-white/40 hover:text-red-400 flex items-center justify-center transition-all duration-200"
+        className="w-8 h-8 rounded-xl bg-white/5 hover:bg-red-500/15 text-white/40 hover:text-red-400 flex items-center justify-center transition-[background-color,box-shadow,border-color] duration-200 ease-out"
       >
         <span className="material-symbols-outlined text-[18px]">close</span>
       </button>
@@ -55,7 +55,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 function GlassInput({ className = '', ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
-      className={`w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-sm text-white/85 font-mono focus:outline-none focus:border-[var(--primary)]/50 focus:bg-[var(--primary)]/5 transition-all duration-200 placeholder:text-white/20 ${className}`}
+      className={`w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-sm text-white/85 font-mono focus:outline-none focus:border-[var(--primary)]/50 focus:bg-[var(--primary)]/5 transition-[background-color,box-shadow,border-color] duration-200 ease-out placeholder:text-white/20 ${className}`}
       {...props}
     />
   );
@@ -154,31 +154,21 @@ export default function SellerAPIPage() {
   return (
     <>
       <style>{`
-        @keyframes shimmerSA {
-          0%   { background-position:-200% center; }
-          100% { background-position:200% center; }
-        }
         @keyframes rowIn {
-          from { opacity:0; transform:translateY(6px); }
-          to   { opacity:1; transform:translateY(0); }
+          from { opacity:0; }
+          to   { opacity:1; }
         }
         @keyframes statPop {
-          0%   { transform:scale(0.9); opacity:0; }
-          60%  { transform:scale(1.04); }
-          100% { transform:scale(1); opacity:1; }
+          0%   { opacity:0; }
+          60%  { opacity:1; }
+          100% { opacity:1; }
         }
-        .shimmer-sa {
-          background:linear-gradient(90deg,#fff 0%,var(--primary) 40%,#fff 60%);
-          background-size:200% auto;
-          -webkit-background-clip:text;
-          -webkit-text-fill-color:transparent;
-          animation:shimmerSA 5s linear infinite;
-        }
+        .shimmer-sa { color: var(--primary); }
         .stat-card { animation:statPop 0.4s ease-out both; }
         .seller-row { animation:rowIn 0.3s ease-out both; }
         .seller-row:hover td { background:rgba(255,255,255,0.02); }
         .action-btn { transition:all 0.15s ease; }
-        .action-btn:hover { transform:scale(1.12); }
+        .action-btn:hover { opacity:0.9; }
       `}</style>
 
       {/* ── Header ── */}
@@ -196,9 +186,9 @@ export default function SellerAPIPage() {
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="relative overflow-hidden flex items-center gap-2 bg-[var(--primary)] text-white px-6 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-[var(--primary)]/25 hover:shadow-[var(--primary)]/45 hover:scale-[1.02] active:scale-[0.97] transition-all duration-200 group"
+          className="relative overflow-hidden flex items-center gap-2 bg-[var(--primary)] text-white px-6 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-[var(--primary)]/25 hover:shadow-[var(--primary)]/30 hover:brightness-105 active:brightness-95 transition-[background-color,box-shadow,border-color] duration-200 ease-out group"
         >
-          <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-all duration-200" />
+          <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out" />
           <span className="material-symbols-outlined text-[18px]">add</span>
           Add Seller
         </button>
@@ -217,7 +207,7 @@ export default function SellerAPIPage() {
             style={{ animationDelay: `${i * 60}ms` }}
           >
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center border transition-all duration-300 group-hover:scale-110"
+              className="w-10 h-10 rounded-xl flex items-center justify-center border transition-[background-color,box-shadow,border-color] duration-200 ease-out group-hover:scale-110"
               style={{ background: s.bg, borderColor: s.color + '30', color: s.color }}
             >
               <span className="material-symbols-outlined text-[18px]">{s.icon}</span>
@@ -284,10 +274,10 @@ export default function SellerAPIPage() {
                       </code>
                       <button
                         onClick={() => handleCopy(seller.id, seller.api_key)}
-                        className={`w-9 h-9 flex items-center justify-center rounded-xl border transition-all duration-200 ${
+                        className={`w-9 h-9 flex items-center justify-center rounded-xl border transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                           copiedId === seller.id
                             ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400 shadow-sm shadow-emerald-500/20'
-                            : 'bg-white/5 border-white/10 text-white/40 hover:bg-[var(--primary)]/10 hover:border-[var(--primary)]/30 hover:text-[var(--primary)] hover:shadow-sm hover:shadow-[var(--primary)]/10'
+                            : 'bg-white/5 border-white/10 text-white/40 hover:bg-[var(--primary)]/10 hover:border-[var(--border-hover)]/30 hover:text-[var(--primary)] hover:shadow-sm hover:shadow-[var(--primary)]/10'
                         }`}
                         title="Copy API Key"
                       >
@@ -315,11 +305,11 @@ export default function SellerAPIPage() {
 
                   {/* Actions */}
                   <td className="px-6 py-4">
-                    <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                    <div className="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                       <button
                         onClick={() => handleDeleteSeller(seller.id)}
                         disabled={deletingId === seller.id}
-                        className="action-btn w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-red-500/15 hover:border-red-500/30 text-white/30 hover:text-red-400 disabled:opacity-40 transition-all duration-200"
+                        className="action-btn w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-red-500/15 hover:border-red-500/20 text-white/30 hover:text-red-400 disabled:opacity-40 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                         title="Delete Seller"
                       >
                         <span className="material-symbols-outlined text-[18px]">{deletingId === seller.id ? 'hourglass_empty' : 'delete'}</span>
@@ -378,14 +368,14 @@ export default function SellerAPIPage() {
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="flex-1 py-3 rounded-xl border border-white/8 text-white/40 hover:text-white/70 hover:bg-white/5 font-black text-[11px] uppercase tracking-widest transition-all"
+                  className="flex-1 py-3 rounded-xl border border-white/8 text-white/40 hover:text-white/70 hover:bg-white/5 font-black text-[11px] uppercase tracking-widest transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isCreating}
-                  className="flex-1 py-3 rounded-xl bg-[var(--primary)] text-white font-black text-[11px] uppercase tracking-widest shadow-lg shadow-[var(--primary)]/25 hover:shadow-[var(--primary)]/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
+                  className="flex-1 py-3 rounded-xl bg-[var(--primary)] text-white font-black text-[11px] uppercase tracking-widest shadow-lg shadow-[var(--primary)]/25 hover:shadow-[var(--primary)]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center justify-center gap-2"
                 >
                   {isCreating
                     ? <><div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />Creating...</>

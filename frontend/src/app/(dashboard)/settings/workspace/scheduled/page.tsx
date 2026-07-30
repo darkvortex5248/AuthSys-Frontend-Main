@@ -78,7 +78,7 @@ export default function WorkspaceScheduledPage() {
     <div className="max-w-4xl space-y-6">
       <div className="flex items-center justify-between">
         <div><h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Scheduled Actions</h1><p className="text-sm text-[var(--muted-foreground)] mt-1">Schedule bulk license/user operations for later execution</p></div>
-        <button onClick={() => setShowCreate(true)} className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-xl text-sm font-bold text-primary hover:bg-primary/20 transition-all">+ Schedule Action</button>
+        <button onClick={() => setShowCreate(true)} className="px-4 py-2 bg-primary/10 border border-primary/20 rounded-xl text-sm font-bold text-primary hover:bg-primary/20 transition-[background-color,box-shadow,border-color] duration-200 ease-out">+ Schedule Action</button>
       </div>
 
       {showCreate && (

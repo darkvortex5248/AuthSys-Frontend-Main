@@ -115,8 +115,8 @@ export default function OverviewPage() {
           Could not load dashboard data.
         </p>
         <motion.button
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
+          whileHover={{ opacity: 0.95 }}
+          whileTap={{ opacity: 0.9 }}
           onClick={() => refetch()}
           className="px-6 py-2.5 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl text-sm font-bold shadow-lg shadow-[var(--accent-opacity-20)]"
         >
@@ -156,8 +156,8 @@ export default function OverviewPage() {
         <div className="flex gap-3 relative z-[100]">
           <div className="relative">
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ opacity: 0.95 }}
+              whileTap={{ opacity: 0.9 }}
               onClick={() => setShowTimeRange(!showTimeRange)}
               className="btn-secondary"
             >
@@ -190,8 +190,8 @@ export default function OverviewPage() {
             </AnimatePresence>
           </div>
           <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
+            whileHover={{ opacity: 0.95 }}
+            whileTap={{ opacity: 0.9 }}
             onClick={handleExport}
             className="btn-primary"
           >
@@ -213,7 +213,7 @@ export default function OverviewPage() {
             key={card.label}
             variants={fadeIn}
             transition={{ duration: 0.4, ease: [0.25, 0.4, 0.25, 1] }}
-            whileHover={{ y: -4, scale: 1.01 }}
+            whileHover={{ opacity: 0.95 }}
             className={`premium-card p-6 relative overflow-hidden ${
               card.color === 'red' ? 'border-[var(--destructive)]/20 hover:shadow-[var(--destructive)]/10' : 'hover:shadow-lg'
             }`}
@@ -469,8 +469,8 @@ export default function OverviewPage() {
                     }`}>{row.attempts}</td>
                     <td className="py-3 px-4 text-right">
                       <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        whileHover={{ opacity: 0.95 }}
+                        whileTap={{ opacity: 0.9 }}
                         className="text-[var(--primary)] hover:underline text-xs font-bold uppercase tracking-wider"
                       >
                         {row.status === 'error' ? 'BLOCK' : 'WATCH'}

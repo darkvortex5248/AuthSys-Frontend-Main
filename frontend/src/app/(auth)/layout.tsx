@@ -40,9 +40,9 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         </div>
         <p className="text-[13px] font-medium text-[var(--muted-foreground)] opacity-60">© {new Date().getFullYear()} AuthSys. All rights reserved.</p>
         <div className="flex gap-8">
-          <Link className="text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-all duration-200 uppercase tracking-widest" href="#">Privacy</Link>
-          <Link className="text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-all duration-200 uppercase tracking-widest" href="#">Terms</Link>
-          <Link className="text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-all duration-200 uppercase tracking-widest" href="#">Help</Link>
+          <Link className="text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-[background-color,box-shadow,border-color] duration-200 ease-out uppercase tracking-widest" href="#">Privacy</Link>
+          <Link className="text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-[background-color,box-shadow,border-color] duration-200 ease-out uppercase tracking-widest" href="#">Terms</Link>
+          <Link className="text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-[background-color,box-shadow,border-color] duration-200 ease-out uppercase tracking-widest" href="#">Help</Link>
         </div>
       </footer>
     </div>

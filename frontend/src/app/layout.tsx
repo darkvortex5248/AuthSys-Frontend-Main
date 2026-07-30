@@ -1,14 +1,11 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, JetBrains_Mono, Instrument_Serif } from 'next/font/google'
 import './globals.css'
-import SmoothScroll from '@/components/SmoothScroll'
-import PageTransition from '@/components/PageTransition'
 import ThemeProvider from '@/components/ThemeProvider'
 import { QueryProvider } from '@/components/providers/QueryProvider'
 import { AuthProvider } from '@/components/providers/AuthProvider'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import CookieConsent from '@/components/CookieConsent'
-import CursorGlow from '@/components/CursorGlow'
 import GrainOverlay from '@/components/GrainOverlay'
 
 const geist = Geist({ 
@@ -148,18 +145,13 @@ export default function RootLayout({
             <AuthProvider>
             <ConfirmProvider>
               <CopyProvider>
-              <SmoothScroll>
-                <PageTransition>
                   <ErrorBoundary>
                     <GrainOverlay />
-                    <CursorGlow />
                     <main style={{ viewTransitionName: "page-content" }}>
                       {children}
                     </main>
                   </ErrorBoundary>
                   <CookieConsent />
-                </PageTransition>
-              </SmoothScroll>
               <Toaster />
               </CopyProvider>
             </ConfirmProvider>

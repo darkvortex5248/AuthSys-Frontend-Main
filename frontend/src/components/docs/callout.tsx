@@ -102,7 +102,7 @@ export function Callout({
         {dismissible && (
           <button
             onClick={() => setDismissed(true)}
-            className="flex-shrink-0 rounded-lg p-1 text-[var(--color-text-muted)] opacity-0 transition-all duration-200 hover:bg-white/5 hover:text-[var(--color-text-primary)] group-hover:opacity-100"
+            className="flex-shrink-0 rounded-lg p-1 text-[var(--color-text-muted)] opacity-0 transition-[background-color,box-shadow,border-color] duration-200 ease-out hover:bg-white/5 hover:text-[var(--color-text-primary)] group-hover:opacity-100"
           >
             <X className="h-3.5 w-3.5" />
           </button>

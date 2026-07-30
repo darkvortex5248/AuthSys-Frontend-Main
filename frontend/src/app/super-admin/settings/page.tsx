@@ -113,7 +113,7 @@ export default function SystemSettingsPage() {
         <div className="flex gap-3 flex-wrap">
            <Link
              href="/super-admin/settings/payments"
-             className="px-4 py-2 rounded-xl bg-[var(--primary)]/10 border border-[var(--primary)]/30 text-xs font-bold text-[var(--primary)] hover:bg-[var(--primary)]/20 transition-all flex items-center gap-2"
+             className="px-4 py-2 rounded-xl bg-[var(--primary)]/10 border border-[var(--primary)]/30 text-xs font-bold text-[var(--primary)] hover:bg-[var(--primary)]/20 transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center gap-2"
            >
              <span className="material-symbols-outlined text-sm">account_balance</span>
              Payment Methods
@@ -121,7 +121,7 @@ export default function SystemSettingsPage() {
            <button 
              onClick={runBootstrap}
              disabled={syncing}
-             className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-[var(--foreground)] hover:bg-white/10 transition-all flex items-center gap-2 disabled:opacity-50"
+             className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-[var(--foreground)] hover:bg-white/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center gap-2 disabled:opacity-50"
            >
              <span className="material-symbols-outlined text-sm">refresh</span>
              {syncing ? 'Syncing…' : 'Sync defaults'}
@@ -148,7 +148,7 @@ export default function SystemSettingsPage() {
                   <select 
                     value={getVal('system_mode') || 'live'}
                     onChange={(e) => updateSettingValue('system_mode', e.target.value)}
-                    className="w-full bg-[var(--card)]/80 border border-white/10 rounded-xl py-3.5 px-4 text-xs font-bold text-[var(--foreground)] appearance-none outline-none focus:ring-1 focus:ring-[#ffb786]/50 transition-all cursor-pointer group-hover:border-[#ffb786]/30"
+                    className="w-full bg-[var(--card)]/80 border border-white/10 rounded-xl py-3.5 px-4 text-xs font-bold text-[var(--foreground)] appearance-none outline-none focus:ring-1 focus:ring-[#ffb786]/50 transition-[background-color,box-shadow,border-color] duration-200 ease-out cursor-pointer group-hover:border-[var(--border-hover)]"
                   >
                     <option value="live">🟢 OPERATIONAL (LIVE)</option>
                     <option value="maintenance">🟠 MAINTENANCE MODE</option>
@@ -182,7 +182,7 @@ export default function SystemSettingsPage() {
                   />
                   <button 
                     onClick={() => saveFields(['watch_demo_url'])}
-                    className="w-full py-2 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-[var(--primary)] uppercase tracking-widest hover:bg-[var(--primary)]/10 transition-all"
+                    className="w-full py-2 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-[var(--primary)] uppercase tracking-widest hover:bg-[var(--primary)]/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                   >
                     Update Demo URL
                   </button>
@@ -217,7 +217,7 @@ export default function SystemSettingsPage() {
                ))}
                <button 
                 onClick={() => saveFields(['platform_name', 'platform_logo', 'platform_favicon'])}
-                className="w-full mt-2 py-3 rounded-xl bg-[var(--primary)] text-[#131313] font-bold text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-[var(--primary)]/20"
+                className="w-full mt-2 py-3 rounded-xl bg-[var(--primary)] text-[#131313] font-bold text-xs uppercase tracking-widest hover:brightness-105 active:brightness-95 transition-[background-color,box-shadow,border-color] duration-200 ease-out shadow-lg shadow-[var(--primary)]/20"
                >
                  Save Identity Changes
                </button>
@@ -233,7 +233,7 @@ export default function SystemSettingsPage() {
               <button
                 type="button"
                 onClick={runBootstrap}
-                className="w-full py-2.5 rounded-lg border border-white/5 hover:bg-white/5 text-xs text-[var(--muted-foreground)] font-bold uppercase transition-all flex items-center justify-center gap-2"
+                className="w-full py-2.5 rounded-lg border border-white/5 hover:bg-white/5 text-xs text-[var(--muted-foreground)] font-bold uppercase transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center justify-center gap-2"
               >
                 <span className="material-symbols-outlined text-sm">cleaning_services</span>
                 Reset missing defaults
@@ -241,7 +241,7 @@ export default function SystemSettingsPage() {
               <button
                 type="button"
                 onClick={fetchSettings}
-                className="w-full py-2.5 rounded-lg border border-white/5 hover:bg-white/5 text-xs text-[var(--muted-foreground)] font-bold uppercase transition-all flex items-center justify-center gap-2"
+                className="w-full py-2.5 rounded-lg border border-white/5 hover:bg-white/5 text-xs text-[var(--muted-foreground)] font-bold uppercase transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center justify-center gap-2"
               >
                 <span className="material-symbols-outlined text-sm">cached</span>
                 Reload all settings
@@ -280,7 +280,7 @@ export default function SystemSettingsPage() {
                  ))}
                  <button 
                   onClick={() => saveFields(['contact_email', 'contact_phone', 'contact_address'])}
-                  className="w-full mt-2 py-3 rounded-xl bg-white/5 border border-white/10 text-[var(--primary)] font-bold text-xs uppercase tracking-widest hover:bg-[var(--primary)] hover:text-[#131313] transition-all shadow-lg"
+                  className="w-full mt-2 py-3 rounded-xl bg-white/5 border border-white/10 text-[var(--primary)] font-bold text-xs uppercase tracking-widest hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] transition-[background-color,box-shadow,border-color] duration-200 ease-out shadow-lg"
                  >
                    Save Contact Details
                  </button>
@@ -305,13 +305,13 @@ export default function SystemSettingsPage() {
                     <div 
                      key={item.key} 
                      onClick={() => toggleSetting(item.key, setting?.value || 'false')}
-                     className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-pointer"
+                     className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out cursor-pointer"
                     >
                       <div className="flex-1">
                         <p className="text-sm font-bold text-[var(--foreground)]">{item.name}</p>
                         <p className="text-[10px] text-[var(--muted-foreground)] mt-1 uppercase tracking-widest">{item.desc}</p>
                       </div>
-                      <span className={`material-symbols-outlined text-2xl transition-all ${isActive ? 'text-[var(--primary)]' : 'text-[#32353c]'}`}>
+                      <span className={`material-symbols-outlined text-2xl transition-[background-color,box-shadow,border-color] duration-200 ease-out ${isActive ? 'text-[var(--primary)]' : 'text-[#32353c]'}`}>
                         {isActive ? 'toggle_on' : 'toggle_off'}
                       </span>
                     </div>
@@ -391,7 +391,7 @@ export default function SystemSettingsPage() {
            <Link
              href="https://dashboard.stripe.com/apikeys"
              target="_blank"
-             className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-[var(--primary)] hover:bg-white/10 transition-all"
+             className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-[var(--primary)] hover:bg-white/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
            >
              <span className="material-symbols-outlined text-sm">open_in_new</span>
              Stripe Dashboard

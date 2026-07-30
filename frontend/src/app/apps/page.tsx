@@ -91,7 +91,7 @@ export default function AppsPage() {
               <div className="space-y-1.5">
                 <p className="text-[11px] text-zinc-500 uppercase font-bold tracking-wider">App Secret Key</p>
                 <div className="flex gap-2 items-center bg-zinc-950/80 rounded-md border border-zinc-800 p-1.5">
-                  <code className="text-zinc-300 font-mono text-xs flex-1 overflow-hidden text-ellipsis px-2 blur-[3px] hover:blur-none transition-all">
+                  <code className="text-zinc-300 font-mono text-xs flex-1 overflow-hidden text-ellipsis px-2 blur-[3px] hover:blur-none transition-[background-color,box-shadow,border-color] duration-200 ease-out">
                     {app.app_secret}
                   </code>
                   <Button size="icon" variant="ghost" className="h-7 w-7 text-zinc-400 hover:text-white hover:bg-zinc-800 shrink-0" onClick={() => copySecret(app.app_secret)}>

@@ -21,59 +21,10 @@ const container = {
 }
 
 const item = {
-  hidden: { opacity: 0, y: 16 },
+  hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    y: 0,
-    transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
-  },
-}
-
-const CATEGORY_COLORS: Record<
-  string,
-  { gradient: string; border: string; bg: string }
-> = {
-  'Getting Started': {
-    gradient:
-      'linear-gradient(135deg, rgba(109,93,246,0.12) 0%, rgba(109,93,246,0.02) 100%)',
-    border: 'border-[var(--primary)]/20',
-    bg: 'bg-[var(--primary)]/5',
-  },
-  Security: {
-    gradient:
-      'linear-gradient(135deg, rgba(239,68,68,0.10) 0%, rgba(239,68,68,0.02) 100%)',
-    border: 'border-red-500/20',
-    bg: 'bg-red-500/5',
-  },
-  'SDK Integration': {
-    gradient:
-      'linear-gradient(135deg, rgba(34,211,238,0.10) 0%, rgba(34,211,238,0.02) 100%)',
-    border: 'border-cyan-500/20',
-    bg: 'bg-cyan-500/5',
-  },
-  'API Reference': {
-    gradient:
-      'linear-gradient(135deg, rgba(251,191,36,0.10) 0%, rgba(251,191,36,0.02) 100%)',
-    border: 'border-amber-500/20',
-    bg: 'bg-amber-500/5',
-  },
-  'License Keys': {
-    gradient:
-      'linear-gradient(135deg, rgba(52,211,153,0.10) 0%, rgba(52,211,153,0.02) 100%)',
-    border: 'border-emerald-500/20',
-    bg: 'bg-emerald-500/5',
-  },
-  'Dashboard Guide': {
-    gradient:
-      'linear-gradient(135deg, rgba(168,85,247,0.10) 0%, rgba(168,85,247,0.02) 100%)',
-    border: 'border-purple-500/20',
-    bg: 'bg-purple-500/5',
-  },
-  FAQ: {
-    gradient:
-      'linear-gradient(135deg, rgba(249,115,22,0.10) 0%, rgba(249,115,22,0.02) 100%)',
-    border: 'border-orange-500/20',
-    bg: 'bg-orange-500/5',
+    transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
   },
 }
 
@@ -115,14 +66,14 @@ export default function DocsOverview() {
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <Link
             href="/docs/getting-started/quickstart"
-            className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-[var(--primary)]/90 hover:shadow-lg hover:shadow-[var(--primary)]/20"
+            className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-white transition-[background-color,box-shadow] duration-200 ease-out hover:brightness-110"
           >
             Get Started
             <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
             href="/docs/api-reference"
-            className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition-all duration-200 hover:border-[var(--color-border)]/50 hover:bg-[var(--color-bg-elevated)]"
+            className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition-[background-color,box-shadow,border-color] duration-200 ease-out hover:border-[var(--primary)]/20 hover:bg-[var(--bg-card-hover)]"
           >
             <BookOpen className="h-4 w-4" />
             API Reference
@@ -140,7 +91,7 @@ export default function DocsOverview() {
         {DOC_STATS.map((stat) => (
           <div
             key={stat.label}
-            className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-4 py-3 text-center"
+            className="rounded-xl border border-[var(--color-border)]/50 bg-[var(--color-bg-surface)]/60 px-4 py-3 text-center"
           >
             <div className="text-lg font-bold text-[var(--color-text-primary)]">
               {stat.value}
@@ -159,56 +110,45 @@ export default function DocsOverview() {
         animate="show"
         className="mb-16 grid grid-cols-1 gap-4 sm:grid-cols-2"
       >
-        {DOCS_NAV.map((cat) => {
-          const colors = CATEGORY_COLORS[cat.title] || CATEGORY_COLORS['Getting Started']
-          return (
-            <motion.div key={cat.href} variants={item}>
-              <Link
-                href={cat.href}
-                className="group relative block h-full overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] transition-all duration-300 hover:border-[var(--color-border)]/50"
-                style={{ background: colors.gradient }}
-              >
-                <div className="p-5">
-                  <div className="mb-3 flex items-center gap-3">
-                    <div
-                      className={`flex h-9 w-9 items-center justify-center rounded-xl ${colors.bg} ${colors.border} border`}
-                    >
-                      <span className="material-symbols-outlined text-[18px] text-[var(--primary)]">
-                        {cat.icon}
-                      </span>
-                    </div>
-                    <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">
-                      {cat.title}
-                    </h3>
-                    <ArrowRight className="ml-auto h-4 w-4 text-[var(--color-text-muted)] opacity-0 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0.5" />
+        {DOCS_NAV.map((cat) => (
+          <motion.div key={cat.href} variants={item}>
+            <Link
+              href={cat.href}
+              className="group relative block h-full overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] transition-[background-color,box-shadow,border-color] duration-200 ease-out hover:border-[var(--primary)]/15 hover:shadow-[0_2px_12px_rgba(0,212,255,0.06)]"
+            >
+              <div className="p-5">
+                <div className="mb-3 flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--accent-opacity-8)] border border-[var(--color-border)]">
+                    <span className="material-symbols-outlined text-[18px] text-[var(--primary)]">
+                      {cat.icon}
+                    </span>
                   </div>
-
-                  <ul className="space-y-1.5">
-                    {cat.pages.slice(0, 3).map((p) => (
-                      <li
-                        key={p.href}
-                        className="flex items-center gap-2 text-xs text-[var(--color-text-muted)]"
-                      >
-                        <span className="h-1 w-1 flex-shrink-0 rounded-full bg-[var(--color-text-muted)]/30" />
-                        {p.title}
-                      </li>
-                    ))}
-                    {cat.pages.length > 3 && (
-                      <li className="text-xs font-medium text-[var(--primary)]">
-                        +{cat.pages.length - 3} more guides
-                      </li>
-                    )}
-                  </ul>
+                  <h3 className="text-sm font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-text-primary)]">
+                    {cat.title}
+                  </h3>
+                  <ArrowRight className="ml-auto h-4 w-4 text-[var(--color-text-muted)] opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
                 </div>
 
-                {/* Hover glow */}
-                <div className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                  <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-[var(--primary)]/10" />
-                </div>
-              </Link>
-            </motion.div>
-          )
-        })}
+                <ul className="space-y-1.5">
+                  {cat.pages.slice(0, 3).map((p) => (
+                    <li
+                      key={p.href}
+                      className="flex items-center gap-2 text-xs text-[var(--color-text-muted)]"
+                    >
+                      <span className="h-1 w-1 flex-shrink-0 rounded-full bg-[var(--color-text-muted)]/30" />
+                      {p.title}
+                    </li>
+                  ))}
+                  {cat.pages.length > 3 && (
+                    <li className="text-xs font-medium text-[var(--primary)]">
+                      +{cat.pages.length - 3} more guides
+                    </li>
+                  )}
+                </ul>
+              </div>
+            </Link>
+          </motion.div>
+        ))}
       </motion.div>
 
       {/* CTA */}
@@ -216,8 +156,9 @@ export default function DocsOverview() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.35, ease: 'easeOut' }}
-        className="relative overflow-hidden rounded-2xl border border-[var(--primary)]/20 bg-[var(--primary)]/5 p-8 text-center sm:p-10"
+        className="relative overflow-hidden rounded-2xl border border-[var(--primary)]/15 bg-[var(--primary)]/3 p-8 text-center sm:p-10"
       >
+        <div className="absolute inset-0 -z-10 rounded-2xl" style={{ background: 'linear-gradient(135deg, color-mix(in srgb, var(--primary) 5%, transparent) 0%, transparent 100%)' }} />
         <div className="relative z-10">
           <div className="mb-4 inline-flex items-center justify-center gap-2">
             <MessageCircle className="h-5 w-5 text-[var(--primary)]" />
@@ -232,7 +173,7 @@ export default function DocsOverview() {
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-[var(--primary)]/90 hover:shadow-lg hover:shadow-[var(--primary)]/20"
+              className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-5 py-2.5 text-sm font-semibold text-white transition-[background-color,box-shadow] duration-200 ease-out hover:brightness-110"
             >
               Contact Support
               <ArrowRight className="h-4 w-4" />
@@ -241,7 +182,7 @@ export default function DocsOverview() {
               href="https://github.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-5 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition-all duration-200 hover:border-[var(--color-border)]/50"
+              className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-5 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition-[background-color,box-shadow,border-color] duration-200 ease-out hover:border-[var(--primary)]/15 hover:bg-[var(--bg-card-hover)]"
             >
               <ExternalLink className="h-4 w-4" />
               GitHub

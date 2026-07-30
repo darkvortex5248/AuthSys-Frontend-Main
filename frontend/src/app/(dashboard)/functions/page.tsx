@@ -26,8 +26,6 @@ export default function FunctionsPage() {
   const [search, setSearch] = useState('');
   const [filterScope, setFilterScope] = useState<'all' | 'global' | 'scoped'>('all');
   const [expandedId, setExpandedId] = useState<number | null>(null);
-  const [sparkles, setSparkles] = useState<{ x: number; y: number; id: number }[]>([]);
-  const sparkleId = useRef(0);
   const formRef = useRef<HTMLDivElement>(null);
 
   const fetchVariables = async () => {
@@ -44,14 +42,6 @@ export default function FunctionsPage() {
   };
 
   useEffect(() => { fetchVariables(); }, [selectedAppId]);
-
-  const spawnSparkle = (e: React.MouseEvent) => {
-    const rect = formRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const id = sparkleId.current++;
-    setSparkles(s => [...s, { x: e.clientX - rect.left, y: e.clientY - rect.top, id }]);
-    setTimeout(() => setSparkles(s => s.filter(sp => sp.id !== id)), 800);
-  };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,40 +103,19 @@ export default function FunctionsPage() {
   return (
     <div className="page-wrapper pt-6 space-y-6 overflow-visible">
       <style>{`
-        @keyframes shimmerFn {
-          0%   { background-position:-200% center; }
-          100% { background-position:200% center; }
-        }
-        @keyframes sparkUp {
-          0%   { transform:translate(-50%,-50%) scale(1) rotate(0deg); opacity:0.9; }
-          100% { transform:translate(-50%,-250%) scale(0) rotate(45deg); opacity:0; }
-        }
         @keyframes slideIn {
-          from { opacity:0; transform:translateY(12px) scale(0.98); }
-          to   { opacity:1; transform:translateY(0) scale(1); }
+          from { opacity:0; }
+          to   { opacity:1; }
         }
         @keyframes deleteOut {
-          to { opacity:0; transform:scale(0.95) translateX(8px); max-height:0; padding:0; margin:0; }
-        }
-        @keyframes glowPulse {
-          0%,100% { box-shadow:0 0 0 0 transparent; }
-          50%     { box-shadow:0 0 20px 4px color-mix(in srgb, var(--primary) 15%, transparent); }
+          to { opacity:0; max-height:0; padding:0; margin:0; }
         }
         @keyframes typingDot {
-          0%,80%,100% { transform:scale(0.6); opacity:0.4; }
-          40%         { transform:scale(1); opacity:1; }
+          0%,80%,100% { opacity:0.4; }
+          40%         { opacity:1; }
         }
-        .shimmer-fn {
-          color: var(--foreground);
-          background:linear-gradient(90deg,#fff 0%,var(--primary) 35%,color-mix(in srgb, var(--primary) 70%, #fff) 50%,#fff 65%);
-          background-size:200% auto;
-          -webkit-background-clip:text;
-          -webkit-text-fill-color:transparent;
-          animation:shimmerFn 5s linear infinite;
-        }
-        .var-card { animation:slideIn 0.35s ease-out; transition:all 0.25s cubic-bezier(.4,0,.2,1); }
-        .var-card:hover { transform:translateY(-2px); }
-        .glow-card { animation:glowPulse 3s ease-in-out infinite; }
+        .shimmer-fn { color: var(--foreground); }
+        .var-card { animation:slideIn 0.2s ease-out; transition:background-color 200ms var(--ease-smooth), box-shadow 200ms var(--ease-smooth); }
         .dot1 { animation:typingDot 1.4s ease-in-out infinite 0s; }
         .dot2 { animation:typingDot 1.4s ease-in-out infinite 0.2s; }
         .dot3 { animation:typingDot 1.4s ease-in-out infinite 0.4s; }
@@ -186,18 +155,8 @@ export default function FunctionsPage() {
         <div className="lg:col-span-4">
           <div
             ref={formRef}
-            className="relative rounded-3xl overflow-hidden border border-white/8 bg-white/[0.03] backdrop-blur-xl glow-card"
-            onClick={spawnSparkle}
+            className="relative rounded-3xl overflow-hidden border border-white/8 bg-white/[0.03] backdrop-blur-xl"
           >
-            {/* Sparkles */}
-            {sparkles.map(s => (
-              <span
-                key={s.id}
-                className="pointer-events-none absolute text-[var(--primary)] text-xs z-50"
-                style={{ left: s.x, top: s.y, animation: 'sparkUp 0.8s ease-out forwards' }}
-              >✦</span>
-            ))}
-
             {/* Glow */}
             <div className="absolute -right-16 -top-16 w-56 h-56 bg-[var(--primary)]/10 blur-[100px] rounded-full pointer-events-none" />
             <div className="absolute -left-8 -bottom-8 w-40 h-40 bg-orange-600/5 blur-[80px] rounded-full pointer-events-none" />
@@ -220,7 +179,7 @@ export default function FunctionsPage() {
                   <span className="material-symbols-outlined text-[12px] text-[var(--primary)]">label</span>
                   Key Name
                 </label>
-                <div className={`rounded-xl border transition-all duration-300 ${activeField === 'key' ? 'border-[var(--primary)]/55' : 'border-white/8'}`}
+                <div className={`rounded-xl border transition-[background-color,box-shadow,border-color] duration-200 ease-out ${activeField === 'key' ? 'border-[var(--primary)]/55' : 'border-white/8'}`}
                   style={activeField === 'key' ? { boxShadow: '0 0 14px color-mix(in srgb, var(--primary) 15%, transparent)' } : undefined}>
                   <input
                     type="text"
@@ -229,7 +188,7 @@ export default function FunctionsPage() {
                     onFocus={() => setActiveField('key')}
                     onBlur={() => setActiveField(null)}
                     placeholder="e.g. API_ENDPOINT"
-                    className="w-full bg-white/4 rounded-xl px-4 py-3.5 text-sm font-mono text-white/85 focus:outline-none transition-all placeholder:text-white/15"
+                    className="w-full bg-white/4 rounded-xl px-4 py-3.5 text-sm font-mono text-white/85 focus:outline-none transition-[background-color,box-shadow,border-color] duration-200 ease-out placeholder:text-white/15"
                   />
                 </div>
                 {newKey && !/^[A-Z0-9_]+$/.test(newKey) && (
@@ -245,7 +204,7 @@ export default function FunctionsPage() {
                   <span className="material-symbols-outlined text-[12px] text-[var(--primary)]">lock</span>
                   Secret Value
                 </label>
-                <div className={`rounded-xl border transition-all duration-300 ${activeField === 'val' ? 'border-[var(--primary)]/55' : 'border-white/8'}`}
+                <div className={`rounded-xl border transition-[background-color,box-shadow,border-color] duration-200 ease-out ${activeField === 'val' ? 'border-[var(--primary)]/55' : 'border-white/8'}`}
                   style={activeField === 'val' ? { boxShadow: '0 0 14px color-mix(in srgb, var(--primary) 15%, transparent)' } : undefined}>
                   <textarea
                     value={newValue}
@@ -254,7 +213,7 @@ export default function FunctionsPage() {
                     onBlur={() => setActiveField(null)}
                     placeholder="Enter sensitive data or value..."
                     rows={3}
-                    className="w-full bg-white/4 rounded-xl px-4 py-3 text-sm font-mono text-white/85 focus:outline-none transition-all placeholder:text-white/20 resize-none leading-relaxed"
+                    className="w-full bg-white/4 rounded-xl px-4 py-3 text-sm font-mono text-white/85 focus:outline-none transition-[background-color,box-shadow,border-color] duration-200 ease-out placeholder:text-white/20 resize-none leading-relaxed"
                   />
                 </div>
                 {newValue && (
@@ -277,12 +236,12 @@ export default function FunctionsPage() {
                   type="button"
                   onClick={() => setIsGlobal(v => !v)}
                   style={isGlobal ? { boxShadow: '0 0 12px color-mix(in srgb, var(--primary) 30%, transparent)' } : undefined}
-                  className={`relative w-12 h-6 rounded-full transition-all duration-300 border ${isGlobal
+                  className={`relative w-12 h-6 rounded-full transition-[background-color,box-shadow,border-color] duration-200 ease-out border ${isGlobal
                       ? 'bg-[var(--primary)] border-[var(--primary)]/50'
                       : 'bg-white/8 border-white/10'
                     }`}
                 >
-                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all duration-300 ${isGlobal ? 'left-7' : 'left-1'}`} />
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-[background-color,box-shadow,border-color] duration-200 ease-out ${isGlobal ? 'left-7' : 'left-1'}`} />
                 </button>
               </div>
 
@@ -290,9 +249,9 @@ export default function FunctionsPage() {
               <button
                 type="submit"
                 disabled={isCreating || !newKey || !newValue}
-                className="relative w-full overflow-hidden py-4 bg-[var(--primary)] text-white rounded-xl text-sm font-black tracking-wide shadow-lg shadow-[var(--primary)]/25 hover:shadow-[var(--primary)]/45 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2 group"
+                className="relative w-full overflow-hidden py-4 bg-[var(--primary)] text-white rounded-xl text-sm font-black tracking-wide shadow-lg shadow-[var(--primary)]/25 hover:shadow-[var(--primary)]/30 active:brightness-95 disabled:opacity-40 disabled:cursor-not-allowed transition-[background-color,box-shadow,border-color] duration-200 ease-out flex items-center justify-center gap-2 group"
               >
-                <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-all duration-200" />
+                <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out" />
                 {isCreating ? (
                   <span className="flex items-center gap-1.5">
                     <span className="text-sm">Injecting</span>
@@ -319,7 +278,7 @@ export default function FunctionsPage() {
           {/* Search + Filter bar */}
           {variables.length > 0 && (
             <div className="flex gap-3 flex-wrap animate-in fade-in duration-300">
-              <div className={`flex-1 min-w-[180px] relative rounded-xl border transition-all duration-300 ${activeField === 'search' ? 'border-[var(--primary)]/45' : 'border-white/8'}`}>
+              <div className={`flex-1 min-w-[180px] relative rounded-xl border transition-[background-color,box-shadow,border-color] duration-200 ease-out ${activeField === 'search' ? 'border-[var(--primary)]/45' : 'border-white/8'}`}>
                 <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[16px] text-white/25">search</span>
                 <input
                   type="text"
@@ -336,7 +295,7 @@ export default function FunctionsPage() {
                   <button
                     key={scope}
                     onClick={() => setFilterScope(scope)}
-                    className={`px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-200 ${filterScope === scope
+                    className={`px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-[background-color,box-shadow,border-color] duration-200 ease-out ${filterScope === scope
                         ? 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/25'
                         : 'bg-white/5 text-white/35 hover:bg-white/10 border border-white/8'
                       }`}
@@ -380,11 +339,11 @@ export default function FunctionsPage() {
               {filtered.map((v, i) => (
                 <div
                   key={v.id}
-                  className="var-card relative rounded-2xl border border-white/6 bg-white/[0.025] backdrop-blur-sm hover:border-white/12 hover:bg-white/[0.04] overflow-hidden group"
+                  className="var-card relative rounded-2xl border border-white/6 bg-white/[0.025] backdrop-blur-sm 2 hover:bg-white/[0.04] overflow-hidden group"
                   style={{ animationDelay: `${i * 40}ms` }}
                 >
                   {/* Side accent bar */}
-                  <div className={`absolute left-0 top-0 bottom-0 w-0.5 transition-all duration-300 group-hover:w-1 ${v.is_global ? 'bg-[var(--primary)]' : 'bg-amber-500'}`} />
+                  <div className={`absolute left-0 top-0 bottom-0 w-0.5 transition-[background-color,box-shadow,border-color] duration-200 ease-out group-hover:w-1 ${v.is_global ? 'bg-[var(--primary)]' : 'bg-amber-500'}`} />
 
                   <div
                     className="flex items-center justify-between px-5 py-4 cursor-pointer"
@@ -422,7 +381,7 @@ export default function FunctionsPage() {
                       <button
                         onClick={e => { e.stopPropagation(); handleDelete(v.id); }}
                         disabled={deletingId === v.id}
-                        className="p-2 rounded-xl bg-red-500/0 text-red-400/0 opacity-0 group-hover:opacity-100 group-hover:bg-red-500/10 group-hover:text-red-400 hover:!bg-red-500/25 transition-all duration-200"
+                        className="p-2 rounded-xl bg-red-500/0 text-red-400/0 opacity-0 group-hover:opacity-100 group-hover:bg-red-500/10 group-hover:text-red-400 hover:!bg-red-500/25 transition-[background-color,box-shadow,border-color] duration-200 ease-out"
                       >
                         {deletingId === v.id
                           ? <div className="w-4 h-4 border-2 border-red-400/30 border-t-red-400 rounded-full animate-spin" />

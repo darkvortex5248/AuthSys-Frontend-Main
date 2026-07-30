@@ -77,7 +77,7 @@ export function DocPageLayout({
       {showScrollTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-8 right-8 z-50 flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] shadow-lg backdrop-blur-md transition-all duration-200 hover:border-[var(--primary)]/30 hover:text-[var(--primary)] hover:shadow-[var(--primary)]/10"
+          className="fixed bottom-8 right-8 z-50 flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] shadow-lg backdrop-blur-md transition-[background-color,box-shadow,border-color] duration-200 ease-out hover:border-[var(--border-hover)]/30 hover:text-[var(--primary)] hover:shadow-[var(--primary)]/10"
         >
           <ArrowUp className="h-4 w-4" />
         </button>
