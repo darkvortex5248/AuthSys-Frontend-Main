@@ -1,6 +1,8 @@
 'use client'
 
-import { Zap, Gem, Crown, Sparkles, Check, X, type LucideIcon } from 'lucide-react'
+import { motion, useInView, AnimatePresence } from 'framer-motion'
+import { useRef } from 'react'
+import { Check, X, Sparkles, Zap, Gem, Crown, Rocket, type LucideIcon } from 'lucide-react'
 import type { Plan } from '@/types/pricing'
 import { calcYearlySavings } from '@/lib/pricing'
 
@@ -8,12 +10,7 @@ interface Props {
   plan: Plan
   isYearly: boolean
   onSelect: (plan: Plan) => void
-}
-
-const PLAN_ICONS: Record<string, LucideIcon> = {
-  explore: Zap,
-  diamond: Gem,
-  workspace_premium: Crown,
+  index: number
 }
 
 interface FeatureDef {
@@ -21,6 +18,13 @@ interface FeatureDef {
   isBool?: boolean
   getValue: (plan: Plan) => string | null
   isIncluded: (plan: Plan) => boolean
+}
+
+const PLAN_ICONS: Record<string, LucideIcon> = {
+  explore: Zap,
+  diamond: Gem,
+  workspace_premium: Crown,
+  rocket: Rocket,
 }
 
 const FEATURES: FeatureDef[] = [
@@ -43,10 +47,38 @@ const FEATURES: FeatureDef[] = [
   { label: 'SSL Support', isBool: true, getValue: () => null, isIncluded: p => p.has_ssl },
 ]
 
-export default function PlanCard({ plan, isYearly, onSelect }: Props) {
+// ─── Animation variants ──────────────────────────────────────────────────────
+
+const priceVariants = {
+  initial: { opacity: 0, y: -8 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: 8 },
+}
+
+const featureListVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.04,
+      delayChildren: 0.1,
+    },
+  },
+}
+
+const featureItemVariants = {
+  hidden: { opacity: 0, x: -8 },
+  visible: { opacity: 1, x: 0 },
+}
+
+const EASING = [0.22, 0.61, 0.36, 1] as const
+
+export default function PlanCard({ plan, isYearly, onSelect, index }: Props) {
   const Icon = PLAN_ICONS[plan.icon] || Sparkles
   const price = isYearly && plan.price_yearly > 0 ? plan.price_yearly : plan.price_monthly
-  const period = isYearly && plan.price_yearly > 0 ? '/year' : '/month'
+  const period = isYearly && plan.price_yearly > 0 ? 'billed annually' : 'billed monthly'
+
+  const featuresRef = useRef<HTMLDivElement>(null)
+  const featuresInView = useInView(featuresRef, { once: true, margin: '0px 0px -50px 0px' })
 
   const planFeatures = FEATURES.filter(f => {
     const val = f.getValue(plan)
@@ -55,98 +87,134 @@ export default function PlanCard({ plan, isYearly, onSelect }: Props) {
   })
 
   return (
-    <div
-      className={`relative flex flex-col rounded-2xl border p-7 backdrop-blur-xl ${
-        plan.is_recommended
-          ? 'border-[var(--accent-opacity-20)] bg-[var(--glass-bg)] shadow-lg shadow-[var(--accent-opacity-15)]'
-          : 'border-[var(--border)] bg-[var(--glass-bg)]'
-      }`}
-    >
-      {plan.is_recommended && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--primary)] px-4 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--primary-foreground)] shadow-sm">
-            <Sparkles className="w-3 h-3" />
-            Most Popular
-          </span>
-        </div>
-      )}
-
-      <div className="flex items-center gap-3 mb-4">
-        <div
-          className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-            plan.is_recommended
-              ? 'bg-[var(--accent-opacity-15)] text-[var(--primary)]'
-              : 'bg-[var(--accent-opacity-8)] text-[var(--primary)]'
-          }`}
-        >
-          <Icon className="w-5 h-5" />
-        </div>
-        <div>
-          <h3 className="text-base font-bold text-[var(--foreground)]">{plan.name}</h3>
-          {plan.description && (
-            <p className="text-[11px] leading-tight text-[var(--muted-foreground)] mt-0.5">
-              {plan.description}
-            </p>
-          )}
-        </div>
-      </div>
-
-      <div className="flex items-baseline gap-1 mb-6">
-        <span className="text-4xl font-bold tracking-tight text-[var(--foreground)]">
-          {price <= 0 ? 'Free' : `$${(price / 100).toFixed(2).replace(/\.00$/, '')}`}
-        </span>
-        {price > 0 && (
-          <span className="text-xs font-medium text-[var(--muted-foreground)]">
-            {period}
-          </span>
+      <motion.div
+        className="relative flex h-full flex-col"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.4, ease: EASING, delay: index * 0.05 }}
+      >
+      <div
+        className="relative flex h-full flex-col rounded-[20px] border border-[var(--border)]/30 bg-[var(--glass-bg)]/15 p-7 backdrop-blur-xl
+          transition-[transform,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,0.61,0.36,1)]
+          hover:translate-y-[-8px] hover:border-[var(--border-hover)]/40 hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
+      >
+        {/* Developer plan: soft cyan ambient glow around the outside */}
+        {plan.is_recommended && (
+          <div
+            className="pointer-events-none absolute -inset-px rounded-[20px]"
+            style={{
+              boxShadow: '0 0 40px 8px rgba(0, 212, 255, 0.08)',
+            }}
+          />
         )}
-      </div>
 
-      {isYearly && plan.price_yearly > 0 && plan.price_monthly > 0 && (() => {
-        const s = calcYearlySavings(plan.price_monthly, plan.price_yearly)
-        if (s <= 0) return null
-        const monthlyTotal = plan.price_monthly * 12
-        const saved = monthlyTotal - plan.price_yearly
-        return (
-          <div className="mb-4 px-3 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-center">
-            <p className="text-[11px] font-bold text-emerald-400">
-              Save {s}% · ${(saved / 100).toFixed(2)}/year
-            </p>
+        {/* Most Popular badge — small pill, integrated into card */}
+        {plan.is_recommended && (
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--primary)]/15 px-3 py-1 text-[9px] font-medium text-[var(--primary)] border border-[var(--primary)]/10 shadow-[0_0_12px_rgba(0,212,255,0.15)]">
+              <Sparkles className="w-2.5 h-2.5 fill-current" />
+              Most Popular
+            </span>
           </div>
-        )
-      })()}
+        )}
 
-      <div className="flex-1 mb-6">
-        <div className="space-y-2.5">
-          {planFeatures.map((feat, i) => {
+        {/* Icon + Plan Name */}
+        <div className="mb-6 flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--accent-opacity-8)] border border-[var(--border)]/20">
+            <Icon className="h-5 w-5 text-[var(--primary)]" />
+          </div>
+          <div>
+            <h3 className="text-base font-semibold text-[var(--foreground)]">{plan.name}</h3>
+            {plan.description && (
+              <p className="mt-0.5 text-[12px] leading-tight text-[var(--muted-foreground)]">
+                {plan.description}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Price — smooth transition on toggle */}
+        <div className="mb-6">
+          <div className="flex items-baseline gap-1.5">
+            <AnimatePresence initial={false} mode="wait">
+              <motion.span
+                key={isYearly ? 'yearly' : 'monthly'}
+                variants={priceVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={{ duration: 0.25, ease: EASING }}
+                className="text-4xl font-bold tracking-tight text-[var(--foreground)]"
+              >
+                {price <= 0 ? 'Free' : `$${(price / 100).toFixed(2).replace(/\.00$/, '')}`}
+              </motion.span>
+            </AnimatePresence>
+            {price > 0 && (
+              <AnimatePresence initial={false} mode="wait">
+                <motion.span
+                  key={isYearly ? 'annual' : 'monthly'}
+                  variants={priceVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  transition={{ duration: 0.25, ease: EASING }}
+                  className="text-xs font-medium text-[var(--muted-foreground)]"
+                >
+                  {period}
+                </motion.span>
+              </AnimatePresence>
+            )}
+          </div>
+        </div>
+
+        {/* Feature List — staggered animation on viewport entry */}
+        <motion.div
+          ref={featuresRef}
+          className="mb-6 flex-1"
+          initial="hidden"
+          animate={featuresInView ? 'visible' : 'hidden'}
+          variants={featureListVariants}
+        >
+          {planFeatures.map((feat) => {
             const included = feat.isIncluded(plan)
             const val = feat.getValue(plan)
             return (
-              <div key={i} className="flex items-center gap-2.5">
+              <motion.div
+                key={feat.label}
+                className="mb-2.5 flex items-center gap-2.5"
+                variants={featureItemVariants}
+                transition={{ duration: 0.35, ease: EASING }}
+              >
                 {included ? (
-                  <Check className="w-3.5 h-3.5 shrink-0 text-emerald-400" strokeWidth={3} />
+                  <Check className="h-4 w-4 shrink-0 text-[var(--primary)]" strokeWidth={3} />
                 ) : (
-                  <X className="w-3.5 h-3.5 shrink-0 text-[var(--muted-foreground)]/30" strokeWidth={2} />
+                  <X className="h-4 w-4 shrink-0 text-[var(--muted-foreground)]/30" strokeWidth={2} />
                 )}
-                <span className={`text-[11px] font-medium ${included ? 'text-[var(--foreground)]' : 'text-[var(--muted-foreground)]/40'}`}>
+                <span
+                  className={`text-sm ${included ? 'text-[var(--foreground)]' : 'text-[var(--muted-foreground)]/40'}`}
+                >
                   {val || feat.label}
                 </span>
-              </div>
+              </motion.div>
             )
           })}
-        </div>
-      </div>
+        </motion.div>
 
-      <button
-        onClick={() => onSelect(plan)}
-        className={`w-full rounded-xl py-2.5 text-xs font-bold uppercase tracking-[0.06em] transition-[background-color,box-shadow,border-color] duration-200 ease-out duration-150 active:brightness-95 ${
-          plan.is_recommended
-            ? 'bg-[var(--primary)] text-[var(--primary-foreground)] shadow-sm hover:brightness-110'
-            : 'border border-[var(--border)] text-[var(--foreground)] hover:border-[var(--accent-opacity-20)] hover:bg-[var(--accent-opacity-8)]'
-        }`}
-      >
-        {plan.button_text || (price <= 0 ? 'Get Started' : 'Choose Plan')}
-      </button>
-    </div>
+        {/* CTA Button — no size change on hover, just brightness */}
+        <button
+          onClick={() => onSelect(plan)}
+          className={`w-full rounded-xl py-2.5 text-xs font-semibold uppercase tracking-wider
+            transition-[background-color,box-shadow,border-color] duration-200 ease-out
+            ${
+              plan.is_recommended
+                ? 'bg-[var(--primary)] text-[var(--primary-foreground)] shadow-[0_4px_16px_rgba(0,212,255,0.15)] hover:brightness-110 hover:shadow-[0_6px_20px_rgba(0,212,255,0.2)]'
+                : 'border border-[var(--border)]/40 text-[var(--foreground)] hover:bg-[var(--accent-opacity-8)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)]'
+            }`}
+        >
+          {plan.button_text || (price <= 0 ? 'Get Started' : 'Choose Plan')}
+        </button>
+      </div>
+    </motion.div>
   )
 }

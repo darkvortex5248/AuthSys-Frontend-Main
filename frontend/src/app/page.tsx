@@ -718,33 +718,43 @@ function PricingSection({ plans }: { plans: any[] }) {
   const [yearly, setYearly] = useState(false);
 
   return (
-    <section id="pricing" className="py-24 px-4 max-w-7xl mx-auto">
-      <motion.div
-        className="text-center mb-12"
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.35 }}
-      >
-        <SectionLabel>Pricing</SectionLabel>
-        <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-5" style={{ color: T.textPrimary }}>
-          Flexible plans for every team
-        </h2>
-        <p className="text-sm max-w-lg mx-auto" style={{ color: T.textSecondary }}>
-          Start free, scale fast. All plans include encryption, SSO, and community support.
-        </p>
-      </motion.div>
+    <section id="pricing" className="py-28 px-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Section header */}
+        <motion.div
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4, ease: [0.22, 0.61, 0.36, 1] }}
+        >
+          <SectionLabel>Pricing</SectionLabel>
+          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-5" style={{ color: T.textPrimary }}>
+            Flexible plans for every team
+          </h2>
+          <p className="text-sm max-w-lg mx-auto" style={{ color: T.textSecondary }}>
+            Start free, scale fast. All plans include encryption, SSO, and community support.
+          </p>
+        </motion.div>
 
-      <PricingGrid
-        plans={plans}
-        isYearly={yearly}
-        onToggleYearly={setYearly}
-        onSelectPlan={(plan) => window.location.href = '/register'}
-      />
+        <PricingGrid
+          plans={plans}
+          isYearly={yearly}
+          onToggleYearly={setYearly}
+          onSelectPlan={(plan) => window.location.href = '/register'}
+        />
 
-      <p className="text-center text-xs mt-8" style={{ color: T.textMuted }}>
-        All plans include SSL encryption, 99.9% uptime SLA, and community support.
-      </p>
+        <motion.p
+          className="text-center text-xs mt-12"
+          style={{ color: T.textMuted }}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+        >
+          All plans include SSL encryption, 99.9% uptime SLA, and community support.
+        </motion.p>
+      </div>
     </section>
   );
 }

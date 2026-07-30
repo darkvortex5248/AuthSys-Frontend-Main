@@ -1,5 +1,6 @@
 'use client'
 
+import { motion } from 'framer-motion'
 import type { Plan } from '@/types/pricing'
 import PlanCard from './PlanCard'
 import PricingToggle from './PricingToggle'
@@ -18,18 +19,21 @@ export default function PricingGrid({
   onSelectPlan,
 }: Props) {
   return (
-    <div>
-      <div className="mb-10 flex justify-center">
+    <div className="flex flex-col items-center">
+      {/* Toggle — centered with breathing room */}
+      <div className="mb-14 flex justify-center">
         <PricingToggle isYearly={isYearly} onChange={onToggleYearly} plans={plans} />
       </div>
 
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-        {plans.map((plan) => (
+      {/* Cards — equal height grid with generous gaps */}
+      <div className="grid w-full grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+        {plans.map((plan, i) => (
           <PlanCard
             key={plan.id}
             plan={plan}
             isYearly={isYearly}
             onSelect={onSelectPlan}
+            index={i}
           />
         ))}
       </div>
