@@ -14,6 +14,37 @@ function useIsAuthenticated() {
   return Boolean(useAuthStore((s) => s.token));
 }
 
+type CachedCollection = any[] | Record<string, any> | undefined;
+
+function getCachedItems(cache: CachedCollection, key: string): any[] {
+  if (Array.isArray(cache)) return cache;
+  const value = cache?.[key];
+  return Array.isArray(value) ? value : [];
+}
+
+function addCachedItem(cache: CachedCollection, key: string, item: any): CachedCollection {
+  const list = getCachedItems(cache, key);
+  if (list.some((entry) => `${entry.id}` === `${item.id}`)) return cache;
+  const nextList = [item, ...list];
+  if (Array.isArray(cache) || !cache) return nextList;
+  return {
+    ...cache,
+    [key]: nextList,
+    total: typeof cache.total === 'number' ? cache.total + 1 : cache.total,
+  };
+}
+
+function removeCachedItem(cache: CachedCollection, key: string, id: number | string): CachedCollection {
+  const list = getCachedItems(cache, key);
+  const nextList = list.filter((entry) => `${entry.id}` !== `${id}`);
+  if (Array.isArray(cache) || !cache) return nextList;
+  return {
+    ...cache,
+    [key]: nextList,
+    total: typeof cache.total === 'number' ? Math.max(0, cache.total - (list.length - nextList.length)) : cache.total,
+  };
+}
+
 export function useDeveloperMe(enabled?: boolean) {
   const authed = useIsAuthenticated();
   const run = enabled ?? authed;
@@ -208,10 +239,16 @@ export function useGenerateKeys() {
       const appId = vars.app_id;
       const items = data?.items as any[] | undefined;
       if (items?.length) {
-        queryClient.setQueryData<any[]>(queryKeys.keys(appId), (old) => {
-          const ids = new Set((old ?? []).map((k: any) => `${k.id}`));
-          const fresh = items.filter((k: any) => k.id && !ids.has(`${k.id}`));
-          return [...fresh, ...(old ?? [])];
+        queryClient.setQueryData<CachedCollection>(queryKeys.keys(appId), (old) => {
+          const existing = new Set(getCachedItems(old, 'keys').map((k: any) => `${k.id}`));
+          const fresh = items.filter((k: any) => k.id && !existing.has(`${k.id}`));
+          if (!fresh.length) return old;
+          if (Array.isArray(old) || !old) return [...fresh, ...getCachedItems(old, 'keys')];
+          return {
+            ...old,
+            keys: [...fresh, ...getCachedItems(old, 'keys')],
+            total: typeof old.total === 'number' ? old.total + fresh.length : old.total,
+          };
         });
       }
       await invalidate.keys(appId);
@@ -232,11 +269,9 @@ export function useCreateLicenseKey() {
     onSuccess: async (data, vars: any) => {
       const appId = vars?.app_id;
       if (appId && data?.id) {
-        queryClient.setQueryData<any[]>(queryKeys.keys(appId), (old) => {
-          const list = old ?? [];
-          if (list.some((k) => `${k.id}` === `${data.id}`)) return list;
-          return [data, ...list];
-        });
+        queryClient.setQueryData<CachedCollection>(queryKeys.keys(appId), (old) =>
+          addCachedItem(old, 'keys', data),
+        );
       }
       if (appId) await invalidate.keys(appId);
       await invalidate.overview();
@@ -255,9 +290,9 @@ export function useDeleteLicenseKey() {
     },
     onMutate: async ({ id, appId }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.keys(appId) });
-      const prev = queryClient.getQueryData<any[]>(queryKeys.keys(appId));
-      queryClient.setQueryData<any[]>(queryKeys.keys(appId), (old) =>
-        (old ?? []).filter((k) => `${k.id}` !== `${id}`),
+      const prev = queryClient.getQueryData<CachedCollection>(queryKeys.keys(appId));
+      queryClient.setQueryData<CachedCollection>(queryKeys.keys(appId), (old) =>
+        removeCachedItem(old, 'keys', id),
       );
       return { prev, appId };
     },
@@ -287,11 +322,9 @@ export function useCreateAppUser() {
     },
     onSuccess: async (data, vars) => {
       if (data?.id) {
-        queryClient.setQueryData<any>(queryKeys.users(vars.app_id), (old: any) => {
-          const list = old ?? [];
-          if (list.some((u: any) => `${u.id}` === `${data.id}`)) return list;
-          return [data, ...list];
-        });
+        queryClient.setQueryData<CachedCollection>(queryKeys.users(vars.app_id), (old) =>
+          addCachedItem(old, 'users', data),
+        );
       }
       await invalidate.users(vars.app_id);
       await invalidate.overview();
@@ -310,9 +343,9 @@ export function useDeleteAppUser() {
     },
     onMutate: async ({ id, appId }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.users(appId) });
-      const prev = queryClient.getQueryData<any[]>(queryKeys.users(appId));
-      queryClient.setQueryData<any[]>(queryKeys.users(appId), (old) =>
-        (old ?? []).filter((u) => `${u.id}` !== `${id}`),
+      const prev = queryClient.getQueryData<CachedCollection>(queryKeys.users(appId));
+      queryClient.setQueryData<CachedCollection>(queryKeys.users(appId), (old) =>
+        removeCachedItem(old, 'users', id),
       );
       return { prev, appId };
     },
