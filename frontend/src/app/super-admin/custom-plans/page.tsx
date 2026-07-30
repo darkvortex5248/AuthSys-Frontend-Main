@@ -18,10 +18,12 @@ export default function CustomPlansPage() {
     try {
       const [oRes, dRes, fRes] = await Promise.all([
         adminApi.get<any[]>('/admin/custom-plans/overrides'),
-        adminApi.get<any[]>('/admin/developers'),
+        adminApi.get<any[] | { items?: any[] }>('/admin/developers'),
         adminApi.get<any[]>('/admin/custom-plans/available-features'),
       ]);
-      setOverrides(oRes.data); setDevelopers(dRes.data); setAvailableFeatures(fRes.data);
+      setOverrides(Array.isArray(oRes.data) ? oRes.data : []);
+      setDevelopers(Array.isArray(dRes.data) ? dRes.data : dRes.data.items || []);
+      setAvailableFeatures(Array.isArray(fRes.data) ? fRes.data : []);
     } catch { /* ignore */ }
     finally { setLoading(false); }
   };

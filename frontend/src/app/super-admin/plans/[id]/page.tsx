@@ -69,7 +69,7 @@ export default function PlanEditPage() {
           ...Object.fromEntries(LIMIT_FIELDS.map(f => [f.key, data[f.key] ?? 0])),
           ...Object.fromEntries(BOOLEAN_FIELDS.map(f => [f.key, data[f.key] ?? false])),
           ...data,
-          features: data.features || [],
+          features: data.features_json || data.features || [],
         });
       } catch {
         toast.error('Failed to load plan');
@@ -116,6 +116,7 @@ export default function PlanEditPage() {
         ...plan,
         price_monthly: Math.round(plan.price_monthly),
         price_yearly: Math.round(plan.price_yearly),
+        features_json: plan.features || [],
       };
 
       if (isNew) {

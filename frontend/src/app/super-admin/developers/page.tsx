@@ -53,7 +53,7 @@ export default function DeveloperManagementPage() {
       if (planId === null) {
         await adminApi.delete(`/admin/developers/${devId}/plan`);
       } else {
-        await adminApi.post(`/admin/developers/${devId}/plan?plan_id=${planId}`, {});
+        await adminApi.post(`/admin/developers/${devId}/plan`, { plan_id: planId });
       }
       await fetchData();
       toast.success(planId === null ? 'Plan removed' : 'Subscription assigned');
@@ -67,7 +67,7 @@ export default function DeveloperManagementPage() {
           if (planId !== null) {
             const freshPlan = seed.data.plans?.find((p: any) => p.id === planId);
             if (freshPlan) {
-              await adminApi.post(`/admin/developers/${devId}/plan?plan_id=${planId}`, {});
+              await adminApi.post(`/admin/developers/${devId}/plan`, { plan_id: planId });
               await fetchData();
               toast.success('Subscription assigned');
               return;

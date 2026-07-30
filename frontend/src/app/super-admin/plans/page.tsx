@@ -142,7 +142,7 @@ export default function PlansManagementPage() {
                     <span className="text-sm font-bold text-[var(--foreground)]">${(plan.price_yearly / 100).toFixed(0)}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-xs text-[var(--muted-foreground)]">{(plan.features || []).filter((f: any) => f.included).length} features</span>
+                    <span className="text-xs text-[var(--muted-foreground)]">{(plan.features_json || plan.features || []).filter((f: any) => f.included).length} features</span>
                   </td>
                   <td className="px-6 py-4">
                     <button onClick={() => toggleActive(plan)}

@@ -12,7 +12,7 @@ from jose import jwt, JWTError
 from core.config import settings
 from core.cookies import is_secure_request
 from core.security import ALGORITHM, verify_password, create_access_token, get_password_hash, encrypt_field, decrypt_field, validate_password
-from models.domain import AdminUser, DeveloperAccount, Application, EndUser, SubscriptionPlan, SystemSetting, Payment, SDKDownload, PaymentMethod, Announcement, LicenseKey, AIProviderConfig, SystemBackup, ActivityLog, ActivationCode
+from models.domain import AdminUser, DeveloperAccount, Application, EndUser, SubscriptionPlan, SystemSetting, Payment, SDKDownload, PaymentMethod, Announcement, LicenseKey, AIProviderConfig, SystemBackup, ActivityLog, ActivationCode, PricingItem
 from schemas.admin import (
     AdminLogin, PlanCreate, PlanUpdate, PlanResponse, 
     SystemSettingCreate, SystemSettingUpdate, SystemSettingResponse, PlatformStats,
@@ -191,9 +191,18 @@ async def unban_developer(id: int, admin: AdminUser = Depends(get_current_admin)
 async def update_developer_plan(
     id: int,
     plan_id: Optional[int] = Query(None),
+    data: Optional[dict] = Body(None),
     admin: AdminUser = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
 ):
+    if plan_id is None and isinstance(data, dict):
+        raw_plan_id = data.get("plan_id")
+        if raw_plan_id not in (None, ""):
+            try:
+                plan_id = int(raw_plan_id)
+            except (TypeError, ValueError):
+                raise HTTPException(400, "Invalid plan_id")
+
     logger.info("[ADMIN] update_developer_plan called with id=%s, plan_id=%s", id, plan_id)
     res = await db.execute(select(DeveloperAccount).where(DeveloperAccount.id == id))
     dev = res.scalars().first()
@@ -336,6 +345,35 @@ async def seed_plans(admin: AdminUser = Depends(get_current_admin), db: AsyncSes
 async def bootstrap_platform(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     result = await run_bootstrap(db)
     return {"status": "success", **result}
+
+
+@router.get("/maintenance")
+async def get_maintenance_mode(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    mode_res = await db.execute(select(SystemSetting).where(SystemSetting.key == "system_mode"))
+    message_res = await db.execute(select(SystemSetting).where(SystemSetting.key == "maintenance_message"))
+    mode = mode_res.scalars().first()
+    message = message_res.scalars().first()
+    return {
+        "enabled": (mode.value if mode else "live") == "maintenance",
+        "mode": mode.value if mode else "live",
+        "message": message.value if message else "",
+    }
+
+
+@router.put("/maintenance")
+@db_transaction
+async def update_maintenance_mode(
+    data: dict,
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    enabled = bool(data.get("enabled", False))
+    message = str(data.get("message") or "")
+    await _upsert_setting(db, "system_mode", "maintenance" if enabled else "live", "Platform mode")
+    await _upsert_setting(db, "maintenance_message", message, "Maintenance page message")
+    await db.commit()
+    return {"status": "success", "enabled": enabled, "mode": "maintenance" if enabled else "live", "message": message}
+
 
 # System Settings (SDK links etc)
 async def _upsert_setting(db: AsyncSession, key: str, value: str, description: str | None = None):
@@ -645,6 +683,105 @@ async def delete_payment_method(id: int, admin: AdminUser = Depends(get_current_
     return {"status": "success"}
 
 # ── Missing Endpoints: Plans, Apps, EndUsers, Admins, Health, RateLimits, AuditLogs ──
+
+def _pricing_item_payload(item: PricingItem) -> dict:
+    return {
+        "id": item.id,
+        "name": item.name,
+        "description": item.description,
+        "price": item.price,
+        "currency": item.currency,
+        "billing_cycle": item.billing_cycle,
+        "features": item.features or [],
+        "is_active": item.is_active,
+        "is_popular": item.is_popular,
+        "sort_order": item.sort_order,
+        "created_at": item.created_at.isoformat() if item.created_at else None,
+        "updated_at": item.updated_at.isoformat() if item.updated_at else None,
+    }
+
+
+@router.get("/pricing/items")
+async def get_admin_pricing_items(admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    res = await db.execute(select(PricingItem).order_by(PricingItem.sort_order.asc(), PricingItem.created_at.asc()))
+    return [_pricing_item_payload(item) for item in res.scalars().all()]
+
+
+@router.post("/pricing/items")
+@db_transaction
+async def create_admin_pricing_item(
+    data: dict,
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    name = str(data.get("name") or "").strip()
+    billing_cycle = str(data.get("billing_cycle") or "").strip()
+    if not name:
+        raise HTTPException(400, "Name is required")
+    if not billing_cycle:
+        raise HTTPException(400, "Billing cycle is required")
+    item = PricingItem(
+        name=name,
+        description=data.get("description") or None,
+        price=int(data.get("price") or 0),
+        currency=str(data.get("currency") or "USD"),
+        billing_cycle=billing_cycle,
+        features=data.get("features") if isinstance(data.get("features"), list) else [],
+        is_active=bool(data.get("is_active", True)),
+        is_popular=bool(data.get("is_popular", False)),
+        sort_order=int(data.get("sort_order") or 0),
+    )
+    db.add(item)
+    await db.commit()
+    await db.refresh(item)
+    return _pricing_item_payload(item)
+
+
+@router.put("/pricing/items/{item_id}")
+@db_transaction
+async def update_admin_pricing_item(
+    item_id: int,
+    data: dict,
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    res = await db.execute(select(PricingItem).where(PricingItem.id == item_id))
+    item = res.scalars().first()
+    if not item:
+        raise HTTPException(404, "Pricing item not found")
+    allowed = {
+        "name", "description", "price", "currency", "billing_cycle", "features",
+        "is_active", "is_popular", "sort_order",
+    }
+    for key, value in data.items():
+        if key not in allowed:
+            continue
+        if key in {"price", "sort_order"}:
+            value = int(value or 0)
+        if key == "features" and not isinstance(value, list):
+            value = []
+        setattr(item, key, value)
+    item.updated_at = datetime.now(timezone.utc)
+    await db.commit()
+    await db.refresh(item)
+    return _pricing_item_payload(item)
+
+
+@router.delete("/pricing/items/{item_id}")
+@db_transaction
+async def delete_admin_pricing_item(
+    item_id: int,
+    admin: AdminUser = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    res = await db.execute(select(PricingItem).where(PricingItem.id == item_id))
+    item = res.scalars().first()
+    if not item:
+        raise HTTPException(404, "Pricing item not found")
+    await db.delete(item)
+    await db.commit()
+    return {"status": "success"}
+
 
 @router.get("/plans/{id}", response_model=PlanResponse)
 async def get_plan(id: int, admin: AdminUser = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
