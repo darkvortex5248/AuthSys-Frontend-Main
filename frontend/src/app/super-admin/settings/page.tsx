@@ -18,10 +18,17 @@ export default function SystemSettingsPage() {
 
   const fetchSettings = async () => {
     try {
-      const res = await adminApi.get<any[]>('/admin/settings');
-      setSettings(res.data);
+      const res = await adminApi.get<any[] | { settings?: any[]; items?: any[] }>('/admin/settings');
+      const rows = Array.isArray(res.data)
+        ? res.data
+        : Array.isArray(res.data?.settings)
+          ? res.data.settings
+          : Array.isArray(res.data?.items)
+            ? res.data.items
+            : [];
+      setSettings(rows);
       const map: Record<string, string> = {};
-      res.data.forEach((s: any) => {
+      rows.forEach((s: any) => {
         map[s.key] = s.value ?? '';
       });
       setForm(map);
@@ -62,7 +69,8 @@ export default function SystemSettingsPage() {
     </div>
   );
 
-  const getVal = (key: string) => form[key] ?? settings.find((s) => s.key === key)?.value ?? '';
+  const safeSettings = Array.isArray(settings) ? settings : [];
+  const getVal = (key: string) => form[key] ?? safeSettings.find((s) => s.key === key)?.value ?? '';
 
   const setField = (key: string, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -291,7 +299,7 @@ export default function SystemSettingsPage() {
                   { key: 'developer_2fa', name: 'Developer 2FA', desc: 'Mandatory for all roots' },
                   { key: 'rate_limiting', name: 'System Rate Limiting', desc: 'Protect all API nodes' },
                 ].map(item => {
-                  const setting = settings.find(s => s.key === item.key);
+                  const setting = safeSettings.find(s => s.key === item.key);
                   const isActive = setting?.value === 'true';
                   return (
                     <div 

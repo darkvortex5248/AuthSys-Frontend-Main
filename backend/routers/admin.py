@@ -475,8 +475,10 @@ async def get_settings(admin: AdminUser = Depends(get_current_admin), db: AsyncS
 
 ALLOWED_SETTING_KEYS = {
     "system_mode", "maintenance_message", "platform_name",
-    "platform_logo_url", "watch_demo_url",
+    "platform_logo", "platform_logo_url", "platform_favicon", "watch_demo_url",
     "contact_email", "turnstile_site_key", "default_plan_id",
+    "contact_phone", "contact_address",
+    "strict_hwid", "ip_risk_scoring", "developer_2fa", "rate_limiting",
 }
 
 @router.put("/settings/bulk")
