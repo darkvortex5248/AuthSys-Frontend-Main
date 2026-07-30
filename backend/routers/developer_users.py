@@ -5,11 +5,12 @@ from datetime import datetime, timedelta, timezone
 from core.database import get_db
 from core.transaction import db_transaction
 from core.deps import get_current_developer
-from models.domain import EndUser, DeveloperAccount, Session, utc_now
+from models.domain import EndUser, DeveloperAccount, utc_now
 from routers.developer_keys import verify_app_owner
 from schemas.dashboard import BanRequest, UserCreateManual, BulkUserCreate
 from core.security import get_password_hash, validate_password
 from services.plan_enforcer import require_feature, check_limit
+from services.end_users import cleanup_end_user_dependencies
 from pydantic import BaseModel
 from typing import Optional
 from services.webhooks import trigger_webhook
@@ -252,7 +253,6 @@ async def update_user(user_id: int, req: UserUpdate, dev: DeveloperAccount = Dep
 @router.delete("/{user_id}")
 @db_transaction
 async def delete_user(user_id: int, dev: DeveloperAccount = Depends(get_current_developer), db: AsyncSession = Depends(get_db)):
-    from sqlalchemy import delete as sa_delete
     try:
         res = await db.execute(select(EndUser).where(EndUser.id == user_id))
         user = res.scalars().first()
@@ -260,8 +260,7 @@ async def delete_user(user_id: int, dev: DeveloperAccount = Depends(get_current_
             raise HTTPException(404, "Not found")
         await verify_app_owner(user.app_id, dev.id, db)
 
-        # Cascade delete sessions for this user
-        await db.execute(sa_delete(Session).where(Session.user_id == user_id))
+        await cleanup_end_user_dependencies(db, user_id)
         await db.delete(user)
         await db.commit()
         return {"status": "deleted"}

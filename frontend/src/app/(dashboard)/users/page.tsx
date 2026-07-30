@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import api from '@/lib/api';
+import { getApiErrorMessage } from '@/lib/api-error';
 import { useAuthStore } from '@/store/auth';
 import { AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -215,8 +216,8 @@ export default function UsersPage() {
       setShowEditModal(null);
       if (selectedAppId) invalidate.users(selectedAppId);
       toast.success('User updated');
-    } catch {
-      toast.error('Failed to update user');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to update user'));
     }
   };
 
@@ -233,8 +234,8 @@ export default function UsersPage() {
     try {
       await deleteUser.mutateAsync({ id, appId: selectedAppId });
       toast.success('User deleted');
-    } catch {
-      toast.error('Failed to delete user');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to delete user'));
     }
   };
 

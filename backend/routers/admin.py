@@ -22,6 +22,7 @@ from schemas.admin import (
     AnnouncementCreate, DeveloperAdminResponse,
 )
 from services.ai_config import get_ai_admin_view
+from services.end_users import cleanup_end_user_dependencies
 from services.ai_providers import generate_chat_response, list_live_models, catalog_for_admin
 from services.bootstrap import run_bootstrap, ensure_default_plans
 from services.plan_tiers import tier_from_plan_name
@@ -810,6 +811,7 @@ async def purge_end_users(
     users = res.scalars().all()
     ids = [u.id for u in users]
     if not dry_run and ids:
+        await cleanup_end_user_dependencies(db, ids)
         for u in users:
             await db.delete(u)
         await db.commit()
@@ -846,6 +848,7 @@ async def bulk_delete_end_users(
 ):
     res = await db.execute(select(EndUser).where(EndUser.id.in_(ids)))
     users = res.scalars().all()
+    await cleanup_end_user_dependencies(db, [u.id for u in users])
     for u in users:
         await db.delete(u)
     await db.commit()

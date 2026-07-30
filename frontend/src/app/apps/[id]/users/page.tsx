@@ -3,6 +3,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import api from '@/lib/api';
+import { getApiErrorMessage } from '@/lib/api-error';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -54,8 +55,8 @@ export default function UsersPage() {
     try {
       await deleteUser.mutateAsync({ id, appId });
       toast.success("User deleted");
-    } catch {
-      toast.error("Failed to delete user");
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, "Failed to delete user"));
     }
   };
 
