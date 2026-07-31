@@ -713,13 +713,24 @@ function SDKSection() {
   );
 }
 
+// ─── Trust Features ────────────────────────────────────────────────────────────
+const TRUST_FEATURES = [
+  { icon: Lock, title: "Enterprise Security", desc: "SOC 2 Type II certified with end-to-end encryption" },
+  { icon: Globe, title: "99.9% Uptime SLA", desc: "Global edge network with active region redundancy" },
+  { icon: Zap, title: "Sub-50ms Response", desc: "Lightning-fast authentication at the edge" },
+  { icon: Clock, title: "24/7 Premium Support", desc: "Dedicated account managers & priority queue" },
+];
+
 // ─── Pricing Section ──────────────────────────────────────────────────────────
 function PricingSection({ plans }: { plans: any[] }) {
   const [yearly, setYearly] = useState(false);
 
   return (
-    <section id="pricing" className="py-28 px-4">
-      <div className="max-w-7xl mx-auto">
+    <section id="pricing" className="relative py-28 px-4 overflow-hidden">
+      {/* Radial gradient backgrounds — cyan-tinted ambient glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(0,212,255,0.03)_0%,transparent_60%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(0,212,255,0.015)_0%,transparent_50%)] pointer-events-none" />
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
         <motion.div
           className="text-center mb-16"
@@ -743,6 +754,37 @@ function PricingSection({ plans }: { plans: any[] }) {
           onToggleYearly={setYearly}
           onSelectPlan={(plan) => window.location.href = '/register'}
         />
+
+        {/* Trust Features — adapted from AI-IMG-VD-GENERATOR-WEB pricing design */}
+        <motion.div
+          className="mt-16"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4, ease: [0.22, 0.61, 0.36, 1] }}
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
+            {TRUST_FEATURES.map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.06, duration: 0.35, ease: [0.22, 0.61, 0.36, 1] }}
+              >
+                <div className="flex items-start gap-3 p-4 rounded-xl border border-[var(--border)]/30 bg-[var(--glass-bg)]/15 backdrop-blur-xl transition-all duration-200 hover:bg-[var(--accent-opacity-8)] hover:border-[var(--border-hover)]/40 group">
+                  <div className="w-9 h-9 rounded-lg bg-[var(--accent-opacity-8)] border border-[var(--border)]/20 flex items-center justify-center shrink-0 text-[var(--primary)] transition-colors">
+                    <item.icon className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-[var(--foreground)]">{item.title}</p>
+                    <p className="text-xs text-[var(--muted-foreground)] mt-0.5 leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
 
         <motion.p
           className="text-center text-xs mt-12"
