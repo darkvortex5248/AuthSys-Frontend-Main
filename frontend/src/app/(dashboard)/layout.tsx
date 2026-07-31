@@ -161,21 +161,30 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       {sidebarOpen && <style>{`body { overflow: hidden; }`}</style>}
 
       <aside className={`fixed left-0 top-0 h-screen max-h-screen border-r border-[var(--border)] bg-[var(--glass-bg)] backdrop-blur-xl flex flex-col shadow-2xl z-[60] transition-[background-color,box-shadow,border-color] duration-200 ease-out lg:translate-x-0 ${sidebarIcons ? 'w-[72px]' : 'w-[260px]'} ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className={`pt-8 pb-4 flex justify-between items-center shrink-0 ${sbCompact ? 'px-2' : 'px-5'}`}>
-          <div className={sbCompact ? 'w-full flex justify-center' : ''}>
+        {sbCompact ? (
+          <div className="flex flex-col items-center pt-10 pb-5 gap-3 shrink-0">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)] flex items-center justify-center shadow-lg shadow-[var(--accent-opacity-20)]">
+              <span className="material-symbols-outlined text-[var(--primary-foreground)] font-black text-xl">shield</span>
+            </div>
+            <button
+              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5 transition-colors text-[var(--muted-foreground)]"
+              onClick={() => setSidebarPref(sidebarIcons ? 'expanded' : 'icons')}
+              title={sidebarIcons ? 'Expand sidebar' : 'Icons only'}
+            >
+              <span className="material-symbols-outlined text-sm">{sidebarIcons ? 'chevron_right' : 'chevron_left'}</span>
+            </button>
+          </div>
+        ) : (
+          <div className="pt-10 pb-5 flex justify-between items-center px-5 shrink-0">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)] flex items-center justify-center shadow-lg shadow-[var(--accent-opacity-20)] shrink-0">
                 <span className="material-symbols-outlined text-[var(--primary-foreground)] font-black text-xl">shield</span>
               </div>
-              {!sbCompact && (
-                <div>
-                  <h1 className="font-black text-white tracking-tighter text-xl leading-none">RinoxAuth</h1>
-                  <p className="text-[9px] text-[var(--muted-foreground)] uppercase tracking-[0.2em] mt-1 font-bold opacity-70">Enterprise Security</p>
-                </div>
-              )}
+              <div>
+                <h1 className="font-black text-white tracking-tighter text-xl leading-none">RinoxAuth</h1>
+                <p className="text-[9px] text-[var(--muted-foreground)] uppercase tracking-[0.2em] mt-1 font-bold opacity-70">Enterprise Security</p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1 shrink-0">
             <button
               className="hidden lg:flex w-8 h-8 items-center justify-center rounded-lg hover:bg-white/5 transition-colors text-[var(--muted-foreground)]"
               onClick={() => setSidebarPref(sidebarIcons ? 'expanded' : 'icons')}
@@ -183,17 +192,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             >
               <span className="material-symbols-outlined text-sm">{sidebarIcons ? 'chevron_right' : 'chevron_left'}</span>
             </button>
-            <button 
-              className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 text-[var(--muted-foreground)]"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <span className="material-symbols-outlined text-sm">close</span>
-            </button>
           </div>
-        </div>
+        )}
         
         <nav className="flex-1 overflow-y-auto custom-scrollbar min-h-0 overscroll-contain">
-          <div className={`py-1 ${sbCompact ? 'px-1' : 'px-2'}`}>
+          <div className={`py-2 ${sbCompact ? 'px-2' : 'px-3'}`}>
             {mounted && navItems.map((item, idx) => {
               const userTier = activeUser?.subscription_tier || activeUser?.plan?.name || 'tester';
               const locked = isFeatureLocked(item.tier as 'tester' | 'developer' | 'seller', userTier);
@@ -204,15 +207,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.03, duration: 0.25, ease: 'easeOut' }}
                   className={`flex items-center gap-3 w-full relative group sidebar-item ${
-                    sbCompact ? 'justify-center p-2.5' : 'px-5 py-2.5'
+                    sbCompact ? 'justify-center p-3' : 'px-5 py-3'
                   } ${
                     isActive && !locked ? 'sidebar-item-active' : ''
                   } ${locked ? 'sidebar-item-locked' : ''}`}
                 >
-                  <span className="material-symbols-outlined text-[18px]" style={isActive && !locked ? { fontVariationSettings: "'FILL' 1" } : locked ? { color: 'var(--primary)', fontSize: '16px' } : {}}>{locked ? 'lock' : item.icon}</span>
+                  <span className="material-symbols-outlined text-[18px]" style={isActive && !locked ? { fontVariationSettings: "'FILL' 1" } : locked ? { color: 'var(--primary)' } : {}}>{locked ? 'lock' : item.icon}</span>
                   {!sbCompact && <span className="text-sm font-semibold tracking-tight whitespace-nowrap">{item.name}</span>}
                   {!sbCompact && locked && (
-                    <span className="ml-auto px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider sidebar-pro-badge">
+                    <span className="ml-auto px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider sidebar-pro-badge">
                       Pro
                     </span>
                   )}
@@ -230,10 +233,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </div>
         </nav>
 
-        <div className="shrink-0 border-t border-[var(--border)] pb-6 pt-3 px-2">
+        <div className="shrink-0 border-t border-[var(--border)] pb-8 pt-5 px-2">
           <button
             onClick={handleLogout}
-            className={`w-full flex items-center gap-3 text-[var(--destructive)] hover:bg-[var(--destructive)]/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out rounded-lg sidebar-item ${sbCompact ? 'justify-center p-2.5' : 'px-4 py-2.5'}`}
+            className={`w-full flex items-center gap-3 text-[var(--destructive)] hover:bg-[var(--destructive)]/10 transition-[background-color,box-shadow,border-color] duration-200 ease-out rounded-lg sidebar-item ${sbCompact ? 'justify-center p-3' : 'px-5 py-3'}`}
           >
             <span className="material-symbols-outlined text-[18px]">logout</span>
             {!sbCompact && <span className="text-sm font-semibold tracking-tight">Sign Out</span>}

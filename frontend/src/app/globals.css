@@ -726,24 +726,27 @@ a, button, input, select, textarea, [role="button"] {
   .sidebar-item {
     color: var(--muted-foreground);
     border-radius: var(--r-sm);
-    margin: 2px 0;
+    margin: 6px 0;
     position: relative;
     z-index: 1;
     transition: background 200ms var(--ease-in-out),
-                color      200ms var(--ease-in-out);
+                color      200ms var(--ease-in-out),
+                border-color 200ms var(--ease-in-out),
+                box-shadow   200ms var(--ease-in-out);
     cursor: pointer;
     user-select: none;
   }
   .sidebar-item:hover {
-    background: color-mix(in srgb, var(--sidebar-accent) 70%, transparent);
-    color: var(--sidebar-accent-foreground);
+    background: color-mix(in srgb, var(--primary) 4%, transparent);
+    color: var(--foreground);
     z-index: 2;
   }
   .sidebar-item:active { opacity: 0.9; }
   .sidebar-item-active {
-    background: color-mix(in srgb, var(--sidebar-accent) 70%, transparent);
+    background: color-mix(in srgb, var(--primary) 6%, transparent);
     color: var(--sidebar-accent-foreground);
-    border-left: 2px solid var(--primary);
+    border: 1px solid color-mix(in srgb, var(--primary) 12%, transparent);
+    box-shadow: 0 0 8px -2px rgba(0, 212, 255, 0.08);
     z-index: 2;
   }
   .sidebar-item-active:hover {
@@ -770,21 +773,23 @@ a, button, input, select, textarea, [role="button"] {
   }
   .sidebar-pro-dot {
     background: var(--primary);
-    box-shadow: 0 0 6px var(--primary);
+    box-shadow: 0 0 4px var(--primary);
   }
   .sidebar-item .material-symbols-outlined {
     font-size: 18px;
     transition: color 200ms var(--ease-in-out),
                 opacity 200ms var(--ease-in-out);
   }
-  .sidebar-item:hover .material-symbols-outlined {
-    opacity: 0.9;
+  .sidebar-item:hover .material-symbols-outlined,
+  .sidebar-item-active .material-symbols-outlined {
+    color: var(--primary);
+    opacity: 1;
   }
   .sidebar-item:active .material-symbols-outlined {
     opacity: 0.8;
   }
   .active-nav-glow {
-    box-shadow: -2px 0 6px -2px color-mix(in srgb, var(--primary) 15%, transparent);
+    box-shadow: 0 0 8px -2px rgba(0, 212, 255, 0.08);
   }
 
   /* Filter tabs / pills */
