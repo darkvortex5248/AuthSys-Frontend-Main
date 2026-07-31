@@ -26,7 +26,7 @@ export default function PricingGrid({
       </div>
 
       {/* Cards — equal height grid with generous gaps */}
-      <div className="grid w-full grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid w-full grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
         {plans.map((plan, i) => (
           <PlanCard
             key={plan.id}

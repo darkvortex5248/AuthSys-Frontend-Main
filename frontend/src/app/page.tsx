@@ -726,25 +726,28 @@ function PricingSection({ plans }: { plans: any[] }) {
   const [yearly, setYearly] = useState(false);
 
   return (
-    <section id="pricing" className="relative py-28 px-4 overflow-hidden">
+    <section id="pricing" className="relative py-32 px-4 overflow-hidden">
       {/* Radial gradient backgrounds — cyan-tinted ambient glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(0,212,255,0.03)_0%,transparent_60%)] pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(0,212,255,0.015)_0%,transparent_50%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(0,212,255,0.04)_0%,transparent_65%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(0,212,255,0.02)_0%,transparent_60%)] pointer-events-none" />
+      {/* Subtle vignette */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,rgba(0,0,0,0.12)_100%)] pointer-events-none" />
+
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
         <motion.div
-          className="text-center mb-16"
+          className="text-center mb-20"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4, ease: [0.22, 0.61, 0.36, 1] }}
         >
           <SectionLabel>Pricing</SectionLabel>
-          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-5" style={{ color: T.textPrimary }}>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-6" style={{ color: T.textPrimary }}>
             Flexible plans for every team
           </h2>
-          <p className="text-sm max-w-lg mx-auto" style={{ color: T.textSecondary }}>
-            Start free, scale fast. All plans include encryption, SSO, and community support.
+          <p className="text-base max-w-2xl mx-auto leading-relaxed" style={{ color: T.textSecondary }}>
+            Start free, scale fast. All plans include enterprise-grade encryption, SSO, and community support.
           </p>
         </motion.div>
 
@@ -755,9 +758,9 @@ function PricingSection({ plans }: { plans: any[] }) {
           onSelectPlan={(plan) => window.location.href = '/register'}
         />
 
-        {/* Trust Features — adapted from AI-IMG-VD-GENERATOR-WEB pricing design */}
+        {/* Trust Features */}
         <motion.div
-          className="mt-16"
+          className="mt-20"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -787,7 +790,7 @@ function PricingSection({ plans }: { plans: any[] }) {
         </motion.div>
 
         <motion.p
-          className="text-center text-xs mt-12"
+          className="text-center text-xs mt-16"
           style={{ color: T.textMuted }}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}

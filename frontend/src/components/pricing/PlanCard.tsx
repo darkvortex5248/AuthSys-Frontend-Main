@@ -2,7 +2,7 @@
 
 import { motion, useInView, AnimatePresence } from 'framer-motion'
 import { useRef } from 'react'
-import { Check, X, Sparkles, Zap, Gem, Crown, Rocket, type LucideIcon } from 'lucide-react'
+import { Check, X, Sparkles, type LucideIcon } from 'lucide-react'
 import type { Plan } from '@/types/pricing'
 import { calcYearlySavings } from '@/lib/pricing'
 
@@ -21,10 +21,10 @@ interface FeatureDef {
 }
 
 const PLAN_ICONS: Record<string, LucideIcon> = {
-  explore: Zap,
-  diamond: Gem,
-  workspace_premium: Crown,
-  rocket: Rocket,
+  explore: Sparkles,
+  diamond: Sparkles,
+  workspace_premium: Sparkles,
+  rocket: Sparkles,
 }
 
 const FEATURES: FeatureDef[] = [
@@ -87,56 +87,56 @@ export default function PlanCard({ plan, isYearly, onSelect, index }: Props) {
   })
 
   return (
-      <motion.div
-        className="relative flex h-full flex-col"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.4, ease: EASING, delay: index * 0.05 }}
-      >
+    <motion.div
+      className="relative flex h-full flex-col"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4, ease: EASING, delay: index * 0.05 }}
+    >
       <div
-        className="relative flex h-full flex-col rounded-[20px] border border-[var(--border)]/30 bg-[var(--glass-bg)]/15 p-7 backdrop-blur-xl
-          transition-[transform,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,0.61,0.36,1)]
-          hover:translate-y-[-8px] hover:border-[var(--border-hover)]/40 hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
+        className="relative flex h-full flex-col rounded-[24px] border border-[var(--border)]/20 bg-[var(--glass-bg)]/20 p-8 backdrop-blur-xl
+          transition-[transform,border-color,box-shadow] duration-250 ease-[cubic-bezier(0.22,0.61,0.36,1)]
+          hover:translate-y-[-6px] hover:scale-[1.02] hover:border-[var(--border-hover)]/40 hover:shadow-[0_25px_50px_rgba(0,0,0,0.25)]"
       >
         {/* Developer plan: soft cyan ambient glow around the outside */}
         {plan.is_recommended && (
           <div
-            className="pointer-events-none absolute -inset-px rounded-[20px]"
+            className="pointer-events-none absolute -inset-px rounded-[24px]"
             style={{
-              boxShadow: '0 0 40px 8px rgba(0, 212, 255, 0.08)',
+              boxShadow: '0 0 30px 8px rgba(0, 212, 255, 0.06)',
             }}
           />
         )}
 
-        {/* Most Popular badge — small pill, integrated into card */}
+        {/* Most Popular badge — connected to the card, not floating */}
         {plan.is_recommended && (
           <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
-            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--primary)]/15 px-3 py-1 text-[9px] font-medium text-[var(--primary)] border border-[var(--primary)]/10 shadow-[0_0_12px_rgba(0,212,255,0.15)]">
-              <Sparkles className="w-2.5 h-2.5 fill-current" />
+            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--primary)]/15 px-4 py-1.5 text-[11px] font-medium text-[var(--primary)] border border-[var(--primary)]/20 shadow-[0_0_12px_rgba(0,212,255,0.15)]">
+              <Sparkles className="w-3 h-3 fill-current" />
               Most Popular
             </span>
           </div>
         )}
 
         {/* Icon + Plan Name */}
-        <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--accent-opacity-8)] border border-[var(--border)]/20">
+        <div className="mb-7 flex items-center gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--accent-opacity-8)] border border-[var(--border)]/20">
             <Icon className="h-5 w-5 text-[var(--primary)]" />
           </div>
           <div>
             <h3 className="text-base font-semibold text-[var(--foreground)]">{plan.name}</h3>
             {plan.description && (
-              <p className="mt-0.5 text-[12px] leading-tight text-[var(--muted-foreground)]">
+              <p className="mt-0.5 text-[12px] leading-relaxed text-[var(--muted-foreground)]">
                 {plan.description}
               </p>
             )}
           </div>
         </div>
 
-        {/* Price — smooth transition on toggle */}
-        <div className="mb-6">
-          <div className="flex items-baseline gap-1.5">
+        {/* Price — the strongest visual element inside each card */}
+        <div className="mb-8">
+          <div className="flex flex-col items-center gap-1">
             <AnimatePresence initial={false} mode="wait">
               <motion.span
                 key={isYearly ? 'yearly' : 'monthly'}
@@ -145,7 +145,7 @@ export default function PlanCard({ plan, isYearly, onSelect, index }: Props) {
                 animate="animate"
                 exit="exit"
                 transition={{ duration: 0.25, ease: EASING }}
-                className="text-4xl font-bold tracking-tight text-[var(--foreground)]"
+                className="text-5xl font-extrabold tracking-tight text-[var(--foreground)]"
               >
                 {price <= 0 ? 'Free' : `$${(price / 100).toFixed(2).replace(/\.00$/, '')}`}
               </motion.span>
@@ -171,7 +171,7 @@ export default function PlanCard({ plan, isYearly, onSelect, index }: Props) {
         {/* Feature List — staggered animation on viewport entry */}
         <motion.div
           ref={featuresRef}
-          className="mb-6 flex-1"
+          className="mb-8 flex-1"
           initial="hidden"
           animate={featuresInView ? 'visible' : 'hidden'}
           variants={featureListVariants}
@@ -182,17 +182,17 @@ export default function PlanCard({ plan, isYearly, onSelect, index }: Props) {
             return (
               <motion.div
                 key={feat.label}
-                className="mb-2.5 flex items-center gap-2.5"
+                className="mb-3 flex items-center gap-3"
                 variants={featureItemVariants}
                 transition={{ duration: 0.35, ease: EASING }}
               >
                 {included ? (
-                  <Check className="h-4 w-4 shrink-0 text-[var(--primary)]" strokeWidth={3} />
+                  <Check className="h-4 w-4 shrink-0 text-[var(--primary)]" strokeWidth={2} />
                 ) : (
-                  <X className="h-4 w-4 shrink-0 text-[var(--muted-foreground)]/30" strokeWidth={2} />
+                  <X className="h-4 w-4 shrink-0 text-[var(--muted-foreground)]/30" strokeWidth={1.5} />
                 )}
                 <span
-                  className={`text-sm ${included ? 'text-[var(--foreground)]' : 'text-[var(--muted-foreground)]/40'}`}
+                  className={`flex-1 text-sm ${included ? 'text-[var(--foreground)]' : 'text-[var(--muted-foreground)]/40'}`}
                 >
                   {val || feat.label}
                 </span>
@@ -201,15 +201,14 @@ export default function PlanCard({ plan, isYearly, onSelect, index }: Props) {
           })}
         </motion.div>
 
-        {/* CTA Button — no size change on hover, just brightness */}
+        {/* CTA Button — no size change on hover, just brightness + lift */}
         <button
           onClick={() => onSelect(plan)}
-          className={`w-full rounded-xl py-2.5 text-xs font-semibold uppercase tracking-wider
-            transition-[background-color,box-shadow,border-color] duration-200 ease-out
+          className={`w-full rounded-[16px] py-3 text-sm font-medium transition-[background-color,box-shadow,border-color] duration-200 ease-out
             ${
               plan.is_recommended
-                ? 'bg-[var(--primary)] text-[var(--primary-foreground)] shadow-[0_4px_16px_rgba(0,212,255,0.15)] hover:brightness-110 hover:shadow-[0_6px_20px_rgba(0,212,255,0.2)]'
-                : 'border border-[var(--border)]/40 text-[var(--foreground)] hover:bg-[var(--accent-opacity-8)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)]'
+                ? 'bg-[var(--primary)] text-[var(--primary-foreground)] shadow-[0_4px_20px_rgba(0,212,255,0.15)] hover:brightness-105 hover:shadow-[0_6px_24px_rgba(0,212,255,0.2)] active:scale-[0.98]'
+                : 'border border-[var(--border)]/50 text-[var(--foreground)] hover:bg-[var(--accent-opacity-8)] hover:border-[var(--border-hover)]/40 hover:shadow-[0_4px_16px_rgba(0,0,0,0.15)] active:scale-[0.98]'
             }`}
         >
           {plan.button_text || (price <= 0 ? 'Get Started' : 'Choose Plan')}
