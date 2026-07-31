@@ -75,20 +75,20 @@ function SidebarCategory({
     <div>
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`group relative flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
+        className={`group relative flex w-full items-center gap-2 rounded-xl px-3 py-3 text-sm font-medium transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
           isCategoryActive || hasActiveChild
             ? 'text-[var(--color-text-primary)]'
-            : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'
+            : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--accent-opacity-6)]'
         }`}
       >
         <span
           className={`absolute inset-0 rounded-xl transition-colors duration-150 ${
             isCategoryActive || hasActiveChild
-              ? 'bg-[var(--accent-tint)]'
-              : 'bg-transparent'
+              ? 'bg-[var(--accent-opacity-8)]'
+              : 'group-hover:bg-[var(--accent-opacity-6)] bg-transparent'
           }`}
         />
-        <span className="relative z-10 flex h-5 w-5 items-center justify-center">
+        <span className="relative z-10 flex h-6 w-6 items-center justify-center">
           <span className="material-symbols-outlined text-[18px]">
             {cat.icon}
           </span>
@@ -105,13 +105,13 @@ function SidebarCategory({
       </button>
 
       <div
-        className="transition-[background-color,box-shadow,border-color] duration-200 ease-out overflow-hidden"
+        className="transition-[max-height,opacity] duration-200 ease-out overflow-hidden"
         style={{
-          maxHeight: isOpen ? `${cat.pages.length * 40 + 8}px` : '0px',
+          maxHeight: isOpen ? `${cat.pages.length * 44 + 16}px` : '0px',
           opacity: isOpen ? 1 : 0,
         }}
       >
-          <div className="ml-4 mt-0.5 space-y-0.5 border-l border-[var(--color-border)]/50 pl-3">
+          <div className="ml-4 mt-2 space-y-1 border-l border-[var(--color-border)]/50 pl-3">
           {cat.pages.map((page) => {
             const isPageActive = pathname === page.href
             return (
@@ -120,21 +120,24 @@ function SidebarCategory({
                   href={page.href}
                   data-active={isPageActive ? 'true' : undefined}
                   onClick={onNavigate}
-                  className={`group relative flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
+                  className={`group relative flex items-center gap-2 rounded-lg px-3 py-2 text-xs transition-[background-color,box-shadow,border-color] duration-200 ease-out ${
                     isPageActive
-                      ? 'font-medium text-[var(--primary)]'
+                      ? 'font-medium text-[var(--primary)] docs-sidebar-item-active'
                       : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--accent-opacity-6)]'
                   }`}
                 >
                   <span
                     className={`absolute inset-0 rounded-lg transition-colors duration-150 ${
                       isPageActive
-                        ? 'bg-[var(--accent-tint)]'
+                        ? 'bg-[var(--accent-opacity-8)]'
                         : 'bg-transparent'
                     }`}
                   />
                   {isPageActive && (
-                    <span className="absolute -left-[13.5px] top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full bg-[var(--primary)]" />
+                    <span
+                      className="absolute -left-[13.5px] top-1/2 h-3 w-px -translate-y-1/2 rounded-full"
+                      style={{ backgroundColor: 'rgba(0, 212, 255, 0.3)' }}
+                    />
                   )}
                   <span className="relative z-10">{page.title}</span>
                 </Link>
@@ -445,7 +448,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
             </div>
 
             {/* Scrollable nav */}
-            <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
+            <nav className="flex-1 space-y-3 overflow-y-auto px-3 py-6">
               {filteredNav.map((cat) => {
                 const hasActiveChild = cat.pages.some(
                   (p) => pathname === p.href,

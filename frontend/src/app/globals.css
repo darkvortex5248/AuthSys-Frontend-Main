@@ -792,6 +792,13 @@ a, button, input, select, textarea, [role="button"] {
     box-shadow: 0 0 8px -2px rgba(0, 212, 255, 0.08);
   }
 
+  /* Docs sidebar — refined active child item */
+  .docs-sidebar-item-active {
+    background: color-mix(in srgb, var(--primary) 5%, transparent);
+    border: 1px solid color-mix(in srgb, var(--primary) 8%, transparent);
+    box-shadow: 0 0 8px -2px rgba(0, 212, 255, 0.06);
+  }
+
   /* Filter tabs / pills */
   .filter-tab,
   .filter-pill {
