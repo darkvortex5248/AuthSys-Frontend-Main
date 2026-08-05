@@ -66,7 +66,7 @@ async def create_user_manual(req: UserCreateManual, dev: DeveloperAccount = Depe
         email=req.email,
         expires_at=expires_at,
         max_uses=req.max_uses if req.max_uses is not None else 1,
-        max_devices=req.max_uses if req.max_uses is not None else 1
+        max_devices=req.max_devices if req.max_devices is not None else (req.max_uses if req.max_uses is not None else 1)
     )
     db.add(new_user)
     await db.commit()
@@ -110,7 +110,7 @@ async def bulk_create_users(req: BulkUserCreate, dev: DeveloperAccount = Depends
                 email=email,
                 expires_at=req.expires_at,
                 max_uses=req.max_uses,
-                max_devices=req.max_uses
+                max_devices=req.max_devices if req.max_devices is not None else req.max_uses
             )
             users.append(new_user)
             db.add(new_user)
@@ -136,7 +136,7 @@ async def bulk_create_users(req: BulkUserCreate, dev: DeveloperAccount = Depends
                 password_hash=hashed_password,
                 expires_at=req.expires_at,
                 max_uses=req.max_uses,
-                max_devices=req.max_uses
+                max_devices=req.max_devices if req.max_devices is not None else req.max_uses
             )
             users.append(new_user)
             db.add(new_user)

@@ -70,11 +70,13 @@ async def generate_key(req: KeyGenerate, dev: DeveloperAccount = Depends(get_cur
     if expires_at is None and req.key_type == "time" and req.duration_days:
         expires_at = datetime.now(timezone.utc) + timedelta(days=req.duration_days)
 
-    # Device limit: use max_devices if provided, otherwise fall back to max_uses
+    # Device limit: `max_devices` is independent of `max_uses`.
+    # - If client provided `max_devices`, honor it.
+    # - Otherwise, default to 1 (one device) for both `uses_based` and time-based keys.
+    # We no longer fall back to `max_uses` because that would silently turn a
+    # usage-credit count (e.g. 1000 uses) into a device cap of 1000.
     max_devices = req.max_devices
     if max_devices is None:
-        max_devices = req.max_uses
-    if max_devices is None and req.key_type != "uses_based":
         max_devices = 1
 
     new_key = LicenseKey(
@@ -116,10 +118,9 @@ async def bulk_generate(req: BulkKeyGenerate, dev: DeveloperAccount = Depends(ge
     keys = []
     skipped = []
     key_values = req.custom_keys if req.custom_keys else []
+    # Bug fix: don't silently treat `max_uses` as a device cap. Default to 1.
     max_devices = req.max_devices
     if max_devices is None:
-        max_devices = req.max_uses
-    if max_devices is None and req.key_type != "uses_based":
         max_devices = 1
     for i in range(req.count):
         key_val = key_values[i] if i < len(key_values) else generate_key_string()

@@ -6,18 +6,29 @@ import { toast } from 'sonner';
 import { isFeatureLocked } from '@/lib/plan-access';
 import { useDeveloperMe } from '@/hooks/use-developer-queries';
 import PremiumLocked from '@/components/PremiumLocked';
+import {
+  SystemPageShell,
+  SystemFormPanel,
+  SystemGroupHeader,
+  SystemEmptyState,
+  SystemChip,
+  SystemIconBox,
+  SystemDataRow,
+  SystemActionButton,
+} from '@/components/shells/SystemPageShell';
 
 const ENV_CONFIG = {
-  production: { color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', dot: 'bg-red-400', label: 'Production' },
-  staging:    { color: 'text-yellow-400', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', dot: 'bg-yellow-400', label: 'Staging' },
-  dev:        { color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20', dot: 'bg-blue-400', label: 'Dev' },
+  production: { color: 'text-red-400',     bg: 'bg-red-500/10',     border: 'border-red-500/20',     dot: 'bg-red-400',     rail: 'bg-red-400/60',     label: 'Production', icon: 'public'     },
+  staging:    { color: 'text-amber-400',   bg: 'bg-amber-500/10',   border: 'border-amber-500/20',   dot: 'bg-amber-400',   rail: 'bg-amber-400/60',   label: 'Staging',    icon: 'science'    },
+  dev:        { color: 'text-blue-400',    bg: 'bg-blue-500/10',    border: 'border-blue-500/20',    dot: 'bg-blue-400',    rail: 'bg-blue-400/60',    label: 'Dev',        icon: 'code'       },
 } as const;
 
 type EnvName = keyof typeof ENV_CONFIG;
 
 function getEnvConfig(name: string) {
   return ENV_CONFIG[name as EnvName] ?? {
-    color: 'text-[var(--muted-foreground)]', bg: 'bg-white/5', border: 'border-white/10', dot: 'bg-white/30', label: name,
+    color: 'text-[var(--muted-foreground)]', bg: 'bg-white/5', border: 'border-white/10',
+    dot: 'bg-white/30', rail: 'bg-white/30', label: name, icon: 'layers',
   };
 }
 
@@ -31,7 +42,6 @@ export default function EnvironmentsPage() {
   const [form, setForm] = useState({ parent_app_id: 0, name: 'staging' });
   const [creating, setCreating] = useState(false);
   const [regenId, setRegenId] = useState<number | null>(null);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -79,7 +89,6 @@ export default function EnvironmentsPage() {
       setTimeout(() => setConfirmDelete(null), 4000);
       return;
     }
-    setDeleteId(id);
     try {
       await api.delete(`/developer/environments/${id}`);
       toast.success('Environment deleted');
@@ -87,7 +96,6 @@ export default function EnvironmentsPage() {
     } catch {
       toast.error('Failed to delete');
     } finally {
-      setDeleteId(null);
       setConfirmDelete(null);
     }
   };
@@ -100,19 +108,22 @@ export default function EnvironmentsPage() {
     return acc;
   }, {} as Record<string, any[]>);
 
+  // Stats
+  const productionCount = envs.filter(e => e.name === 'production').length;
+  const stagingCount    = envs.filter(e => e.name === 'staging').length;
+  const devCount        = envs.filter(e => e.name === 'dev').length;
+  const appCount        = Object.keys(grouped).length;
+
   if (!mounted) {
     return (
       <div className="space-y-6 animate-pulse">
         <div className="premium-card p-8 md:p-10 space-y-6">
           <div className="sk h-6 w-36 rounded-lg" />
           <div className="sk h-4 w-60 rounded" />
-          <div className="flex gap-3 mt-4">
-            <div className="sk h-10 flex-1 rounded-xl" />
-            <div className="sk h-10 w-32 rounded-xl" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
+            {[1, 2, 3, 4].map(i => <div key={i} className="sk h-20 rounded-xl" />)}
           </div>
-          <div className="space-y-3">
-            {[1,2,3].map(i => <div key={i} className="sk h-16 w-full rounded-xl" />)}
-          </div>
+          <div className="sk h-14 w-full rounded-xl" />
         </div>
       </div>
     );
@@ -127,24 +138,29 @@ export default function EnvironmentsPage() {
   }
 
   return (
-    <section className="premium-card p-8 md:p-10 space-y-8">
-
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h3 className="text-xl font-semibold text-[var(--foreground)] tracking-tight">Environments</h3>
-          <p className="text-sm text-[var(--muted-foreground)] mt-0.5">
-            Manage dev, staging, and production environments per app
-          </p>
-        </div>
-        <span className="shrink-0 px-2.5 py-1 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] text-xs font-semibold tabular-nums">
+    <SystemPageShell
+      crumbs={[{ label: 'System' }, { label: 'Environments' }]}
+      title="Environments"
+      subtitle="Manage dev, staging, and production environments per app — each with its own secrets and routing."
+      accent={
+        <SystemChip tone="primary">
           {envs.length} {envs.length === 1 ? 'environment' : 'environments'}
-        </span>
-      </div>
-
+        </SystemChip>
+      }
+      stats={[
+        { label: 'Apps',       value: appCount,        icon: 'grid_view',  tone: 'default' },
+        { label: 'Production', value: productionCount, icon: 'public',     tone: 'danger'  },
+        { label: 'Staging',    value: stagingCount,    icon: 'science',    tone: 'warning' },
+        { label: 'Dev',        value: devCount,        icon: 'code',       tone: 'success' },
+      ]}
+    >
       {/* Create form */}
-      <div className="premium-card p-4 border border-[var(--primary)]/20 space-y-3">
-        <p className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">New environment</p>
+      <SystemFormPanel
+        title="New environment"
+        footer={
+          <span className="text-[10px] text-[var(--muted-foreground)]/70">Auto-provisioned per app</span>
+        }
+      >
         <div className="flex gap-2.5 flex-wrap sm:flex-nowrap">
           <div className="relative flex-1 min-w-[160px]">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[16px] text-[var(--muted-foreground)]">grid_view</span>
@@ -183,94 +199,87 @@ export default function EnvironmentsPage() {
             Create
           </button>
         </div>
-      </div>
+      </SystemFormPanel>
 
       {/* Environment list */}
       {envs.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
-          <div className="w-12 h-12 rounded-2xl bg-[var(--card)] border border-white/8 flex items-center justify-center">
-            <span className="material-symbols-outlined text-2xl text-[var(--muted-foreground)]/60">layers</span>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-[var(--foreground)]">No environments yet</p>
-            <p className="text-xs text-[var(--muted-foreground)] mt-0.5">Create one above to get started</p>
-          </div>
-        </div>
+        <SystemEmptyState
+          icon="layers"
+          title="No environments yet"
+          hint="Create a dev, staging, or production environment for one of your apps above."
+        />
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-7">
           {Object.entries(grouped).map(([appId, appEnvs]) => {
             const app = apps.find(a => a.id === parseInt(appId));
+            const list = appEnvs as any[];
             return (
               <div key={appId}>
-                {/* App group header */}
-                <div className="flex items-center gap-2.5 mb-3">
-                  <div className="w-6 h-6 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-[13px] text-[var(--primary)]">grid_view</span>
-                  </div>
-                  <p className="text-sm font-semibold text-[var(--foreground)]">{app?.name || `App #${appId}`}</p>
-                  <span className="text-[10px] text-[var(--muted-foreground)] px-1.5 py-0.5 bg-white/5 rounded-md">
-                    {(appEnvs as any[]).length} env{(appEnvs as any[]).length !== 1 ? 's' : ''}
-                  </span>
-                </div>
+                <SystemGroupHeader
+                  icon="grid_view"
+                  iconClassName="bg-[var(--primary)]/10"
+                  title={app?.name || `App #${appId}`}
+                  badges={[
+                    <SystemChip key="c" tone="muted" className="!normal-case !tracking-normal">
+                      {list.length} env{list.length !== 1 ? 's' : ''}
+                    </SystemChip>,
+                  ]}
+                />
 
-                <div className="space-y-2 pl-0">
-                  {(appEnvs as any[]).map(e => {
+                <div className="space-y-2">
+                  {list.map(e => {
                     const cfg = getEnvConfig(e.name);
                     return (
-                      <div key={e.id} className={`premium-card p-4 flex items-center gap-4 border ${cfg.border} transition-[background-color,box-shadow,border-color] duration-200 ease-out`}>
-
-                        {/* Env badge */}
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${cfg.bg}`}>
-                          <span className={`material-symbols-outlined text-lg ${cfg.color}`}>layers</span>
-                        </div>
-
-                        {/* Info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${cfg.dot}`} />
-                            <p className="text-sm font-semibold text-[var(--foreground)] capitalize">{cfg.label}</p>
-                            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${cfg.bg} ${cfg.color}`}>
-                              {e.name}
-                            </span>
+                      <SystemDataRow
+                        key={e.id}
+                        accent={cfg.rail}
+                        left={
+                          <SystemIconBox
+                            icon={cfg.icon}
+                            tone={e.name === 'production' ? 'red' : e.name === 'staging' ? 'amber' : 'blue'}
+                          />
+                        }
+                        center={
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${cfg.dot}`} />
+                              <p className="text-sm font-semibold text-[var(--foreground)]">{cfg.label}</p>
+                              <SystemChip tone="muted" className="!normal-case !tracking-normal">
+                                {e.name}
+                              </SystemChip>
+                              {/* Health dot indicator */}
+                              <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400/80">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                Healthy
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-[var(--muted-foreground)] mt-1 font-mono">
+                              ID: {e.owner_id ?? e.id}
+                            </p>
                           </div>
-                          <p className="text-[11px] text-[var(--muted-foreground)] mt-0.5 font-mono">
-                            ID: {e.owner_id ?? e.id}
-                          </p>
-                        </div>
+                        }
+                        right={
+                          <>
+                            <SystemActionButton
+                              icon="refresh"
+                              onClick={() => handleRegen(e.id)}
+                              loading={regenId === e.id}
+                              title="Regenerate secret"
+                            >
+                              <span className="hidden sm:inline">Regen</span>
+                            </SystemActionButton>
 
-                        {/* Actions */}
-                        <div className="flex items-center gap-1 shrink-0">
-                          <button
-                            onClick={() => handleRegen(e.id)}
-                            disabled={regenId === e.id}
-                            title="Regenerate secret"
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] text-xs font-medium transition-colors disabled:opacity-50"
-                          >
-                            {regenId === e.id
-                              ? <span className="w-3 h-3 border border-white/20 border-t-white/60 rounded-full animate-spin" />
-                              : <span className="material-symbols-outlined text-[13px]">refresh</span>
-                            }
-                            <span className="hidden sm:inline">Regen</span>
-                          </button>
-
-                          <button
-                            onClick={() => handleDelete(e.id)}
-                            disabled={deleteId === e.id}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-[background-color,box-shadow,border-color] duration-200 ease-out disabled:opacity-50 ${
-                              confirmDelete === e.id
-                                ? 'bg-red-500 text-white'
-                                : 'hover:bg-red-500/10 text-[var(--muted-foreground)] hover:text-red-400'
-                            }`}
-                          >
-                            {deleteId === e.id
-                              ? <span className="w-3 h-3 border border-red-400/30 border-t-red-400 rounded-full animate-spin" />
-                              : <span className="material-symbols-outlined text-[13px]">delete</span>
-                            }
-                            {confirmDelete === e.id ? 'Sure?' : <span className="hidden sm:inline">Delete</span>}
-                          </button>
-                        </div>
-
-                      </div>
+                            <SystemActionButton
+                              variant="danger"
+                              icon="delete"
+                              onClick={() => handleDelete(e.id)}
+                              className={confirmDelete === e.id ? '!bg-red-500/15 !text-red-400 !border-red-500/30' : ''}
+                            >
+                              {confirmDelete === e.id ? 'Confirm?' : <span className="hidden sm:inline">Delete</span>}
+                            </SystemActionButton>
+                          </>
+                        }
+                      />
                     );
                   })}
                 </div>
@@ -280,6 +289,6 @@ export default function EnvironmentsPage() {
         </div>
       )}
 
-    </section>
+    </SystemPageShell>
   );
 }

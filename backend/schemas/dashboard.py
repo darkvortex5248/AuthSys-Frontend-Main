@@ -64,6 +64,7 @@ class UserCreateManual(BaseModel):
     expires_at: Optional[datetime] = None
     duration_days: Optional[int] = None
     max_uses: int = 1
+    max_devices: int = 1
 
 class BulkUserCreate(BaseModel):
     app_id: int
@@ -72,6 +73,7 @@ class BulkUserCreate(BaseModel):
     expires_at: Optional[datetime] = None
     users_list: Optional[list[dict]] = None
     max_uses: int = 1
+    max_devices: int = 1
 
 class VariableCreate(BaseModel):
     app_id: int

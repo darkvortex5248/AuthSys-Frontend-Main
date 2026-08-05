@@ -32,17 +32,43 @@ function UsageBar({ label, current, limit, pct }: { label: string; current: numb
 
 export default function PlanPage() {
   const { user } = useAuthStore();
-  const { data: profile, refetch: refreshSubscription, isFetching } = useDeveloperMe(true);
+  // Bug fix: don't force `enabled=true` — wait for token. Otherwise an
+  // unauthenticated visit triggers 401 -> redirect loop and the page
+  // appears to "never load". Pass `authed` to make the query token-aware.
+  const authed = Boolean(useAuthStore((s) => s.token));
+  const { data: profile, refetch: refreshSubscription, isFetching } = useDeveloperMe(authed);
   const activeUser = profile ?? user;
   const [usage, setUsage] = useState<any>(null);
   const [usageLoading, setUsageLoading] = useState(true);
+  const [usageError, setUsageError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
 
+  const loadUsage = async () => {
+    setUsageLoading(true);
+    setUsageError(null);
+    try {
+      const r = await api.get('/developer/usage/current');
+      setUsage(r.data);
+    } catch (err: any) {
+      // Bug fix: surface the error so it's no longer silently swallowed.
+      const status = err?.response?.status;
+      const detail = err?.response?.data?.detail || err?.message || 'Unknown error';
+      console.error('[PlanPage] usage/current failed', { status, detail, url: err?.config?.url });
+      setUsageError(`${status ? status + ' — ' : ''}${detail}`);
+    } finally {
+      setUsageLoading(false);
+    }
+  };
+
   useEffect(() => {
-    api.get('/developer/usage/current').then(r => setUsage(r.data)).catch(() => {}).finally(() => setUsageLoading(false));
-  }, []);
+    if (!authed) {
+      setUsageLoading(false);
+      return;
+    }
+    loadUsage();
+  }, [authed]);
 
   const limitPct = (cur: number, lim: number) => lim > 0 ? Math.min(100, Math.round((cur / lim) * 100)) : 0;
 
@@ -67,7 +93,10 @@ export default function PlanPage() {
           <h3 className="text-2xl font-bold text-[var(--foreground)] mb-1">Plan & Usage</h3>
           <p className="text-sm text-[var(--muted-foreground)]">Your current subscription plan and resource consumption.</p>
         </div>
-        <PlanBadge tier={activeUser?.subscription_tier} planName={activeUser?.plan?.name} />
+        {/* Bug fix: PlanBadge must always receive defined strings; previously
+            `activeUser?.plan?.name` could be undefined and the badge had no
+            fallback. `tier` always exists on the auth user. */}
+        <PlanBadge tier={activeUser?.subscription_tier} planName={activeUser?.plan?.name || activeUser?.plan_name || null} />
       </div>
 
       {usageLoading ? (
@@ -78,6 +107,23 @@ export default function PlanPage() {
               <div className="sk h-2.5 w-full rounded" />
             </div>
           ))}
+        </div>
+      ) : usageError ? (
+        // Bug fix: render the actual error so the user (and we) can see why
+        // usage data is missing, instead of "Unable to load usage data."
+        <div className="text-center py-10 space-y-3">
+          <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-red-500/10 border border-red-500/20">
+            <span className="material-symbols-outlined text-red-400 text-[20px]">error</span>
+          </div>
+          <p className="text-sm text-[var(--foreground)] font-semibold">Couldn&rsquo;t load usage data</p>
+          <p className="text-xs text-[var(--muted-foreground)] max-w-md mx-auto break-words">{usageError}</p>
+          <button
+            onClick={loadUsage}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold transition-colors"
+          >
+            <span className="material-symbols-outlined text-[14px]">refresh</span>
+            Try again
+          </button>
         </div>
       ) : usage ? (
         <>
@@ -98,7 +144,7 @@ export default function PlanPage() {
           Need more capacity?{' '}
           <Link href="/settings/billing/payments" className="text-[var(--primary)] font-bold hover:underline">View upgrade options</Link>
         </p>
-        <button onClick={() => refreshSubscription()} disabled={isFetching}
+        <button onClick={() => { refreshSubscription(); loadUsage(); }} disabled={isFetching || usageLoading}
           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/8 border border-white/10 text-xs font-bold transition-[background-color,box-shadow,border-color] duration-200 ease-out">
           <span className={`material-symbols-outlined text-[14px] ${isFetching ? 'animate-spin' : ''}`}>refresh</span>
           Refresh

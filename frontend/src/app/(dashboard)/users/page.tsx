@@ -674,7 +674,16 @@ export default function UsersPage() {
                   {/* IP */}
                   <td className="px-6 py-4">
                     <p className="text-[11px] font-mono text-white/50">
-                      {user.last_ip || user.ip_address || 'N/A'}
+                      {(() => {
+                        // Bug fix: if user is allowed on multiple devices, a single
+                        // last_ip is not meaningful (different devices may have
+                        // different IPs). Show N/A in that case. When max_devices
+                        // is 1, the IP column is the actual unique device IP.
+                        const maxDevices = (user as any).max_devices ?? 1;
+                        const rawIp = (user.last_ip || user.ip_address || '').trim();
+                        if (maxDevices > 1) return 'N/A';
+                        return rawIp || 'N/A';
+                      })()}
                     </p>
                   </td>
 

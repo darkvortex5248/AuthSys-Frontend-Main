@@ -203,7 +203,9 @@ async def login_user(request: Request, req: ClientLoginRequest, db: AsyncSession
         else:
             raise HTTPException(status_code=403, detail=f"Max devices ({user.max_devices}) reached. Please reset your HWID.")
 
-    if req.hwid and user.max_uses >= 0:
+    # Bug fix: concurrent active device cap must use `max_devices` (not `max_uses`).
+    # `max_uses` is a usage-credit counter for `uses_based` licenses, not a device limit.
+    if req.hwid and user.max_devices >= 0:
         active_hwids = await db.execute(
             select(Session.hwid).where(
                 Session.user_id == user.id,
@@ -213,8 +215,8 @@ async def login_user(request: Request, req: ClientLoginRequest, db: AsyncSession
             ).distinct()
         )
         unique_hwids = set(ahw for ahw in active_hwids.scalars().all() if ahw)
-        if req.hwid not in unique_hwids and len(unique_hwids) >= user.max_uses:
-            raise HTTPException(status_code=403, detail=f"Max devices ({user.max_uses}) reached")
+        if req.hwid not in unique_hwids and len(unique_hwids) >= user.max_devices:
+            raise HTTPException(status_code=403, detail=f"Max devices ({user.max_devices}) reached")
 
     session_token = str(uuid.uuid4())
     token_hash = hashlib.sha256(session_token.encode()).hexdigest()
@@ -285,7 +287,11 @@ async def license_login(request: Request, req: ClientLicenseLoginRequest, db: As
     if not user:
         # Auto-create a shadow user for this license key to track sessions and HWID.
         # This is required for 'Key Only' authentication flows.
-        device_limit = license_key.max_uses if license_key.max_uses is not None else -1
+        # Bug fix: shadow user's `max_uses` (usage credit) should come from the key,
+        # but the device cap (`max_devices`) must come from `license_key.max_devices`,
+        # not from `max_uses`. For `uses_based` keys without an explicit device cap,
+        # default to 1 device to prevent "login on N devices when N = uses".
+        usage_credits = license_key.max_uses if license_key.max_uses is not None else 1
         max_devices = license_key.max_devices if license_key.max_devices is not None else 1
         sub_expires_at = None
         if license_key.key_type == "time":
@@ -299,7 +305,7 @@ async def license_login(request: Request, req: ClientLicenseLoginRequest, db: As
             license_key_id=license_key.id,
             hwid=req.hwid,
             hwids=[req.hwid] if req.hwid else [],
-            max_uses=device_limit,
+            max_uses=usage_credits,
             max_devices=max_devices,
             subscription_expires_at=sub_expires_at,
             last_ip=client_ip,
@@ -320,7 +326,9 @@ async def license_login(request: Request, req: ClientLicenseLoginRequest, db: As
             else:
                 raise HTTPException(status_code=403, detail=f"Max devices ({user.max_devices}) reached. Please reset your HWID.")
 
-    if req.hwid and user.max_uses >= 0:
+    # Bug fix: concurrent active device cap must use `max_devices` (not `max_uses`).
+    # `max_uses` is a usage-credit counter for `uses_based` licenses, not a device limit.
+    if req.hwid and user.max_devices >= 0:
         active_hwids = await db.execute(
             select(Session.hwid).where(
                 Session.user_id == user.id,
@@ -330,8 +338,8 @@ async def license_login(request: Request, req: ClientLicenseLoginRequest, db: As
             ).distinct()
         )
         unique_hwids = set(ahw for ahw in active_hwids.scalars().all() if ahw)
-        if req.hwid not in unique_hwids and len(unique_hwids) >= user.max_uses:
-            raise HTTPException(status_code=403, detail=f"Max devices ({user.max_uses}) reached")
+        if req.hwid not in unique_hwids and len(unique_hwids) >= user.max_devices:
+            raise HTTPException(status_code=403, detail=f"Max devices ({user.max_devices}) reached")
 
     session_token = str(uuid.uuid4())
     token_hash = hashlib.sha256(session_token.encode()).hexdigest()
