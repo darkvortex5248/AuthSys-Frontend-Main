@@ -279,7 +279,8 @@ namespace AuthSys
 
             var headers = new Dictionary<string, string>
             {
-                {"Authorization", $"Bearer {_sessionToken}"}
+                {"Authorization", $"Bearer {_sessionToken}"},
+                {"X-HWID", GetHwid()}
             };
 
             string endpoint = $"chat/send?room_id={roomId}&message={UnityWebRequest.EscapeURL(message)}";

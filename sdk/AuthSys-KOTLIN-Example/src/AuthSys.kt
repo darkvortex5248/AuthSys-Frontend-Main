@@ -202,7 +202,10 @@ class AuthSys(private val options: AuthSysOptions) {
             throw AuthSysException("No active session. Login first.", 0, "no_session")
         }
 
-        val headers = mapOf("Authorization" to "Bearer $sessionToken")
+        val headers = mapOf(
+            "Authorization" to "Bearer $sessionToken",
+            "X-HWID" to getHwid()
+        )
         val encoded = URLEncoder.encode(message, "UTF-8")
         return sendRequest("chat/send?room_id=$roomId&message=$encoded", null, headers)
     }

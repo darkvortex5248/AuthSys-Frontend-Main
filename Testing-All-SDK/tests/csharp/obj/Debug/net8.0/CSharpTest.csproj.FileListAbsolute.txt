@@ -1,0 +1,15 @@
+D:\TESTING_ALL\AuthSys\Testing-All-SDK\tests\csharp\obj\Debug\net8.0\CSharpTest.GeneratedMSBuildEditorConfig.editorconfig
+D:\TESTING_ALL\AuthSys\Testing-All-SDK\tests\csharp\obj\Debug\net8.0\CSharpTest.AssemblyInfoInputs.cache
+D:\TESTING_ALL\AuthSys\Testing-All-SDK\tests\csharp\obj\Debug\net8.0\CSharpTest.AssemblyInfo.cs
+D:\TESTING_ALL\AuthSys\Testing-All-SDK\tests\csharp\obj\Debug\net8.0\CSharpTest.csproj.CoreCompileInputs.cache
+D:\TESTING_ALL\AuthSys\Testing-All-SDK\tests\csharp\obj\Debug\net8.0\CSharpTest.sourcelink.json
+D:\TESTING_ALL\AuthSys\Testing-All-SDK\tests\csharp\bin\Debug\net8.0\CSharpTest.exe
+D:\TESTING_ALL\AuthSys\Testing-All-SDK\tests\csharp\bin\Debug\net8.0\CSharpTest.deps.json
+D:\TESTING_ALL\AuthSys\Testing-All-SDK\tests\csharp\bin\Debug\net8.0\CSharpTest.runtimeconfig.json
+D:\TESTING_ALL\AuthSys\Testing-All-SDK\tests\csharp\bin\Debug\net8.0\CSharpTest.dll
+D:\TESTING_ALL\AuthSys\Testing-All-SDK\tests\csharp\bin\Debug\net8.0\CSharpTest.pdb
+D:\TESTING_ALL\AuthSys\Testing-All-SDK\tests\csharp\obj\Debug\net8.0\CSharpTest.dll
+D:\TESTING_ALL\AuthSys\Testing-All-SDK\tests\csharp\obj\Debug\net8.0\refint\CSharpTest.dll
+D:\TESTING_ALL\AuthSys\Testing-All-SDK\tests\csharp\obj\Debug\net8.0\CSharpTest.pdb
+D:\TESTING_ALL\AuthSys\Testing-All-SDK\tests\csharp\obj\Debug\net8.0\CSharpTest.genruntimeconfig.cache
+D:\TESTING_ALL\AuthSys\Testing-All-SDK\tests\csharp\obj\Debug\net8.0\ref\CSharpTest.dll

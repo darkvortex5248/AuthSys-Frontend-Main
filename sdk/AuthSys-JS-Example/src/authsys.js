@@ -27,6 +27,7 @@ class AuthSys {
             maxRetries: options.maxRetries || 3,
             skipCertificateValidation: options.skipCertificateValidation || false,
             enableLogging: options.enableLogging || false,
+            hwid: options.hwid || '',
         };
 
         this._sessionToken = '';
@@ -40,6 +41,10 @@ class AuthSys {
         if (this._options.enableLogging) {
             console.log(`[AuthSys] ${message}`);
         }
+    }
+
+    _getHwid() {
+        return this._options.hwid || getHwid();
     }
 
     async _sendRequest(endpoint, data = null, headers = {}) {
@@ -99,7 +104,7 @@ class AuthSys {
             app_secret: this._options.appSecret,
             version: this._options.version,
             app_name: this._options.appName,
-            hwid: getHwid(),
+            hwid: this._getHwid(),
         };
 
         const result = await this._sendRequest('init', data);
@@ -124,7 +129,7 @@ class AuthSys {
             username,
             password,
             license_key: licenseKey,
-            hwid: getHwid(),
+            hwid: this._getHwid(),
         };
         if (email) data.email = email;
 
@@ -141,7 +146,7 @@ class AuthSys {
             app_secret: this._options.appSecret,
             username,
             password,
-            hwid: getHwid(),
+            hwid: this._getHwid(),
             session_length: sessionLength,
         };
 
@@ -162,7 +167,7 @@ class AuthSys {
         const data = {
             app_secret: this._options.appSecret,
             license_key: licenseKey,
-            hwid: getHwid(),
+            hwid: this._getHwid(),
             session_length: sessionLength,
         };
 
@@ -189,7 +194,7 @@ class AuthSys {
 
         const headers = {
             'Authorization': `Bearer ${this._sessionToken}`,
-            'X-HWID': getHwid(),
+            'X-HWID': this._getHwid(),
         };
         return await this._sendRequest('verify', null, headers);
     }
@@ -199,7 +204,7 @@ class AuthSys {
             throw new AuthSysException('No active session. Login first.', 0, 'no_session');
         }
 
-        const headers = { 'Authorization': `Bearer ${this._sessionToken}` };
+        const headers = { 'Authorization': `Bearer ${this._sessionToken}`, 'X-HWID': this._getHwid() };
         const endpoint = `chat/send?room_id=${roomId}&message=${encodeURIComponent(message)}`;
         return await this._sendRequest(endpoint, null, headers);
     }

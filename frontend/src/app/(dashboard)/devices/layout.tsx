@@ -3,14 +3,13 @@ import { ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
 const TABS: { id: string; label: string; icon: string }[] = [
-  { id: 'groups',  label: 'Groups', icon: 'devices' },
   { id: 'list',    label: 'Devices', icon: 'devices_other' },
 ];
 
 export default function DevicesLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const activeTab = pathname.split('/')[2] || 'groups';
+  const activeTab = pathname.split('/')[2] || 'list';
 
   return (
     <div className="space-y-6">

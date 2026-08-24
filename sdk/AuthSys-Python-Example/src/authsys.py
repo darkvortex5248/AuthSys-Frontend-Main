@@ -38,6 +38,7 @@ class AuthSysOptions:
         max_retries: int = 3,
         skip_certificate_validation: bool = False,
         enable_logging: bool = False,
+        hwid: Optional[str] = None,
     ):
         self.app_secret = app_secret
         self.app_name = app_name
@@ -47,6 +48,7 @@ class AuthSysOptions:
         self.max_retries = max_retries
         self.skip_certificate_validation = skip_certificate_validation
         self.enable_logging = enable_logging
+        self.hwid = hwid
 
 
 class AuthSys:
@@ -59,6 +61,10 @@ class AuthSys:
         self._app_variables: Dict[str, Any] = {}
         self._username = ""
         self._verify = not options.skip_certificate_validation
+
+    def _get_hwid(self) -> str:
+        """Return the configured HWID override, falling back to auto-detection."""
+        return self._options.hwid or get_hwid()
 
     def _log(self, message: str) -> None:
         if self._options.enable_logging:
@@ -135,7 +141,7 @@ class AuthSys:
             "app_secret": self._options.app_secret,
             "version": self._options.version,
             "app_name": self._options.app_name,
-            "hwid": get_hwid(),
+            "hwid": self._get_hwid(),
         }
 
         result = self._send_request("init", data)
@@ -164,7 +170,7 @@ class AuthSys:
             "username": username,
             "password": password,
             "license_key": license_key,
-            "hwid": get_hwid(),
+            "hwid": self._get_hwid(),
         }
         if email:
             data["email"] = email
@@ -183,7 +189,7 @@ class AuthSys:
             "app_secret": self._options.app_secret,
             "username": username,
             "password": password,
-            "hwid": get_hwid(),
+            "hwid": self._get_hwid(),
             "session_length": session_length,
         }
 
@@ -204,7 +210,7 @@ class AuthSys:
         data = {
             "app_secret": self._options.app_secret,
             "license_key": license_key,
-            "hwid": get_hwid(),
+            "hwid": self._get_hwid(),
             "session_length": session_length,
         }
 
@@ -231,7 +237,7 @@ class AuthSys:
 
         headers = {
             "Authorization": f"Bearer {self._session_token}",
-            "X-HWID": get_hwid(),
+            "X-HWID": self._get_hwid(),
         }
         return self._send_request("verify", {}, headers)
 
@@ -242,7 +248,7 @@ class AuthSys:
                 "No active session. Login first.", 0, "no_session"
             )
 
-        headers = {"Authorization": f"Bearer {self._session_token}"}
+        headers = {"Authorization": f"Bearer {self._session_token}", "X-HWID": self._get_hwid()}
         endpoint = f"chat/send?room_id={room_id}&message={urllib.parse.quote(message)}"
         return self._send_request(endpoint, {}, headers)
 

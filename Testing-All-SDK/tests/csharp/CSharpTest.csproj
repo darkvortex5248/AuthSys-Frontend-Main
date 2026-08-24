@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>AuthSysTest</RootNamespace>
+    <Nullable>enable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\..\sdk\AuthSys-CSHARP-Example\Console\src\AuthSys.cs" />
+    <Compile Include="..\..\..\sdk\AuthSys-CSHARP-Example\Console\src\AuthSys.Helpers.cs" />
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+
+</Project>

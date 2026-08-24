@@ -36,8 +36,14 @@ class AuthSys
             'maxRetries' => 3,
             'skipCertificateValidation' => false,
             'enableLogging' => false,
+            'hwid' => '',
         ], $options);
         $this->options['appSecret'] = $appSecret;
+    }
+
+    private function hwid()
+    {
+        return $this->options['hwid'] !== '' ? $this->options['hwid'] : getHwid();
     }
 
     private function log($message)
@@ -125,7 +131,7 @@ class AuthSys
             'app_secret' => $this->options['appSecret'],
             'version' => $this->options['version'],
             'app_name' => $this->options['appName'],
-            'hwid' => getHwid(),
+            'hwid' => $this->hwid(),
         ];
 
         $result = $this->sendRequest('init', $data);
@@ -155,7 +161,7 @@ class AuthSys
             'username' => $username,
             'password' => $password,
             'license_key' => $licenseKey,
-            'hwid' => getHwid(),
+            'hwid' => $this->hwid(),
         ];
         if ($email !== '') {
             $data['email'] = $email;
@@ -175,7 +181,7 @@ class AuthSys
             'app_secret' => $this->options['appSecret'],
             'username' => $username,
             'password' => $password,
-            'hwid' => getHwid(),
+            'hwid' => $this->hwid(),
             'session_length' => $sessionLength,
         ];
 
@@ -199,7 +205,7 @@ class AuthSys
         $data = [
             'app_secret' => $this->options['appSecret'],
             'license_key' => $licenseKey,
-            'hwid' => getHwid(),
+            'hwid' => $this->hwid(),
             'session_length' => $sessionLength,
         ];
 
@@ -230,7 +236,7 @@ class AuthSys
 
         $headers = [
             'Authorization' => 'Bearer ' . $this->sessionToken,
-            'X-HWID' => getHwid(),
+            'X-HWID' => $this->hwid(),
         ];
         return $this->sendRequest('verify', null, $headers);
     }
@@ -241,7 +247,7 @@ class AuthSys
             throw new AuthSysException('No active session. Login first.', 0, 'no_session');
         }
 
-        $headers = ['Authorization' => 'Bearer ' . $this->sessionToken];
+        $headers = ['Authorization' => 'Bearer ' . $this->sessionToken, 'X-HWID' => $this->hwid()];
         $endpoint = 'chat/send?room_id=' . $roomId . '&message=' . urlencode($message);
         return $this->sendRequest($endpoint, null, $headers);
     }

@@ -240,7 +240,8 @@ public class AuthSys {
         }
 
         let headers: [String: String] = [
-            "Authorization": "Bearer \(_sessionToken)"
+            "Authorization": "Bearer \(_sessionToken)",
+            "X-HWID": getHwid()
         ]
         let endpoint = "chat/send?room_id=\(roomId)&message=\(message.addingPercentEncoding(with: .urlQueryAllowed) ?? message)"
         return try await sendRequest(endpoint: endpoint, data: nil, headers: headers)

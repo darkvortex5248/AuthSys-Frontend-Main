@@ -34,6 +34,7 @@ namespace AuthSys
         public int MaxRetries { get; set; } = 3;
         public bool SkipCertificateValidation { get; set; } = false;
         public bool EnableLogging { get; set; } = false;
+        public string Hwid { get; set; } = "";
     }
 
     public class AuthSys
@@ -64,6 +65,11 @@ namespace AuthSys
 
         public AuthSys(string appSecret) : this(new AuthSysOptions { AppSecret = appSecret }) { }
 
+        private string GetHwid()
+        {
+            return string.IsNullOrEmpty(_options.Hwid) ? AuthSysHelpers.GetHwid() : _options.Hwid;
+        }
+
         private void Log(string message)
         {
             if (_options.EnableLogging)
@@ -74,7 +80,7 @@ namespace AuthSys
 
         private async Task<Dictionary<string, object>> SendRequestAsync(string endpoint, Dictionary<string, object> data = null, Dictionary<string, string> headers = null)
         {
-            var url = $"client/{endpoint}";
+            var url = $"{_options.ApiUrl.TrimEnd('/')}/client/{endpoint}";
             var json = data != null ? JsonSerializer.Serialize(data) : "{}";
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
@@ -134,7 +140,7 @@ namespace AuthSys
                 ["app_secret"] = _options.AppSecret,
                 ["version"] = _options.Version,
                 ["app_name"] = _options.AppName,
-                ["hwid"] = AuthSysHelpers.GetHwid()
+                ["hwid"] = GetHwid()
             };
 
             var result = await SendRequestAsync("init", data);
@@ -160,7 +166,7 @@ namespace AuthSys
                 ["username"] = username,
                 ["password"] = password,
                 ["license_key"] = licenseKey,
-                ["hwid"] = AuthSysHelpers.GetHwid()
+                ["hwid"] = GetHwid()
             };
             if (!string.IsNullOrEmpty(email))
                 data["email"] = email;
@@ -179,7 +185,7 @@ namespace AuthSys
                 ["app_secret"] = _options.AppSecret,
                 ["username"] = username,
                 ["password"] = password,
-                ["hwid"] = AuthSysHelpers.GetHwid(),
+                ["hwid"] = GetHwid(),
                 ["session_length"] = sessionLength
             };
 
@@ -201,7 +207,7 @@ namespace AuthSys
             {
                 ["app_secret"] = _options.AppSecret,
                 ["license_key"] = licenseKey,
-                ["hwid"] = AuthSysHelpers.GetHwid(),
+                ["hwid"] = GetHwid(),
                 ["session_length"] = sessionLength
             };
 
@@ -229,7 +235,7 @@ namespace AuthSys
             var headers = new Dictionary<string, string>
             {
                 ["Authorization"] = $"Bearer {_sessionToken}",
-                ["X-HWID"] = AuthSysHelpers.GetHwid()
+                ["X-HWID"] = GetHwid()
             };
             return await SendRequestAsync("verify", null, headers);
         }
@@ -241,7 +247,8 @@ namespace AuthSys
 
             var headers = new Dictionary<string, string>
             {
-                ["Authorization"] = $"Bearer {_sessionToken}"
+                ["Authorization"] = $"Bearer {_sessionToken}",
+                ["X-HWID"] = GetHwid()
             };
             var endpoint = $"chat/send?room_id={roomId}&message={Uri.EscapeDataString(message)}";
             return await SendRequestAsync(endpoint, null, headers);

@@ -21,6 +21,7 @@ class AuthSysOptions {
   final int maxRetries;
   final bool skipCertificateValidation;
   final bool enableLogging;
+  final String hwid;
 
   AuthSysOptions({
     required this.appSecret,
@@ -31,6 +32,7 @@ class AuthSysOptions {
     this.maxRetries = 3,
     this.skipCertificateValidation = false,
     this.enableLogging = false,
+    this.hwid = '',
   });
 }
 
@@ -45,6 +47,10 @@ class AuthSys {
 
   AuthSys.fromSecret(String appSecret)
       : _options = AuthSysOptions(appSecret: appSecret);
+
+  String _getHwid() {
+    return _options.hwid.isNotEmpty ? _options.hwid : getHwid();
+  }
 
   void _log(String message) {
     if (_options.enableLogging) {
@@ -139,7 +145,7 @@ class AuthSys {
       'app_secret': _options.appSecret,
       'version': _options.version,
       'app_name': _options.appName,
-      'hwid': getHwid(),
+      'hwid': _getHwid(),
     };
 
     final result = await _sendRequest('init', data: data);
@@ -176,7 +182,7 @@ class AuthSys {
       'username': username,
       'password': password,
       'license_key': licenseKey,
-      'hwid': getHwid(),
+      'hwid': _getHwid(),
     };
     if (email != null && email.isNotEmpty) {
       data['email'] = email;
@@ -202,7 +208,7 @@ class AuthSys {
       'app_secret': _options.appSecret,
       'username': username,
       'password': password,
-      'hwid': getHwid(),
+      'hwid': _getHwid(),
       'session_length': sessionLength,
     };
 
@@ -231,7 +237,7 @@ class AuthSys {
     final data = {
       'app_secret': _options.appSecret,
       'license_key': licenseKey,
-      'hwid': getHwid(),
+      'hwid': _getHwid(),
       'session_length': sessionLength,
     };
 
@@ -263,7 +269,7 @@ class AuthSys {
 
     final headers = {
       'Authorization': 'Bearer $_sessionToken',
-      'X-HWID': getHwid(),
+      'X-HWID': _getHwid(),
     };
     return await _sendRequest('verify', headers: headers);
   }
@@ -277,7 +283,7 @@ class AuthSys {
     }
 
     final headers = {'Authorization': 'Bearer $_sessionToken'};
-    final endpoint = 'chat/send?room_id=$roomId&message=$message';
+    final endpoint = 'chat/send?room_id=$roomId&message=${Uri.encodeComponent(message)}';
     return await _sendRequest(endpoint, headers: headers);
   }
 

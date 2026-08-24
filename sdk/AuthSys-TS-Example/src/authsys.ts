@@ -20,6 +20,8 @@ export interface AuthSysOptions {
     maxRetries?: number;
     skipCertificateValidation?: boolean;
     enableLogging?: boolean;
+    /** Explicit hardware ID override. Falls back to auto-detection when empty. */
+    hwid?: string;
 }
 
 export interface InitResult {
@@ -87,7 +89,7 @@ export class AuthSysException extends Error {
 }
 
 export class AuthSys {
-    private _options: Required<Omit<AuthSysOptions, 'appName' | 'version' | 'apiUrl'>> & AuthSysOptions;
+    private _options: Required<Omit<AuthSysOptions, 'appName' | 'version' | 'apiUrl' | 'hwid'>> & AuthSysOptions;
     private _sessionToken: string = '';
     private _initialized: boolean = false;
     private _appVariables: Record<string, any> = {};
@@ -104,7 +106,12 @@ export class AuthSys {
             maxRetries: options.maxRetries || 3,
             skipCertificateValidation: options.skipCertificateValidation || false,
             enableLogging: options.enableLogging || false,
+            hwid: options.hwid || '',
         };
+    }
+
+    private _getHwid(): string {
+        return this._options.hwid || getHwid();
     }
 
     private _log(message: string): void {
@@ -175,7 +182,7 @@ export class AuthSys {
             app_secret: this._options.appSecret,
             version: this._options.version,
             app_name: this._options.appName,
-            hwid: getHwid(),
+            hwid: this._getHwid(),
         };
 
         const result = await this._sendRequest('init', data);
@@ -200,7 +207,7 @@ export class AuthSys {
             username,
             password,
             license_key: licenseKey,
-            hwid: getHwid(),
+            hwid: this._getHwid(),
         };
         if (email) data.email = email;
 
@@ -217,7 +224,7 @@ export class AuthSys {
             app_secret: this._options.appSecret,
             username,
             password,
-            hwid: getHwid(),
+            hwid: this._getHwid(),
             session_length: sessionLength,
         };
 
@@ -238,7 +245,7 @@ export class AuthSys {
         const data = {
             app_secret: this._options.appSecret,
             license_key: licenseKey,
-            hwid: getHwid(),
+            hwid: this._getHwid(),
             session_length: sessionLength,
         };
 
@@ -265,7 +272,7 @@ export class AuthSys {
 
         const headers = {
             'Authorization': `Bearer ${this._sessionToken}`,
-            'X-HWID': getHwid(),
+            'X-HWID': this._getHwid(),
         };
         return await this._sendRequest('verify', null, headers) as VerifyResult;
     }
@@ -275,7 +282,7 @@ export class AuthSys {
             throw new AuthSysException('No active session. Login first.', 0, 'no_session');
         }
 
-        const headers = { 'Authorization': `Bearer ${this._sessionToken}` };
+        const headers = { 'Authorization': `Bearer ${this._sessionToken}`, 'X-HWID': this._getHwid() };
         const endpoint = `chat/send?room_id=${roomId}&message=${encodeURIComponent(message)}`;
         return await this._sendRequest(endpoint, null, headers) as ChatResult;
     }

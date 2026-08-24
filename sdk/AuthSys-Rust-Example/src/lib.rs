@@ -268,10 +268,14 @@ impl AuthSys {
             return Err(AuthSysException::new("No active session. Login first.".to_string(), 0, "no_session".to_string()));
         }
 
+        use percent_encoding::{NON_ALPHANUMERIC, utf8_percent_encode};
+
         let headers = HashMap::from([
             ("Authorization".to_string(), format!("Bearer {}", self.session_token)),
+            ("X-HWID".to_string(), get_hwid()),
         ]);
-        let endpoint = format!("chat/send?room_id={}&message={}", room_id, message);
+        let encoded_message = utf8_percent_encode(message, NON_ALPHANUMERIC).to_string();
+        let endpoint = format!("chat/send?room_id={}&message={}", room_id, encoded_message);
         self.send_request(&endpoint, None, Some(&headers))
     }
 

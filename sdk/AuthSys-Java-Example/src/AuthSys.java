@@ -259,6 +259,7 @@ public class AuthSys {
 
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Bearer " + _sessionToken);
+        headers.put("X-HWID", AuthSysHelper.getHwid());
 
         try {
             String encoded = URLEncoder.encode(message, "UTF-8");

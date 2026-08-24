@@ -281,9 +281,16 @@ std::string AuthSys::sendChatMessage(int roomId, const std::string& message) {
 
     std::map<std::string, std::string> headers;
     headers["Authorization"] = "Bearer " + _sessionToken;
+    headers["X-HWID"] = getHwid();
+
+    CURL* tmpCurl = curl_easy_init();
+    char* encodedMsg = curl_easy_escape(tmpCurl, message.c_str(), static_cast<int>(message.size()));
+    std::string encodedMessage(encodedMsg);
+    curl_free(encodedMsg);
+    curl_easy_cleanup(tmpCurl);
 
     std::string endpoint = "chat/send?room_id=" + std::to_string(roomId) +
-                           "&message=" + message;
+                           "&message=" + encodedMessage;
 
     return sendRequest(endpoint, "", headers);
 }

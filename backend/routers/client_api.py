@@ -5,6 +5,9 @@ from sqlalchemy.future import select
 from datetime import datetime, timezone, timedelta
 import uuid
 import hashlib
+import logging
+
+logger = logging.getLogger(__name__)
 
 from core.database import get_db
 from core.transaction import db_transaction
@@ -498,7 +501,14 @@ async def register_device(
                     )
                 )
             ).scalar() or 0
-            await check_limit(owner_dev, "max_devices", current_count, db)
+            try:
+                await check_limit(owner_dev, "max_devices", current_count, db)
+            except HTTPException:
+                raise
+            except Exception as plan_err:
+                # Plan/schema misconfiguration must never take the endpoint down:
+                # log and continue (fail-open on the soft device-count limit).
+                logger.warning("Device limit check skipped for app %s: %s", app.id, plan_err)
 
         device = EndUser(
             app_id=app.id,

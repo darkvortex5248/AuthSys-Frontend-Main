@@ -1,0 +1,10 @@
+{
+  "api_url": "https://api.authsys.dpdns.org/api/v1",
+  "app_secret": "rBXO5d1n8qaP",
+  "app_name": "CPP-EXTERNAL-PANEL",
+  "app_version": "1.0.0",
+  "username": "test",
+  "password": "1",
+  "hwid": "smoke-test-hwid",
+  "fake_license": "AUTHSYS-FAKE-KEY-000000"
+}

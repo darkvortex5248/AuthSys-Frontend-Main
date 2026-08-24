@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"runtime"
@@ -288,8 +289,9 @@ func (a *AuthSys) SendChatMessage(roomId int, message string) (map[string]interf
 
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Bearer %s", a.sessionToken),
+		"X-HWID":        GetHwid(),
 	}
-	endpoint := fmt.Sprintf("chat/send?room_id=%d&message=%s", roomId, message)
+	endpoint := fmt.Sprintf("chat/send?room_id=%d&message=%s", roomId, url.QueryEscape(message))
 	return a.sendRequest(endpoint, nil, headers)
 }
 

@@ -158,6 +158,7 @@ class EndUser(Base):
     license_key_id = Column(BigInteger, ForeignKey("license_keys.id", ondelete="SET NULL"), nullable=True)
     hwid = Column(String, nullable=True)
     hwids = Column(JSONB, nullable=True, default=[])
+    device_name = Column(String, nullable=True)
     hwid_reset_count = Column(BigInteger, default=0)
     hwid_reset_allowed = Column(BigInteger, default=1)
     ip_address = Column(String, nullable=True)

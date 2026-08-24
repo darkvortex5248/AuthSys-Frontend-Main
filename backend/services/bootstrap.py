@@ -696,6 +696,12 @@ async def ensure_database_schema(db: AsyncSession) -> None:
         ),
         (
             "end_users",
+            "device_name",
+            "ALTER TABLE end_users ADD COLUMN IF NOT EXISTS device_name VARCHAR",
+            None
+        ),
+        (
+            "end_users",
             "expires_at",
             "ALTER TABLE end_users ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP WITH TIME ZONE",
             None
